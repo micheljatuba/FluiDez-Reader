@@ -394,13 +394,17 @@ which status-bar items are shown.
 - **OPDS Servers**: Manage one or more OPDS [(Open Publication Distribution System)](https://en.wikipedia.org/wiki/Open_Publication_Distribution_System) libraries for browsing and downloading books. See [OPDS Servers (Multiple Libraries)](#365-opds-servers-multiple-libraries) below.
 
 - **Check for Updates** and **SD Firmware Update**: Check for firmware updates
-  over Wi-Fi or install a `firmware.bin` placed on the SD card.
+  over Wi-Fi or install a `firmware.bin` placed on the SD card. FluiDez Reader
+  checks the [FluiDez Reader releases](https://github.com/micheljatuba/FluiDez-Reader/releases)
+  and offers a release only when its `fluidez` build number is newer.
 
-- **Language**: Set the UI language. CrossInk supports 28 languages: English,
+- **Language**: Set the UI language. FluiDez Reader releases include English and
+  Brazilian Portuguese. CrossInk's translations cover 28 languages: English,
   Spanish, French, German, Czech, Brazilian Portuguese, Russian, Swedish,
   Romanian, Catalan, Ukrainian, Belarusian, Italian, Polish, Finnish, Danish,
   Dutch, Turkish, Kazakh, Hungarian, Lithuanian, Slovenian, Valencian, Hebrew,
-  Vietnamese, Slovak, Portuguese (Portugal), and Arabic.
+  Vietnamese, Slovak, Portuguese (Portugal), and Arabic. A build offers only the
+  languages listed in `custom_i18n_builtin_langs` in `platformio.ini`.
 
 #### 3.6.5 OPDS Servers (Multiple Libraries)
 

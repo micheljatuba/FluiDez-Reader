@@ -18,6 +18,7 @@
 
 ### Changed
 
+- Check for Updates follows FluiDez Reader releases (`micheljatuba/FluiDez-Reader`) and offers a release when its `fluidez` build number is newer (for example `1.6-fluidez9` after `1.6-fluidez8`), instead of treating every FluiDez build of the same base version as current. Release firmware includes English and Brazilian Portuguese.
 - Touch readers check for input sooner after the screen has been idle, so a tap is no longer held back by the low-power sleep interval.
 - PNG, XTC, and image-dithering scratch buffers use fewer heap allocations to reduce fragmentation.
 - The shared settings catalog keeps its initial allocation instead of retaining unused vector capacity.

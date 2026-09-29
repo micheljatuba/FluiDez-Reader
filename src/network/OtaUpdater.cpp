@@ -20,6 +20,7 @@ OtaUpdater::OtaUpdaterError OtaUpdater::installUpdate(ProgressCallback, void*, s
 #include "AppVersion.h"
 #include "FirmwareFlasher.h"
 #include "OtaUpdater.h"
+#include "OtaVersion.h"
 #include "esp_http_client.h"
 #include "esp_ota_ops.h"
 #include "mbedtls/sha256.h"
@@ -28,7 +29,7 @@ OtaUpdater::OtaUpdaterError OtaUpdater::installUpdate(ProgressCallback, void*, s
 
 namespace {
 #ifndef CROSSINK_OTA_RELEASE_URL
-#define CROSSINK_OTA_RELEASE_URL "https://api.github.com/repos/uxjulia/CrossInk/releases/latest"
+#define CROSSINK_OTA_RELEASE_URL "https://api.github.com/repos/micheljatuba/FluiDez-Reader/releases/latest"
 #endif
 
 constexpr char latestReleaseUrl[] = CROSSINK_OTA_RELEASE_URL;
@@ -42,78 +43,10 @@ constexpr char firmwareAssetName[] = "firmware.bin";
 #endif
 
 constexpr char binSuffix[] = ".bin";
-constexpr size_t VERSION_SEGMENT_COUNT = 4;
 constexpr size_t OTA_PROGRESS_UPDATE_BYTES = 64 * 1024;
 constexpr size_t OTA_HASH_CHUNK = 4096;
 constexpr char OTA_STAGE_DIR[] = "/.crosspoint";
 constexpr char OTA_STAGE_PATH[] = "/.crosspoint/ota-update.bin";
-
-struct ParsedVersion {
-  int segments[VERSION_SEGMENT_COUNT] = {0, 0, 0, 0};
-  bool valid = false;
-  bool releaseCandidate = false;
-};
-
-bool isDigit(const char c) { return c >= '0' && c <= '9'; }
-
-bool startsWithNumberAfterOptionalV(const char* version) {
-  if (version == nullptr) return false;
-  if ((version[0] == 'v' || version[0] == 'V') && isDigit(version[1])) return true;
-  return isDigit(version[0]);
-}
-
-bool containsRcMarker(const char* version) {
-  if (version == nullptr) return false;
-  for (const char* p = version; p[0] != '\0' && p[1] != '\0' && p[2] != '\0'; ++p) {
-    if (p[0] == '-' && (p[1] == 'r' || p[1] == 'R') && (p[2] == 'c' || p[2] == 'C')) {
-      return true;
-    }
-  }
-  return false;
-}
-
-ParsedVersion parseVersion(const char* version) {
-  ParsedVersion parsed;
-  if (!startsWithNumberAfterOptionalV(version)) return parsed;
-
-  const char* p = version;
-  if (p[0] == 'v' || p[0] == 'V') ++p;
-
-  size_t segmentIndex = 0;
-  while (segmentIndex < VERSION_SEGMENT_COUNT) {
-    if (!isDigit(*p)) return parsed;
-
-    int value = 0;
-    while (isDigit(*p)) {
-      value = value * 10 + (*p - '0');
-      ++p;
-    }
-    parsed.segments[segmentIndex] = value;
-    ++segmentIndex;
-
-    if (*p != '.') break;
-    ++p;
-  }
-
-  parsed.valid = true;
-  parsed.releaseCandidate = containsRcMarker(version);
-  return parsed;
-}
-
-int compareVersions(const char* latestVersion, const char* currentVersion) {
-  const ParsedVersion latest = parseVersion(latestVersion);
-  const ParsedVersion current = parseVersion(currentVersion);
-  if (!latest.valid || !current.valid) return 0;
-
-  for (size_t i = 0; i < VERSION_SEGMENT_COUNT; ++i) {
-    if (latest.segments[i] != current.segments[i]) {
-      return latest.segments[i] > current.segments[i] ? 1 : -1;
-    }
-  }
-
-  if (current.releaseCandidate && !latest.releaseCandidate) return 1;
-  return 0;
-}
 
 bool startsWith(const char* value, const char* prefix) {
   if (value == nullptr || prefix == nullptr) return false;
@@ -360,7 +293,7 @@ bool OtaUpdater::isUpdateNewer() const {
     return false;
   }
 
-  const int comparison = compareVersions(latestVersion.c_str(), CROSSINK_VERSION);
+  const int comparison = OtaVersion::compare(latestVersion.c_str(), CROSSINK_VERSION);
   LOG_DBG("OTA", "Version comparison latest=%s current=%s result=%d", latestVersion.c_str(), CROSSINK_VERSION,
           comparison);
   return comparison > 0;
