@@ -5,29 +5,39 @@ nav_order: 2
 
 # Installation
 
-FluiDez Reader firmware is published on the [FluiDez Reader releases page](https://github.com/micheljatuba/FluiDez-Reader/releases). The Inky web installer described below flashes stock CrossInk; install FluiDez Reader with the SD card or command-line method.
+FluiDez Reader firmware is published on the
+[FluiDez Reader releases page](https://github.com/micheljatuba/FluiDez-Reader/releases).
+Each release has one firmware file per reader:
 
-## Supported Devices
+| Reader              | Firmware file                        |
+| ------------------- | ------------------------------------ |
+| Xteink X4 Pro       | `firmware-x4-pro-v<version>.bin`     |
+| Xteink X4 Classic   | `firmware-x4-classic-v<version>.bin` |
+| Xteink X3 / X4      | `firmware-x3-x4-v<version>.bin`      |
+| Seeed Studio Sticky | `firmware-sticky-v<version>.bin`     |
 
-- Xteink X3, X4
-- Xteink X4 Pro
-- Seeed Studio Sticky
+FluiDez Reader is tested only on the Xteink X4 Pro. The other files are built
+from the same source and pass the automated checks, but have not been tested on
+a device.
 
-Don't have a device yet? Get one directly from [Xteink](https://go.sjv.io/X4RGBb) or [Seeed Studio](https://www.seeedstudio.com/reTerminal-Sticky-p-6861.html?sensecap_affiliate=1Nxo3Gw&referring_service=link).
+## Over-the-Air Updates
 
-Note: Your purchases using the above affiliate links help support ongoing development of Crossink.
+After FluiDez Reader is installed, `Settings > System > Check for Updates`
+downloads the newest FluiDez Reader release for your reader over Wi-Fi. A
+release is offered only when its version is newer than the installed one, for
+example `v1.6-fluidez9` over `1.6-fluidez8`.
 
-## Web Installation via USB
+## SD Card Firmware Update
 
-#### For new installs and updates.
+Use this method when the reader already runs FluiDez Reader or the CrossInk
+firmware it is based on. It also works on readers with USB data transfer
+disabled.
 
-1. Navigate to [https://inky.crossink.dev/#flash-tools](https://inky.crossink.dev/#flash-tools) and select your device model.
-2. The latest version will be automatically selected, but if you ever want to revert to an earlier build, you can select it from the dropdown.
-3. Choose the firmware option you want to install.
-4. Click on the "Flash Firmware" button
-
-X4 Pro uses the ESP32-S3 firmware option. Keep the reader connected during the
-download-mode and flashing steps shown by Inky.
+1. Download the `firmware-*.bin` for your reader from the
+   [releases page](https://github.com/micheljatuba/FluiDez-Reader/releases).
+2. Copy the file to the SD card. Any folder works.
+3. On the reader, open `Settings > System > SD Card Firmware Update`, select the
+   `.bin` file, and confirm.
 
 ## USB Drive
 
@@ -36,30 +46,26 @@ your computer. Eject the drive from the computer before disconnecting it; the
 reader restarts to Home when the drive is safely ejected or the cable is
 removed.
 
-## SD Card Firmware Update
+## USB Flashing
 
-#### For installing newer versions of CrossInk. Can be used by USB locked devices.
+Use USB flashing for a reader that runs other firmware, or to recover a reader
+that no longer starts. Connect the reader to your computer with a USB-C data
+cable. If the flashing tool cannot connect, put the reader in download mode as
+described by the device manufacturer and try again.
 
-1. Download the `firmware-*.bin` for your reader from the [FluiDez Reader releases page](https://github.com/micheljatuba/FluiDez-Reader/releases). For stock CrossInk, follow the Web Installation steps above instead; there will be an option to download the firmware instead of USB flashing.
-2. Place the downloaded `firmware-*.bin` file on your SD card. You can place this file anywhere.
-3. Go to `Settings > System > SD Card Firmware Update` and navigate to the `.bin` file and update.
+### From Source with PlatformIO
 
-## Over-the-Air Updates
+With the [development setup](./development/getting-started.md) installed, build
+and upload the environment for your reader: `x4-pro`, `x4-classic`, `default`
+(X3/X4), or `sticky`.
 
-After FluiDez Reader is installed, `Settings > System > Check for Updates` downloads the newest FluiDez release for your reader over Wi-Fi. A release is offered only when its version is newer than the installed one, for example `v1.6-fluidez9` over `1.6-fluidez8`.
+```sh
+pio run -e x4-pro --target upload
+```
 
-## USB Locked Devices
+PlatformIO writes the bootloader, partition table, and firmware.
 
-If your device has USB data transfer disabled:
-
-1. Navigate to [https://inky.crossink.dev/#flash-tools](https://inky.crossink.dev/#flash-tools) and check the box for "I have a locked device" at the top.
-2. The latest version will be automatically selected, but if you ever want to revert to an earlier build, you can select it from the dropdown.
-3. Choose the firmware option you want to download.
-4. Click on the "Download update.bin" button and follow the instructions.
-
-## Command Line
-
-These instructions are for macOS and Linux. Windows users should use the web installer.
+### Release File with esptool
 
 Install `esptool`:
 
@@ -67,9 +73,7 @@ Install `esptool`:
 pip3 install esptool
 ```
 
-Download the `firmware-*.bin` file from the [FluiDez Reader releases page](https://github.com/micheljatuba/FluiDez-Reader/releases), then connect your device with USB-C.
-
-Find the device port:
+Find the reader's serial port:
 
 ```sh
 # Linux
@@ -79,14 +83,17 @@ dmesg | grep tty
 ls /dev/cu.*
 ```
 
-Flash the firmware:
+On Windows, the port appears as `COM<n>` in Device Manager under
+**Ports (COM & LPT)**.
+
+Clear the saved update slot so the reader starts the image you write, then
+write the firmware:
 
 ```sh
-# Linux
-esptool.py --chip esp32c3 --port /dev/ttyACM0 --baud 921600 write_flash 0x10000 /path/to/firmware.bin
-
-# macOS
-esptool.py --chip esp32c3 --port /dev/cu.usbmodem2101 --baud 921600 write_flash 0x10000 /path/to/firmware.bin
+python3 -m esptool --port /dev/ttyACM0 erase_region 0xe000 0x2000
+python3 -m esptool --port /dev/ttyACM0 --baud 921600 write_flash 0x10000 /path/to/firmware.bin
 ```
 
-Replace the port and firmware path with your actual values.
+Replace the port and firmware path with your actual values. This writes only the
+application, so use it on a reader that already runs FluiDez Reader. For other
+firmware, use PlatformIO.

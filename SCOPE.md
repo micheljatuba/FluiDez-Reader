@@ -1,55 +1,48 @@
-# Project Vision & Scope: CrossInk
+# Visão e escopo: FluiDez Reader
 
-The goal of this CrossPoint fork is to provide useful enhancements while still adhering to the core principles of Crosspoint. If you have a major feature request, it should first be directed at the main project since this is a downstream project that consumes their updates.
+O FluiDez Reader é um fork mantido do [CrossInk](https://github.com/uxjulia/crossink), que por sua vez é baseado no [CrossPoint Reader](https://github.com/crosspoint-reader/crosspoint-reader). O objetivo é oferecer uma leitura fluida e confiável, com melhorias próprias de interface, economia de energia e robustez, sem abrir mão dos princípios do projeto original: firmware leve, estável e focado em leitura.
 
-The content below is taken directly from Crosspoint and aligns with CrossInk's vision as well.
+O FluiDez Reader foi testado apenas no Xteink X4 Pro. As correções do CrossInk são incorporadas periodicamente, seguindo [docs/development/upstream-sync.md](docs/development/upstream-sync.md).
 
-## 1. Core Mission
+## 1. Missão
 
-To provide a lightweight, high-performance firmware that maximizes the potential of the X4, prioritizing legibility and usability over "swiss-army-knife" functionality.
+Oferecer um firmware leve e de alto desempenho que aproveite ao máximo o leitor, priorizando legibilidade e usabilidade em vez de funcionalidades de "canivete suíço".
 
-## 2. Scope
+## 2. Escopo
 
-### In-Scope
+### Dentro do escopo
 
-*These are features that directly improve the primary purpose of the device.*
+*Recursos que melhoram diretamente o propósito principal do aparelho.*
 
-* **User Experience:** E.g. User-friendly interfaces, and interactions, both inside the reader and navigating the
-  firmware. This includes things like button mapping, book loading, and book navigation like bookmarks.
-* **Document Rendering:** E.g. Support for rendering documents (primarily EPUB) and improvements to the rendering
-  engine.
-* **Format Optimization:** E.g. Efficiently parsing EPUB (CSS/Images) and other documents within the device's
-  capabilities.
-* **Typography & Legibility:** E.g. Custom font support, hyphenation engines, and adjustable line spacing.
-* **E-Ink Driver Refinement:** E.g. Reducing full-screen flashes (ghosting management) and improving general rendering.
-* **Library Management:** E.g. Simple, intuitive ways to organize and navigate a collection of books.
-* **Local Transfer:** E.g. Simple, "pull" based book loading via a basic web-server or public and widely-used standards.
-* **Language Support:** E.g. Support for multiple languages both in the reader and in the interfaces.
-* **Reference Tools:** E.g. Local dictionary lookup. Providing quick, offline definitions to enhance comprehension
-  without breaking focus.
-* **Clock Display (device dependent):**
+* **Experiência de uso:** interfaces e interações simples, tanto no leitor quanto na navegação pelo firmware: mapeamento de botões, tela inicial, abertura de livros, marcadores e navegação no livro.
+* **Renderização de documentos:** suporte a documentos (principalmente EPUB) e melhorias no motor de renderização.
+* **Otimização de formatos:** leitura eficiente de EPUB (CSS e imagens) dentro das capacidades do aparelho.
+* **Tipografia e legibilidade:** fontes personalizadas, hifenização e espaçamento ajustável.
+* **Tela e-ink:** menos atualizações completas da tela (controle de *ghosting*) e melhorias gerais de renderização.
+* **Biblioteca:** formas simples e intuitivas de organizar e navegar pela coleção, como fixar livros na tela inicial.
+* **Transferência local:** envio de livros pelo servidor web local ou por padrões abertos e amplamente usados.
+* **Idiomas:** interface em vários idiomas; os builds do FluiDez Reader incluem português e inglês.
+* **Ferramentas de referência:** dicionário offline para consultas rápidas sem interromper a leitura.
+* **Bateria e confiabilidade:** repouso, bloqueio rápido e tolerância a falhas do cartão SD.
+* **Relógio (depende do aparelho):** aparelhos com RTC dedicado mantêm a hora durante o repouso; os que usam o RTC interno do ESP32 perdem precisão no sono profundo.
 
-| Device | Scope |
-| -- | -- |
-| X3 | The X3 uses a dedicated DS3231 RTC, which maintains accurate time across sleep cycles and can be treated as a reliable wall clock. |
-| X4 | The X4 relies on the ESP32-C3's internal RTC, which drifts significantly during deep sleep. NTP sync could correct this, with an appropriate user experience around connecting to the internet on wake or on demand. This causes some tension with the **Active Connectivity** section below, so please open a discussion about this UX if it's a feature you would find useful. |
+### Fora do escopo
 
-### Out-of-Scope
+*Itens recusados porque comprometem a estabilidade ou a missão do aparelho.*
 
-*These items are rejected because they compromise the device's stability or mission.*
+* **Aplicativos interativos:** nada de bloco de notas, calculadora ou jogos. É um leitor, não um PDA.
+* **Conectividade ativa:** nada de leitores de RSS, agregadores de notícias ou navegadores. Tarefas de Wi-Fi em segundo plano gastam bateria e disputam a CPU.
+* **Mídia:** nada de áudio ou audiolivros.
+* **Anotações complexas:** nada de notas digitadas; isso combina mais com aparelhos com melhor entrada de texto e chips mais potentes.
 
-* **Interactive Apps:** No Notepads, Calculators, or Games. This is a reader, not a PDA.
-* **Active Connectivity:** No RSS readers, News aggregators, or Web browsers. Background Wi-Fi tasks drain the battery and complicate the single-core CPU's execution.
-* **Media Playback:** No Audio players or Audiobooks.
-* **Complex Annotation:** No typed out notes. These features are better suited for devices with better input capabilities and more powerful chips.
+### Dentro do escopo, mas inviável no hardware atual
 
-### In-scope — Technically Unsupported
+* **PDF:** PDFs têm layout fixo. Exibi-los exige renderizar páginas como imagens, com zoom e rolagem constantes, o que resulta em uma leitura ruim em e-ink.
 
-*These features align with Crosspoint's goals but are impractical on the current hardware or produce poor UX.*
+## 3. Avaliação de ideias
 
-* **PDF Rendering:** PDFs are fixed-layout documents, so rendering them requires displaying pages as images rather than reflowable text — resulting in constant panning and zooming that makes for a poor reading experience on e-ink.
+Pergunta-guia: a ideia melhora a experiência central de leitura para a maioria das pessoas, sem desviar a atenção dessa leitura? Recursos que comprometam a leveza, a estabilidade ou a autonomia da bateria não entram.
 
-## 3. Idea Evaluation
+---
 
-While I appreciate the desire to add new and exciting features to Crosspoint Reader, Crosspoint Reader is designed to be a lightweight, reliable, and performant e-reader. Things which distract or compromise the device's core mission will not be accepted. As a guiding question, consider if your idea improve the "core reading experience" for the average user,
-and, critically, not distract from that reading experience.
+Escopo adaptado da visão do CrossPoint Reader, também adotada pelo CrossInk.

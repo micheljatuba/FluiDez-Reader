@@ -16,14 +16,8 @@ build
 /.venv
 *.local*
 fs_/
-/site/node_modules/
-/site/dist/
-/site/.astro/
-/site/public/images/
-/site/public/catalog
-/site/public/CNAME
 
-# scratchpad used as release notes for next crossink version
+# scratchpad used as release notes for the next FluiDez Reader version
 release.md
 *.cpfont
 lib/EpdFont/scripts/downloaded_fonts/
@@ -33,13 +27,6 @@ lib/EpdFont/scripts/output/
 # (worktrees, scheduled-task locks, settings.local, scout CLEANUP.md) out.
 .claude/*
 !.claude/skills/
-
-/site/node_modules/
-/site/dist/
-/site/.astro/
-/site/public/images/
-/site/public/catalog
-/site/public/CNAME
 
 dist-publish/
 

@@ -3,8 +3,9 @@
 ![Folha da marca](./brand-sheet.png)
 
 **FluiDez** junta *flui* (a leitura flui) e *dez* (nota dez) na palavra
-*fluidez*. A marca é uma personalização da CrossInk, que por sua vez deriva
-do CrossPoint Reader (licença MIT).
+*fluidez*. O FluiDez Reader começou como fork do CrossInk, que por sua vez
+deriva do CrossPoint Reader (licença MIT). A marca e a identidade visual são
+próprias do FluiDez Reader.
 
 ## Símbolo
 
@@ -43,9 +44,11 @@ repouso escura. As cores valem só para telas coloridas.
 - Telas de inicialização e de repouso padrão (`FluiDezBrand::drawLockup`).
 - Rodapé de versão em Configurações e nome padrão do aparelho.
 - Portal web: logotipo, título das páginas, rodapé e cor de destaque.
+- Nome do aparelho na conexão USB do X4 Pro e do X4 Classic (`FluiDez_X4_Pro`,
+  `FluiDez_X4_Classic`) e cabeçalho do `crash_report.txt`.
 
 Identificadores técnicos continuam os mesmos: nome de rede `crosspoint`,
-caminhos `/.crossink-*`, dados USB e formatos de arquivo.
+caminhos `/.crossink-*` e formatos de arquivo.
 
 ## Como gerar de novo
 

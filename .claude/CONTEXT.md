@@ -1,4 +1,4 @@
-# CrossPoint Reader — Durable Context
+# FluiDez Reader — Durable Context
 
 Keep this file focused on repo-specific gotchas that are worth reusing in future sessions.
 

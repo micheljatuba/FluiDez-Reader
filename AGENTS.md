@@ -1,9 +1,9 @@
-# CrossInk — Shared Agent Guide
+# FluiDez Reader — Shared Agent Guide
 
 This is the canonical repo instruction file.
 `CLAUDE.md` should point here so Codex and Claude read the same guidance.
 
-Project: Open-source e-reader firmware for ESP32-C3 and ESP32-S3 devices.
+Project: FluiDez Reader, open-source e-reader firmware for ESP32-C3 and ESP32-S3 devices. It is a maintained fork of CrossInk, which is based on CrossPoint Reader.
 
 ## Architecture And Fast Navigation
 
@@ -20,7 +20,7 @@ SDK.
 | Reading | `src/activities/reader/ReaderActivity.h`, the matching `EpubReaderActivity`, `TxtReaderActivity`, or `XtcReaderActivity` | Reader UI, controls, progress, dictionary/clipping flows, and format dispatch. |
 | EPUB engine | `lib/Epub/Epub.{h,cpp}`, `lib/Epub/Epub/` | ZIP/OPF/HTML/CSS parsing, layout, page model, hyphenation, images, and SD cache serialization. |
 | UI and input | `src/components/UITheme.{h,cpp}`, `src/MappedInputManager.{h,cpp}`, `src/QuickActions.{h,cpp}` | App theme policy, logical buttons/gestures, shortcuts, and app-specific touch components. |
-| Hardware boundary | `lib/hal/`, `include/AppCapabilities.h`, `include/DeviceCapabilities.h`, then `freeink-sdk/` | CrossInk HAL wrappers and capability gating; display, storage, input, power, and board drivers live in the SDK. |
+| Hardware boundary | `lib/hal/`, `include/AppCapabilities.h`, `include/DeviceCapabilities.h`, then `freeink-sdk/` | FluiDez Reader HAL wrappers and capability gating; display, storage, input, power, and board drivers live in the SDK. |
 | Network and transfers | `src/activities/network/`, `src/network/CrossPointWebServer.{h,cpp}` | Wi-Fi flow, web/WebDAV/WebSocket transfer, OTA, Calibre, Nearby, and USB Drive activities. |
 | Persistence | `lib/Serialization/`, `src/*Store.*`, `src/clippings/`, `docs/data-cache.md` | Settings/session data plus per-feature SD stores; EPUB cache is a separate layout/cache concern. |
 
@@ -40,7 +40,7 @@ SDK.
 - `lib/EpdFont`, `lib/GfxRenderer`, `lib/FsHelpers`, `lib/Memory`, `lib/I18n`, `lib/Serialization`, `lib/Txt`, and `lib/Xtc` are focused local libraries. Prefer extending the closest existing library over adding a cross-cutting helper.
 - `freeink-sdk/` is a submodule providing the FreeInkUI, HAL-backed device drivers, board profiles, and network primitives. Check its pinned SHA with `git submodule status` before diagnosing or claiming an SDK integration.
 - `test/` is a native CMake/CTest suite with isolated target folders; `test/epubs-src/` contains fixture sources and `test/device/` contains device-oriented checks. `scripts/run_simulator_smoke_test.py` is the broad app-flow regression tripwire.
-- `web/templates/`, `web/pages/`, and `web/assets/` are the editable web portal sources. `site/` is repository website content, not firmware UI.
+- `web/templates/`, `web/pages/`, and `web/assets/` are the editable web portal sources.
 - Do not edit generated outputs: `src/network/html/*.generated.h` (from `scripts/build_web.py`), `lib/I18n/I18nKeys.h`, `I18nStrings.h`, and `I18nStrings.cpp` (from `scripts/gen_i18n.py`), icon headers listed by `src/components/icons/*.manifest` (from `scripts/generate_icons.py`), or EPUB hyphenation tries under `lib/Epub/Epub/hyphenation/generated/`.
 
 ### Target Selection
@@ -182,11 +182,12 @@ SDK.
 
 - Check `git status --short` before edits and before reporting results. Preserve unrelated user changes.
 - When resolving merge, rebase, or cherry-pick conflicts, inspect the relevant commit messages for upstream PR references such as `#2608`. Open the PR in its source repository and read its description and changed files before resolving the conflict so the intended behavior is understood.
-- Do not resolve conflicts by automatically keeping CrossInk's current implementation or by discarding the upstream change wholesale. Preserve or adapt the upstream intent unless it is already fully implemented, would introduce a regression, or would substantially and unjustifiably change CrossInk's UX or behavior. When rejecting an upstream change, state the concrete reason.
+- Do not resolve conflicts by automatically keeping FluiDez Reader's current implementation or by discarding the upstream change wholesale. Preserve or adapt the upstream intent unless it is already fully implemented, would introduce a regression, or would substantially and unjustifiably change FluiDez Reader's UX or behavior. When rejecting an upstream change, state the concrete reason.
+- The published history is standalone: it starts at a single import commit of the CrossInk base. Never push merge commits whose parents include CrossInk or CrossPoint commits, and never push upstream tags. Bring upstream changes in as squashed commits by following `docs/development/upstream-sync.md`.
 - If a referenced PR cannot be accessed, inspect the source commit diff and nearby history, then report that the PR intent could not be verified instead of guessing.
 - Do not commit unless the user explicitly asks or committing is part of the skill utilized.
 - Before staging, ensure ignored/generated/local files such as `.pio/`, `*.generated.h`, `compile_commands.json`, and `platformio.local.ini` are not included.
-- Branch names should use repo-style prefixes such as `feat/`, `fix/`, `docs/`, `refactor/`, `test/`, or `chore/`.
+- The public repository keeps a single `main` branch plus release tags (`v<version>`). Do not push other branches; local topic branches may use prefixes such as `feat/`, `fix/`, `docs/`, `refactor/`, `test/`, or `chore/`.
 - Suggested commit messages should follow `<type>: <short summary>`, using types like `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, or `perf`.
 
 ## Changelog

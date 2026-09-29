@@ -1,0 +1,109 @@
+---
+title: Sincronização com o CrossInk
+parent: Development
+nav_order: 5
+---
+
+# Sincronização com o CrossInk
+
+O histórico do FluiDez Reader é independente. Ele começa em um único commit de importação da base do [CrossInk](https://github.com/uxjulia/crossink) (desenvolvimento após a v1.5.1, commit `b0eb0aa6`), e os commits seguintes são do FluiDez. As mudanças do CrossPoint Reader chegam através do CrossInk, então o FluiDez sincroniza apenas com o CrossInk.
+
+Para manter o histórico independente, as atualizações do CrossInk entram como **um commit compactado (squash)** por sincronização. Cada commit de sincronização registra a revisão do upstream no trailer `Upstream-Commit:`, assim como o commit de importação.
+
+> **Nunca** envie (`push`) merges cujos pais incluam commits do CrossInk ou do CrossPoint, não use `git pull` do upstream e nunca rode `git push --tags`. Qualquer um desses passos traz de volta milhares de commits, tags e contribuidores do upstream para o repositório.
+
+## Configuração (uma vez por clone)
+
+```sh
+git remote add crossink https://github.com/uxjulia/crossink.git
+git remote set-url --push crossink DISABLED
+git config remote.crossink.tagOpt --no-tags
+```
+
+Se o remoto já existir com outro nome (por exemplo `julia`), use esse nome nos comandos abaixo e aplique as mesmas duas últimas configurações a ele.
+
+## Procedimento
+
+Os comandos usam a sintaxe do Git Bash, Linux ou macOS.
+
+1. Busque o upstream e escolha a revisão a incorporar. Normalmente é a branch `development` ou `release/<versão>` do CrossInk:
+
+   ```sh
+   git fetch crossink
+   UPSTREAM=$(git rev-parse crossink/development)
+   ```
+
+   Para usar uma tag de versão sem copiá-la para as tags locais:
+
+   ```sh
+   git fetch --no-tags crossink refs/tags/v1.6.0
+   UPSTREAM=$(git rev-parse FETCH_HEAD)
+   ```
+
+2. Crie enxertos locais e temporários. Cada commit com o trailer `Upstream-Commit:` (a importação e as sincronizações anteriores) passa a ter também a revisão do upstream como pai. Assim, o Git sabe o que o FluiDez já contém e usa a base comum correta no merge de 3 vias, mesmo quando você alterna entre `development` e `release/<versão>`:
+
+   ```sh
+   for c in $(git log --format=%H --grep='^Upstream-Commit: '); do
+     git replace -f --graft "$c" $(git rev-parse "$c^@") \
+       $(git log -1 --format='%(trailers:key=Upstream-Commit,valueonly)' "$c")
+   done
+   ```
+
+3. Veja o que vai chegar e traga as mudanças sem criar um merge:
+
+   ```sh
+   git log --oneline HEAD.."$UPSTREAM"
+   git diff --stat HEAD..."$UPSTREAM"
+   git merge --squash "$UPSTREAM"
+   ```
+
+4. Resolva os conflitos (veja abaixo), compile e teste. Em seguida, faça o commit registrando a revisão do upstream e remova os enxertos:
+
+   ```sh
+   git commit -m "chore: sync with CrossInk ${UPSTREAM:0:8}" -m "Upstream-Commit: $UPSTREAM"
+   git replace -d $(git replace -l)
+   ```
+
+   Para desistir antes do commit, rode `git reset --hard` (descarta as mudanças trazidas) e remova os enxertos com o mesmo `git replace -d $(git replace -l)`.
+
+5. Confira antes de enviar. O commit novo deve ter um único pai, não deve sobrar nenhum enxerto e o histórico deve continuar pequeno (dezenas de commits, não milhares):
+
+   ```sh
+   git rev-list --parents -n 1 HEAD
+   git replace -l
+   git rev-list --count HEAD
+   git push origin main
+   ```
+
+### Alternativa sem enxerto
+
+Quando `UPSTREAM` descende da última revisão sincronizada (por exemplo, sempre a branch `development`), também é possível aplicar a diferença do upstream como patch:
+
+```sh
+BASE=$(git log -1 --grep='^Upstream-Commit: ' --format='%(trailers:key=Upstream-Commit,valueonly)')
+git diff --binary "$BASE" "$UPSTREAM" | git apply -3
+git commit -m "chore: sync with CrossInk ${UPSTREAM:0:8}" -m "Upstream-Commit: $UPSTREAM"
+```
+
+O `git apply` falha por inteiro se o upstream alterar um arquivo que o FluiDez removeu. Nesse caso, exclua esses caminhos, por exemplo `git apply -3 --exclude='site/*'`.
+
+## Conflitos comuns
+
+Siga também as regras de conflito do [AGENTS.md](../../AGENTS.md): entenda a intenção da mudança do upstream antes de descartá-la.
+
+| Onde | O que fazer |
+| --- | --- |
+| `lib/I18n/translations/*.yaml` | Mantenha os textos da marca FluiDez (`STR_CROSSINK` = "FluiDez Reader", modo de renderização "FluiDez Default") e aceite as chaves novas do upstream. |
+| `docs/` | Mantenha o nome FluiDez Reader e aproveite o conteúdo técnico novo. |
+| `CHANGELOG.md` | Não copie o changelog do CrossInk. Adicione em `[Unreleased]` uma linha resumindo a sincronização, com link para o changelog do CrossInk. |
+| `platformio.ini` | Preserve a versão FluiDez em `[crossink] version`, os idiomas de `custom_i18n_builtin_langs` e os nomes USB `FluiDez_*`. |
+| `src/network/OtaUpdater.cpp` | Mantenha as atualizações apontando para `micheljatuba/FluiDez-Reader`. |
+| `README.md`, `SCOPE.md`, `.github/`, `docs/brand/` | São do FluiDez: mantenha a versão local. |
+| Arquivos removidos no FluiDez (`site/`, `docs/catalog`, `docs/CNAME`, `.github/FUNDING.yml`, `scripts/generate_release_catalog.py`) | Mantenha-os removidos com `git rm`. |
+
+## Versão depois da sincronização
+
+A atualização pelo aparelho compara primeiro a versão numérica e, em caso de empate, o número após `fluidez` (veja `src/network/OtaVersion.h`). Ao publicar a próxima versão:
+
+- se a versão base do CrossInk não mudou, aumente o número do FluiDez (`1.6-fluidez8` → `1.6-fluidez9`);
+- se a base mudou, recomece a contagem na nova base (`1.6-fluidez9` → `1.7-fluidez1`).
