@@ -80,7 +80,7 @@ MOCK_API = {
         {"key": "quickResumeSleepScreen", "name": "Quick Resume on Timeout",
          "category": "Reading", "type": "toggle", "value": 0},
         {"key": "deviceName", "name": "Device Name", "category": "Network", "type": "string",
-         "value": "CrossInk-01"},
+         "value": "FluiDez X4 Pro"},
     ],
 }
 
