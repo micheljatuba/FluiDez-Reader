@@ -23,12 +23,15 @@ class NearbyStatsSyncActivity final : public Activity {
   void onExit() override;
   void loop() override;
   void render(RenderLock&&) override;
-  bool preventAutoSleep() override { return true; }
-  bool skipLoopDelay() override { return state_ == State::DISCOVERING || state_ == State::SYNCING; }
+  bool preventAutoSleep() override { return syncInProgress(); }
+  bool skipLoopDelay() override { return syncInProgress(); }
 
   void enqueueEspNowPacket(const uint8_t* sourceMac, const uint8_t* data, int length);
 
  private:
+  // Discovery and exchange end at SYNC_TIMEOUT_MS; ready and result screens follow Time to Sleep.
+  bool syncInProgress() const { return state_ == State::DISCOVERING || state_ == State::SYNCING; }
+
   enum class PacketType : uint8_t { HELLO = 1, STATS = 2, ACK = 3, NAME = 4, INVALID_STATS = 0xFF };
 
   struct SyncEvent {

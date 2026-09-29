@@ -2,6 +2,8 @@
 #include <ArduinoJson.h>
 #include <PersistableStore.h>
 
+#include <array>
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -14,6 +16,8 @@ struct RecentBook {
   std::string author;
   std::string coverBmpPath;
   CoverState coverState = CoverState::Unknown;
+  // 0 when unpinned; otherwise increases in the order books were pinned.
+  uint32_t pinSequence = 0;
 
   bool operator==(const RecentBook& other) const { return path == other.path; }
 };
@@ -31,6 +35,10 @@ class RecentBooksStore : public PersistableStore<RecentBooksStore> {
   friend class PersistableStore<RecentBooksStore>;
 
  public:
+  static constexpr int MAX_PINNED_BOOKS = 6;
+  using DisplayOrder = std::array<uint8_t, MAX_RECENT_BOOKS>;
+  enum class PinResult : uint8_t { Changed, LimitReached, Failed };
+
   static const char* getFilePath() { return "/.crosspoint/recent.json"; }
   void toJson(JsonDocument& doc) const;
   bool fromJson(JsonVariantConst doc);
@@ -53,6 +61,17 @@ class RecentBooksStore : public PersistableStore<RecentBooksStore> {
   // Returns true if an entry was found and removed (no-op + false otherwise).
   // Persistence is best-effort: a failed save is logged, not reflected in the return.
   bool removeByPath(const std::string& path);
+
+  // Automatic removal of finished books keeps pinned books. Returns true if the entry was removed.
+  bool removeUnpinnedByPath(const std::string& path);
+
+  bool isPinned(const std::string& path) const;
+  int getPinnedCount() const;
+  // Pinning is limited to MAX_PINNED_BOOKS. Failed means the book was not found or not saved.
+  [[nodiscard]] PinResult setPinned(const std::string& path, bool pinned);
+
+  // Indices into getBooks(): pinned books lead Recent Books and follow the most recent book on Home.
+  size_t getDisplayOrder(bool keepMostRecentFirst, DisplayOrder& order) const;
 
   // Repoint an entry's path (and coverBmpPath, if it lived under the old cache dir) after the
   // backing file and cache dir were moved on disk. No-op if no entry matches oldPath.

@@ -10,7 +10,6 @@ class BackupStatsActivity final : public Activity {
   void onEnter() override;
   void onExit() override;
   void loop() override;
-  bool skipLoopDelay() override { return true; }
   void render(RenderLock&&) override;
 
  private:

@@ -24,8 +24,8 @@ class HomeActivity final : public Activity {
   // Keep one rendered carousel frame in RAM. Additional frames remain available
   // through the SD snapshot cache and are paged in on demand.
   static constexpr int kCarouselFrameCount = 1;
-  // Must be >= LyraCarouselMetrics::values.homeRecentBooksCount (asserted in .cpp)
-  static constexpr int kMaxCachedBooks = 3;
+  // Must cover the largest Home book set: Lyra Carousel (5) and Lyra Grid (6), asserted in .cpp.
+  static constexpr int kMaxCachedBooks = 6;
 
  private:
   ButtonNavigator buttonNavigator;
@@ -49,6 +49,10 @@ class HomeActivity final : public Activity {
   bool minimalMenuOpen = false;
   bool minimalSuppressInitialFrontRelease = false;
   bool homeBookSwapLongPressHandled = false;
+  bool homeBookActionsLongPressHandled = false;
+  // Cover under the finger when the current touch started. The carousel re-centres on touch-down,
+  // so a later hit test at the same point would find the neighbouring book.
+  int homeTouchDownCoverIndex = -1;
   bool quickActionsLongPowerHandled = false;
   int minimalMenuIndex = 0;
   int minimalHomeNavIndex = -1;
@@ -107,12 +111,16 @@ class HomeActivity final : public Activity {
   void freeCoverBuffer();     // Free the stored cover buffer
   void invalidateCoverCache();
   void invalidatePolarityMismatchedCaches();
-  bool preRenderCarouselFrames(bool showProgressPopup = false);
+  void preRenderCarouselFrames();
   void freeCarouselFrames();
   bool allocateCarouselFrameSlots(int targetFrameCount);
-  bool buildCarouselCacheFile(const std::string& cacheKey, uint64_t cacheKeyHash, int bookCount,
-                              bool showProgressPopup = false);
-  bool loadCarouselFrameFromDisk(uint64_t cacheKeyHash, int bookCount, int bookIdx, int slotIdx);
+  bool carouselHasGlobalStats() const;
+  int getCarouselInitialBookIndex() const;
+  void refreshCarouselFrameKeys();
+  bool hasValidCarouselDiskFrame(int bookIdx) const;
+  void persistCarouselFrame(int bookIdx, const uint8_t* frame);
+  void removeCarouselDiskCache();
+  bool loadCarouselFrameFromDisk(int bookCount, int bookIdx, int slotIdx);
   int chooseCarouselEvictionSlot(int centerIdx, int bookCount,
                                  std::optional<int> protectedBookIdx = std::nullopt) const;
   void renderCarouselFrameToCurrentBuffer(int bookIdx, BookReadingStats* outStats, float* outProgressPercent,
@@ -123,6 +131,9 @@ class HomeActivity final : public Activity {
   int getVisibleRecentBookCount() const;
   bool canSwapHomeBook() const;
   void showNextRecentBookOnHome();
+  bool handleHomeBookActionsLongPress(int visibleBookCount, bool allowConfirmHold);
+  void showHomeBookActions(int bookIndex, bool openedWithConfirm);
+  void loadGridTileProgress();
   void updateHighlightedBookContext(bool allowEpubLoad = true);
   void loadRecentBooks(int maxBooks);
   void loadAllBookStats();

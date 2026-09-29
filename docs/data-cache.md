@@ -21,7 +21,7 @@ The main data directory is `.crosspoint` on the SD card. It stores render caches
 ├── settings.bin.bak        # Legacy binary settings file after migration, if present
 ├── state.json              # Last-opened book and sleep/session state
 ├── state.bin.bak           # Legacy binary state file after migration, if present
-├── recent.json             # Recent books list
+├── recent.json             # Recent books list, including pinned books
 ├── recent.bin.bak          # Legacy binary recent-books file after migration, if present
 ├── wifi.json               # Saved Wi-Fi networks
 ├── opds.json               # Saved OPDS servers

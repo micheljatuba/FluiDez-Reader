@@ -53,7 +53,9 @@ class Activity {
   // Request an immediate render and block until it completes.
   virtual RequestUpdateResult requestUpdateAndWait();
 
+  // Request fast polling only for incremental work; waiting screens keep the loop delay and CPU power saving.
   virtual bool skipLoopDelay() { return false; }
+  // Stay awake only during bounded work; idle input, list, and result screens follow Time to Sleep.
   virtual bool preventAutoSleep() { return false; }
   // While true, main-loop global controls and activity replacement are
   // suspended so an exclusive storage owner cannot race the filesystem.

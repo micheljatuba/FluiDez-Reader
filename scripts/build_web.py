@@ -5,7 +5,7 @@ Source of truth lives under web/:
   web/templates/base.html  - shared chrome (head, nav, footer, logo)
   web/pages/<slug>.{html,css,js} - per-page body, styles, script
   web/assets/style.css     - shared theme, served once at /style.css
-  web/assets/logo.png      - drop logo, served once at /logo.png
+  web/assets/logo.png      - FluiDez symbol (scripts/generate_brand_assets.py), served once at /logo.png
 
 Outputs land in src/network/html/ with the identifiers the C++ already uses.
 No third-party dependencies (runs inside the PlatformIO pre-build step)."""
@@ -26,10 +26,10 @@ JS_OUT = os.path.join(OUT, "js")
 
 # slug -> (generated identifier, <title>, active nav, extra <head> markup)
 PAGES = {
-    "home":     ("HomePageHtml",     "CrossInk",                   "home",     ""),
-    "files":    ("FilesPageHtml",    "Files - CrossInk",           "files",    '  <script src="/js/jszip.min.js"></script>'),
-    "settings": ("SettingsPageHtml", "Settings - CrossInk Reader", "settings", ""),
-    "fonts":    ("FontsPageHtml",    "Fonts - CrossInk",           "fonts",    ""),
+    "home":     ("HomePageHtml",     "FluiDez Reader",              "home",     ""),
+    "files":    ("FilesPageHtml",    "Files - FluiDez Reader",      "files",    '  <script src="/js/jszip.min.js"></script>'),
+    "settings": ("SettingsPageHtml", "Settings - FluiDez Reader",   "settings", ""),
+    "fonts":    ("FontsPageHtml",    "Fonts - FluiDez Reader",      "fonts",    ""),
 }
 
 PRESERVE_TAGS = "pre|code|textarea|script|style"

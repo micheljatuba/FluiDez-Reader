@@ -27,7 +27,11 @@ class NearbyBookTransferActivity final : public Activity {
   void onExit() override;
   void loop() override;
   void render(RenderLock&&) override;
-  bool preventAutoSleep() override { return true; }
+  // Listening and discovery can wait indefinitely; only negotiated transfers keep the reader awake.
+  bool preventAutoSleep() override {
+    return state_ == State::WaitingForApproval || state_ == State::Validating || state_ == State::Sending ||
+           state_ == State::Receiving;
+  }
   bool skipLoopDelay() override;
 
  private:

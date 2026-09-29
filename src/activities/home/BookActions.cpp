@@ -46,7 +46,7 @@ std::string bookStatsCachePath(const std::string& path) {
 std::vector<FileBrowserActionActivity::MenuItem> buildBookActionItems(const std::string& fullPath,
                                                                       const bool includeRemoveFromRecents) {
   std::vector<FileBrowserActionActivity::MenuItem> items;
-  items.reserve(includeRemoveFromRecents ? 7 : 6);
+  items.reserve(includeRemoveFromRecents ? 8 : 6);
   items.push_back({FileBrowserAction::Delete, StrId::STR_DELETE});
   if (hasClearableBookCache(fullPath)) {
     items.push_back({FileBrowserAction::DeleteCache, StrId::STR_DELETE_CACHE});
@@ -61,9 +61,27 @@ std::vector<FileBrowserActionActivity::MenuItem> buildBookActionItems(const std:
                      isBookCompleted(fullPath) ? StrId::STR_MARK_UNFINISHED : StrId::STR_MARK_FINISHED});
   }
   if (includeRemoveFromRecents) {
+    const bool pinned = RECENT_BOOKS.isPinned(fullPath);
+    items.push_back({pinned ? FileBrowserAction::UnpinBook : FileBrowserAction::PinBook,
+                     pinned ? StrId::STR_UNPIN_BOOK : StrId::STR_PIN_BOOK});
     items.push_back({FileBrowserAction::RemoveFromRecents, StrId::STR_REMOVE_FROM_RECENTS_ACTION});
   }
   return items;
+}
+
+bool setRecentBookPinned(const GfxRenderer& renderer, const std::string& fullPath, const bool pinned) {
+  const auto result = RECENT_BOOKS.setPinned(fullPath, pinned);
+  if (result == RecentBooksStore::PinResult::Failed) {
+    drawToast(renderer, tr(STR_ERROR_GENERAL_FAILURE));
+  } else if (result == RecentBooksStore::PinResult::LimitReached) {
+    char message[96];
+    snprintf(message, sizeof(message), tr(STR_PINNED_BOOKS_LIMIT), RecentBooksStore::MAX_PINNED_BOOKS);
+    drawToast(renderer, message);
+  } else {
+    drawToast(renderer, pinned ? tr(STR_BOOK_PINNED) : tr(STR_BOOK_UNPINNED));
+  }
+  delay(1000);
+  return result == RecentBooksStore::PinResult::Changed;
 }
 
 bool hasClearableBookCache(const std::string& path) {
@@ -199,7 +217,7 @@ bool toggleBookCompleted(const std::string& fullPath, const std::string& display
 
   if (SETTINGS.removeReadBooksFromRecents) {
     if (completed) {
-      RECENT_BOOKS.removeByPath(fullPath);
+      RECENT_BOOKS.removeUnpinnedByPath(fullPath);
     } else {
       RECENT_BOOKS.addOrUpdateBook(fullPath, title, author, thumbPath);
     }

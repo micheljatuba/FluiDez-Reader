@@ -34,11 +34,11 @@
 #include "RecentBooksStore.h"
 #include "SleepCoverAssets.h"
 #include "activities/reader/ReaderUtils.h"
+#include "components/FluiDezBrand.h"
 #include "components/UITheme.h"
 #include "components/themes/dashboard/DashboardTheme.h"
 #include "components/themes/minimal/MinimalTheme.h"
 #include "fontIds.h"
-#include "images/Logo120.h"
 #include "images/MoonIcon.h"
 
 namespace {
@@ -640,13 +640,13 @@ void SleepActivity::renderCustomSleepScreen() const {
 // sequence, used once for the sleep image. It never runs the multi-flash GC
 // waveform (0xF7) that FULL_REFRESH selects (#2471's blinking complaint).
 void SleepActivity::renderDefaultSleepScreen() const {
-  const auto pageWidth = renderer.getScreenWidth();
-  const auto pageHeight = renderer.getScreenHeight();
+  const int statusGap = 20;
+  const int statusHeight = renderer.getLineHeight(SMALL_FONT_ID);
 
   renderer.clearScreen();
-  renderer.drawImage(Logo120, (pageWidth - 120) / 2, (pageHeight - 120) / 2, 120, 120);
-  renderer.drawCenteredText(UI_10_FONT_ID, pageHeight / 2 + 70, tr(STR_CROSSINK), true, EpdFontFamily::BOLD);
-  renderer.drawCenteredText(SMALL_FONT_ID, pageHeight / 2 + 95, tr(STR_SLEEPING));
+  const int lockupBottom =
+      FluiDezBrand::drawLockup(renderer, FluiDezBrand::centredLockupTop(renderer, statusGap + statusHeight));
+  renderer.drawCenteredText(SMALL_FONT_ID, lockupBottom + statusGap, tr(STR_SLEEPING));
 
   // Make sleep screen dark unless light is selected in settings
   const bool lightSleepScreen = SETTINGS.sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::LIGHT;
@@ -656,9 +656,10 @@ void SleepActivity::renderDefaultSleepScreen() const {
 
 #ifdef CROSSINK_SHOW_SLEEP_BUILD_INFO
   const std::string buildInfo = std::string(CROSSINK_BUILD_ENV) + " " + CROSSINK_VERSION;
-  const std::string visibleBuildInfo =
-      renderer.truncatedText(SMALL_FONT_ID, buildInfo.c_str(), pageWidth - sleepBuildInfoSideMargin * 2);
-  renderer.drawCenteredText(SMALL_FONT_ID, pageHeight / 2 + 118, visibleBuildInfo.c_str(), lightSleepScreen);
+  const std::string visibleBuildInfo = renderer.truncatedText(SMALL_FONT_ID, buildInfo.c_str(),
+                                                              renderer.getScreenWidth() - sleepBuildInfoSideMargin * 2);
+  renderer.drawCenteredText(SMALL_FONT_ID, lockupBottom + statusGap + statusHeight + 8, visibleBuildInfo.c_str(),
+                            lightSleepScreen);
 #endif
 
   renderer.displayBuffer(HalDisplay::HALF_REFRESH, TURN_OFF_SCREEN_AFTER_SLEEP_REFRESH);

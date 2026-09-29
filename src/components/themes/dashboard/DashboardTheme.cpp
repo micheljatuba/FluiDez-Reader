@@ -29,40 +29,11 @@
 #include "components/icons/morning.h"
 #include "components/icons/night.h"
 #include "components/icons/streak.h"
+#include "components/themes/dashboard/DashboardLayout.h"
 #include "fontIds.h"
 
 namespace {
-constexpr int kContentInsetX4 = 20;
-constexpr int kContentInsetX3 = 75;
-constexpr int kTopInset = 20;
 constexpr int kCoverCornerRadius = 8;
-constexpr int kStatsColumnWidth = 105;
-constexpr int kStatsColumnWidthWide = 120;
-constexpr int kCoverStatsGap = 15;
-constexpr int kPairInwardShiftX3 = 15;
-constexpr int kTitleTopGap = 28;
-constexpr int kTitleChapterGap = 8;
-constexpr int kBookTitleMaxLines = 2;
-constexpr int kBookChapterMaxLines = 2;
-constexpr int kFooterIconSize = 24;
-constexpr int kFooterIconTextGap = 18;
-constexpr int kFooterBottomGap = 57;
-constexpr int kStatsRowCount = 7;
-constexpr int kStatsRowCountX4 = 6;
-constexpr int kStatsValueLabelGap = 1;
-
-bool isWideScreen(const GfxRenderer& renderer) { return renderer.getScreenWidth() >= 560; }
-
-int contentInset(const GfxRenderer& renderer) { return isWideScreen(renderer) ? kContentInsetX3 : kContentInsetX4; }
-
-Rect coverRectForScreen(const GfxRenderer& renderer, const Rect& rect) {
-  const int inset = contentInset(renderer);
-  const int statsW = isWideScreen(renderer) ? kStatsColumnWidthWide : kStatsColumnWidth;
-  const int maxCoverW = renderer.getScreenWidth() - inset * 2 - statsW - kCoverStatsGap;
-  const int coverW = std::min(DashboardMetrics::homeCoverImageWidth, maxCoverW);
-  const int coverH = std::min(DashboardMetrics::homeCoverImageHeight, (coverW * 3) / 2);
-  return Rect{inset + (gpio.deviceIsX3() ? kPairInwardShiftX3 : 0), rect.y + kTopInset, coverW, coverH};
-}
 
 Rect fittedBitmapRect(const Bitmap& bitmap, const Rect& target) {
   if (bitmap.getWidth() <= 0 || bitmap.getHeight() <= 0 || target.width <= 0 || target.height <= 0) {
@@ -143,13 +114,6 @@ void drawBookCover(const GfxRenderer& renderer, const Rect& coverRect, const Rec
   }
 }
 
-void drawRightAlignedText(const GfxRenderer& renderer, const int fontId, const int rightX, const int y,
-                          const char* text, const bool bold = false, const bool black = true) {
-  const EpdFontFamily::Style style = bold ? EpdFontFamily::BOLD : EpdFontFamily::REGULAR;
-  const int width = renderer.getTextWidth(fontId, text, style);
-  renderer.drawText(fontId, rightX - width, y, text, black, style);
-}
-
 void formatCompactDuration(const uint32_t seconds, char* buf, const size_t len) {
   if (seconds < 60) {
     snprintf(buf, len, "%s", tr(STR_STATS_LESS_THAN_MIN));
@@ -225,37 +189,27 @@ float pagesPerMinute(const uint32_t totalPagesTurned, const uint32_t totalReadin
 
 const char* dayCountText(const uint16_t days) { return days == 1 ? tr(STR_STATS_DAY) : tr(STR_STATS_DAYS); }
 
-int statsBlockHeight(const GfxRenderer& renderer) {
-  const int valueLineH = renderer.getLineHeight(UI_12_FONT_ID);
-  const int labelLineH = renderer.getLineHeight(SMALL_FONT_ID);
-  return valueLineH + kStatsValueLabelGap + labelLineH;
+// A short date such as "Sep 22" must not be split when its label wraps.
+std::string withNoBreakSpaces(const char* text) {
+  std::string out;
+  for (const char* p = text; *p != '\0'; ++p) {
+    if (*p == ' ') {
+      out += "\xC2\xA0";
+    } else {
+      out += *p;
+    }
+  }
+  return out;
 }
 
-int statsBlockTop(const Rect& coverRect, const int index, const int blockH, const int rowCount) {
-  const int remainingH = std::max(0, coverRect.height - blockH * rowCount);
-  const int gapCount = rowCount - 1;
-  const int gap = gapCount > 0 ? remainingH / gapCount : 0;
-  const int remainder = gapCount > 0 ? remainingH % gapCount : 0;
-  return coverRect.y + index * (blockH + gap) + std::min(index, remainder);
-}
-
-void drawStatsRow(const GfxRenderer& renderer, const int rightX, const int y, const char* value, const char* label,
-                  const bool black = true) {
-  const int valueLineH = renderer.getLineHeight(UI_12_FONT_ID);
-  drawRightAlignedText(renderer, UI_12_FONT_ID, rightX, y, value, true, black);
-  drawRightAlignedText(renderer, SMALL_FONT_ID, rightX, y + valueLineH + kStatsValueLabelGap, label, false, black);
-}
-
-void drawDashboardStats(const GfxRenderer& renderer, const Rect& coverRect, const BookReadingStats* stats,
-                        const float progressPercent, const bool black = true) {
-  const int rightX = renderer.getScreenWidth() - contentInset(renderer) - (gpio.deviceIsX3() ? kPairInwardShiftX3 : 0);
-  const int blockH = statsBlockHeight(renderer);
+std::vector<DashboardLayout::StatRow> dashboardStats(const BookReadingStats* stats, const float progressPercent) {
   const bool showRtcStats = halClock.isAvailable();
-  const int rowCount = showRtcStats ? kStatsRowCount : kStatsRowCountX4;
   const BookReadingStats emptyStats{};
   const BookReadingStats& bookStats = stats != nullptr ? *stats : emptyStats;
+  std::vector<DashboardLayout::StatRow> rows;
+  // Three shared rows plus up to four clock-dependent rows.
+  rows.reserve(7);
   char value[40];
-  char label[40];
   char startedDate[24];
   char finishDate[24];
   uint32_t estimatedSeconds = 0;
@@ -268,65 +222,44 @@ void drawDashboardStats(const GfxRenderer& renderer, const Rect& coverRect, cons
   const bool hasDaySpan = bookStats.startDate.isValid() && endDate.isValid();
   const uint16_t daysReading = hasDaySpan ? readingSpanDaysElapsed(bookStats.startDate, endDate) : 0;
 
-  int rowIndex = 0;
-  int rowY = statsBlockTop(coverRect, rowIndex, blockH, rowCount);
   BookReadingStats::formatDuration(bookStats.totalReadingSeconds, value, sizeof(value));
-  drawStatsRow(renderer, rightX, rowY, value, tr(STR_STATS_TIME_LBL), black);
+  rows.push_back({value, tr(STR_DASHBOARD_READING)});
 
-  rowY = statsBlockTop(coverRect, ++rowIndex, blockH, rowCount);
   if (hasEstimate && !bookStats.isCompleted) {
     formatCompactDuration(estimatedSeconds, value, sizeof(value));
   } else {
     snprintf(value, sizeof(value), "-");
   }
-  drawStatsRow(renderer, rightX, rowY, value, tr(STR_TIME_LEFT_SHORT), black);
+  rows.push_back({value, tr(STR_TIME_LEFT_SHORT)});
 
-  rowY = statsBlockTop(coverRect, ++rowIndex, blockH, rowCount);
   if (progressPercent >= 0.0f) {
     snprintf(value, sizeof(value), "%d%%", static_cast<int>(progressPercent + 0.5f));
   } else {
     snprintf(value, sizeof(value), "-");
   }
-  drawStatsRow(renderer, rightX, rowY, value, tr(STR_STATS_PROGRESS_LBL), black);
-
-  if (showRtcStats) {
-    rowY = statsBlockTop(coverRect, ++rowIndex, blockH, rowCount);
-    if (hasDaySpan) {
-      const uint16_t dailyAverageDays = std::max<uint16_t>(1, daysReading);
-      BookReadingStats::formatDuration(bookStats.totalReadingSeconds / dailyAverageDays, value, sizeof(value));
-    } else {
-      snprintf(value, sizeof(value), "-");
-    }
-    drawStatsRow(renderer, rightX, rowY, value, tr(STR_STATS_DAILY_AVG_LBL), black);
-  }
-
-  rowY = statsBlockTop(coverRect, ++rowIndex, blockH, rowCount);
-  snprintf(value, sizeof(value), "%.1f", pagesPerMinute(bookStats.totalPagesTurned, bookStats.totalReadingSeconds));
-  drawStatsRow(renderer, rightX, rowY, value, tr(STR_STATS_PAGES_PER_MIN), black);
+  rows.push_back({value, tr(STR_STATS_PROGRESS_LBL)});
 
   if (!showRtcStats) {
-    rowY = statsBlockTop(coverRect, ++rowIndex, blockH, rowCount);
     snprintf(value, sizeof(value), "%u", static_cast<unsigned>(bookStats.sessionCount));
-    drawStatsRow(renderer, rightX, rowY, value, tr(STR_STATS_SESSIONS_LBL), black);
+    rows.push_back({value, tr(STR_STATS_SESSIONS_LBL)});
 
-    rowY = statsBlockTop(coverRect, ++rowIndex, blockH, rowCount);
     const uint32_t avgSeconds = bookStats.sessionCount > 0 ? bookStats.totalReadingSeconds / bookStats.sessionCount : 0;
     BookReadingStats::formatDuration(avgSeconds, value, sizeof(value));
-    drawStatsRow(renderer, rightX, rowY, value, tr(STR_STATS_AVG_SESSION_LBL), black);
-    return;
+    rows.push_back({value, tr(STR_STATS_AVG_SESSION_LBL)});
+
+    snprintf(value, sizeof(value), "%.1f", pagesPerMinute(bookStats.totalPagesTurned, bookStats.totalReadingSeconds));
+    rows.push_back({value, tr(STR_STATS_PAGES_PER_MIN)});
+    return rows;
   }
 
-  rowY = statsBlockTop(coverRect, ++rowIndex, blockH, rowCount);
   if (hasDaySpan) {
     snprintf(value, sizeof(value), "%u %s", static_cast<unsigned>(daysReading), dayCountText(daysReading));
   } else {
     snprintf(value, sizeof(value), "-");
   }
   formatReadingStatsShortDate(bookStats.startDate, startedDate, sizeof(startedDate));
-  snprintf(label, sizeof(label), "%s %s", tr(STR_STATS_STARTED), startedDate);
-  drawStatsRow(renderer, rightX, rowY, value, label, black);
+  rows.push_back({value, std::string(tr(STR_DASHBOARD_SINCE)) + " " + withNoBreakSpaces(startedDate)});
 
-  rowY = statsBlockTop(coverRect, ++rowIndex, blockH, rowCount);
   ReadingStatsDate finishDisplayDate;
   if (bookStats.isCompleted) {
     finishDisplayDate = bookStats.finishedDate;
@@ -338,8 +271,19 @@ void drawDashboardStats(const GfxRenderer& renderer, const Rect& coverRect, cons
     }
   }
   formatReadingStatsShortDate(finishDisplayDate, finishDate, sizeof(finishDate));
-  drawStatsRow(renderer, rightX, rowY, finishDate,
-               bookStats.isCompleted ? tr(STR_STATS_FINISHED_DATE) : tr(STR_STATS_EST_FINISH_DATE), black);
+  rows.push_back({finishDate, bookStats.isCompleted ? tr(STR_DASHBOARD_FINISHED) : tr(STR_DASHBOARD_EST_FINISH)});
+
+  if (hasDaySpan) {
+    const uint16_t dailyAverageDays = std::max<uint16_t>(1, daysReading);
+    BookReadingStats::formatDuration(bookStats.totalReadingSeconds / dailyAverageDays, value, sizeof(value));
+  } else {
+    snprintf(value, sizeof(value), "-");
+  }
+  rows.push_back({value, tr(STR_STATS_DAILY_AVG_LBL)});
+
+  snprintf(value, sizeof(value), "%.1f", pagesPerMinute(bookStats.totalPagesTurned, bookStats.totalReadingSeconds));
+  rows.push_back({value, tr(STR_STATS_PAGES_PER_MIN)});
+  return rows;
 }
 
 bool dominantReaderTypeBucket(const GlobalReadingStats& globalStats, ReadingTimeBucket& bucketOut) {
@@ -420,69 +364,15 @@ void formatStreakStat(const GlobalReadingStats* globalStats, char* buf, const si
   snprintf(buf, len, tr(STR_STATS_DAY_STREAK_FORMAT), static_cast<unsigned>(streak));
 }
 
-void drawIconLabel(const GfxRenderer& renderer, const uint8_t* icon, const int iconX, const int centerY,
-                   const char* label, const int maxTextW, const bool inverted = false) {
-  const std::string visibleLabel = renderer.truncatedText(UI_10_FONT_ID, label, maxTextW);
-  const int lineH = renderer.getLineHeight(UI_10_FONT_ID);
-  if (inverted) {
-    renderer.drawIconInverted(icon, iconX, centerY - kFooterIconSize / 2, kFooterIconSize, kFooterIconSize);
-  } else {
-    renderer.drawIcon(icon, iconX, centerY - kFooterIconSize / 2, kFooterIconSize, kFooterIconSize);
-  }
-  renderer.drawText(UI_10_FONT_ID, iconX + kFooterIconSize + kFooterIconTextGap, centerY - lineH / 2,
-                    visibleLabel.c_str(), !inverted);
-}
-
-void drawRightAlignedIconLabel(const GfxRenderer& renderer, const uint8_t* icon, const int rightX, const int centerY,
-                               const char* label, const int maxTextW, const bool inverted = false) {
-  const std::string visibleLabel = renderer.truncatedText(UI_10_FONT_ID, label, maxTextW);
-  const int labelW = renderer.getTextWidth(UI_10_FONT_ID, visibleLabel.c_str());
-  const int lineH = renderer.getLineHeight(UI_10_FONT_ID);
-  const int textX = rightX - labelW;
-  const int iconX = textX - kFooterIconTextGap - kFooterIconSize;
-  if (inverted) {
-    renderer.drawIconInverted(icon, iconX, centerY - kFooterIconSize / 2, kFooterIconSize, kFooterIconSize);
-  } else {
-    renderer.drawIcon(icon, iconX, centerY - kFooterIconSize / 2, kFooterIconSize, kFooterIconSize);
-  }
-  renderer.drawText(UI_10_FONT_ID, textX, centerY - lineH / 2, visibleLabel.c_str(), !inverted);
-}
-
-void drawLeftAnchoredFooterStat(const GfxRenderer& renderer, const int labelX, const int centerY, const int maxTextW,
-                                const char* value, const char* label, const bool inverted = false) {
-  const int valueLineH = renderer.getLineHeight(UI_12_FONT_ID);
-  const int labelLineH = renderer.getLineHeight(UI_10_FONT_ID);
-  const int totalH = valueLineH + kStatsValueLabelGap + labelLineH;
-  const int valueW = renderer.getTextWidth(UI_12_FONT_ID, value, EpdFontFamily::BOLD);
-  const std::string visibleLabel = renderer.truncatedText(UI_10_FONT_ID, label, maxTextW);
-  const int labelW = renderer.getTextWidth(UI_10_FONT_ID, visibleLabel.c_str());
-  const int topY = centerY - totalH / 2;
-  renderer.drawText(UI_12_FONT_ID, labelX + (labelW - valueW) / 2, topY, value, !inverted, EpdFontFamily::BOLD);
-  renderer.drawText(UI_10_FONT_ID, labelX, topY + valueLineH + kStatsValueLabelGap, visibleLabel.c_str(), !inverted);
-}
-
-void drawRightAnchoredFooterStat(const GfxRenderer& renderer, const int labelRightX, const int centerY,
-                                 const int maxTextW, const char* value, const char* label,
-                                 const bool inverted = false) {
-  const int valueLineH = renderer.getLineHeight(UI_12_FONT_ID);
-  const int labelLineH = renderer.getLineHeight(UI_10_FONT_ID);
-  const int totalH = valueLineH + kStatsValueLabelGap + labelLineH;
-  const int valueW = renderer.getTextWidth(UI_12_FONT_ID, value, EpdFontFamily::BOLD);
-  const std::string visibleLabel = renderer.truncatedText(UI_10_FONT_ID, label, maxTextW);
-  const int labelW = renderer.getTextWidth(UI_10_FONT_ID, visibleLabel.c_str());
-  const int labelX = labelRightX - labelW;
-  const int topY = centerY - totalH / 2;
-  renderer.drawText(UI_12_FONT_ID, labelX + (labelW - valueW) / 2, topY, value, !inverted, EpdFontFamily::BOLD);
-  renderer.drawText(UI_10_FONT_ID, labelX, topY + valueLineH + kStatsValueLabelGap, visibleLabel.c_str(), !inverted);
-}
-
-void drawFooterStats(const GfxRenderer& renderer, const Rect& coverRect, const GlobalReadingStats* globalStats,
-                     const bool inverted = false) {
-  const int inset = contentInset(renderer);
-  const int buttonHintReserve = gpio.hasTouch() ? 0 : DashboardMetrics::values.buttonHintsHeight;
-  const int footerY = renderer.getScreenHeight() - buttonHintReserve - kFooterBottomGap;
-  const int centerY = std::max(coverRect.y + coverRect.height + 120, footerY);
-
+DashboardLayout::Content dashboardContent(const RecentBook& book, const BookReadingStats* stats,
+                                          const GlobalReadingStats* globalStats, const float progressPercent,
+                                          const char* currentChapterTitle) {
+  DashboardLayout::Content content;
+  content.title = book.title.empty() ? book.path : book.title;
+  const char* subtitle =
+      (currentChapterTitle != nullptr && currentChapterTitle[0] != '\0') ? currentChapterTitle : book.author.c_str();
+  content.subtitle = subtitle != nullptr ? subtitle : "";
+  content.stats = dashboardStats(stats, progressPercent);
   if (!halClock.isAvailable()) {
     char totalTime[40];
     char booksRead[16];
@@ -490,52 +380,18 @@ void drawFooterStats(const GfxRenderer& renderer, const Rect& coverRect, const G
     const uint32_t completedBooks = globalStats != nullptr ? globalStats->completedBooks : 0;
     BookReadingStats::formatDuration(totalReadingSeconds, totalTime, sizeof(totalTime));
     snprintf(booksRead, sizeof(booksRead), "%lu", static_cast<unsigned long>(completedBooks));
-
-    const int halfW = renderer.getScreenWidth() / 2;
-    const int maxTextW = std::max(1, halfW - inset * 2);
-    drawLeftAnchoredFooterStat(renderer, coverRect.x, centerY, maxTextW, totalTime,
-                               tr(STR_STATS_TOTAL_READING_TIME_LBL_SHORT), inverted);
-    const int rightX = renderer.getScreenWidth() - inset;
-    drawRightAnchoredFooterStat(renderer, rightX, centerY, maxTextW, booksRead, tr(STR_STATS_COMPLETED_LBL), inverted);
-    return;
+    content.footerStats.reserve(2);
+    content.footerStats.push_back({totalTime, tr(STR_STATS_TOTAL_READING_TIME_LBL_SHORT)});
+    content.footerStats.push_back({booksRead, tr(STR_STATS_COMPLETED_LBL)});
+    return content;
   }
 
   char streakBuf[48];
   formatStreakStat(globalStats, streakBuf, sizeof(streakBuf));
-
-  const int leftTextW = renderer.getScreenWidth() / 2 - inset - kFooterIconSize - kFooterIconTextGap;
-  drawIconLabel(renderer, StreakIcon, coverRect.x, centerY, streakBuf, leftTextW, inverted);
-
-  const char* readerLabel = readerTypeLabel(globalStats);
-  const int rightX = renderer.getScreenWidth() - inset - (gpio.deviceIsX3() ? kPairInwardShiftX3 : 0);
-  const int maxReaderTextW = std::max(1, renderer.getScreenWidth() / 2 - inset - kFooterIconSize - kFooterIconTextGap);
-  drawRightAlignedIconLabel(renderer, readerTypeIcon(globalStats), rightX, centerY, readerLabel, maxReaderTextW,
-                            inverted);
-}
-
-void drawBookText(const GfxRenderer& renderer, const Rect& coverRect, const RecentBook& book,
-                  const char* currentChapterTitle, const bool black = true) {
-  const int inset = contentInset(renderer);
-  const int textW = renderer.getScreenWidth() - inset * 2;
-  const char* title = book.title.empty() ? book.path.c_str() : book.title.c_str();
-  auto titleLines = renderer.wrappedText(UI_12_FONT_ID, title, textW, kBookTitleMaxLines, EpdFontFamily::BOLD);
-  int textY = coverRect.y + coverRect.height + kTitleTopGap;
-  const int titleLineH = renderer.getLineHeight(UI_12_FONT_ID);
-  for (const auto& line : titleLines) {
-    renderer.drawText(UI_12_FONT_ID, coverRect.x, textY, line.c_str(), black, EpdFontFamily::BOLD);
-    textY += titleLineH;
-  }
-
-  const char* subtitle =
-      (currentChapterTitle != nullptr && currentChapterTitle[0] != '\0') ? currentChapterTitle : book.author.c_str();
-  if (subtitle != nullptr && subtitle[0] != '\0') {
-    auto subtitleLines = renderer.wrappedText(UI_12_FONT_ID, subtitle, textW, kBookChapterMaxLines);
-    int subtitleY = textY + kTitleChapterGap;
-    for (const auto& line : subtitleLines) {
-      renderer.drawText(UI_12_FONT_ID, coverRect.x, subtitleY, line.c_str(), black);
-      subtitleY += titleLineH;
-    }
-  }
+  content.footerIcons.reserve(2);
+  content.footerIcons.push_back({StreakIcon, streakBuf});
+  content.footerIcons.push_back({readerTypeIcon(globalStats), readerTypeLabel(globalStats)});
+  return content;
 }
 }  // namespace
 
@@ -547,7 +403,14 @@ void DashboardTheme::drawRecentBookCover(GfxRenderer& renderer, Rect rect, const
   (void)selectorIndex;
   (void)bufferRestored;
 
-  const Rect coverRect = coverRectForScreen(renderer, rect);
+  DashboardLayout::Content content;
+  if (!recentBooks.empty()) {
+    content = dashboardContent(recentBooks[0], stats, globalStats, progressPercent, currentChapterTitle);
+  }
+  const int hintReserve = gpio.hasTouch() ? 0 : DashboardMetrics::values.buttonHintsHeight;
+  const DashboardLayout::Result layout =
+      DashboardLayout::compute(renderer, rect, content, gpio.deviceIsX3(), hintReserve);
+  const Rect coverRect = layout.coverRect;
   if (recentBooks.empty()) {
     renderer.drawRoundedRect(coverRect.x, coverRect.y, coverRect.width, coverRect.height, 1, kCoverCornerRadius, true);
     coverRendered = false;
@@ -562,9 +425,7 @@ void DashboardTheme::drawRecentBookCover(GfxRenderer& renderer, Rect rect, const
   }
   TouchRegistry::getInstance().add(coverRect, 0, TouchRegistry::Cover);
 
-  drawDashboardStats(renderer, coverRect, stats, progressPercent);
-  drawBookText(renderer, coverRect, recentBooks[0], currentChapterTitle);
-  drawFooterStats(renderer, coverRect, globalStats);
+  DashboardLayout::draw(renderer, layout);
 }
 
 void DashboardTheme::drawSleepScreen(const GfxRenderer& renderer, const RecentBook& book, const BookReadingStats* stats,
@@ -574,9 +435,12 @@ void DashboardTheme::drawSleepScreen(const GfxRenderer& renderer, const RecentBo
 
   const Rect contentRect{0, DashboardMetrics::values.homeTopPadding, renderer.getScreenWidth(),
                          DashboardMetrics::values.homeCoverTileHeight};
-  const Rect coverRect = coverRectForScreen(renderer, contentRect);
+  const DashboardLayout::Content content =
+      dashboardContent(book, stats, globalStats, progressPercent, currentChapterTitle);
+  const int hintReserve = gpio.hasTouch() ? 0 : DashboardMetrics::values.buttonHintsHeight;
+  const DashboardLayout::Result layout =
+      DashboardLayout::compute(renderer, contentRect, content, gpio.deviceIsX3(), hintReserve);
+  const Rect coverRect = layout.coverRect;
   drawBookCover(renderer, coverRect, book, inverted ? Color::White : Color::Black);
-  drawDashboardStats(renderer, coverRect, stats, progressPercent, inverted);
-  drawBookText(renderer, coverRect, book, currentChapterTitle, inverted);
-  drawFooterStats(renderer, coverRect, globalStats, !inverted);
+  DashboardLayout::draw(renderer, layout, inverted, !inverted);
 }

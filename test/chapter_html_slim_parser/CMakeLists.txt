@@ -3,6 +3,7 @@ add_executable(ChapterHtmlSlimParserTest
   ParserLinkStubs.cpp
   ${REPO_ROOT}/lib/Epub/Epub/parsers/ChapterHtmlSlimParser.cpp
   ${REPO_ROOT}/lib/Epub/Epub/css/CssParser.cpp
+  ${REPO_ROOT}/lib/Epub/Epub/converters/ImageDimsProbe.cpp
   ${REPO_ROOT}/lib/Epub/Epub/ParsedText.cpp
   ${REPO_ROOT}/lib/Epub/Epub/htmlEntities.cpp
   ${REPO_ROOT}/lib/Utf8/Utf8.cpp
@@ -15,6 +16,7 @@ target_include_directories(ChapterHtmlSlimParserTest PRIVATE
   ${REPO_ROOT}/lib/Epub/Epub
   ${REPO_ROOT}/lib/Epub/Epub/parsers
   ${REPO_ROOT}/lib/Epub/Epub/css
+  ${REPO_ROOT}/lib/Epub/Epub/converters
   ${REPO_ROOT}/lib/EpdFont
   ${REPO_ROOT}/lib/Memory
   ${REPO_ROOT}/lib/MiniBidi

@@ -164,5 +164,9 @@ class WifiSelectionActivity final : public Activity {
   void onExit() override;
   void loop() override;
   void render(RenderLock&&) override;
-  bool preventAutoSleep() override { return true; }
+  // Scans and connection attempts end on their own; lists, prompts, and results wait for the user.
+  bool preventAutoSleep() override {
+    return state == WifiSelectionState::AUTO_CONNECTING || state == WifiSelectionState::SCANNING ||
+           state == WifiSelectionState::CONNECTING;
+  }
 };

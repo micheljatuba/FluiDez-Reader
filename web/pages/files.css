@@ -1090,6 +1090,28 @@ h2 {
       justify-content: center;
       gap: 6px;
     }
+.upload-results.has-warnings {
+      border-left: 4px solid #e67e22;
+    }
+.upload-results.has-errors {
+      border-left: 4px solid #e74c3c;
+    }
+.upload-results .dismiss-btn {
+      color: var(--label-color);
+    }
+.upload-results .dismiss-btn:hover {
+      color: var(--font-color);
+    }
+#uploadResultsList {
+      margin-bottom: 0;
+      padding-left: 20px;
+      max-height: 240px;
+      overflow-y: auto;
+      overflow-wrap: anywhere;
+    }
+#uploadResultsList li + li {
+      margin-top: 6px;
+    }
 /* Failed uploads banner */
     .failed-uploads-banner {
       background-color: #fff3cd;

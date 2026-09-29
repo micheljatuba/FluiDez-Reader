@@ -78,6 +78,14 @@ bool openStatsFileForRead(const std::string& cachePath, FsFile& f) {
     return true;
   }
 
+  // save() only removes the published file after the temp copy is fully
+  // written and synced, so a power cut or failed rename after that remove
+  // leaves the complete stats in the temp file (crossink#740).
+  if (Storage.openFileForRead("STATS", cachePath + "/" + currentName + ".tmp", f)) {
+    LOG_INF("STATS", "Recovering %s from interrupted save", currentName.c_str());
+    return true;
+  }
+
   // When bumping STATS_FILE_VERSION, this automatically tries the previous
   // versioned filename (e.g. v6 falls back to stats_v5.bin) before the original
   // unversioned stats.bin migration source.
@@ -313,8 +321,9 @@ void BookReadingStats::save(const std::string& cachePath) const {
   }
 
   if (!Storage.rename(tmpPath.c_str(), statsPath.c_str())) {
-    LOG_ERR("STATS", "Could not publish %s", statsFileName.c_str());
-    Storage.remove(tmpPath.c_str());
+    // The published file is already gone; the temp file is now the only complete copy,
+    // and load() recovers it.
+    LOG_ERR("STATS", "Could not publish %s; keeping %s.tmp", statsFileName.c_str(), statsFileName.c_str());
   }
 }
 
@@ -324,6 +333,13 @@ bool BookReadingStats::remove(const std::string& cachePath) {
   bool ok = true;
   if (Storage.exists(statsPath.c_str()) && !Storage.remove(statsPath.c_str())) {
     LOG_ERR("STATS", "Could not delete %s", statsFileName.c_str());
+    ok = false;
+  }
+
+  // load() recovers an unpublished temp copy, so deleting stats must remove it too.
+  const std::string tmpPath = statsPath + ".tmp";
+  if (Storage.exists(tmpPath.c_str()) && !Storage.remove(tmpPath.c_str())) {
+    LOG_ERR("STATS", "Could not delete %s.tmp", statsFileName.c_str());
     ok = false;
   }
 

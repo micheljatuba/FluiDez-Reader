@@ -35,6 +35,9 @@ THEMES = {
     "lyra_carousel": 4,
     "carousel": 4,
     "dashboard": 6,
+    "lyra-grid": 7,
+    "lyra_grid": 7,
+    "grid": 7,
 }
 
 
@@ -87,15 +90,24 @@ def run_smoke(args: argparse.Namespace) -> int:
             env.setdefault("SDL_VIDEODRIVER", "dummy")
 
         print(f"Running simulator smoke test with isolated fs_: {temp_root / 'fs_'}", flush=True)
-        proc = subprocess.run(
-            [str(program)],
-            cwd=temp_root,
-            env=env,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            timeout=args.timeout,
-        )
+        try:
+            proc = subprocess.run(
+                [str(program)],
+                cwd=temp_root,
+                env=env,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                timeout=args.timeout,
+            )
+        except subprocess.TimeoutExpired as exc:
+            output = exc.stdout or ""
+            # TimeoutExpired may contain bytes even when text=True.
+            if isinstance(output, bytes):
+                output = output.decode("utf-8", errors="replace")
+            print(output, end="", flush=True)
+            print(f"Simulator smoke test timed out after {args.timeout} seconds", file=sys.stderr)
+            return 124
 
     print(proc.stdout, end="")
 

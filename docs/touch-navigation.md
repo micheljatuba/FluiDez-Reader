@@ -21,6 +21,7 @@ the indicated direction. The following swipe gestures do not need to start at th
 | Swipe **up**    | **Home menu**    |
 | Swipe **left**  | **Next recent book** |
 | Tap book cover  | Book             |
+| Hold book cover | Book actions (pin, finished, remove) |
 
 On X4 Pro, keep a down-swipe for Settings away from the very top edge. A
 top-edge down-swipe opens the frontlight panel instead, but you can also access settings by tapping the settings icon in that panel.
@@ -44,6 +45,15 @@ outside the panel to close the menu.
 
 When at least two books are in Recent Books, swipe left anywhere on a one-cover
 Lyra, Dashboard, or Minimal Home screen to switch to the other recent book.
+When books are pinned, the swipe cycles through the current book and up to two
+pinned books instead.
+
+### Hold a cover for book actions
+
+On every Home theme, hold a book cover for about a second to open
+**Pin to Top** / **Unpin**, **Mark Finished** and **Remove from Recent Books**.
+Lifting the finger afterwards does not open the book. On Lyra Carousel this
+works on the side covers too.
 
 ## Other touch navigation
 

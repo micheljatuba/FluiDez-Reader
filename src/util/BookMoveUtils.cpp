@@ -184,8 +184,11 @@ bool migrateMovedEpubState(const std::string& oldPath, const std::string& newPat
     ok = false;
   }
 
-  if (keepInRecents) {
-    (void)RECENT_BOOKS.updatePath(oldPath, newPath, oldCachePath, newCachePath);
+  // Pinned books stay in Recent Books after moving into /Read/.
+  if (keepInRecents || RECENT_BOOKS.isPinned(oldPath)) {
+    if (!RECENT_BOOKS.updatePath(oldPath, newPath, oldCachePath, newCachePath)) {
+      ok = false;
+    }
   } else {
     RECENT_BOOKS.removeByPath(oldPath);
     RECENT_BOOKS.removeByPath(newPath);

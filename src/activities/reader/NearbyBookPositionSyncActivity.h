@@ -29,12 +29,10 @@ class NearbyBookPositionSyncActivity final : public Activity {
   void onExit() override;
   void loop() override;
   void render(RenderLock&&) override;
-  bool preventAutoSleep() override { return true; }
+  bool preventAutoSleep() override { return exchangeInProgress(); }
   bool isReaderActivity() const override { return true; }
   bool allowPowerAsConfirmInReaderMode() const override { return true; }
-  bool skipLoopDelay() override {
-    return state_ == State::DISCOVERING || state_ == State::SYNCING || state_ == State::APPLYING;
-  }
+  bool skipLoopDelay() override { return exchangeInProgress(); }
 
   void enqueueEspNowPacket(const uint8_t* sourceMac, const uint8_t* data, int length);
 
@@ -60,6 +58,11 @@ class NearbyBookPositionSyncActivity final : public Activity {
  private:
   enum class State { STARTING, READY, DISCOVERING, SYNCING, SHOWING_RESULT, APPLYING, SYNCED, ERROR };
   enum class PacketType : uint8_t { HELLO = 1, POSITION = 2, APPLY = 3, ACK = 4, NAME = 5, INVALID = 0xFF };
+
+  // Exchanges end at SYNC_TIMEOUT_MS; ready, prompt, and result screens follow Time to Sleep.
+  bool exchangeInProgress() const {
+    return state_ == State::DISCOVERING || state_ == State::SYNCING || state_ == State::APPLYING;
+  }
 
   static constexpr size_t MAX_SYNC_EVENTS = 8;
 

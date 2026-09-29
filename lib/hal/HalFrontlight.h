@@ -23,6 +23,13 @@ class HalFrontlight {
   void setWarmth(uint8_t warmPercent);
   void setOn(bool on);
 
+  // Drive the PWM frontlight pads to their "off" level and latch them through
+  // deep sleep. Without this the pads are only isolated (floating) while the
+  // X4 Pro keeps the peripheral rail (power.latch0) held HIGH, so the LED driver
+  // stays biased and drains the battery overnight (uxjulia/crossink#747).
+  // Leaves isOn() untouched so the persisted light state survives the sleep.
+  void parkForDeepSleep();
+
   uint8_t brightness() const { return lastBrightness; }
   uint8_t warmth() const { return manager.colorTemperature(); }
   bool isOn() const { return lit; }

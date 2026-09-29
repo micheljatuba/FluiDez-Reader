@@ -42,14 +42,9 @@ class FontDownloadActivity : public Activity {
   void onExit() override;
   void loop() override;
   void render(RenderLock&&) override;
-  bool preventAutoSleep() override {
-    return state_ == LOADING_MANIFEST || state_ == DOWNLOADING ||
-           // The download is synchronous and blocks the main loop until it
-           // completes, so activityManager.preventAutoSleep() is never polled
-           // during downloading.
-           state_ == COMPLETE || state_ == ERROR;
-  }
-  bool skipLoopDelay() override { return true; }
+  // Downloads block the main loop, which restarts the sleep countdown when they finish.
+  bool preventAutoSleep() override { return networkWorkInProgress(); }
+  bool skipLoopDelay() override { return networkWorkInProgress(); }
 
  private:
   enum State {
@@ -60,6 +55,8 @@ class FontDownloadActivity : public Activity {
     COMPLETE,
     ERROR,
   };
+
+  bool networkWorkInProgress() const { return state_ == LOADING_MANIFEST || state_ == DOWNLOADING; }
 
   struct ManifestFile {
     // The downloaded manifest can contain hundreds of file names. They all

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <vector>
 
 #include "../Activity.h"
@@ -39,7 +40,7 @@ class RecentBooksGridActivity final : public Activity {
   void loadRecentBooks();
   void loadPageCovers(int pageStart);
   void ensureProgressLoaded(int index);
-  void reloadAfterBookAction();
+  void reloadAfterBookAction(const std::string& selectPath = {});
   void promptDeleteBook(const RecentBook& book);
   void promptRemoveBook(const std::string& path, const std::string& title);
   void showBookActionMenu(int bookIndex, bool ignoreInitialConfirmRelease = false);

@@ -20,6 +20,11 @@ int Epub::getTocIndexForSpineIndex(int) const { return -1; }
 bool Epub::readItemContentsToStream(const std::string&, Print&, size_t, bool) const { return false; }
 
 bool CssParser::loadFromCache() { return false; }
+// Section.cpp reaches CssParser::clear(), whose rule maps hash with SvHash; these
+// tests never populate CSS, so any stable hash links (crossink#729).
+size_t CssParser::SvHash::operator()(std::string_view sv) const noexcept { return std::hash<std::string_view>{}(sv); }
+size_t CssParser::SvHash::operator()(const std::string& s) const noexcept { return operator()(std::string_view(s)); }
+size_t CssParser::SvHash::operator()(CompositeKey) const noexcept { return 0; }
 
 void Hyphenator::setPreferredLanguage(const std::string&) {}
 
