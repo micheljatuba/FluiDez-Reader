@@ -1,6 +1,6 @@
 # Architecture Overview
 
-CrossInk is firmware for the Xteink X4 and X3, built with PlatformIO targeting the ESP32-C3 microcontroller.
+FluiDez Reader is firmware for the Xteink X3, X4, X4 Pro, and X4 Classic and the Seeed Studio Sticky, built with PlatformIO for the ESP32-C3 (X3/X4) and ESP32-S3 (X4 Pro, X4 Classic, Sticky) microcontrollers.
 
 At a high level, it is firmware that uses an activity-driven application architecture loop with persistent settings/state, SD-card-first caching, and a rendering pipeline optimized for e-ink constraints.
 

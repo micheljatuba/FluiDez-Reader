@@ -149,14 +149,18 @@ jobs:
           generate_release_notes: true
           fail_on_unmatched_files: true
           body: |
-            Update on the reader with **Settings > System > Check for Updates**, or copy the `.bin` for your reader to the SD card and use **Settings > System > SD Card Firmware Update**.
+            Atualize pelo próprio leitor em **Configurações > Sistema > Verificar atualizações**, ou copie o `.bin` do seu leitor para o cartão SD e use **Configurações > Sistema > Atualização de firmware do cartão SD**.
 
-            | Reader | Firmware |
+            > Testado apenas no Xteink X4 Pro. Os firmwares dos outros leitores são gerados a partir do mesmo código, mas não foram testados.
+
+            | Leitor | Firmware |
             | --- | --- |
-            | Xteink X4 Pro | `firmware-x4-pro-v${{ env.RELEASE_VERSION }}.bin` |
+            | Xteink X4 Pro (testado) | `firmware-x4-pro-v${{ env.RELEASE_VERSION }}.bin` |
             | Xteink X4 Classic | `firmware-x4-classic-v${{ env.RELEASE_VERSION }}.bin` |
             | Xteink X3 / X4 | `firmware-x3-x4-v${{ env.RELEASE_VERSION }}.bin` |
             | Seeed Studio Sticky | `firmware-sticky-v${{ env.RELEASE_VERSION }}.bin` |
+
+            Novidades desta versão: [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/v${{ env.RELEASE_VERSION }}/CHANGELOG.md).
           files: |
             release-firmware/firmware-x3-x4-v${{ env.RELEASE_VERSION }}.bin
             release-firmware/firmware-sticky-v${{ env.RELEASE_VERSION }}.bin

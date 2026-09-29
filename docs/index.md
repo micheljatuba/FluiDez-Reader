@@ -3,11 +3,12 @@ title: Home
 nav_order: 1
 ---
 
-# CrossInk
+# FluiDez Reader
 
-Welcome to CrossInk, a personal fork of CrossPoint Reader.
+Documentation for FluiDez Reader, e-reader firmware for Xteink readers.
+It is tested on the Xteink X4 Pro.
 
-[View on GitHub](https://github.com/uxjulia/CrossInk)
+[View on GitHub](https://github.com/micheljatuba/FluiDez-Reader)
 
 ## User Docs
 

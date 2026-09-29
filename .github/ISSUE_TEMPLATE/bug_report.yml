@@ -1,23 +1,25 @@
-name: Bug Report
-description: Report an issue or unexpected behavior
-title: "Short, descriptive title of the issue"
+name: Relatar problema
+description: Relate um erro ou comportamento inesperado do FluiDez Reader
+title: "Título curto e descritivo do problema"
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to report this bug! Please fill out the details below so the issue can be reproduced.
+        Obrigado por relatar o problema! Preencha os detalhes abaixo para que ele possa ser reproduzido.
+
+        O FluiDez Reader foi testado apenas no Xteink X4 Pro. Relatos de outros aparelhos são bem-vindos, mas podem demorar mais para serem analisados.
 
   - type: dropdown
     id: device-type
     attributes:
-      label: Device
-      description: Which device is this affecting?
+      label: Aparelho
+      description: Qual aparelho apresenta o problema?
       options:
-        - "--- Select ---"
+        - "--- Selecione ---"
+        - X4 Pro
         - X4
         - X3
-        - X4 Pro
         - X4 Classic
         - Seeed Sticky
     validations:
@@ -26,85 +28,84 @@ body:
   - type: input
     id: version
     attributes:
-      label: Affected Version
-      description: What version of the project/library are you using? (e.g., v1.2.3, master branch commit SHA)
-      placeholder: Ex. v1.2.3
+      label: Versão
+      description: Qual versão do FluiDez Reader está instalada?
+      placeholder: "Ex.: v1.6-fluidez8"
     validations:
       required: true
 
   - type: dropdown
     id: epub-state
     attributes:
-      label: EPUB Optimization
-      description: Is your EPUB optimized?
+      label: Otimização do EPUB
+      description: O EPUB foi otimizado?
       options:
-        - "--- Select ---"
-        - No / Not Applicable
-        - Yes, using the built-in web transfer EPUB optimizer
-        - Yes, using a different EPUB optimizer
-        - What is an EPUB optimizer?
+        - "--- Selecione ---"
+        - "Não / não se aplica"
+        - "Sim, com o otimizador de EPUB da transferência web do aparelho"
+        - "Sim, com outro otimizador de EPUB"
+        - "O que é um otimizador de EPUB?"
     validations:
       required: true
 
   - type: dropdown
     id: cache-state
     attributes:
-      label: Cache State
-      description: Have you attempted to clear any cached data?
+      label: Cache
+      description: Você tentou limpar algum dado em cache?
       options:
-        - "--- Select ---"
-        - No / Not Applicable
-        - Yes, book cache (Reader menu > Delete Book Cache)
-        - Yes, reading cache (Settings > System > Clear Reading Cache)
-        - Yes, device cache (SD Card > ./crosspoint folder)
-        - All of the above
+        - "--- Selecione ---"
+        - "Não / não se aplica"
+        - "Sim, o cache do livro (Menu do leitor > Excluir cache do livro)"
+        - "Sim, o cache de leitura (Configurações > Sistema > Limpar cache de leitura)"
+        - "Sim, o cache do aparelho (pasta .crosspoint no cartão SD)"
+        - "Todas as opções acima"
     validations:
       required: true
 
   - type: textarea
     id: bug-description
     attributes:
-      label: Describe the Bug
-      description: A clear and concise description of what the bug is.
+      label: Descrição do problema
+      description: Descreva o problema de forma clara e objetiva.
     validations:
       required: true
 
   - type: textarea
     id: steps-to-reproduce
     attributes:
-      label: Steps to Reproduce
-      description: Clearly list the steps necessary to reproduce the unexpected behavior.
+      label: Passos para reproduzir
+      description: Liste os passos necessários para reproduzir o comportamento inesperado.
       placeholder: |
-        1. Go to '...'
-        2. Select '...'
-        3. Crash
+        1. Vá em '...'
+        2. Selecione '...'
+        3. O aparelho trava
     validations:
       required: true
 
   - type: textarea
     id: expected-behavior
     attributes:
-      label: Expected Behavior
-      description: A clear and concise description of what you expected to happen.
+      label: Comportamento esperado
+      description: Descreva o que você esperava que acontecesse.
     validations:
       required: true
 
   - type: dropdown
     id: epub-attachment
     attributes:
-      label: File Provided
-      description: If your issue is related to a specific file (EPUB, XTC, etc.), please make sure to attach the exact file in this ticket or email it to julia@uxj.io and reference your issue number. **_EPUBs and XTC files need to be zipped to be attached._**
+      label: Arquivo
+      description: "Se o problema envolve um arquivo específico (EPUB, XTC etc.), anexe o arquivo exato nesta issue. **_Arquivos EPUB e XTC precisam ser compactados em .zip para serem anexados._**"
       options:
-        - "--- Select ---"
-        - Not Applicable
-        - I've attached it
-        - I've emailed it
+        - "--- Selecione ---"
+        - "Não se aplica"
+        - "Anexei o arquivo"
     validations:
       required: true
 
   - type: textarea
     id: logs
     attributes:
-      label: Relevant Log Output/Screenshots
-      description: If applicable, error messages, or log output to help explain your problem. If a crash_report.txt file was generated include it here or your issue may not be addressed in a timely manner. You can drag and drop images here.
+      label: Logs e capturas de tela
+      description: "Se houver, inclua mensagens de erro ou logs que ajudem a explicar o problema. Se o arquivo crash_report.txt foi gerado no cartão SD, inclua-o aqui. Você pode arrastar e soltar imagens aqui."
       render: shell
