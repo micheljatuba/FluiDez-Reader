@@ -1,3 +1,15 @@
+# FluiDez Reader
+
+FluiDez Reader is a personal build of [CrossInk](https://github.com/uxjulia/CrossInk) with English and Brazilian Portuguese built in. Firmware is published on the [FluiDez Reader releases page](https://github.com/micheljatuba/FluiDez-Reader/releases), which is also where the reader looks for over-the-air updates.
+
+### Updates and releases
+
+- **On the reader:** `Settings > System > Check for Updates` installs the newest FluiDez release for your device.
+- **Coming from stock CrossInk:** install a FluiDez `firmware-*.bin` once with `SD Card Firmware Update` or USB (see [Installation](./docs/installation.md)). Stock builds check CrossInk's releases, so later updates only arrive through Check for Updates after this first install.
+- **Publishing a release:** set `[crossink] version` in `platformio.ini` to the next build (for example `1.6-fluidez9`), commit to `main`, then push the tag `v1.6-fluidez9`. The Release workflow builds every device and publishes the release the readers detect.
+
+The rest of this README describes the CrossInk base.
+
 > **This is a personal fork of [CrossPoint Reader](https://github.com/crosspoint-reader/crosspoint-reader)** with a focus on improved fonts and minimal reading stats.
 
 ### Supported Devices
@@ -106,9 +118,9 @@ CrossInk runs on an ESP32-C3 with limited RAM, so very large folders or complex 
 
 ## Installation
 
-The fastest way to install Crossink is by using Inky, Crossink's web companion app: https://inky.crossink.dev/#flash-tools
+Download the `firmware-*.bin` for your reader from the [FluiDez Reader releases page](https://github.com/micheljatuba/FluiDez-Reader/releases), then install it with `Settings > System > SD Card Firmware Update` or flash it over USB with the command line.
 
-Download a `firmware-*.bin` from the [releases page](https://github.com/uxjulia/CrossInk/releases), then flash it with the web installer or command line.
+Inky, CrossInk's web companion app (https://inky.crossink.dev/#flash-tools), installs stock CrossInk releases rather than FluiDez Reader.
 
 See [Installation](./docs/installation.md) for step-by-step flashing and revert instructions.
 

@@ -1,14 +1,25 @@
-name: Compile Release
+name: Release
+
+# Publishes the firmware devices install from Settings > System > Check for Updates
+# (src/network/OtaUpdater.cpp reads this repository's latest release). Push a tag
+# such as v1.6-fluidez9 from main, or run this workflow on main with 1.6-fluidez9.
 on:
+  push:
+    tags:
+      - "v*-fluidez*"
   workflow_dispatch:
     inputs:
       version:
-        description: "Compile release builds"
+        description: "Release version without the leading v, e.g. 1.6-fluidez9"
         required: true
         type: string
 
 permissions:
   contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
   prepare-release:
@@ -18,25 +29,34 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          token: ${{ secrets.RELEASE_PAT }}
           fetch-depth: 0
 
-      - name: Verify release tag is on main
-        if: github.event_name == 'push'
+      - name: Verify release commit is on main
         run: |
           git fetch origin main:refs/remotes/origin/main
-          TAG_COMMIT="$(git rev-list -n 1 "$GITHUB_REF_NAME")"
-          git merge-base --is-ancestor "$TAG_COMMIT" origin/main
+          git merge-base --is-ancestor HEAD origin/main
 
       - name: Resolve release version
         id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            VERSION="${{ inputs.version }}"
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            VERSION="$INPUT_VERSION"
           else
-            VERSION="${GITHUB_REF_NAME#v}"
+            VERSION="$GITHUB_REF_NAME"
           fi
           VERSION="${VERSION#v}"
+          # Devices only detect releases whose version keeps this shape
+          # (src/network/OtaVersion.h), so reject anything else before building.
+          if ! printf '%s' "$VERSION" | grep -Eq '^[0-9]+(\.[0-9]+){0,3}-fluidez[0-9]{1,6}$'; then
+            echo "::error::Release version '$VERSION' must look like 1.6-fluidez9"
+            exit 1
+          fi
+          TRACKED="$(sed -n '/^\[crossink\]$/,/^\[/s/^version = //p' platformio.ini)"
+          if [ "$TRACKED" != "$VERSION" ]; then
+            echo "::warning::platformio.ini [crossink] version is '$TRACKED'; set it to '$VERSION' so local builds match this release."
+          fi
           echo "release_version=$VERSION" >> "$GITHUB_OUTPUT"
 
   build-release:
@@ -88,7 +108,7 @@ jobs:
         run: |
           sed -i "/^\[crossink\]$/,/^\[/s/^version = .*/version = $RELEASE_VERSION/" platformio.ini
 
-      - name: Build CrossInk
+      - name: Build firmware
         env:
           CROSSINK_RELEASE_VERSION: ${{ needs.prepare-release.outputs.release_version }}
         run: pio run -j1 -e ${{ matrix.environment }}
@@ -108,15 +128,6 @@ jobs:
     env:
       RELEASE_VERSION: ${{ needs.prepare-release.outputs.release_version }}
     steps:
-      - uses: actions/checkout@v6
-        with:
-          token: ${{ secrets.RELEASE_PAT }}
-          fetch-depth: 0
-
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.14"
-
       - name: Download firmware artifacts
         uses: actions/download-artifact@v7
         with:
@@ -124,56 +135,28 @@ jobs:
           merge-multiple: true
           path: release-firmware
 
-      - name: Generate release catalog
-        run: |
-          python3 scripts/generate_release_catalog.py \
-            --version "${{ env.RELEASE_VERSION }}" \
-            --repo "${{ github.repository }}" \
-            --firmware "release-firmware/firmware-x3-x4-v${{ env.RELEASE_VERSION }}.bin" \
-            --firmware "release-firmware/firmware-sticky-v${{ env.RELEASE_VERSION }}.bin" \
-            --firmware "release-firmware/firmware-x4-pro-v${{ env.RELEASE_VERSION }}.bin" \
-            --firmware "release-firmware/firmware-x4-classic-v${{ env.RELEASE_VERSION }}.bin" \
-            --output ".pio/build/catalog"
-
-      - name: Publish catalog to GitHub Pages source
-        env:
-          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-          CROSSINK_SIGNING_SSH_KEY: ${{ secrets.CROSSINK_SIGNING_SSH_KEY }}
-        run: |
-          if [ -z "$CROSSINK_SIGNING_SSH_KEY" ]; then
-            echo "::error::CROSSINK_SIGNING_SSH_KEY is not set"
-            exit 1
-          fi
-
-          install -m 700 -d ~/.ssh
-          printf '%s\n' "$CROSSINK_SIGNING_SSH_KEY" > ~/.ssh/crossink_actions_signing
-          chmod 600 ~/.ssh/crossink_actions_signing
-          ssh-keygen -y -f ~/.ssh/crossink_actions_signing > ~/.ssh/crossink_actions_signing.pub
-
-          git config user.name "uxjulia"
-          git config user.email "julia@uxj.io"
-          git config gpg.format ssh
-          git config user.signingkey "$HOME/.ssh/crossink_actions_signing.pub"
-
-          git fetch origin "$DEFAULT_BRANCH"
-          git worktree add ../crossink-pages "origin/$DEFAULT_BRANCH"
-          cp ".pio/build/catalog" "../crossink-pages/docs/catalog"
-          cd ../crossink-pages
-          if git diff --quiet -- docs/catalog; then
-            echo "docs/catalog is already current"
-            exit 0
-          fi
-          git add docs/catalog
-          git commit -S -m "Update release manifests for v${RELEASE_VERSION}"
-          git push origin "HEAD:$DEFAULT_BRANCH"
-
+      # Published (not draft or prerelease) and marked latest: the device's
+      # releases/latest lookup ignores drafts and prereleases.
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
-          token: ${{ secrets.RELEASE_PAT }}
           tag_name: v${{ env.RELEASE_VERSION }}
           target_commitish: ${{ github.sha }}
-          draft: true
+          name: FluiDez Reader v${{ env.RELEASE_VERSION }}
+          draft: false
+          prerelease: false
+          make_latest: true
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          body: |
+            Update on the reader with **Settings > System > Check for Updates**, or copy the `.bin` for your reader to the SD card and use **Settings > System > SD Card Firmware Update**.
+
+            | Reader | Firmware |
+            | --- | --- |
+            | Xteink X4 Pro | `firmware-x4-pro-v${{ env.RELEASE_VERSION }}.bin` |
+            | Xteink X4 Classic | `firmware-x4-classic-v${{ env.RELEASE_VERSION }}.bin` |
+            | Xteink X3 / X4 | `firmware-x3-x4-v${{ env.RELEASE_VERSION }}.bin` |
+            | Seeed Studio Sticky | `firmware-sticky-v${{ env.RELEASE_VERSION }}.bin` |
           files: |
             release-firmware/firmware-x3-x4-v${{ env.RELEASE_VERSION }}.bin
             release-firmware/firmware-sticky-v${{ env.RELEASE_VERSION }}.bin

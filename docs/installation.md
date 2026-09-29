@@ -5,6 +5,8 @@ nav_order: 2
 
 # Installation
 
+FluiDez Reader firmware is published on the [FluiDez Reader releases page](https://github.com/micheljatuba/FluiDez-Reader/releases). The Inky web installer described below flashes stock CrossInk; install FluiDez Reader with the SD card or command-line method.
+
 ## Supported Devices
 
 - Xteink X3, X4
@@ -38,9 +40,13 @@ removed.
 
 #### For installing newer versions of CrossInk. Can be used by USB locked devices.
 
-1. Follow the same steps from the Web Installation method above. There will be an option to download the firmware instead of USB flashing.
+1. Download the `firmware-*.bin` for your reader from the [FluiDez Reader releases page](https://github.com/micheljatuba/FluiDez-Reader/releases). For stock CrossInk, follow the Web Installation steps above instead; there will be an option to download the firmware instead of USB flashing.
 2. Place the downloaded `firmware-*.bin` file on your SD card. You can place this file anywhere.
 3. Go to `Settings > System > SD Card Firmware Update` and navigate to the `.bin` file and update.
+
+## Over-the-Air Updates
+
+After FluiDez Reader is installed, `Settings > System > Check for Updates` downloads the newest FluiDez release for your reader over Wi-Fi. A release is offered only when its version is newer than the installed one, for example `v1.6-fluidez9` over `1.6-fluidez8`.
 
 ## USB Locked Devices
 
@@ -61,7 +67,7 @@ Install `esptool`:
 pip3 install esptool
 ```
 
-Download the `firmware-*.bin` file from the [releases page](https://github.com/uxjulia/CrossInk/releases), then connect your device with USB-C.
+Download the `firmware-*.bin` file from the [FluiDez Reader releases page](https://github.com/micheljatuba/FluiDez-Reader/releases), then connect your device with USB-C.
 
 Find the device port:
 
