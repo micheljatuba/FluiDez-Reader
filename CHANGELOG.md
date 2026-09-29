@@ -2,6 +2,8 @@
 
 ### Added
 
+- Five more SD-card font families: Gelasio, EB Garamond, Crimson Pro, Jost, and Arimo.
+- CI now builds the X4 Pro simulator and runs isolated headless smoke tests with the default, Classic, and Dashboard themes, retaining failure logs.
 - EPUBs with stable page numbers can jump directly to a specific stable page from the reader menu.
 - Hidden folders can be created using the web file manager now when prefixed with a dot.
 - Choose whole numbers, one decimal, or two decimals for the book progress percentage in status bar settings.
@@ -9,9 +11,14 @@
 - Go to % and Go to Stable Page use a numeric keypad for typing an exact destination, including decimal percentages. Touch devices use the keypad exclusively; button-only devices keep the slider by default and hold Confirm/Select to switch to the keypad.
 - Files can be renamed from the File Browser action menu while keeping reading progress, bookmarks, clippings, and recent-book entries linked to the new name.
 - Firmware builds can include only selected UI languages to reduce flash usage while preserving English fallback.
+- Recent Books can pin up to six books from the long-press menu. Pinned books stay at the top of Recent Books in the order they were pinned, follow Continue Reading on the Home screen, and are kept when older or finished books leave the list.
+- Lyra Grid UI theme: Lyra Carousel's icon menu with a 3x2 Home grid of six books (current, pinned, then recent), each with its reading-progress bar and a ribbon on pinned books.
+- Holding a Home book cover (or holding Confirm on the selected book in multi-cover themes without touch) opens Pin to Top/Unpin, Mark Finished, and Remove from Recent Books without leaving Home.
+- FluiDez Reader identity: a new symbol and Lexend Deca wordmark on the boot and default sleep screens, the Settings version footer, the default device name, and the web portal (logo, page titles, footer, and accent colour). Brand assets and the generator live in `docs/brand/` and `scripts/generate_brand_assets.py`.
 
 ### Changed
 
+- Touch readers check for input sooner after the screen has been idle, so a tap is no longer held back by the low-power sleep interval.
 - PNG, XTC, and image-dithering scratch buffers use fewer heap allocations to reduce fragmentation.
 - The shared settings catalog keeps its initial allocation instead of retaining unused vector capacity.
 - SPI SD-card transfers are batched through the ESP32 hardware FIFO for faster reads.
@@ -22,9 +29,23 @@
 - Web portal pages reuse browser-cached content after checking for firmware updates.
 - Rapid queued EPUB page turns defer text anti-aliasing and image loading until the final page, making intermediate turns faster.
 - Grayscale sleep screen images use the panel's direct grayscale waveform where supported, which folds the base frame into the grayscale pass instead of refreshing the screen separately first.
+- Keyboard, Wi-Fi selection, Nearby transfer and sync, and font download result screens follow Time to Sleep when left idle. The reader still stays awake while scanning, connecting, transferring, syncing, or downloading; unconfirmed typed text is discarded if it goes to sleep.
+- Cache clearing, stats backup, clock sync, firmware update, and font download screens no longer keep the CPU at full speed while waiting for input.
+- Lyra Carousel shows up to five books (two on each side of the selected cover) instead of three.
+- Dashboard stats use shorter, larger labels (for example "Leitura", "Restante", "Previsão") that wrap instead of being cut, and the footer gives each item the width it needs.
 
 ### Fixed
 
+- Per-book reading stats survive an SD card failure while replacing the stats file, and Delete Book Stats also removes the unfinished copy.
+- Dashboard Home and sleep screens no longer draw long stat labels over the cover or let stats, title, chapter, and footer overlap or leave the screen; the layout is computed from measured text and shrinks or drops the least important parts only when space runs out.
+- Portuguese Dashboard screens show "Restante" instead of the English "Time Left", and the Brazilian streak label reads "12 dias seguidos".
+- Lyra Carousel Home screens refresh cached books after changing the UI language, UI scale, or front-button mapping, after firmware updates, and when a book's title or author changes.
+- The sleep countdown starts when long downloads, cache clearing, and other blocking work finish, so their results stay visible for the full Time to Sleep period.
+- Quick Lock and consumed shortcuts now retain the main loop's normal waiting and idle CPU power-saving policy instead of spinning through early returns.
+- Web file manager navigation preserves folder names containing percent signs instead of decoding them twice.
+- EPUB metadata renaming recognizes EPUB 3 creator role refinements and no longer selects a tagged translator instead of the author.
+- Upload results distinguish optimized files, originals sent after optimization failures, and failed transfers, retaining warnings when the file list refreshes.
+- Simulator smoke-test timeouts now preserve captured diagnostics instead of dropping the simulator log.
 - Frontlight schedule time pickers now use the compact number keypad from Go To screens.
 - X4 Classic's left/right tilt direction labels now match the physical page-turn direction.
 - Touch keyboards no longer show button-only hold and navigation hints.

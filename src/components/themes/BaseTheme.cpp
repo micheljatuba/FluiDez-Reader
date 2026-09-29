@@ -457,7 +457,8 @@ void BaseTheme::drawHeader(const GfxRenderer& renderer, Rect rect, const char* t
                                         rect.height != metrics.homeTopPadding;
   const bool lyraHeader = SETTINGS.uiTheme == CrossPointSettings::UI_THEME::LYRA ||
                           SETTINGS.uiTheme == CrossPointSettings::UI_THEME::LYRA_3_COVERS ||
-                          SETTINGS.uiTheme == CrossPointSettings::UI_THEME::LYRA_CAROUSEL;
+                          SETTINGS.uiTheme == CrossPointSettings::UI_THEME::LYRA_CAROUSEL ||
+                          SETTINGS.uiTheme == CrossPointSettings::UI_THEME::LYRA_GRID;
   const bool roundedRaffHeader = !readerContext && SETTINGS.uiTheme == CrossPointSettings::UI_THEME::ROUNDEDRAFF;
   const int clockYOffset = roundedRaffHeader
                                ? roundedRaffHeaderClockYOffset

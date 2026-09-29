@@ -11,6 +11,8 @@
 #include <iterator>
 #include <utility>
 
+#include "RecentBooksOrder.h"
+
 namespace {
 constexpr uint8_t RECENT_BOOKS_FILE_VERSION = 3;
 constexpr char RECENT_BOOKS_FILE_BIN[] = "/.crosspoint/recent.bin";
@@ -26,6 +28,7 @@ void RecentBooksStore::toJson(JsonDocument& doc) const {
     obj["author"] = book.author;
     obj["coverBmpPath"] = book.coverBmpPath;
     obj["coverState"] = static_cast<uint8_t>(book.coverState);
+    if (book.pinSequence != 0) obj["pinned"] = book.pinSequence;
   }
 }
 
@@ -46,7 +49,16 @@ bool RecentBooksStore::fromJson(JsonVariantConst doc) {
     if (storedCoverState == static_cast<int>(RecentBook::CoverState::Missing)) {
       book.coverState = RecentBook::CoverState::Missing;
     }
+    book.pinSequence = obj["pinned"] | 0U;
     recentBooks.push_back(book);
+  }
+
+  // A hand-edited or newer file may pin more books than this firmware keeps; drop the latest pins.
+  while (RecentBooksOrder::pinnedCount(recentBooks) > static_cast<size_t>(MAX_PINNED_BOOKS)) {
+    const auto latest =
+        std::max_element(recentBooks.begin(), recentBooks.end(),
+                         [](const RecentBook& a, const RecentBook& b) { return a.pinSequence < b.pinSequence; });
+    latest->pinSequence = 0;
   }
 
   return true;
@@ -87,9 +99,7 @@ void RecentBooksStore::addOrUpdateBook(const std::string& path, const std::strin
   } else {
     recentBooks.insert(recentBooks.begin(), {path, title, author, coverBmpPath, coverState});
     changed = true;
-    if (recentBooks.size() > MAX_RECENT_BOOKS) {
-      recentBooks.resize(MAX_RECENT_BOOKS);
-    }
+    RecentBooksOrder::trimToCapacity(recentBooks, MAX_RECENT_BOOKS);
   }
   if (changed) saveToFile();
 }
@@ -129,6 +139,56 @@ bool RecentBooksStore::removeByPath(const std::string& path) {
     LOG_ERR("RBS", "Failed to persist removal of recent book: %s", path.c_str());
   }
   return true;
+}
+
+bool RecentBooksStore::removeUnpinnedByPath(const std::string& path) {
+  if (isPinned(path)) {
+    return false;
+  }
+  return removeByPath(path);
+}
+
+bool RecentBooksStore::isPinned(const std::string& path) const {
+  ensureLoaded();
+  const auto it =
+      std::find_if(recentBooks.begin(), recentBooks.end(), [&](const RecentBook& book) { return book.path == path; });
+  return it != recentBooks.end() && it->pinSequence != 0;
+}
+
+int RecentBooksStore::getPinnedCount() const {
+  ensureLoaded();
+  return static_cast<int>(RecentBooksOrder::pinnedCount(recentBooks));
+}
+
+RecentBooksStore::PinResult RecentBooksStore::setPinned(const std::string& path, const bool pinned) {
+  ensureLoaded();
+
+  auto it =
+      std::find_if(recentBooks.begin(), recentBooks.end(), [&](const RecentBook& book) { return book.path == path; });
+  if (it == recentBooks.end()) {
+    LOG_ERR("RBS", "Cannot change pin for a book outside Recent Books: %s", path.c_str());
+    return PinResult::Failed;
+  }
+  if ((it->pinSequence != 0) == pinned) {
+    return PinResult::Changed;
+  }
+  if (pinned && RecentBooksOrder::pinnedCount(recentBooks) >= static_cast<size_t>(MAX_PINNED_BOOKS)) {
+    return PinResult::LimitReached;
+  }
+
+  const uint32_t previousSequence = it->pinSequence;
+  it->pinSequence = pinned ? RecentBooksOrder::nextPinSequence(recentBooks) : 0;
+  if (!saveToFile()) {
+    it->pinSequence = previousSequence;
+    LOG_ERR("RBS", "Failed to persist pin change for recent book: %s", path.c_str());
+    return PinResult::Failed;
+  }
+  return PinResult::Changed;
+}
+
+size_t RecentBooksStore::getDisplayOrder(const bool keepMostRecentFirst, DisplayOrder& order) const {
+  ensureLoaded();
+  return RecentBooksOrder::displayOrder(recentBooks, keepMostRecentFirst, order);
 }
 
 bool RecentBooksStore::updatePath(const std::string& oldPath, const std::string& newPath,

@@ -14,7 +14,7 @@ Simulator smoke test:
 - Run `./scripts/run_simulator_smoke_test.py` from the repo root.
 - The script builds `env:simulator`, creates a temporary `fs_`, copies a test EPUB into it, opens common screens, renders them, drives reader page/menu input, and fails on crashes or missing success output.
 - Use `--book path/to/book.epub` to choose a specific EPUB and `--page-turns 10` to change how far the reader flow navigates.
-- Use `--theme lyra-carousel` to run the flow with a specific UI theme. Supported names include `classic`, `lyra`, `lyra-extended`, `roundedraff`, and `lyra-carousel`.
+- Use `--theme lyra-carousel` to run the flow with a specific UI theme. Supported names include `classic`, `lyra`, `lyra-extended`, `roundedraff`, `lyra-carousel`, `dashboard`, and `lyra-grid`.
 - Use `--no-build` to reuse the existing simulator binary or `--window` to show the SDL window instead of running headless.
 
 Expected coverage:
@@ -43,9 +43,27 @@ High-risk storage/update coverage:
   logical positions, seeks, short/error I/O, sticky write failures, binary format
   compatibility, and truncated records. Zero capacity exercises passthrough;
   allocation failure and real SdFat timing/locking are not simulated.
+- `book_reading_stats` executes production `BookReadingStats.cpp` against an
+  in-memory SD card with injected rename and remove failures. It checks that a
+  failed publish keeps the only complete stats copy for recovery, that the next
+  save republishes it, and that deleting stats also removes an unpublished copy.
 - Existing `section_persistence`, `pxc_v2`, `firmware_board_tag`, and memory-policy
   suites complement these tests with cache persistence, compressed-image input,
   board compatibility, and allocation-policy coverage.
+
+Home layout coverage:
+- `dashboard_layout` renders the production `DashboardLayout.cpp` (Dashboard
+  Home/sleep stats, title, footer), `LyraGridLayout.cpp` (Lyra Grid tiles) and
+  `FluiDezBrand.cpp` (boot and sleep logo lockup)
+  with the real built-in Inter fonts into a memory-only framebuffer. It asserts
+  that nothing leaves the screen or overlaps the cover, that normal English and
+  Brazilian Portuguese labels are not truncated, that the X4 Pro keeps its
+  296x444 Dashboard cover and 136x204 grid covers, and that the logo lockup is
+  upright, centred and above the version line. Set `DASHBOARD_PREVIEW_DIR`
+  to a folder to also write PGM previews of each case, converted to PNG with
+  `python3` (`python` on Windows, or the interpreter in
+  `DASHBOARD_PREVIEW_PYTHON`) for visual review. Cover bitmaps are drawn as grey
+  placeholders.
 
 Remaining high-risk integration gaps include the complete firmware download /
 flash / reboot sequence, interrupted settings writes and migration, and activity

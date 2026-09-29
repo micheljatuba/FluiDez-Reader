@@ -15,8 +15,8 @@
 #include "CrossPointSettings.h"
 #include "CrossPointState.h"
 #include "ImageFolderIndex.h"
+#include "components/FluiDezBrand.h"
 #include "fontIds.h"
-#include "images/Logo120.h"
 
 namespace {
 
@@ -115,13 +115,14 @@ bool tryDrawRotatingBootImage(const GfxRenderer& renderer) {
 }
 
 void drawDefaultBootLogo(const GfxRenderer& renderer) {
-  const auto pageWidth = renderer.getScreenWidth();
   const auto pageHeight = renderer.getScreenHeight();
+  const int statusGap = 20;
+  const int statusHeight = renderer.getLineHeight(SMALL_FONT_ID);
 
   renderer.clearScreen();
-  renderer.drawImage(Logo120, (pageWidth - 120) / 2, (pageHeight - 120) / 2, 120, 120);
-  renderer.drawCenteredText(UI_10_FONT_ID, pageHeight / 2 + 70, tr(STR_CROSSINK), true, EpdFontFamily::BOLD);
-  renderer.drawCenteredText(SMALL_FONT_ID, pageHeight / 2 + 95, tr(STR_BOOTING));
+  const int lockupBottom =
+      FluiDezBrand::drawLockup(renderer, FluiDezBrand::centredLockupTop(renderer, statusGap + statusHeight));
+  renderer.drawCenteredText(SMALL_FONT_ID, lockupBottom + statusGap, tr(STR_BOOTING));
   renderer.drawCenteredText(SMALL_FONT_ID, pageHeight - 30, CROSSINK_VERSION);
 }
 

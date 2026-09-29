@@ -1,4 +1,4 @@
-/* Shared chrome for all CrossInk web portal pages.
+/* Shared chrome for all FluiDez Reader web portal pages.
    Page-specific rules live in each page's own inline <style>. */
 :root {
   --font-color: #1f2933;
@@ -7,10 +7,11 @@
   --card-bg: #ffffff;
   --label-color: #6b7280;
   --border-color: #e6e8ec;
-  --accent-color: #6e9a82;
-  --accent-hover-color: #5a8c73;
-  --accent-soft: rgba(110, 154, 130, 0.12);
-  --accent-color-10: rgba(110, 154, 130, 0.1);
+  /* FluiDez identity: "Fluidez" teal (docs/brand/README.md). */
+  --accent-color: #1f7a8c;
+  --accent-hover-color: #196777;
+  --accent-soft: rgba(31, 122, 140, 0.12);
+  --accent-color-10: rgba(31, 122, 140, 0.1);
   --logo-filter: brightness(0);
   --success-color: #16a34a;
   --success-hover: #15803d;
@@ -31,7 +32,9 @@
     --card-bg: #21242a;
     --label-color: #9aa3af;
     --border-color: #343941;
-    --accent-soft: rgba(110, 154, 130, 0.2);
+    --accent-color: #2a90a4;
+    --accent-hover-color: #36a3b8;
+    --accent-soft: rgba(42, 144, 164, 0.22);
     --logo-filter: none;
     --toggle-bg: #4b5563;
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -50,8 +53,20 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
-.crossink-header {
-  font-family: serif;
+.wordmark {
+  font-weight: 400;
+}
+.wordmark-dez {
+  font-weight: 700;
+}
+.wordmark-reader {
+  /* A margin, not a space: build_web.py strips whitespace between tags. */
+  margin-left: 0.4em;
+  color: var(--label-color);
+  font-size: 0.45em;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
 }
 h1 {
   display: flex;

@@ -841,6 +841,7 @@ std::optional<CrossPointPosition> ProgressMapper::fromRichPosition(const std::sh
 
   CrossPointPosition result{};
   result.spineIndex = rich.spineIndex;
+  result.hasResolvedSpineIndex = true;
 
   Section tempSection(epub, result.spineIndex, renderer);
   const auto cachedCount = tempSection.getCachedPageCount();
@@ -856,6 +857,7 @@ std::optional<CrossPointPosition> ProgressMapper::fromRichPosition(const std::sh
   if (result.totalPages == remotePages) {
     // Identical layout (same render settings) — the page transfers losslessly.
     result.pageNumber = std::min<int>(rich.pageNumber, result.totalPages - 1);
+    result.hasMappedPage = true;
     LOG_DBG("PM", "Rich position exact: spine=%d page=%d/%d", result.spineIndex, result.pageNumber, result.totalPages);
     return result;
   }
@@ -867,6 +869,7 @@ std::optional<CrossPointPosition> ProgressMapper::fromRichPosition(const std::sh
       result.paragraphIndex = *rich.paragraphIndex;
       result.hasParagraphIndex = true;
       result.pageNumber = std::min<int>(*lutPage, result.totalPages - 1);
+      result.hasMappedPage = true;
       LOG_DBG("PM", "Rich position para %u -> spine=%d page=%d/%d", *rich.paragraphIndex, result.spineIndex,
               result.pageNumber, result.totalPages);
       return result;
@@ -916,6 +919,7 @@ CrossPointPosition ProgressMapper::toCrossPoint(const std::shared_ptr<Epub>& epu
 
   if (xpathSpine >= 0 && xpathSpine < spineCount) {
     result.spineIndex = xpathSpine;
+    result.hasResolvedSpineIndex = true;
   } else {
     for (int i = 0; i < spineCount; i++) {
       if (epub->getCumulativeSpineItemSize(i) >= targetBytes) {

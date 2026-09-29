@@ -6,6 +6,7 @@
 #include <I18n.h>
 
 #include <algorithm>
+#include <iterator>
 #include <memory>
 
 #include "BookActions.h"
@@ -42,10 +43,13 @@ void RecentBooksActivity::loadRecentBooks() {
   const auto& books = RECENT_BOOKS.getBooks();
   recentBooks.reserve(std::min(books.size(), MAX_LIST_RECENT_BOOKS));
 
-  for (const auto& book : books) {
+  RecentBooksStore::DisplayOrder order{};
+  const size_t orderCount = RECENT_BOOKS.getDisplayOrder(/*keepMostRecentFirst=*/false, order);
+  for (size_t i = 0; i < orderCount; ++i) {
     if (recentBooks.size() >= MAX_LIST_RECENT_BOOKS) {
       break;
     }
+    const RecentBook& book = books[order[i]];
     if (RecentBooksStore::isMissing(book)) {
       continue;
     }
@@ -184,8 +188,13 @@ void RecentBooksActivity::loop() {
   });
 }
 
-void RecentBooksActivity::reloadAfterBookAction() {
+void RecentBooksActivity::reloadAfterBookAction(const std::string& selectPath) {
   loadRecentBooks();
+  if (!selectPath.empty()) {
+    const auto it = std::find_if(recentBooks.begin(), recentBooks.end(),
+                                 [&](const RecentBook& book) { return book.path == selectPath; });
+    if (it != recentBooks.end()) selectorIndex = static_cast<size_t>(std::distance(recentBooks.begin(), it));
+  }
   if (recentBooks.empty()) {
     selectorIndex = 0;
   } else if (selectorIndex >= recentBooks.size()) {
@@ -344,6 +353,13 @@ void RecentBooksActivity::showBookActionMenu(const size_t bookIndex, const bool 
           case FileBrowserAction::RemoveFromRecents:
             promptRemoveBook(book.path, book.title);
             return;
+          case FileBrowserAction::PinBook:
+          case FileBrowserAction::UnpinBook:
+            BookActions::setRecentBookPinned(
+                renderer, book.path,
+                static_cast<FileBrowserAction>(actionResult->action) == FileBrowserAction::PinBook);
+            reloadAfterBookAction(book.path);
+            return;
           case FileBrowserAction::SendNearby:
             activityManager.goToNearbyBookSend(book.path, false);
             return;
@@ -387,6 +403,7 @@ void RecentBooksActivity::buildListScreen(UiApp::ScreenType& screen) {
     fui::ListItem item;
     item.label = book.title.c_str();
     if (!book.author.empty()) item.subtitle = book.author.c_str();
+    if (book.pinSequence != 0) item.value = tr(STR_PINNED_BOOK);
     item.icon = listIconFor(UITheme::getFileIcon(book.path), 32);  // subtitle rows carry the larger icon
     item.actionValue = static_cast<int16_t>(items.size());
     items.push_back(item);

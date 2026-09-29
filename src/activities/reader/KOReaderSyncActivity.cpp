@@ -21,6 +21,7 @@
 #include "KOReaderCredentialStore.h"
 #include "KOReaderDocumentId.h"
 #include "MappedInputManager.h"
+#include "ProgressComparison.h"
 #include "ReaderUtils.h"
 #include "SdCardFontSystem.h"
 #include "SilentRestart.h"
@@ -438,44 +439,52 @@ void KOReaderSyncActivity::performSync() {
         LOG_DBG("KOSync", "Paragraph %u -> LUT page %d, nextPara page %s, intra page %d, using %d",
                 remotePosition.paragraphIndex, *paragraphPage, nextParaBuf, remotePosition.pageNumber, refinedPage);
         remotePosition.pageNumber = refinedPage;
+        refined = true;
       } else {
         LOG_DBG("KOSync", "Paragraph %u not found in section LUT", remotePosition.paragraphIndex);
       }
     }
+    remotePosition.hasMappedPage = refined;
   }
 
+  // Order the two positions by chapter, then page or visible-text offset, and
+  // only fall back to percentages when neither side has layout-backed evidence:
+  // KOReader and CrossInk derive percentages differently, so they can disagree
+  // with the real reading order (port of crosspoint-reader#3111).
+  CrossPointPosition localPosition{currentSpineIndex, currentPage, totalPagesInSpine};
+  localPosition.hasResolvedSpineIndex = true;
+  localPosition.hasMappedPage = true;
+  const ProgressComparison comparison =
+      compareProgress(localPosition, localProgress.percentage, remotePosition, remoteProgress.percentage);
+
   if (smartSyncEnabled()) {
-    static constexpr float SAME_PROGRESS_EPSILON = 0.001f;  // 0.1 percentage points
-    const float delta = localProgress.percentage - remoteProgress.percentage;
-    LOG_DBG("KOSync", "Smart decision: doc=%s local=%.6f remote=%.6f delta=%.6f remoteXpath=%s mapped=%d/%d",
-            documentHash.c_str(), localProgress.percentage, remoteProgress.percentage, delta,
+    LOG_DBG("KOSync", "Smart decision: doc=%s result=%d local=%.6f remote=%.6f remoteXpath=%s mapped=%d/%d",
+            documentHash.c_str(), static_cast<int>(comparison), localProgress.percentage, remoteProgress.percentage,
             remoteProgress.progress.c_str(), remotePosition.spineIndex, remotePosition.pageNumber);
-    if (std::fabs(delta) <= SAME_PROGRESS_EPSILON) {
-      completeAlreadySynced();
-      return;
+    switch (comparison) {
+      case ProgressComparison::Synchronized:
+        completeAlreadySynced();
+        return;
+      case ProgressComparison::LocalAhead:
+        // Alternate hashes are only probes for newer remote state. Keep uploads
+        // on the user's configured matching method so its primary record heals.
+        documentHash = primaryHash;
+        performUpload();
+        return;
+      case ProgressComparison::RemoteAhead:
+        saveProgressAndReturn(remotePosition);
+        return;
+      case ProgressComparison::Unknown:
+        LOG_DBG("KOSync", "Smart sync comparison unknown; opening manual selection");
+        break;
     }
-
-    if (delta > 0) {
-      // Alternate hashes are only probes for newer remote state. Keep uploads
-      // on the user's configured matching method so its primary record heals.
-      documentHash = primaryHash;
-      performUpload();
-      return;
-    }
-
-    saveProgressAndReturn(remotePosition);
-    return;
   }
   {
     RenderLock lock(*this);
     state = SHOWING_RESULT;
 
     // Default to the option that corresponds to the furthest progress
-    if (localProgress.percentage > remoteProgress.percentage) {
-      selectedOption = 1;  // Upload local progress
-    } else {
-      selectedOption = 0;  // Apply remote progress
-    }
+    selectedOption = comparison == ProgressComparison::LocalAhead ? 1 : 0;  // 1 = upload local, 0 = apply remote
   }
   requestUpdate(true);
 }

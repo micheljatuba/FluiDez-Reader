@@ -13,6 +13,8 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <cstring>
+#include <iterator>
 
 #include "BookActions.h"
 #include "CrossPointSettings.h"
@@ -219,8 +221,11 @@ void RecentBooksGridActivity::loadRecentBooks() {
   const auto& books = RECENT_BOOKS.getBooks();
   recentBooks.reserve(std::min(books.size(), static_cast<size_t>(MAX_GRID_BOOKS)));
 
-  for (const auto& book : books) {
+  RecentBooksStore::DisplayOrder order{};
+  const size_t orderCount = RECENT_BOOKS.getDisplayOrder(/*keepMostRecentFirst=*/false, order);
+  for (size_t i = 0; i < orderCount; ++i) {
     if (recentBooks.size() >= MAX_GRID_BOOKS) break;
+    const RecentBook& book = books[order[i]];
     if (!Storage.exists(book.path.c_str())) continue;
     recentBooks.push_back(BookState{book});
   }
@@ -466,8 +471,13 @@ void RecentBooksGridActivity::loop() {
   buttonNavigator.onContinuous({MappedInputManager::Button::Up}, [&] { handleNav(NavDirection::Up); });
 }
 
-void RecentBooksGridActivity::reloadAfterBookAction() {
+void RecentBooksGridActivity::reloadAfterBookAction(const std::string& selectPath) {
   loadRecentBooks();
+  if (!selectPath.empty()) {
+    const auto it = std::find_if(recentBooks.begin(), recentBooks.end(),
+                                 [&](const BookState& state) { return state.book.path == selectPath; });
+    if (it != recentBooks.end()) selectorIndex = static_cast<int>(std::distance(recentBooks.begin(), it));
+  }
   if (recentBooks.empty()) {
     selectorIndex = 0;
   } else if (selectorIndex >= static_cast<int>(recentBooks.size())) {
@@ -625,6 +635,13 @@ void RecentBooksGridActivity::showBookActionMenu(const int bookIndex, const bool
           case FileBrowserAction::RemoveFromRecents:
             promptRemoveBook(book.path, book.title);
             return;
+          case FileBrowserAction::PinBook:
+          case FileBrowserAction::UnpinBook:
+            BookActions::setRecentBookPinned(
+                renderer, book.path,
+                static_cast<FileBrowserAction>(actionResult->action) == FileBrowserAction::PinBook);
+            reloadAfterBookAction(book.path);
+            return;
           case FileBrowserAction::SendNearby:
             activityManager.goToNearbyBookSend(book.path, false);
             return;
@@ -693,8 +710,18 @@ void RecentBooksGridActivity::render(RenderLock&&) {
       const int progressSuffixWidth =
           hasProgress ? separatorWidth + progressWidth + progressIconGap + progressIconSize : 0;
       const int titleMaxWidth = std::max(0, totalGridWidth - progressSuffixWidth);
+      const char* titleLabel = selectedBook.book.title.c_str();
+      std::string pinnedTitleLabel;
+      if (selectedBook.book.pinSequence != 0) {
+        const char* pinnedPrefix = tr(STR_PINNED_BOOK);
+        pinnedTitleLabel.reserve(strlen(pinnedPrefix) + 2 + selectedBook.book.title.size());
+        pinnedTitleLabel = pinnedPrefix;
+        pinnedTitleLabel += ": ";
+        pinnedTitleLabel += selectedBook.book.title;
+        titleLabel = pinnedTitleLabel.c_str();
+      }
       const std::string truncTitle =
-          renderer.truncatedText(UI_10_FONT_ID, selectedBook.book.title.c_str(), titleMaxWidth, EpdFontFamily::REGULAR);
+          renderer.truncatedText(UI_10_FONT_ID, titleLabel, titleMaxWidth, EpdFontFamily::REGULAR);
       renderer.drawText(UI_10_FONT_ID, startXOffset, titleY, truncTitle.c_str(), true, EpdFontFamily::REGULAR);
       if (hasProgress) {
         const int titleWidth = renderer.getTextWidth(UI_10_FONT_ID, truncTitle.c_str(), EpdFontFamily::REGULAR);

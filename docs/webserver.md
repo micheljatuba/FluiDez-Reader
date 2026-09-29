@@ -97,6 +97,14 @@ The File Manager page can:
 - Move files into existing folders
 - Delete one or more selected files or empty folders
 
+Folder names containing literal percent signs or percent-encoded-looking text
+are preserved when navigating, including names such as `100% Read` and `A%2FB`.
+
+When **Rename from Book Metadata** is enabled, EPUB filenames use the book's
+title and author. Author selection supports both EPUB 2 role attributes and
+EPUB 3 role refinements, so a creator identified only as a translator or editor
+is not mistaken for the author.
+
 Existing files with the same name are overwritten by uploads. When EPUB files
 are overwritten, moved, renamed, or deleted through the web server, the matching
 book cache is cleared so stale metadata is not reused.
@@ -117,6 +125,14 @@ Optimization changes the EPUB file contents before upload. Note: if you use
 hash-based KOReader sync, this will break the syncing because it changes the epub
 and therefore the hash. Use filename based syncing to ensure compatibility.
 If optimization fails, the uploader falls back to sending the original file.
+
+After an upload batch finishes, the dialog closes and the file list refreshes
+without reloading the page. **Upload results** lists each file as optimized and
+uploaded, original uploaded, or upload failed. An original sent after an
+optimization failure has an explicit warning and the conversion error; it is
+not reported as successfully optimized. Files that fail to upload retain the
+existing retry controls. Results remain visible until dismissed, another upload
+starts, or the page is reloaded.
 
 ### Settings
 

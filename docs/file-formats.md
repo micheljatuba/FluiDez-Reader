@@ -47,6 +47,42 @@ struct ImageFolderIndexRecord {
 };
 ```
 
+## `/.crosspoint/home_carousel_cache.bin`
+
+### Version 6
+
+`HomeActivity` keeps one Lyra Carousel framebuffer snapshot per recent book
+(up to five) so returning to Home and paging the carousel is an SD read rather than a live
+cover render. The cache is disposable: a layout mismatch (version, book count,
+framebuffer size, screen or thumb dimensions) makes the whole file stale, and
+it is rebuilt one frame at a time as frames are rendered.
+
+Each frame carries its own validity hash. It covers the dark-mode flag, the
+menu visibility flags, whether any global reading stats exist, every recent
+book's path, cover path and thumb availability (side covers appear in every
+frame), and the hashed contents of that frame's own book `progress.bin` and
+`stats_v5.bin`. Reading one book therefore invalidates only its own frame.
+A hash of 0 marks a slot that was never written; a frame write zeroes its
+hash, writes the pixels, then writes the new hash, syncing after each step.
+
+```c++
+struct CarouselCacheHeader {
+    u32 magic;            // "CCAR" (0x43434152)
+    u16 version;          // 6
+    u16 frameCount;       // number of recent books
+    u32 frameBufferSize;
+    u64 reserved;         // v5 whole-snapshot key hash; unused since v6
+    u16 screenWidth;
+    u16 screenHeight;
+    u16 centerCoverW;
+    u16 centerCoverH;
+    u16 sideCoverW;
+    u16 sideCoverH;
+};
+// followed by u64 frameHash[frameCount]
+// followed by u8 frame[frameCount][frameBufferSize]
+```
+
 ## `book.bin`
 
 ### Version 9

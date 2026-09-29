@@ -11,6 +11,15 @@
   </div>
 </div>
 
+<div class="card upload-results" id="uploadResults" style="display: none">
+  <div class="contents-header">
+    <h2 class="contents-title">Upload results</h2>
+    <button class="dismiss-btn" onclick="dismissUploadResults()" aria-label="Dismiss upload results">&times;</button>
+  </div>
+  <div id="uploadResultsSummary" role="status" aria-live="polite"></div>
+  <ul id="uploadResultsList"></ul>
+</div>
+
 <!-- Failed Uploads Banner -->
 <div class="failed-uploads-banner" id="failedUploadsBanner">
   <div class="failed-uploads-header">

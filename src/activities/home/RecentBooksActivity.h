@@ -45,7 +45,7 @@ class RecentBooksActivity final : public Activity {
 
   // Data loading
   void loadRecentBooks();
-  void reloadAfterBookAction();
+  void reloadAfterBookAction(const std::string& selectPath = {});
 
   void promptDeleteBook(const RecentBook& book);
   // Show an OK/Cancel prompt to remove the given book from the Recent Books list.

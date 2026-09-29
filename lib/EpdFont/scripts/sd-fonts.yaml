@@ -255,6 +255,87 @@ families:
           variable: { wght: 700 },
         }
 
+  - name: Gelasio
+    description: "Sturdy screen serif with Georgia metrics"
+    languages: "Latin"
+    intervals: latin-ext
+    sizes: [8, 9, 10, 12, 14, 16, 18, 20]
+    styles:
+      regular:
+        {
+          url: "https://raw.githubusercontent.com/google/fonts/main/ofl/gelasio/Gelasio%5Bwght%5D.ttf",
+          variable: { wght: 400 },
+        }
+      bold:
+        {
+          url: "https://raw.githubusercontent.com/google/fonts/main/ofl/gelasio/Gelasio%5Bwght%5D.ttf",
+          variable: { wght: 700 },
+        }
+      italic:
+        {
+          url: "https://raw.githubusercontent.com/google/fonts/main/ofl/gelasio/Gelasio-Italic%5Bwght%5D.ttf",
+          variable: { wght: 400 },
+        }
+      bolditalic:
+        {
+          url: "https://raw.githubusercontent.com/google/fonts/main/ofl/gelasio/Gelasio-Italic%5Bwght%5D.ttf",
+          variable: { wght: 700 },
+        }
+
+  - name: EBGaramond
+    description: "Classic old-style book serif"
+    languages: "Latin, Greek, Cyrillic"
+    intervals: latin-ext,greek,cyrillic
+    sizes: [8, 9, 10, 12, 14, 16, 18, 20]
+    styles:
+      regular:
+        {
+          url: "https://raw.githubusercontent.com/google/fonts/main/ofl/ebgaramond/EBGaramond%5Bwght%5D.ttf",
+          variable: { wght: 400 },
+        }
+      bold:
+        {
+          url: "https://raw.githubusercontent.com/google/fonts/main/ofl/ebgaramond/EBGaramond%5Bwght%5D.ttf",
+          variable: { wght: 700 },
+        }
+      italic:
+        {
+          url: "https://raw.githubusercontent.com/google/fonts/main/ofl/ebgaramond/EBGaramond-Italic%5Bwght%5D.ttf",
+          variable: { wght: 400 },
+        }
+      bolditalic:
+        {
+          url: "https://raw.githubusercontent.com/google/fonts/main/ofl/ebgaramond/EBGaramond-Italic%5Bwght%5D.ttf",
+          variable: { wght: 700 },
+        }
+
+  - name: CrimsonPro
+    description: "Book serif tuned for long-form reading"
+    languages: "Latin, Greek, Cyrillic"
+    intervals: latin-ext,greek,cyrillic
+    sizes: [8, 9, 10, 12, 14, 16, 18, 20]
+    styles:
+      regular:
+        {
+          url: "https://raw.githubusercontent.com/google/fonts/main/ofl/crimsonpro/CrimsonPro%5Bwght%5D.ttf",
+          variable: { wght: 400 },
+        }
+      bold:
+        {
+          url: "https://raw.githubusercontent.com/google/fonts/main/ofl/crimsonpro/CrimsonPro%5Bwght%5D.ttf",
+          variable: { wght: 700 },
+        }
+      italic:
+        {
+          url: "https://raw.githubusercontent.com/google/fonts/main/ofl/crimsonpro/CrimsonPro-Italic%5Bwght%5D.ttf",
+          variable: { wght: 400 },
+        }
+      bolditalic:
+        {
+          url: "https://raw.githubusercontent.com/google/fonts/main/ofl/crimsonpro/CrimsonPro-Italic%5Bwght%5D.ttf",
+          variable: { wght: 700 },
+        }
+
   # ── Sans-serif ─────────────────────────────────────────────────────────
 
   - name: Alegreya
@@ -383,6 +464,60 @@ families:
       italic: { url: "https://raw.githubusercontent.com/adobe-fonts/source-sans/release/TTF/SourceSans3-It.ttf" }
       bolditalic:
         { url: "https://raw.githubusercontent.com/adobe-fonts/source-sans/release/TTF/SourceSans3-BoldIt.ttf" }
+
+  - name: Jost
+    description: "Geometric sans in the Futura tradition"
+    languages: "Latin, Cyrillic"
+    intervals: latin-ext,cyrillic
+    sizes: [8, 9, 10, 12, 14, 16, 18, 20]
+    styles:
+      regular:
+        {
+          url: "https://raw.githubusercontent.com/google/fonts/main/ofl/jost/Jost%5Bwght%5D.ttf",
+          variable: { wght: 400 },
+        }
+      bold:
+        {
+          url: "https://raw.githubusercontent.com/google/fonts/main/ofl/jost/Jost%5Bwght%5D.ttf",
+          variable: { wght: 700 },
+        }
+      italic:
+        {
+          url: "https://raw.githubusercontent.com/google/fonts/main/ofl/jost/Jost-Italic%5Bwght%5D.ttf",
+          variable: { wght: 400 },
+        }
+      bolditalic:
+        {
+          url: "https://raw.githubusercontent.com/google/fonts/main/ofl/jost/Jost-Italic%5Bwght%5D.ttf",
+          variable: { wght: 700 },
+        }
+
+  - name: Arimo
+    description: "Neutral grotesque sans with Arial metrics"
+    languages: "Latin, Greek, Cyrillic"
+    intervals: latin-ext,greek,cyrillic
+    sizes: [8, 9, 10, 12, 14, 16, 18, 20]
+    styles:
+      regular:
+        {
+          url: "https://raw.githubusercontent.com/google/fonts/main/ofl/arimo/Arimo%5Bwght%5D.ttf",
+          variable: { wght: 400 },
+        }
+      bold:
+        {
+          url: "https://raw.githubusercontent.com/google/fonts/main/ofl/arimo/Arimo%5Bwght%5D.ttf",
+          variable: { wght: 700 },
+        }
+      italic:
+        {
+          url: "https://raw.githubusercontent.com/google/fonts/main/ofl/arimo/Arimo-Italic%5Bwght%5D.ttf",
+          variable: { wght: 400 },
+        }
+      bolditalic:
+        {
+          url: "https://raw.githubusercontent.com/google/fonts/main/ofl/arimo/Arimo-Italic%5Bwght%5D.ttf",
+          variable: { wght: 700 },
+        }
 
   # ── Monospace ──────────────────────────────────────────────────────────
 

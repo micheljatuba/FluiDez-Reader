@@ -42,6 +42,8 @@ enum class SmokeStep : uint8_t {
   Sleep,
   Reader,
   ReaderInput,
+  HomeAfterReader,
+  HomeRevisit,
   Done,
 };
 
@@ -455,6 +457,22 @@ class SimulatorSmokeTest {
         runReaderInputScript();
         break;
 
+      case SmokeStep::HomeAfterReader:
+        // Leaving a book invalidates only that book's carousel frame (crossink#743).
+        activityManager.goHome();
+        queueStep("Home after reader", SmokeStep::HomeRevisit, 8);
+        break;
+
+      case SmokeStep::HomeRevisit:
+        if (!activityManager.isCurrentActivityNamed("Home")) {
+          fail("Expected Home after leaving the reader");
+          break;
+        }
+        // A second visit with nothing changed pages the frame back in from SD.
+        activityManager.goHome();
+        queueStep("Home revisit", SmokeStep::Done, 8);
+        break;
+
       case SmokeStep::Done:
         LOG_INF("SMOKE", "Simulator smoke test passed");
         std::_Exit(0);
@@ -540,7 +558,7 @@ class SimulatorSmokeTest {
   void buildReaderInputScript() {
     inputScript.clear();
     scriptIndex = 0;
-    inputCompletionStep = SmokeStep::Done;
+    inputCompletionStep = SmokeStep::HomeAfterReader;
 
     const int turns = pageTurnCount();
 #if CROSSINK_APP_CAP_TOUCH

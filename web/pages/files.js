@@ -1,9 +1,9 @@
 // get current path from query parameter
-const currentPath = decodeURIComponent(new URLSearchParams(window.location.search).get("path") || "/");
+const currentPath = new URLSearchParams(window.location.search).get("path") || "/";
 
 if (currentPath !== "/") {
   const leaf = currentPath.split("/").filter(Boolean).pop();
-  if (leaf) document.title = leaf + " - Files - CrossInk Reader";
+  if (leaf) document.title = leaf + " - Files - FluiDez Reader";
 }
 
 // Network status monitoring
@@ -110,6 +110,10 @@ async function hydrate() {
     });
   });
 
+  await refreshFileList();
+}
+
+async function refreshFileList() {
   const breadcrumbs = document.getElementById("directory-breadcrumbs");
   const fileTable = document.getElementById("file-table");
 
@@ -1966,7 +1970,7 @@ function exportLogToFile(filename = null, isBatch = false) {
   }
   // Extract text from log entries
   const entries = logContainer.querySelectorAll(".log-entry");
-  let logText = `CrossInk Reader ${crosspointVersion} - EPUB Conversion Log\n`;
+  let logText = `FluiDez Reader ${crosspointVersion} - EPUB Conversion Log\n`;
   logText += `Generated: ${new Date().toLocaleString()}\n`;
   logText += `${"=".repeat(60)}\n\n`;
 
@@ -2204,16 +2208,29 @@ async function getMetadataFilenameForEpub(file) {
 
   const title = doc.getElementsByTagNameNS("*", "title")[0]?.textContent || "";
   const creators = Array.from(doc.getElementsByTagNameNS("*", "creator"));
-  const getCreatorRole = (element) =>
-    (
+  const roleRefinements = Array.from(doc.getElementsByTagNameNS("*", "meta")).filter(
+    (element) => element.getAttribute("property") === "role",
+  );
+  const creatorCandidates = creators.map((element) => {
+    const attributeRole = (
       element.getAttribute("role") ||
       element.getAttribute("opf:role") ||
       element.getAttributeNS("http://www.idpf.org/2007/opf", "role") ||
       ""
-    ).toLowerCase();
+    ).trim().toLowerCase();
+    const id = element.getAttribute("id");
+    const roles = id
+      ? roleRefinements
+          .filter((meta) => meta.getAttribute("refines") === `#${id}`)
+          .map((meta) => meta.textContent.trim().toLowerCase())
+          .filter(Boolean)
+      : [];
+    if (attributeRole) roles.push(attributeRole);
+    return { element, roles };
+  });
   const authorElement =
-    creators.find((element) => getCreatorRole(element) === "aut") ||
-    creators.find((element) => !getCreatorRole(element));
+    creatorCandidates.find(({ roles }) => roles.includes("aut"))?.element ||
+    creatorCandidates.find(({ roles }) => roles.length === 0)?.element;
   const authorText = authorElement?.textContent?.trim();
   const author =
     authorText ||
@@ -5022,6 +5039,43 @@ function uploadFileHTTP(file, onProgress, onComplete, onError) {
   });
 }
 
+function dismissUploadResults() {
+  document.getElementById("uploadResults").style.display = "none";
+}
+
+function showUploadResults(results) {
+  const optimized = results.filter((result) => result.status === "optimized").length;
+  const originals = results.filter((result) => result.status === "original").length;
+  const failed = results.filter((result) => result.status === "failed").length;
+  const warnings = results.filter((result) => result.status === "original" && result.message).length;
+  let summary =
+    `${optimized + originals}/${results.length} uploaded: ${optimized} optimized, ${originals} original; ` +
+    `${failed} failed`;
+  if (warnings > 0) summary += `; ${warnings} optimization warning${warnings === 1 ? "" : "s"}`;
+  summary += ".";
+
+  const labels = {
+    optimized: "Optimized and uploaded",
+    original: "Original uploaded",
+    failed: "Upload failed",
+  };
+  const list = document.getElementById("uploadResultsList");
+  list.replaceChildren();
+  results.forEach((result) => {
+    const item = document.createElement("li");
+    item.textContent =
+      `${result.name}: ${labels[result.status]}` + (result.message ? ` - ${result.message}` : "");
+    list.appendChild(item);
+  });
+
+  document.getElementById("uploadResultsSummary").textContent = summary;
+  const panel = document.getElementById("uploadResults");
+  panel.classList.toggle("has-warnings", warnings > 0);
+  panel.classList.toggle("has-errors", failed > 0);
+  panel.style.display = "block";
+  return summary;
+}
+
 async function uploadFile() {
   if (isUploadInProgress) return;
 
@@ -5047,6 +5101,7 @@ async function uploadFile() {
   // Prevent modal close during upload
   uploadGeneration++;
   const myGeneration = uploadGeneration;
+  dismissUploadResults();
   document.getElementById("uploadModalClose").classList.add("disabled");
   fileInput.disabled = true;
 
@@ -5060,6 +5115,7 @@ async function uploadFile() {
 
   let currentIndex = 0;
   const failedFiles = [];
+  const results = [];
   let useWebSocket = true; // Try WebSocket first
 
   // Check if we should use batch logging mode
@@ -5072,49 +5128,29 @@ async function uploadFile() {
     showLog();
   }
 
+  function finishUploads() {
+    if (useBatchLog) finalizeBatchLog();
+    const hasWarnings = results.some((result) => result.status === "original" && result.message);
+    progressFill.style.backgroundColor = failedFiles.length ? "#e74c3c" : hasWarnings ? "#e67e22" : "#4caf50";
+    progressText.textContent = showUploadResults(results);
+
+    setTimeout(() => {
+      if (uploadGeneration !== myGeneration) return;
+      isUploadInProgress = false;
+      operationCancelled = false;
+      document.getElementById("uploadModalClose").classList.remove("disabled");
+      closeUploadModal();
+      if (failedFiles.length > 0) {
+        failedUploadsGlobal = failedUploadsGlobal.concat(failedFiles);
+        showFailedUploadsBanner();
+      }
+      refreshFileList();
+    }, useBatchLog ? 2000 : 1000);
+  }
+
   async function uploadNextFile() {
     if (currentIndex >= files.length) {
-      // All files processed - show summary
-      if (failedFiles.length === 0) {
-        progressFill.style.backgroundColor = "#4caf50";
-        progressText.textContent = "All uploads complete!";
-
-        // Finalize batch log if in batch mode
-        if (useBatchLog) {
-          finalizeBatchLog();
-          setTimeout(() => {
-            window.location.reload();
-          }, 2000);
-        } else {
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000);
-        }
-      } else {
-        progressFill.style.backgroundColor = "#e74c3c";
-        const failedList = failedFiles.map((f) => f.name).join(", ");
-        progressText.textContent = `${files.length - failedFiles.length}/${files.length} uploaded. Failed: ${failedList}`;
-
-        // Add upload errors to batch log
-        if (useBatchLog) {
-          failedFiles.forEach((ff) => {
-            logError(`Upload failed for ${ff.name}: ${ff.error}`);
-          });
-          finalizeBatchLog();
-        }
-
-        // Only show banner if THIS upload session had failures
-        // Use local failedFiles, not the global shared variable
-        if (failedFiles.length > 0) {
-          // Accumulate failed uploads to global (don't replace)
-          failedUploadsGlobal = failedUploadsGlobal.concat(failedFiles);
-          // Clear flag and close modal, then show banner with retry options
-          isUploadInProgress = false;
-          document.getElementById("uploadModalClose").classList.remove("disabled");
-          closeUploadModal();
-          showFailedUploadsBanner();
-        }
-      }
+      finishUploads();
       return;
     }
 
@@ -5132,6 +5168,7 @@ async function uploadFile() {
     const needsConversion = isEpub && convertEnabled;
     let conversionSucceeded = false;
     let conversionFailed = false; // Track if conversion actually failed
+    let conversionError = "";
     let convOriginalSize = 0; // Picked-file size; 0 unless conversion succeeded
     let convNewSize = 0; // Generated blob size; 0 unless conversion succeeded
 
@@ -5167,6 +5204,11 @@ async function uploadFile() {
     };
 
     const onComplete = () => {
+      results.push({
+        name: file.name,
+        status: conversionSucceeded ? "optimized" : "original",
+        message: conversionFailed ? `Optimization failed: ${conversionError}` : "",
+      });
       // Save file log to batch if in batch mode and this file was converted
       // Consider it successful only if conversion didn't fail
       if (useBatchLog && needsConversion) {
@@ -5188,6 +5230,7 @@ async function uploadFile() {
       }
 
       failedFiles.push({ name: file.name, error: error, file: originalFile });
+      results.push({ name: file.name, status: "failed", message: error });
 
       // If network error, mark all remaining files as failed and show retry banner
       if (
@@ -5201,19 +5244,20 @@ async function uploadFile() {
         // Add all remaining files to failed list
         const remainingFiles = files.slice(currentIndex + 1);
         remainingFiles.forEach((remainingFile) => {
+          const message = "Network error - upload interrupted";
           failedFiles.push({
             name: remainingFile.name,
-            error: "Network error - upload interrupted",
+            error: message,
             file: remainingFile,
           });
+          results.push({ name: remainingFile.name, status: "failed", message });
+          if (useBatchLog && remainingFile.name.toLowerCase().endsWith(".epub")) {
+            logError(message);
+            saveToFileBatchLog(remainingFile.name, false);
+          }
         });
 
-        // Show retry banner immediately with all failed files
-        failedUploadsGlobal = failedUploadsGlobal.concat(failedFiles);
-        isUploadInProgress = false;
-        document.getElementById("uploadModalClose").classList.remove("disabled");
-        closeUploadModal();
-        showFailedUploadsBanner();
+        finishUploads();
         return; // Stop processing
       }
 
@@ -5255,8 +5299,9 @@ async function uploadFile() {
             return;
           }
           console.error("Conversion error:", convError);
+          conversionError = convError.message || String(convError);
           // Log the error
-          logError(`Conversion failed: ${convError.message}`);
+          logError(`Conversion failed: ${conversionError}`);
           log("Uploading original file instead...", "warning", "INFO");
           conversionFailed = true;
 

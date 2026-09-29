@@ -410,6 +410,8 @@ void BmpViewerActivity::showContextMenu() {
                              case FileBrowserAction::EpubRenderMode:
                              case FileBrowserAction::ResetReaderSettings:
                              case FileBrowserAction::Rename:
+                             case FileBrowserAction::PinBook:
+                             case FileBrowserAction::UnpinBook:
                                return;
                            }
                          });

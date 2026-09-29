@@ -24,6 +24,10 @@
 #include "KOReaderCredentialStore.h"
 
 #ifndef SIMULATOR
+#include <esp_heap_caps.h>
+#endif
+
+#ifndef SIMULATOR
 // wolfSSL is built with DEBUG_WOLFSSL, whose Arduino backend expects the app to
 // provide this print hook (the stock definition lives in <wolfssl.h>, which no
 // translation unit here includes). Route it through the firmware logger, same
@@ -148,8 +152,17 @@ void applyAuthHeaders(freeink::SecureHttpClient& http) {
 
 // True when free heap is too low to risk a TLS handshake.
 bool insufficientHeap() {
+#ifndef SIMULATOR
+  // ESP.getFreeHeap()/getMaxAllocHeap() only count internal RAM, but the TLS
+  // buffers use the default allocator, which also draws from PSRAM on boards
+  // that have it (X4 Pro). Measuring internal RAM alone refused syncs that
+  // would have fit (port of crosspoint-reader#3412). Without PSRAM both agree.
+  const uint32_t freeHeap = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
+  const uint32_t maxAllocHeap = heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT);
+#else
   const uint32_t freeHeap = ESP.getFreeHeap();
   const uint32_t maxAllocHeap = ESP.getMaxAllocHeap();
+#endif
   if (freeHeap < MIN_FREE_HEAP_FOR_TLS || maxAllocHeap < MIN_MAX_ALLOC_HEAP_FOR_TLS) {
     LOG_ERR("KOSync", "Insufficient heap for TLS handshake: %u bytes free (need %u), %u max alloc (need %u)", freeHeap,
             MIN_FREE_HEAP_FOR_TLS, maxAllocHeap, MIN_MAX_ALLOC_HEAP_FOR_TLS);

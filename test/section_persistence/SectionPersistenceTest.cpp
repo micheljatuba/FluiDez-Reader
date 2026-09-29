@@ -1,7 +1,14 @@
+#include <Epub.h>
+#include <GfxRenderer.h>
 #include <gtest/gtest.h>
 
+#include <algorithm>
+#include <array>
 #include <cstdint>
+#include <deque>
+#include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -16,9 +23,10 @@
 #include <GfxRenderer.h>
 
 namespace {
-constexpr uint8_t kFullVersion = 76;
-constexpr uint8_t kPartialVersion = 0xF5;
-constexpr uint8_t kPreviousFullVersion = 75;
+// Keep in sync with SECTION_FILE_VERSION / SECTION_FILE_PARTIAL_VERSION in Section.cpp.
+constexpr uint8_t kFullVersion = 77;
+constexpr uint8_t kPartialVersion = 0xF3;
+constexpr uint8_t kPreviousFullVersion = 76;
 constexpr uint8_t kPreviousPartialVersion = 0xF4;
 
 ReaderRenderSpec renderSpec() {

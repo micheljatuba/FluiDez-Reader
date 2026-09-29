@@ -130,6 +130,11 @@ The Browse Files screen acts as a file and folder browser. The full path to the 
 
 The Recent Books screen lists the most recently opened books in a chronological view, displaying title and author.
 
+- **Pin Books:** Hold **Confirm** or long-press a book, then choose **Pin to Top**. Up to six pinned books appear first, in the order you pinned them, and are marked **Pinned**. Choose **Unpin** to return a book to its chronological position.
+- **Keep Pinned Books:** Pinned books stay in Recent Books when newer books push older ones out of the 18-book list and when **Clear Read Books from Recent List** is enabled. Choose **Remove from Recent Books** or delete the book to remove it.
+- **Home Screen:** **Continue Reading** still opens the book you read most recently. Pinned books appear after it on multi-cover Home themes (**Lyra Extended** shows 3 books, **Lyra Carousel** 5 and **Lyra Grid** 6). On one-cover themes, switching the Home book (for example, by swiping left or holding **Confirm**) cycles through the current book and up to two pinned books; with one pinned book, the previously read book remains in the cycle.
+- **Pin From Home:** On any Home theme, long-press a book cover (or, on multi-cover themes without touch, hold **Confirm** on the selected book) to open **Pin to Top** / **Unpin**, **Mark Finished** and **Remove from Recent Books** without leaving Home.
+
 ### 3.5 File Transfer Screen
 
 The File Transfer screen allows you to upload and manage files on the device.
@@ -219,10 +224,11 @@ device model and build.
 - **UI Theme**: Set which UI theme to use:
   - "Classic" - The original CrossInk theme
   - "Minimal" - A minimal theme with a large book cover
-  - "Dashboard" - A dashboard-style home layout
+  - "Dashboard" - A dashboard-style home layout with reading stats beside the cover; labels shrink or wrap so text never covers the book
   - "Lyra" - A theme with simple icons featuring your current book
   - "Lyra Extended" - Lyra, but displays 3 books instead of 1 on the **[Home Screen](#31-home-screen)**
-  - "Lyra Carousel" - A carousel-based Lyra home layout
+  - "Lyra Carousel" - A carousel-based Lyra home layout with up to 5 books
+  - "Lyra Grid" - Lyra Carousel's icon menu with a 3x2 grid of 6 books (current, pinned, then recent), each with a progress bar and a ribbon on pinned books
   - "RoundedRaff" - A rounded theme with additional visual styling
 
 - **Recent Books View**: Choose whether the Recent Books screen uses a list or grid layout.
@@ -364,7 +370,7 @@ which status-bar items are shown.
 
 #### 3.6.4 System
 
-- **Time to Sleep**: Set the duration of inactivity before the device automatically goes to sleep. Values are in minutes, with a "Never" option at the end of the range.
+- **Time to Sleep**: Set the duration of inactivity before the device automatically goes to sleep. Values are in minutes, with a "Never" option at the end of the range. Keyboards, the Wi-Fi network list, Nearby ready and result screens, and download results also follow this timeout when left idle. The device stays awake while it is scanning, connecting, transferring, syncing, or downloading; text typed but not yet confirmed is discarded if it goes to sleep.
 
 - **Custom Boot Screen**: Enable or disable custom boot screens (enabled by
   default). When disabled, CrossInk uses the standard logo on cold boot and keeps the current sleep

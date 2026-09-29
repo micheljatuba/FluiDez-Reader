@@ -95,6 +95,10 @@ class HalGPIO {
   bool wasAnyPressed() const;
   bool wasReleased(uint8_t buttonIndex) const;
   bool wasAnyReleased() const;
+  // True when any button contact is closed right now, read straight from the
+  // hardware (ADC ladder off its idle rail, or the power GPIO asserted), without
+  // going through the debounced state. Cheap enough to call every few ms.
+  bool rawInputActive();
   unsigned long getHeldTime() const;
   unsigned long getPowerButtonHeldTime() const;
 #if CROSSINK_APP_CAP_TOUCH

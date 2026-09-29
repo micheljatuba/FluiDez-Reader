@@ -117,6 +117,7 @@ inline esp_sleep_wakeup_cause_t esp_sleep_get_wakeup_cause() { return ESP_SLEEP_
 #include "util/Dictionary.h"
 #include "util/DictionaryRegistry.h"
 #include "util/FrontlightSchedule.h"
+#include "util/MainLoopPacing.h"
 #include "util/ScreenshotUtil.h"
 #include "util/SleepWakePolicy.h"
 
@@ -1058,6 +1059,14 @@ void mirrorWakeShortPressToNvs() {
 
 // Enter deep sleep mode
 void enterDeepSleep(bool fromTimeout) {
+  // goToSleep() runs one more ActivityManager::loop() to paint the sleep screen;
+  // a reader that still sees the wake/toggle power press dispatches its short
+  // power action from there and re-enters this function, recursing until the
+  // stack overflows (uxjulia/crossink#731). The outer call finishes the sleep.
+  if (deepSleepInProgress) {
+    LOG_DBG("MAIN", "Deep sleep already in progress, ignoring re-entry");
+    return;
+  }
   HalPowerManager::Lock powerLock;  // Ensure we are at normal CPU frequency for sleep preparation
   APP_STATE.lastSleepFromReader = activityManager.isReaderActivity();
 
@@ -1101,6 +1110,7 @@ void enterDeepSleep(bool fromTimeout) {
   Storage.shutdown();
 
   putTiltSensorToSleepForDeepSleep();
+  Frontlight.parkForDeepSleep();
   display.deepSleep();
   mirrorWakeShortPressToNvs();
   LOG_DBG("MAIN", "Entering deep sleep");
@@ -1627,7 +1637,9 @@ void loop() {
 
   // Check for any user activity (button press or release) or active background work
   static unsigned long lastActivityTime = millis();
-  if (userInputReceived || activityManager.preventAutoSleep()) {
+  MainLoopPacing loopPacing(lastActivityTime);
+  const bool frameStartedActive = userInputReceived || activityManager.preventAutoSleep();
+  if (frameStartedActive) {
     lastActivityTime = millis();         // Reset inactivity timer
     powerManager.setPowerSaving(false);  // Restore normal CPU frequency on user activity
   }
@@ -1802,6 +1814,10 @@ void loop() {
   // unrelated gesture took priority, do not carry it into the next activity.
   mappedInputManager.clearDeferredHomeGesture();
 #endif
+  // User-initiated or busy work can block this frame for minutes; idle time starts after it.
+  if (frameStartedActive || activityManager.preventAutoSleep()) {
+    lastActivityTime = millis();
+  }
   const unsigned long activityDuration = millis() - activityStartTime;
 
 #ifdef SIMULATOR
@@ -1817,20 +1833,6 @@ void loop() {
     }
   }
 
-  // Add delay at the end of the loop to prevent tight spinning
-  // When an activity requests skip loop delay (e.g., webserver running), use yield() for faster response
-  // Otherwise, use longer delay to save power
-  if (activityManager.skipLoopDelay()) {
-    powerManager.setPowerSaving(false);  // Make sure we're at full performance when skipLoopDelay is requested
-    yield();                             // Give FreeRTOS a chance to run tasks, but return immediately
-  } else {
-    if (millis() - lastActivityTime >= HalPowerManager::IDLE_POWER_SAVING_MS) {
-      // If we've been inactive for a while, increase the delay to save power
-      powerManager.setPowerSaving(true);  // Lower CPU frequency after extended inactivity
-      delay(50);
-    } else {
-      // Short delay to prevent tight loop while still being responsive
-      delay(10);
-    }
-  }
+  // Fast polling is useful only when the activity was allowed to run this frame.
+  loopPacing.setSkipDelay(activityManager.skipLoopDelay());
 }

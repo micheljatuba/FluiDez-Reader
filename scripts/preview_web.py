@@ -22,10 +22,10 @@ JSZIP = os.path.join(ROOT, "src", "network", "html", "js", "jszip.min.js")
 
 # slug -> (route, title, active, extra <head> markup)
 PAGES = {
-    "home":     ("/",         "CrossInk",                   "home",     ""),
-    "files":    ("/files",    "Files - CrossInk",           "files",    '  <script src="/js/jszip.min.js"></script>'),
-    "settings": ("/settings", "Settings - CrossInk Reader", "settings", ""),
-    "fonts":    ("/fonts",    "Fonts - CrossInk",           "fonts",    ""),
+    "home":     ("/",         "FluiDez Reader",              "home",     ""),
+    "files":    ("/files",    "Files - FluiDez Reader",      "files",    '  <script src="/js/jszip.min.js"></script>'),
+    "settings": ("/settings", "Settings - FluiDez Reader",   "settings", ""),
+    "fonts":    ("/fonts",    "Fonts - FluiDez Reader",      "fonts",    ""),
 }
 ROUTE_TO_SLUG = {route: slug for slug, (route, *_rest) in PAGES.items()}
 
@@ -128,7 +128,7 @@ class Handler(BaseHTTPRequestHandler):
 if __name__ == "__main__":
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
     httpd = ThreadingHTTPServer(("127.0.0.1", port), Handler)
-    print(f"CrossInk web preview: http://localhost:{port}  (Ctrl+C to stop)")
+    print(f"FluiDez Reader web preview: http://localhost:{port}  (Ctrl+C to stop)")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

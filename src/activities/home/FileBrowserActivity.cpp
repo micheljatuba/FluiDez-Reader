@@ -563,6 +563,8 @@ void FileBrowserActivity::showDirectoryActionMenu(const std::string& entry, bool
                              case FileBrowserAction::ResetReaderSettings:
                              case FileBrowserAction::SendNearby:
                              case FileBrowserAction::Rename:
+                             case FileBrowserAction::PinBook:
+                             case FileBrowserAction::UnpinBook:
                                return;
                            }
                          });
@@ -827,6 +829,8 @@ void FileBrowserActivity::showFileActionMenu(const std::string& entry, bool igno
           case FileBrowserAction::ViewClippings:
           case FileBrowserAction::DeleteBookmarks:
           case FileBrowserAction::DeleteClippings:
+          case FileBrowserAction::PinBook:
+          case FileBrowserAction::UnpinBook:
             return;
         }
       });

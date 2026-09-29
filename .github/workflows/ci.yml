@@ -66,6 +66,114 @@ jobs:
       - name: Run cppcheck
         run: pio check --fail-on-defect low --fail-on-defect medium --fail-on-defect high
 
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Test web file manager and browser image encoders
+        run: node --test test/web_file_manager/browser_test.js test/pxc_v2/browser_test.js
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Install PlatformIO Core
+        run: uv pip install --system -U https://github.com/pioarduino/platformio-core/archive/refs/tags/v6.1.19.zip
+
+      # PersistableStoreAtomicTest compiles against the simulator's Arduino shims.
+      - name: Install simulator libraries
+        run: pio pkg install -e simulator
+
+      - name: Install host test dependencies
+        run: sudo apt-get update && sudo apt-get install -y ninja-build libexpat1-dev zlib1g-dev
+
+      - name: Build and run host unit tests
+        run: |
+          cmake -S test -B build/test -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/test
+          ctest --test-dir build/test --output-on-failure -j "$(nproc)"
+
+  x4-pro-simulator-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      # Linux simulator sample: GCC narrowing flag and OpenSSL for MD5.
+      PLATFORMIO_BUILD_FLAGS: "-Wno-narrowing -lssl -lcrypto"
+      PLATFORMIO_SETTING_ENABLE_TELEMETRY: "no"
+      SDL_VIDEODRIVER: dummy
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Install PlatformIO Core
+        run: uv pip install --system -U https://github.com/pioarduino/platformio-core/archive/refs/tags/v6.1.19.zip
+
+      - name: Install Linux simulator dependencies
+        run: sudo apt-get update && sudo apt-get install -y build-essential pkg-config libsdl2-dev libssl-dev curl
+
+      - name: Test smoke runner
+        run: |
+          set -euo pipefail
+          mkdir -p simulator-smoke-logs
+          python -m unittest discover -s test/scripts -p test_run_simulator_smoke_test.py -v 2>&1 | tee simulator-smoke-logs/runner-tests.log
+
+      - name: Build X4 Pro simulator
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          pio run -j2 -e x4-pro-simulator 2>&1 | tee simulator-smoke-logs/build.log
+
+      - name: Smoke X4 Pro (default theme)
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          python scripts/run_simulator_smoke_test.py --env x4-pro-simulator --no-build --timeout 120 2>&1 | tee simulator-smoke-logs/default.log
+
+      - name: Smoke X4 Pro (Classic)
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          python scripts/run_simulator_smoke_test.py --env x4-pro-simulator --no-build --timeout 120 --theme classic 2>&1 | tee simulator-smoke-logs/classic.log
+
+      - name: Smoke X4 Pro (Dashboard)
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          python scripts/run_simulator_smoke_test.py --env x4-pro-simulator --no-build --timeout 120 --theme dashboard 2>&1 | tee simulator-smoke-logs/dashboard.log
+
+      - name: Upload simulator failure logs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: x4-pro-simulator-smoke-logs
+          path: simulator-smoke-logs/
+          if-no-files-found: warn
+          retention-days: 7
+
   build:
     runs-on: ubuntu-latest
     strategy:
@@ -154,6 +262,8 @@ jobs:
       - build
       - clang-format
       - cppcheck
+      - unit-tests
+      - x4-pro-simulator-smoke
     if: always()
     runs-on: ubuntu-latest
     steps:

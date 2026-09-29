@@ -52,7 +52,8 @@ Nested flows use the `ActivityManager` stack with `startActivityForResult()`, `s
 
 - `onEnter()` and `onExit()` manage setup/teardown
 - `loop()` handles per-frame behavior
-- `skipLoopDelay()` and `preventAutoSleep()` are used by long-running flows (for example web server mode)
+- `skipLoopDelay()` requests fast polling only while incremental work is in progress; waiting screens keep the normal loop delay and CPU power saving
+- `preventAutoSleep()` keeps the reader awake only during bounded work, such as scanning, connecting, transferring, syncing, or downloading, and while the web server runs. Idle input, list, and result screens follow **Time to Sleep**; after user-initiated or busy work blocks a frame, the idle countdown starts when that work finishes
 
 Top-level activity groups:
 

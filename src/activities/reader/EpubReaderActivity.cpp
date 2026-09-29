@@ -2834,7 +2834,7 @@ void EpubReaderActivity::loop() {
   // screen. Acts only on the transition (guarded by recentsEntryRemoved), no per-frame writes.
   if (SETTINGS.removeReadBooksFromRecents) {
     if (atEndOfBook && !recentsEntryRemoved) {
-      recentsEntryRemoved = RECENT_BOOKS.removeByPath(epub->getPath());
+      recentsEntryRemoved = RECENT_BOOKS.removeUnpinnedByPath(epub->getPath());
     } else if (!atEndOfBook && recentsEntryRemoved) {
       RECENT_BOOKS.addOrUpdateBook(epub->getPath(), epub->getTitle(), epub->getAuthor(), epub->getThumbBmpPath());
       recentsEntryRemoved = false;
@@ -5187,7 +5187,7 @@ void EpubReaderActivity::setBookCompleted(bool isCompleted) {
   if (isCompleted) {
     completionPromptShown = true;
     if (SETTINGS.removeReadBooksFromRecents) {
-      RECENT_BOOKS.removeByPath(epub->getPath());
+      RECENT_BOOKS.removeUnpinnedByPath(epub->getPath());
     }
     if (SETTINGS.moveFinishedToReadFolder && !isInReadFolder(epub->getPath())) {
       pendingReadFolderMove = true;

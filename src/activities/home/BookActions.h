@@ -11,6 +11,8 @@ namespace BookActions {
 
 std::vector<FileBrowserActionActivity::MenuItem> buildBookActionItems(const std::string& fullPath,
                                                                       bool includeRemoveFromRecents);
+// Pins or unpins a Recent Books entry and shows the result. Returns true when the pin changed.
+bool setRecentBookPinned(const GfxRenderer& renderer, const std::string& fullPath, bool pinned);
 bool hasClearableBookCache(const std::string& path);
 bool canSendNearby(const std::string& path);
 void clearFileMetadata(const std::string& fullPath);
