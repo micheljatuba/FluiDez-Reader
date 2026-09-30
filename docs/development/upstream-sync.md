@@ -49,22 +49,24 @@ Os comandos usam a sintaxe do Git Bash, Linux ou macOS.
    done
    ```
 
-3. Veja o que vai chegar e traga as mudanças sem criar um merge:
+3. Guarde uma cópia dos arquivos de IA, que ficam só no seu computador (`AGENTS.md`, `CLAUDE.md` e `.claude/`). O Git ignora esses arquivos e, se o upstream alterá-los, o merge os sobrescreve sem avisar. Depois, veja o que vai chegar e traga as mudanças sem criar um merge:
 
    ```sh
+   mkdir -p ../fluidez-ia && cp -r AGENTS.md CLAUDE.md .claude ../fluidez-ia/
    git log --oneline HEAD.."$UPSTREAM"
    git diff --stat HEAD..."$UPSTREAM"
    git merge --squash "$UPSTREAM"
    ```
 
-4. Resolva os conflitos (veja abaixo), compile e teste. Em seguida, faça o commit registrando a revisão do upstream e remova os enxertos:
+4. Resolva os conflitos (veja abaixo), compile e teste. Em seguida, restaure a cópia dos arquivos de IA, faça o commit registrando a revisão do upstream e remova os enxertos:
 
    ```sh
+   cp -r ../fluidez-ia/. .
    git commit -m "chore: sync with CrossInk ${UPSTREAM:0:8}" -m "Upstream-Commit: $UPSTREAM"
    git replace -d $(git replace -l)
    ```
 
-   Para desistir antes do commit, rode `git reset --hard` (descarta as mudanças trazidas) e remova os enxertos com o mesmo `git replace -d $(git replace -l)`.
+   Para desistir antes do commit, rode `git reset --hard` (descarta as mudanças trazidas), restaure a cópia com `cp -r ../fluidez-ia/. .` e remova os enxertos com o mesmo `git replace -d $(git replace -l)`.
 
 5. Confira antes de enviar. O commit novo deve ter um único pai, não deve sobrar nenhum enxerto e o histórico deve continuar pequeno (dezenas de commits, não milhares):
 
@@ -99,7 +101,7 @@ Não use `Upstream-Commit:` nesses commits. Esse trailer indica uma sincronizaç
 
 ## Conflitos comuns
 
-Siga também as regras de conflito do [AGENTS.md](../../AGENTS.md): entenda a intenção da mudança do upstream antes de descartá-la.
+Antes de resolver um conflito, leia o commit do upstream e o PR citado nele (por exemplo, `#2608`) para entender a intenção da mudança. Não mantenha automaticamente a versão do FluiDez nem descarte a mudança do upstream inteira: preserve ou adapte a intenção dela, a menos que já esteja implementada, cause uma regressão ou mude sem justificativa o comportamento do FluiDez. Ao rejeitar uma mudança, registre o motivo.
 
 | Onde | O que fazer |
 | --- | --- |
@@ -109,7 +111,8 @@ Siga também as regras de conflito do [AGENTS.md](../../AGENTS.md): entenda a in
 | `platformio.ini` | Preserve a versão FluiDez em `[crossink] version`, os idiomas de `custom_i18n_builtin_langs` e os nomes USB `FluiDez_*`. |
 | `src/network/OtaUpdater.cpp` | Mantenha as atualizações apontando para `micheljatuba/FluiDez-Reader`. |
 | `README.md`, `SCOPE.md`, `.github/`, `docs/brand/` | São do FluiDez: mantenha a versão local. |
-| Arquivos removidos no FluiDez (`site/`, `docs/catalog`, `docs/CNAME`, `.github/FUNDING.yml`, `scripts/generate_release_catalog.py`) | Mantenha-os removidos com `git rm`. |
+| Arquivos removidos no FluiDez (`site/`, `docs/catalog`, `docs/CNAME`, `.github/FUNDING.yml`, `.github/ISSUE_TEMPLATE/`, `.github/aw/`, `.github/skills/`, `scripts/generate_release_catalog.py`, `src/images/crossink.png`, `src/images/crossink-white.png`, `src/images/Logo120.h`) | Mantenha-os removidos com `git rm`. |
+| `AGENTS.md`, `CLAUDE.md`, `.claude/` | Ficam só no seu computador. Se o upstream alterá-los, tire-os do índice com `git rm -r -q --cached --ignore-unmatch AGENTS.md CLAUDE.md .claude` e restaure a cópia do passo 3. |
 
 ## Versão depois da sincronização
 

@@ -142,7 +142,7 @@ Depois, copie as pastas das famílias geradas para `/.fonts/` (ou `/fonts/`) no 
 
 ## Contribuições
 
-O código é público, mas o desenvolvimento é fechado: no momento, o FluiDez Reader não aceita pull requests nem outras contribuições externas.
+O código é público, mas o desenvolvimento é fechado: no momento, o FluiDez Reader não aceita issues, pull requests nem outras contribuições externas.
 
 ## Créditos
 
