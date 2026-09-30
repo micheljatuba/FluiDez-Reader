@@ -87,6 +87,16 @@ git commit -m "chore: sync with CrossInk ${UPSTREAM:0:8}" -m "Upstream-Commit: $
 
 O `git apply` falha por inteiro se o upstream alterar um arquivo que o FluiDez removeu. Nesse caso, exclua esses caminhos, por exemplo `git apply -3 --exclude='site/*'`.
 
+### Correções pontuais
+
+Para trazer só uma correção do CrossInk, sem sincronizar tudo, aplique o commit sem criar merge (`git cherry-pick -n <commit>` ou à mão) e registre a origem com o trailer `Ported-From:`:
+
+```sh
+git commit -m "fix: ..." -m "Ported-From: uxjulia/crossink@<commit>"
+```
+
+Não use `Upstream-Commit:` nesses commits. Esse trailer indica uma sincronização completa, e os enxertos do passo 2 fariam o Git considerar que todo o histórico anterior do upstream já está no FluiDez. Na próxima sincronização, o merge de 3 vias reconhece as correções já aplicadas.
+
 ## Conflitos comuns
 
 Siga também as regras de conflito do [AGENTS.md](../../AGENTS.md): entenda a intenção da mudança do upstream antes de descartá-la.

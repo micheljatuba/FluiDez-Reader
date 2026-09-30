@@ -16,13 +16,16 @@
   <a href="LICENSE"><img alt="Licença MIT" src="https://img.shields.io/badge/licen%C3%A7a-MIT-blue"></a>
 </p>
 
+> [!WARNING]
+> **Instalação e atualizações por sua conta e risco.** A MJ Cloud Tecnologia não se responsabiliza por danos ao aparelho, perda de dados ou qualquer outro problema decorrente da instalação, da atualização ou do uso do FluiDez Reader.
+>
 > **Testado apenas no Xteink X4 Pro.** Os firmwares dos outros leitores (X3, X4, X4 Classic e Seeed Studio Sticky) são gerados a partir do mesmo código, mas não foram testados.
 
 ## Sobre
 
-O **FluiDez Reader** é um firmware de código aberto para leitores de tinta eletrônica (e-ink). Ele nasceu como fork do [CrossInk](https://github.com/uxjulia/crossink), que por sua vez é baseado no [CrossPoint Reader](https://github.com/crosspoint-reader/crosspoint-reader), e é modificado e mantido de forma independente por Michel Jatubá.
+O **FluiDez Reader** é um firmware de código aberto para leitores de tinta eletrônica (e-ink). Ele nasceu como fork do [CrossInk](https://github.com/uxjulia/crossink), que por sua vez é baseado no [CrossPoint Reader](https://github.com/crosspoint-reader/crosspoint-reader), e é modificado e mantido de forma independente por MJ Cloud Tecnologia.
 
-O nome junta *flui* (a leitura flui) e *dez* (nota dez). A identidade visual, os recursos e as correções descritos abaixo são do FluiDez Reader.
+O nome junta *flui* (a leitura flui) e *dez* (nota dez). A identidade visual, os recursos e as correções descritos abaixo são do FluiDez Reader. A visão e o escopo do projeto estão em [SCOPE.md](SCOPE.md).
 
 ## Capturas de tela
 
@@ -98,6 +101,8 @@ Os detalhes estão na [documentação](docs/index.md) (em inglês).
 
 ## Instalação
 
+A instalação é feita por sua conta e risco. Antes de começar, carregue a bateria e não desligue o leitor durante a gravação.
+
 1. Baixe o arquivo do seu aparelho na [última versão](https://github.com/micheljatuba/FluiDez-Reader/releases/latest).
 2. Copie o `.bin` para qualquer pasta do cartão SD.
 3. No leitor, abra **Configurações > Sistema > Atualização de firmware do cartão SD**, escolha o arquivo e confirme.
@@ -106,7 +111,9 @@ Se o leitor ainda usa o firmware original do CrossInk, a primeira instalação p
 
 ## Atualizações
 
-Depois da primeira instalação, use **Configurações > Sistema > Verificar atualizações**. O leitor consulta a versão mais recente publicada neste repositório e instala o firmware do seu aparelho.
+Depois da primeira instalação, use **Configurações > Sistema > Verificar atualizações**. O leitor consulta a versão mais recente publicada neste repositório e instala o firmware do seu aparelho. As atualizações também são feitas por sua conta e risco, e o próprio leitor exibe esse aviso antes de instalar.
+
+> **X4 Pro e X4 Classic com a versão 1.6-fluidez8 ou anterior:** nessas versões, *Verificar atualizações* pode travar e reiniciar o leitor ao conectar ao Wi-Fi. Instale a 1.6-fluidez9 (ou mais recente) pelo cartão SD, como descrito em [Instalação](#instalação). A partir dela, a atualização pelo próprio aparelho volta a funcionar.
 
 ## Fontes extras
 
@@ -151,12 +158,12 @@ Guias (em inglês): [primeiros passos](docs/development/getting-started.md), [ar
 
 ### Publicar uma versão
 
-1. Atualize `[crossink] version` no `platformio.ini` (por exemplo, `1.6-fluidez9`) e registre as mudanças no [CHANGELOG](CHANGELOG.md).
+1. Atualize `[crossink] version` no `platformio.ini` (por exemplo, `1.6-fluidez10`) e registre as mudanças no [CHANGELOG](CHANGELOG.md).
 2. Faça o commit em `main` e envie a tag da versão:
 
    ```sh
-   git tag -a v1.6-fluidez9 -m "FluiDez Reader v1.6-fluidez9"
-   git push origin main v1.6-fluidez9
+   git tag -a v1.6-fluidez10 -m "FluiDez Reader v1.6-fluidez10"
+   git push origin main v1.6-fluidez10
    ```
 
 3. O workflow *Release* compila os quatro firmwares e publica a versão, que os leitores encontram em *Verificar atualizações*.
@@ -165,7 +172,7 @@ Para trazer novidades do CrossInk sem misturar o histórico, siga a [sincroniza�
 
 ## Contribuições
 
-Relatos de problemas e sugestões são bem-vindos nas [issues](https://github.com/micheljatuba/FluiDez-Reader/issues). O escopo do projeto está em [SCOPE.md](SCOPE.md).
+O código é público, mas o desenvolvimento é fechado: no momento, o FluiDez Reader não aceita pull requests nem outras contribuições externas.
 
 ## Créditos
 
@@ -178,4 +185,4 @@ O histórico completo do código herdado está nesses repositórios. Aqui, o his
 
 ## Licença
 
-[MIT](LICENSE). O aviso de copyright original foi mantido.
+[MIT](LICENSE). O aviso de copyright original foi mantido. Como prevê a licença, o software é fornecido "no estado em que se encontra", sem garantias de qualquer tipo.

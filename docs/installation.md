@@ -20,12 +20,24 @@ FluiDez Reader is tested only on the Xteink X4 Pro. The other files are built
 from the same source and pass the automated checks, but have not been tested on
 a device.
 
+> **Use at your own risk.** You install and update FluiDez Reader at your own
+> risk. MJ Cloud Tecnologia is not responsible for damage to your reader, data
+> loss, or any other problem that results from installing, updating, or using
+> the firmware. Charge the battery first and keep the reader on until the
+> update finishes.
+
 ## Over-the-Air Updates
 
 After FluiDez Reader is installed, `Settings > System > Check for Updates`
 downloads the newest FluiDez Reader release for your reader over Wi-Fi. A
 release is offered only when its version is newer than the installed one, for
-example `v1.6-fluidez9` over `1.6-fluidez8`.
+example `v1.6-fluidez9` over `1.6-fluidez8`. Before installing, the reader shows
+that updates are installed at your own risk.
+
+On X4 Pro and X4 Classic, `Check for Updates` in `1.6-fluidez8` and earlier can
+crash and restart the reader while it connects to Wi-Fi. Install
+`v1.6-fluidez9` or newer with the SD card method below; over-the-air updates
+work again from that version on.
 
 ## SD Card Firmware Update
 
