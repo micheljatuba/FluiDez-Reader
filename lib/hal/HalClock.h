@@ -59,9 +59,12 @@ class HalClock {
 
   // Format date into a caller-provided buffer using the requested display format.
   // utcOffsetQuarterHoursBiased matches formatTime so the date rolls over at local midnight.
+  // shortMonthNames/fullMonthNames: optional 12-entry tables (January first) for localized long formats; English
+  // names are used when null.
   // Returns false if RTC is not available or the RTC date is invalid.
   bool formatDate(char* buf, size_t bufSize, uint8_t utcOffsetQuarterHoursBiased = 48,
-                  DateFormat dateFormat = MONTH_DAY_YEAR_LONG, char numericSeparator = '/') const;
+                  DateFormat dateFormat = MONTH_DAY_YEAR_LONG, char numericSeparator = '/',
+                  const char* const* shortMonthNames = nullptr, const char* const* fullMonthNames = nullptr) const;
 
   // Sync the RTC from an NTP server. Requires WiFi to be connected.
   // Blocks for up to ~5s while waiting for SNTP response.
