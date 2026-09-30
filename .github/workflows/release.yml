@@ -160,6 +160,9 @@ jobs:
 
       # Published (not draft or prerelease) and marked latest: the device's
       # releases/latest lookup ignores drafts and prereleases.
+      # generate_release_notes stays off: pull requests are disabled in this
+      # repository, and GitHub then refuses generated notes to the workflow token
+      # (403 "Resource not accessible by integration"). The body links the commits.
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
@@ -169,7 +172,7 @@ jobs:
           draft: false
           prerelease: false
           make_latest: true
-          generate_release_notes: true
+          generate_release_notes: false
           fail_on_unmatched_files: true
           body: |
             ## Novidades
@@ -196,6 +199,8 @@ jobs:
             Para enviar livros do Calibre pela rede Wi-Fi, instale o `fluidez-reader-calibre-plugin.zip` em **Preferências > Plugins > Carregar plugin a partir de arquivo** (sem extrair) e remova o plugin *CrossPoint Reader*, se estiver instalado. Instruções: [calibre-plugin/README.md](https://github.com/${{ github.repository }}/blob/v${{ env.RELEASE_VERSION }}/calibre-plugin/README.md).
 
             Histórico técnico completo, em inglês: [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/v${{ env.RELEASE_VERSION }}/CHANGELOG.md).
+
+            **Commits**: https://github.com/${{ github.repository }}/commits/v${{ env.RELEASE_VERSION }}
           files: |
             release-firmware/firmware-x3-x4-v${{ env.RELEASE_VERSION }}.bin
             release-firmware/firmware-sticky-v${{ env.RELEASE_VERSION }}.bin
