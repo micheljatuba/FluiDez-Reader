@@ -6,6 +6,10 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ## [Unreleased]
 
+### Added
+
+- `NOVIDADES.md` describes what each version changes for readers, in Brazilian Portuguese. GitHub release pages open with the version's section, and CI fails when the version in `platformio.ini` has none.
+
 ## [v1.6-fluidez10] - 2026-09-30
 
 ### Added

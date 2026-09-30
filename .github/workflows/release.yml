@@ -3,6 +3,7 @@ name: Release
 # Publishes the firmware devices install from Settings > System > Check for Updates
 # (src/network/OtaUpdater.cpp reads this repository's latest release). Push a tag
 # such as v1.6-fluidez9 from main, or run this workflow on main with 1.6-fluidez9.
+# The release page opens with the version's section of NOVIDADES.md.
 on:
   push:
     tags:
@@ -26,6 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       release_version: ${{ steps.version.outputs.release_version }}
+      release_notes: ${{ steps.notes.outputs.release_notes }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -58,6 +60,19 @@ jobs:
             echo "::warning::platformio.ini [crossink] version is '$TRACKED'; set it to '$VERSION' so local builds match this release."
           fi
           echo "release_version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      # Fails before building when NOVIDADES.md has no section for this version.
+      - name: Read release notes
+        id: notes
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.release_version }}
+        run: |
+          NOTES="$(python3 scripts/release_notes.py "$RELEASE_VERSION")"
+          {
+            echo "release_notes<<FLUIDEZ_RELEASE_NOTES_EOF"
+            printf '%s\n' "$NOTES"
+            echo "FLUIDEZ_RELEASE_NOTES_EOF"
+          } >> "$GITHUB_OUTPUT"
 
   build-release:
     needs: prepare-release
@@ -149,6 +164,12 @@ jobs:
           generate_release_notes: true
           fail_on_unmatched_files: true
           body: |
+            ## Novidades
+
+            ${{ needs.prepare-release.outputs.release_notes }}
+
+            ## Como atualizar
+
             Atualize pelo próprio leitor em **Configurações > Sistema > Verificar atualizações**, ou copie o `.bin` do seu leitor para o cartão SD e use **Configurações > Sistema > Atualização de firmware do cartão SD**. Se a atualização pelo leitor falhar, ou se o seu leitor está na v1.6-fluidez8 (que tem um bug em *Verificar atualizações*), use o cartão SD.
 
             > **Instalação e atualização por sua conta e risco.** A MJ Cloud Tecnologia não se responsabiliza por danos ao aparelho, perda de dados ou qualquer outro problema decorrente da instalação, da atualização ou do uso deste firmware.
@@ -162,7 +183,7 @@ jobs:
             | Xteink X3 / X4 | `firmware-x3-x4-v${{ env.RELEASE_VERSION }}.bin` |
             | Seeed Studio Sticky | `firmware-sticky-v${{ env.RELEASE_VERSION }}.bin` |
 
-            Novidades desta versão: [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/v${{ env.RELEASE_VERSION }}/CHANGELOG.md).
+            Histórico técnico completo, em inglês: [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/v${{ env.RELEASE_VERSION }}/CHANGELOG.md).
           files: |
             release-firmware/firmware-x3-x4-v${{ env.RELEASE_VERSION }}.bin
             release-firmware/firmware-sticky-v${{ env.RELEASE_VERSION }}.bin
