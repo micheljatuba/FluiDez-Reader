@@ -14,7 +14,7 @@ This guide helps you build and run FluiDez Reader locally.
 - Python 3.8+
 - `clang-format` 21+ in your `PATH` (CI uses clang-format 21)
 - USB-C cable
-- Xteink X4 or X3 device for hardware testing
+- A supported reader for hardware testing (FluiDez Reader is tested only on the Xteink X4 Pro)
 
 If `./bin/clang-format-fix` fails with either of these errors, install clang-format 21:
 
@@ -46,6 +46,8 @@ clang-format-21 --version
 
 The reported major version must be 21 or newer.
 
+On Linux, Nix users can enter the development shell with `nix develop -f nix` or `nix-shell nix`. It provides PlatformIO Core (installed into `.venv` on first use), `clang-format`, and the Python packages for the serial monitor.
+
 ## Clone and initialize
 
 ```sh
@@ -62,16 +64,27 @@ git submodule update --init --recursive
 ## Build
 
 ```sh
-pio run -e simulator
-pio run -e default
+pio run -e x4-pro             # X4 Pro firmware
+pio run -e x4-pro-simulator   # X4 Pro simulator
 ```
 
-`pio run` without an environment builds the X3/X4 and Sticky firmware targets listed in `platformio.ini`.
+Each reader has a firmware environment and a simulator environment:
+
+| Reader | Firmware | Simulator |
+| --- | --- | --- |
+| Xteink X4 Pro (tested) | `x4-pro` | `x4-pro-simulator` |
+| Xteink X4 Classic | `x4-classic` | `x4-classic-simulator` |
+| Xteink X3 / X4 | `default` | `simulator` (X4) or `simulator-X3` |
+| Seeed Studio Sticky | `sticky` | `sticky-simulator` |
+
+`pio run` without an environment builds `default`, `sticky`, and `x4-pro` (the `default_envs` in `platformio.ini`). To run a simulator, see [Simulator](../simulator.md).
 
 ## Flash
 
+Connect the reader with a USB-C data cable and upload the firmware environment for your reader, for example:
+
 ```sh
-pio run -e default --target upload
+pio run -e x4-pro --target upload
 ```
 
 ## Validation
@@ -86,3 +99,4 @@ pio run
 
 - [Architecture Overview](./architecture.md)
 - [Testing and Debugging](./testing-debugging.md)
+- [Publicar uma versão](./releasing.md) (publishing a release, in Portuguese)

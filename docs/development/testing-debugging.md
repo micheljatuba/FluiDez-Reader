@@ -20,7 +20,7 @@ pio run -e simulator
 pio run -e default
 ```
 
-`pio run` without `-e` builds the X3/X4 and Sticky firmware targets from `platformio.ini`. Use it for a comprehensive build check, but prefer explicit environments while iterating.
+`pio run` without `-e` builds the X3/X4, Sticky, and X4 Pro firmware targets (the `default_envs` in `platformio.ini`). Use it for a comprehensive build check, but prefer explicit environments while iterating.
 
 ## Main-loop pacing regression tests
 

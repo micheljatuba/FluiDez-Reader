@@ -117,3 +117,5 @@ A atualização pelo aparelho compara primeiro a versão numérica e, em caso de
 
 - se a versão base do CrossInk não mudou, aumente o número do FluiDez (`1.6-fluidez8` → `1.6-fluidez9`);
 - se a base mudou, recomece a contagem na nova base (`1.6-fluidez9` → `1.7-fluidez1`).
+
+Os passos para publicar estão em [Publicar uma versão](./releasing.md).
