@@ -3,10 +3,21 @@
 #include <HalClock.h>
 
 #include "CrossPointSettings.h"
+#include "util/MonthNames.h"
 
 namespace {
-constexpr const char* MONTH_NAMES[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                                       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+// Short stats dates follow the day/month order of the user's date format.
+bool isDayFirstDateFormat() {
+  switch (SETTINGS.dateFormat) {
+    case CrossPointSettings::DATE_FORMAT_DAY_MONTH_YEAR_LONG:
+    case CrossPointSettings::DATE_FORMAT_DAY_MONTH_YEAR_NUMERIC:
+    case CrossPointSettings::DATE_FORMAT_DAY_MONTH_NUMERIC:
+    case CrossPointSettings::DATE_FORMAT_DAY_MONTH_LONG:
+      return true;
+    default:
+      return false;
+  }
+}
 
 bool isBitSet(const std::array<uint8_t, READING_HISTORY_BYTES>& bits, const size_t bitIndex) {
   if (bitIndex >= READING_HISTORY_DAYS) {
@@ -292,7 +303,13 @@ void formatReadingStatsShortDate(const ReadingStatsDate& date, char* buf, const 
     snprintf(buf, len, "-");
     return;
   }
-  snprintf(buf, len, "%s %u", MONTH_NAMES[date.month - 1], static_cast<unsigned>(date.day));
+  const char* month = shortMonthName(date.month);
+  const unsigned day = static_cast<unsigned>(date.day);
+  if (isDayFirstDateFormat()) {
+    snprintf(buf, len, "%u %s", day, month);
+  } else {
+    snprintf(buf, len, "%s %u", month, day);
+  }
 }
 
 void formatReadingStatsMonthToken(const ReadingStatsDate& date, char* buf, const size_t len) {
@@ -303,7 +320,7 @@ void formatReadingStatsMonthToken(const ReadingStatsDate& date, char* buf, const
     snprintf(buf, len, "-");
     return;
   }
-  snprintf(buf, len, "%s", MONTH_NAMES[date.month - 1]);
+  snprintf(buf, len, "%s", shortMonthName(date.month));
 }
 
 void formatCompactReadingDuration(const uint32_t seconds, char* buf, const size_t len) {

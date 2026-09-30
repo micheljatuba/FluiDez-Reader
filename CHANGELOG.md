@@ -6,6 +6,14 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ## [Unreleased]
 
+### Added
+
+- Brazilian Portuguese translations for the 132 interface strings that still appeared in English, including Nearby File Transfer, dictionary lookup, touch gestures, frontlight controls, KOReader account sign-up, and the date settings.
+
+### Changed
+
+- Month names in the header date, reading statistics, and the Dashboard follow the interface language, for example "30 set 2026" in Brazilian Portuguese. Short statistics dates put the day first when the chosen date format does, for example "29 Sep" instead of "Sep 29".
+
 ## [v1.6-fluidez9] - 2026-09-29
 
 ### Added

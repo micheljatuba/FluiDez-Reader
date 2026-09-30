@@ -9,10 +9,12 @@
 #include "CrossPointSettings.h"
 #include "components/themes/BaseTheme.h"
 #include "fontIds.h"
+#include "util/MonthNames.h"
 
 namespace {
 constexpr int kHeaderDateRightInset = 12;
 constexpr int kHeaderDateBottomGap = 10;
+constexpr size_t kHeaderDateBufferSize = 24;
 
 char dateSeparatorChar() {
   switch (SETTINGS.dateSeparator) {
@@ -45,9 +47,19 @@ bool formatHeaderDateImpl(char* buf, const size_t len) {
     }
   }
   return true;
-#else
+#elif defined(SIMULATOR)
+  // Simulator clock libraries only format English month names.
   return halClock.formatDate(buf, len, SETTINGS.clockUtcOffsetQ, static_cast<HalClock::DateFormat>(SETTINGS.dateFormat),
                              dateSeparatorChar());
+#else
+  const char* shortMonths[12];
+  const char* fullMonths[12];
+  for (uint8_t month = 1; month <= 12; ++month) {
+    shortMonths[month - 1] = shortMonthName(month);
+    fullMonths[month - 1] = fullMonthName(month);
+  }
+  return halClock.formatDate(buf, len, SETTINGS.clockUtcOffsetQ, static_cast<HalClock::DateFormat>(SETTINGS.dateFormat),
+                             dateSeparatorChar(), shortMonths, fullMonths);
 #endif
 }
 }  // namespace
@@ -55,7 +67,7 @@ bool formatHeaderDateImpl(char* buf, const size_t len) {
 bool formatHeaderDateText(char* buffer, const size_t length) { return formatHeaderDateImpl(buffer, length); }
 
 int headerDateReservedWidth(const GfxRenderer& renderer) {
-  char dateBuf[13];
+  char dateBuf[kHeaderDateBufferSize];
   if (!formatHeaderDateImpl(dateBuf, sizeof(dateBuf))) return 0;
 
   return renderer.getTextWidth(UI_10_FONT_ID, dateBuf) + kHeaderDateRightInset;
@@ -78,7 +90,7 @@ void drawHeaderDateAtLineBottom(const GfxRenderer& renderer, const int pageWidth
 }
 
 void drawHeaderDateAtBaseline(const GfxRenderer& renderer, const int pageWidth, const int baselineY) {
-  char dateBuf[13];
+  char dateBuf[kHeaderDateBufferSize];
   if (!formatHeaderDateImpl(dateBuf, sizeof(dateBuf))) return;
 
   constexpr int dateFontId = UI_10_FONT_ID;
