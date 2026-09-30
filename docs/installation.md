@@ -31,15 +31,8 @@ a device.
 After FluiDez Reader is installed, `Settings > System > Check for Updates`
 downloads the newest FluiDez Reader release for your reader over Wi-Fi. A
 release is offered only when its version is newer than the installed one, for
-example `v1.6-fluidez9` over `1.6-fluidez8`. Before installing, the reader shows
+example `v1.6-fluidez10` over `1.6-fluidez9`. Before installing, the reader shows
 that updates are installed at your own risk.
-
-> **Known issue in `1.6-fluidez8`:** `Check for Updates` crashes and restarts
-> the X4 Pro while it connects to Wi-Fi. The X4 Classic and Sticky, which use
-> the same ESP32-S3 processor, may be affected too. If your reader runs
-> `1.6-fluidez8`, install `v1.6-fluidez9` or newer with the
-> [SD card method](#sd-card-firmware-update); over-the-air updates work again
-> from that version on.
 
 ## SD Card Firmware Update
 

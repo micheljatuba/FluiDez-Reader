@@ -26,13 +26,13 @@ networks or in hotspot mode when you control who is connected.
 | Mode                 | Use when                                                               |
 | -------------------- | ---------------------------------------------------------------------- |
 | **Join Network**     | You want the reader to join an existing Wi-Fi network.                 |
-| **Calibre Wireless** | You want to receive books from the CrossPoint Calibre plugin workflow. |
+| **Calibre Wireless** | You want to receive books from Calibre with the FluiDez Reader plugin. |
 | **Create Hotspot**   | You want the reader to create its own open Wi-Fi network.              |
 
 ## Join Network Mode
 
 1. Select **Join Network**.
-2. If you have saved Wi-Fi credentials, CrossPoint first tries the last
+2. If you have saved Wi-Fi credentials, FluiDez Reader first tries the last
    connected network, then other visible saved networks in signal-strength
    order. Press **Back** to cancel or **Confirm** to stop auto-connect and show
    the network list.
@@ -46,7 +46,7 @@ After connection, the reader shows:
 - The connected SSID
 - A QR code for the web URL
 - The direct IP URL, for example `http://192.168.1.102/`
-- The mDNS fallback URL, usually `http://crosspoint.local/`
+- The mDNS fallback URL, usually `http://fluidez.local/`
 
 Use either URL from a phone, tablet, or computer on the same network.
 
@@ -56,10 +56,10 @@ Use either URL from a phone, tablet, or computer on the same network.
 2. Connect your phone or computer to the open Wi-Fi network:
 
 ```text
-CrossPoint-Reader
+FluiDez-Reader
 ```
 
-3. Open the URL shown on the reader. `http://crosspoint.local/` is preferred
+3. Open the URL shown on the reader. `http://fluidez.local/` is preferred
    when supported; the fallback IP is typically `http://192.168.4.1/`.
 
 The reader displays one QR code for joining the hotspot and another QR code for
@@ -69,8 +69,8 @@ opening the web interface.
 
 Calibre Wireless starts the same web server in station mode, then displays setup
 instructions and upload progress on the reader. Use this mode with the
-CrossPoint Calibre plugin or other clients that speak the documented WebSocket
-upload protocol.
+[FluiDez Reader Calibre plugin](../calibre-plugin/README.md) or other clients
+that speak the documented WebSocket upload protocol.
 
 For Calibre OPDS browsing, add `/opds` to the catalog URL when configuring an
 OPDS server.
@@ -167,7 +167,7 @@ after the font registry refreshes.
 ## Tips
 
 1. Use **Create Hotspot** when no trusted network is available.
-2. Prefer `crosspoint.local` when available, but keep the displayed IP address as a fallback.
+2. Prefer `fluidez.local` when available, but keep the displayed IP address as a fallback.
 3. Move closer to the router if upload progress stalls in Join Network mode.
 4. Upload custom fonts through the Fonts page or copy them to `/.fonts/` or `/fonts/` on the SD card.
 5. Exit File Transfer mode when finished to conserve battery.

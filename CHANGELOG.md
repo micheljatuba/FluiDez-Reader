@@ -6,12 +6,21 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ## [Unreleased]
 
+## [v1.6-fluidez11] - 2026-09-30
+
 ### Added
 
 - `NOVIDADES.md` describes what each version changes for readers, in Brazilian Portuguese. GitHub release pages open with the version's section, and CI fails when the version in `platformio.ini` has none.
+- FluiDez Reader Calibre plugin in `calibre-plugin/`, forked from the [CrossPoint Reader plugin](https://github.com/crosspoint-reader/calibre-plugins). Releases attach it as `fluidez-reader-calibre-plugin.zip`, built by `scripts/build_calibre_plugin.py`, and CI checks that it builds. Besides the automatic network search, it tries `fluidez.local` and the hotspot address `192.168.4.1`, and it also finds readers running earlier firmware. Unlike the CrossPoint Reader plugin, its search on Windows keeps listening when a probe to a closed port is answered with ICMP "port unreachable", which Windows reports as a connection reset on the next receive.
+
+### Changed
+
+- The reader answers at `fluidez.local` instead of `crosspoint.local`, its hotspot is named `FluiDez-Reader` instead of `CrossPoint-Reader`, and it joins Wi-Fi networks as `FluiDez-Reader-<MAC>`. The Calibre discovery reply still starts with `crosspoint`, so the CrossPoint Reader plugin can still find it.
+- The Calibre Wireless screen asks for the FluiDez Reader plugin instead of the CrossPoint Reader plugin.
 
 ### Removed
 
+- The `v1.6-fluidez8` release, whose Check for Updates crashed the X4 Pro. Its changes are listed under `v1.6-fluidez9`, now the first published FluiDez Reader release.
 - Repository files FluiDez Reader does not use: the CrossInk logo images (`src/images/crossink.png`, `crossink-white.png` and `Logo120.h`), the leftover GitHub Agentic Workflows files (`.github/aw/` and `.github/skills/`) and the issue templates, since Issues and pull requests are turned off.
 - The AI assistant instructions (`AGENTS.md`, `CLAUDE.md` and `.claude/`) are no longer published. They stay on the maintainer's computer.
 - Camera and location metadata from the focus reading photos in the documentation.
@@ -28,22 +37,7 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ## [v1.6-fluidez9] - 2026-09-29
 
-### Added
-
-- Before installing an update, the update screen states that updates are installed at your own risk.
-
-### Fixed
-
-- Check for Updates and KOReader authentication no longer crash and restart the X4 Pro while connecting to Wi-Fi. On the ESP32-S3 readers (X4 Pro, X4 Classic, and Sticky), these screens now get the reader-sized render stack, as in CrossInk ([uxjulia/crossink#762](https://github.com/uxjulia/crossink/issues/762)). Because Check for Updates in `1.6-fluidez8` can crash on these readers, install this version from the SD card.
-- The update-complete screen wraps the power-on instructions instead of letting them run off the screen, and the Brazilian Portuguese text reads "Pressione e segure o botão liga/desliga para ligar novamente".
-
-## [v1.6-fluidez8] - 2026-09-29
-
-Based on CrossInk development after v1.5.1 (commit [`b0eb0aa6`](https://github.com/uxjulia/crossink/commit/b0eb0aa699a6e8d84828bb5a107737e1c30fb80b)). The inherited changes are listed in the [CrossInk changelog at that commit](https://github.com/uxjulia/crossink/blob/b0eb0aa699a6e8d84828bb5a107737e1c30fb80b/CHANGELOG.md).
-
-### Known issues
-
-- Check for Updates crashes and restarts the X4 Pro while connecting to Wi-Fi, so readers on this version cannot update over the air. KOReader authentication can crash the same way, and the X4 Classic and Sticky, which use the same ESP32-S3 processor, may be affected too. Fixed in v1.6-fluidez9: install it or a newer release from the SD card (`Settings > System > SD Card Firmware Update`).
+First published FluiDez Reader release. Based on CrossInk development after v1.5.1 (commit [`b0eb0aa6`](https://github.com/uxjulia/crossink/commit/b0eb0aa699a6e8d84828bb5a107737e1c30fb80b)). The inherited changes are listed in the [CrossInk changelog at that commit](https://github.com/uxjulia/crossink/blob/b0eb0aa699a6e8d84828bb5a107737e1c30fb80b/CHANGELOG.md).
 
 ### Added
 
@@ -54,10 +48,11 @@ Based on CrossInk development after v1.5.1 (commit [`b0eb0aa6`](https://github.c
 - FluiDez Reader identity: a new symbol and Lexend Deca wordmark on the boot and default sleep screens, the Settings version footer, the default device name, and the web portal (logo, page titles, footer, and accent colour). Brand assets and the generator live in `docs/brand/` and `scripts/generate_brand_assets.py`.
 - Pushing a `v<version>` tag builds the X3/X4, X4 Pro, X4 Classic, and Sticky firmware and publishes it as a GitHub release, which Check for Updates then offers.
 - CI now builds the X4 Pro simulator and runs isolated headless smoke tests with the default, Classic, and Dashboard themes, retaining failure logs.
+- Before installing an update, the update screen states that updates are installed at your own risk.
 
 ### Changed
 
-- Check for Updates follows FluiDez Reader releases (`micheljatuba/FluiDez-Reader`) and offers a release when its `fluidez` build number is newer (for example `1.6-fluidez9` after `1.6-fluidez8`), instead of treating every FluiDez build of the same base version as current. Release firmware includes English and Brazilian Portuguese.
+- Check for Updates follows FluiDez Reader releases (`micheljatuba/FluiDez-Reader`) and offers a release when its `fluidez` build number is newer (for example `1.6-fluidez10` after `1.6-fluidez9`), instead of treating every FluiDez build of the same base version as current. Release firmware includes English and Brazilian Portuguese.
 - Touch readers check for input sooner after the screen has been idle, so a tap is no longer held back by the low-power sleep interval.
 - Keyboard, Wi-Fi selection, Nearby transfer and sync, and font download result screens follow Time to Sleep when left idle. The reader still stays awake while scanning, connecting, transferring, syncing, or downloading; unconfirmed typed text is discarded if it goes to sleep.
 - Cache clearing, stats backup, clock sync, firmware update, and font download screens no longer keep the CPU at full speed while waiting for input.
@@ -67,6 +62,8 @@ Based on CrossInk development after v1.5.1 (commit [`b0eb0aa6`](https://github.c
 
 ### Fixed
 
+- Check for Updates and KOReader authentication no longer crash and restart the X4 Pro while connecting to Wi-Fi. On the ESP32-S3 readers (X4 Pro, X4 Classic, and Sticky), these screens now get the reader-sized render stack, as in CrossInk ([uxjulia/crossink#762](https://github.com/uxjulia/crossink/issues/762)).
+- The update-complete screen wraps the power-on instructions instead of letting them run off the screen, and the Brazilian Portuguese text reads "Pressione e segure o botão liga/desliga para ligar novamente".
 - Per-book reading stats survive an SD card failure while replacing the stats file, and Delete Book Stats also removes the unfinished copy.
 - Dashboard Home and sleep screens no longer draw long stat labels over the cover or let stats, title, chapter, and footer overlap or leave the screen; the layout is computed from measured text and shrinks or drops the least important parts only when space runs out.
 - Portuguese Dashboard screens show "Restante" instead of the English "Time Left", and the Brazilian streak label reads "12 dias seguidos".
