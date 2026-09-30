@@ -34,10 +34,12 @@ release is offered only when its version is newer than the installed one, for
 example `v1.6-fluidez9` over `1.6-fluidez8`. Before installing, the reader shows
 that updates are installed at your own risk.
 
-On X4 Pro and X4 Classic, `Check for Updates` in `1.6-fluidez8` and earlier can
-crash and restart the reader while it connects to Wi-Fi. Install
-`v1.6-fluidez9` or newer with the SD card method below; over-the-air updates
-work again from that version on.
+> **Known issue in `1.6-fluidez8`:** `Check for Updates` crashes and restarts
+> the X4 Pro while it connects to Wi-Fi. The X4 Classic and Sticky, which use
+> the same ESP32-S3 processor, may be affected too. If your reader runs
+> `1.6-fluidez8`, install `v1.6-fluidez9` or newer with the
+> [SD card method](#sd-card-firmware-update); over-the-air updates work again
+> from that version on.
 
 ## SD Card Firmware Update
 

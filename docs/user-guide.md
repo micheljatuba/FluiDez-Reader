@@ -398,6 +398,8 @@ which status-bar items are shown.
   checks the [FluiDez Reader releases](https://github.com/micheljatuba/FluiDez-Reader/releases)
   and offers a release only when its `fluidez` build number is newer. Updates
   are installed at your own risk; see [Installation](./installation.md).
+  Check for Updates in `1.6-fluidez8` can crash the reader; on that version,
+  install a newer release with SD Firmware Update instead.
 
 - **Language**: Set the UI language. FluiDez Reader releases include English and
   Brazilian Portuguese. The source includes translations for 28 languages: English,

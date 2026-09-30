@@ -149,7 +149,7 @@ jobs:
           generate_release_notes: true
           fail_on_unmatched_files: true
           body: |
-            Atualize pelo próprio leitor em **Configurações > Sistema > Verificar atualizações**, ou copie o `.bin` do seu leitor para o cartão SD e use **Configurações > Sistema > Atualização de firmware do cartão SD**. Se a atualização pelo leitor falhar, use o cartão SD.
+            Atualize pelo próprio leitor em **Configurações > Sistema > Verificar atualizações**, ou copie o `.bin` do seu leitor para o cartão SD e use **Configurações > Sistema > Atualização de firmware do cartão SD**. Se a atualização pelo leitor falhar, ou se o seu leitor está na v1.6-fluidez8 (que tem um bug em *Verificar atualizações*), use o cartão SD.
 
             > **Instalação e atualização por sua conta e risco.** A MJ Cloud Tecnologia não se responsabiliza por danos ao aparelho, perda de dados ou qualquer outro problema decorrente da instalação, da atualização ou do uso deste firmware.
             >

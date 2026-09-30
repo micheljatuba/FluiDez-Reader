@@ -21,6 +21,9 @@
 >
 > **Testado apenas no Xteink X4 Pro.** Os firmwares dos outros leitores (X3, X4, X4 Classic e Seeed Studio Sticky) são gerados a partir do mesmo código, mas não foram testados.
 
+> [!CAUTION]
+> **A versão 1.6-fluidez8 tem um bug na atualização pelo aparelho (OTA).** No X4 Pro, *Verificar atualizações* trava e reinicia o leitor ao conectar ao Wi-Fi; o X4 Classic e o Sticky, que usam o mesmo processador, também podem ser afetados. Se o seu leitor está nessa versão, instale a 1.6-fluidez9 ou mais recente pelo cartão SD, como descrito em [Instalação](#instalação).
+
 ## Sobre
 
 O **FluiDez Reader** é um firmware de código aberto para leitores de tinta eletrônica (e-ink). Ele nasceu como fork do [CrossInk](https://github.com/uxjulia/crossink), que por sua vez é baseado no [CrossPoint Reader](https://github.com/crosspoint-reader/crosspoint-reader), e é modificado e mantido de forma independente por MJ Cloud Tecnologia.
@@ -113,7 +116,7 @@ Se o leitor ainda usa o firmware original do CrossInk, a primeira instalação p
 
 Depois da primeira instalação, use **Configurações > Sistema > Verificar atualizações**. O leitor consulta a versão mais recente publicada neste repositório e instala o firmware do seu aparelho. As atualizações também são feitas por sua conta e risco, e o próprio leitor exibe esse aviso antes de instalar.
 
-> **X4 Pro e X4 Classic com a versão 1.6-fluidez8 ou anterior:** nessas versões, *Verificar atualizações* pode travar e reiniciar o leitor ao conectar ao Wi-Fi. Instale a 1.6-fluidez9 (ou mais recente) pelo cartão SD, como descrito em [Instalação](#instalação). A partir dela, a atualização pelo próprio aparelho volta a funcionar.
+> **Na versão 1.6-fluidez8, a atualização pelo aparelho tem um bug** (veja o aviso no início desta página). Se o seu leitor está nessa versão, instale a 1.6-fluidez9 ou mais recente pelo cartão SD, como descrito em [Instalação](#instalação). A partir dela, *Verificar atualizações* volta a funcionar.
 
 ## Fontes extras
 
