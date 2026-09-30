@@ -396,7 +396,8 @@ which status-bar items are shown.
 - **Check for Updates** and **SD Firmware Update**: Check for firmware updates
   over Wi-Fi or install a `firmware.bin` placed on the SD card. FluiDez Reader
   checks the [FluiDez Reader releases](https://github.com/micheljatuba/FluiDez-Reader/releases)
-  and offers a release only when its `fluidez` build number is newer.
+  and offers a release only when its `fluidez` build number is newer. Updates
+  are installed at your own risk; see [Installation](./installation.md).
 
 - **Language**: Set the UI language. FluiDez Reader releases include English and
   Brazilian Portuguese. The source includes translations for 28 languages: English,
