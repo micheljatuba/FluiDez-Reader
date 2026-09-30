@@ -285,6 +285,7 @@ jobs:
     name: Test Status
     needs:
       - build
+      - calibre-plugin
       - clang-format
       - cppcheck
       - release-notes
