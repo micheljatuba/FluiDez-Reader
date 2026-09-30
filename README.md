@@ -120,9 +120,11 @@ Depois da primeira instalação, use **Configurações > Sistema > Verificar atu
 
 ## Fontes extras
 
-As famílias Gelasio, EB Garamond, Crimson Pro, Jost e Arimo não estão no catálogo de download de fontes do aparelho. Gere-as no computador, a partir deste repositório:
+As famílias Gelasio, EB Garamond, Crimson Pro, Jost e Arimo não estão no catálogo de download de fontes do aparelho. Gere-as no computador, a partir de uma cópia deste repositório (requer Git e Python 3):
 
 ```sh
+git clone https://github.com/micheljatuba/FluiDez-Reader.git
+cd FluiDez-Reader
 python3 -m pip install -r lib/EpdFont/scripts/requirements.txt
 python3 lib/EpdFont/scripts/build-sd-fonts.py --only Gelasio,EBGaramond,CrimsonPro,Jost,Arimo --output-dir ./generated-fonts
 ```
@@ -137,41 +139,6 @@ Depois, copie as pastas das famílias geradas para `/.fonts/` (ou `/fonts/`) no 
 - Como referência, EPUBs com menos de 20 MB funcionam melhor; acima de 50 MB, a chance de lentidão aumenta.
 - Se um EPUB estiver lento, envie-o pelo otimizador de EPUB do portal web (em *Transferência de arquivos*).
 - Use um cartão SD confiável e deixe espaço livre: configurações, progresso, cache e estatísticas ficam no cartão.
-
-## Desenvolvimento
-
-O FluiDez Reader usa o [PlatformIO](https://platformio.org/). Clone com os submódulos (o `freeink-sdk` é um submódulo):
-
-```sh
-git clone --recursive https://github.com/micheljatuba/FluiDez-Reader.git
-cd FluiDez-Reader
-pio run -e x4-pro              # compila o firmware do X4 Pro
-pio run -e x4-pro -t upload    # grava pelo USB
-```
-
-| Ambiente | Aparelho |
-| --- | --- |
-| `x4-pro` | Xteink X4 Pro |
-| `x4-classic` | Xteink X4 Classic |
-| `default` | Xteink X3 e X4 |
-| `sticky` | Seeed Studio Sticky |
-| `x4-pro-simulator` | Simulador do X4 Pro no computador |
-
-Guias (em inglês): [primeiros passos](docs/development/getting-started.md), [arquitetura](docs/development/architecture.md), [testes e depuração](docs/development/testing-debugging.md) e [simulador](docs/simulator.md). Com Nix, entre no ambiente de desenvolvimento com `nix develop -f nix` ou `nix-shell nix`.
-
-### Publicar uma versão
-
-1. Atualize `[crossink] version` no `platformio.ini` (por exemplo, `1.6-fluidez10`) e registre as mudanças no [CHANGELOG](CHANGELOG.md).
-2. Faça o commit em `main` e envie a tag da versão:
-
-   ```sh
-   git tag -a v1.6-fluidez10 -m "FluiDez Reader v1.6-fluidez10"
-   git push origin main v1.6-fluidez10
-   ```
-
-3. O workflow *Release* compila os quatro firmwares e publica a versão, que os leitores encontram em *Verificar atualizações*.
-
-Para trazer novidades do CrossInk sem misturar o histórico, siga a [sincronização com o CrossInk](docs/development/upstream-sync.md).
 
 ## Contribuições
 

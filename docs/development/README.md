@@ -14,5 +14,6 @@ It is written for software developers who may be new to embedded development.
 - [Testing and Debugging](./testing-debugging.md)
 - [Icon Libraries](./icons.md)
 - [Sincronização com o CrossInk](./upstream-sync.md) (em português)
+- [Publicar uma versão](./releasing.md) (em português)
 
 If you are new, start with [Getting Started](./getting-started.md).
