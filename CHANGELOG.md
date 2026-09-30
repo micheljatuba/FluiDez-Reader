@@ -6,6 +6,17 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ## [Unreleased]
 
+## [v1.6-fluidez9] - 2026-09-29
+
+### Added
+
+- Before installing an update, the update screen states that updates are installed at your own risk.
+
+### Fixed
+
+- Check for Updates and KOReader authentication no longer crash and restart X4 Pro and X4 Classic while connecting to Wi-Fi. Their screens now get the reader-sized render stack, as in CrossInk ([uxjulia/crossink#762](https://github.com/uxjulia/crossink/issues/762)). Because Check for Updates in `1.6-fluidez8` and earlier can crash on these readers, install this version from the SD card.
+- The update-complete screen wraps the power-on instructions instead of letting them run off the screen, and the Brazilian Portuguese text reads "Pressione e segure o botão liga/desliga para ligar novamente".
+
 ## [v1.6-fluidez8] - 2026-09-29
 
 Based on CrossInk development after v1.5.1 (commit [`b0eb0aa6`](https://github.com/uxjulia/crossink/commit/b0eb0aa699a6e8d84828bb5a107737e1c30fb80b)). The inherited changes are listed in the [CrossInk changelog at that commit](https://github.com/uxjulia/crossink/blob/b0eb0aa699a6e8d84828bb5a107737e1c30fb80b/CHANGELOG.md).
