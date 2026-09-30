@@ -6,6 +6,8 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ## [Unreleased]
 
+## [v1.6-fluidez10] - 2026-09-30
+
 ### Added
 
 - Brazilian Portuguese translations for the 132 interface strings that still appeared in English, including Nearby File Transfer, dictionary lookup, touch gestures, frontlight controls, KOReader account sign-up, and the date settings.
