@@ -14,12 +14,16 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ### Fixed
 
-- Check for Updates and KOReader authentication no longer crash and restart X4 Pro and X4 Classic while connecting to Wi-Fi. Their screens now get the reader-sized render stack, as in CrossInk ([uxjulia/crossink#762](https://github.com/uxjulia/crossink/issues/762)). Because Check for Updates in `1.6-fluidez8` and earlier can crash on these readers, install this version from the SD card.
+- Check for Updates and KOReader authentication no longer crash and restart the X4 Pro while connecting to Wi-Fi. On the ESP32-S3 readers (X4 Pro, X4 Classic, and Sticky), these screens now get the reader-sized render stack, as in CrossInk ([uxjulia/crossink#762](https://github.com/uxjulia/crossink/issues/762)). Because Check for Updates in `1.6-fluidez8` can crash on these readers, install this version from the SD card.
 - The update-complete screen wraps the power-on instructions instead of letting them run off the screen, and the Brazilian Portuguese text reads "Pressione e segure o botão liga/desliga para ligar novamente".
 
 ## [v1.6-fluidez8] - 2026-09-29
 
 Based on CrossInk development after v1.5.1 (commit [`b0eb0aa6`](https://github.com/uxjulia/crossink/commit/b0eb0aa699a6e8d84828bb5a107737e1c30fb80b)). The inherited changes are listed in the [CrossInk changelog at that commit](https://github.com/uxjulia/crossink/blob/b0eb0aa699a6e8d84828bb5a107737e1c30fb80b/CHANGELOG.md).
+
+### Known issues
+
+- Check for Updates crashes and restarts the X4 Pro while connecting to Wi-Fi, so readers on this version cannot update over the air. KOReader authentication can crash the same way, and the X4 Classic and Sticky, which use the same ESP32-S3 processor, may be affected too. Fixed in v1.6-fluidez9: install it or a newer release from the SD card (`Settings > System > SD Card Firmware Update`).
 
 ### Added
 
