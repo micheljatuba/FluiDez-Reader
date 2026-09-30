@@ -24,6 +24,23 @@ O **FluiDez Reader** é um firmware de código aberto para leitores de tinta ele
 
 O nome junta *flui* (a leitura flui) e *dez* (nota dez). A identidade visual, os recursos e as correções descritos abaixo são do FluiDez Reader.
 
+## Capturas de tela
+
+Imagens do simulador do X4 Pro, com a interface em português. Os livros de exemplo são clássicos brasileiros em domínio público.
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/images/fluidez/home-grid.png" alt="Início no tema Lyra Grade, com seis livros, barras de progresso e fitas nos livros fixados" width="200"><br><sub>Início (Lyra Grade)</sub></td>
+    <td align="center"><img src="docs/images/fluidez/home-carousel.png" alt="Início no tema Lyra Carousel, com a capa de Dom Casmurro em destaque" width="200"><br><sub>Início (Lyra Carousel)</sub></td>
+    <td align="center"><img src="docs/images/fluidez/reader.png" alt="Primeira página do capítulo I de Dom Casmurro" width="200"><br><sub>Leitura</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/images/fluidez/stats.png" alt="Estatísticas de leitura de todos os livros, por hora do dia e dia da semana" width="200"><br><sub>Estatísticas de leitura</sub></td>
+    <td align="center"><img src="docs/images/fluidez/settings.png" alt="Aba Sistema das Configurações, com a versão do FluiDez Reader no rodapé" width="200"><br><sub>Configurações</sub></td>
+    <td align="center"><img src="docs/images/fluidez/sleep.png" alt="Tela de repouso com o logotipo do FluiDez Reader" width="200"><br><sub>Tela de repouso</sub></td>
+  </tr>
+</table>
+
 ## O que o FluiDez Reader traz
 
 ### Início e biblioteca
