@@ -49,6 +49,15 @@ jobs:
           VERSION="$(sed -n '/^\[crossink\]$/,/^\[/s/^version = //p' platformio.ini)"
           python3 scripts/release_notes.py "$VERSION" > /dev/null
 
+  # Releases attach this ZIP, so a plugin that stops compiling fails here first.
+  calibre-plugin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Build Calibre plugin
+        run: python3 scripts/build_calibre_plugin.py
+
   cppcheck:
     runs-on: ubuntu-latest
     steps:

@@ -22,17 +22,19 @@ O leitor procura atualizações na versão mais recente (*Latest*) publicada em 
 
    Não use `git push --tags` (o motivo está em [Sincronização com o CrossInk](./upstream-sync.md)).
 
-5. O workflow *Release* confere se o commit está em `main` e se o NOVIDADES tem a seção da versão, compila os quatro firmwares (X4 Pro, X4 Classic, X3/X4 e Sticky) e publica a versão como *Latest*, com as novidades, o aviso de risco e a tabela de arquivos. A partir daí, os leitores a encontram em *Verificar atualizações*.
+5. O workflow *Release* confere se o commit está em `main` e se o NOVIDADES tem a seção da versão, compila os quatro firmwares (X4 Pro, X4 Classic, X3/X4 e Sticky), gera o plugin do Calibre (`scripts/build_calibre_plugin.py`) e publica a versão como *Latest*, com as novidades, o aviso de risco e a tabela de arquivos. A partir daí, os leitores a encontram em *Verificar atualizações*.
 
 Também é possível rodar o workflow manualmente em `main` (*Actions > Release > Run workflow*), informando a versão sem o `v`, por exemplo `1.6-fluidez10`. Nesse caso, a tag é criada na publicação.
 
 ## Conferir a publicação
 
-A versão nova deve aparecer como *Latest*, começar pelas novidades e ter os quatro arquivos `.bin`:
+A versão nova deve aparecer como *Latest*, começar pelas novidades e ter os quatro arquivos `.bin` e o `fluidez-reader-calibre-plugin.zip`:
 
 ```sh
 gh release view --repo micheljatuba/FluiDez-Reader
 ```
+
+O leitor só instala arquivos `firmware-<leitor>*.bin`; o ZIP do plugin não interfere na atualização. Não publique uma release só com o plugin: ela viraria a *Latest* e os leitores não achariam firmware nela.
 
 ## Versão com problema
 
@@ -41,3 +43,4 @@ Se uma versão publicada tiver um bug grave:
 - registre-o em `### Known issues`, na seção da versão no CHANGELOG, e como **Problema conhecido** no início da seção da versão no NOVIDADES;
 - avise no início das notas da release no GitHub. Se o bug impedir a atualização pelo leitor, avise também no README e no texto padrão das notas (em `release.yml`), para que as versões seguintes indiquem o cartão SD;
 - ao editar as notas de uma versão antiga, use `gh release edit <tag> --latest=false`, para que ela não se torne a *Latest*: o leitor instala sempre a *Latest*.
+- para retirar a versão, publique antes a correção e só depois apague a release e a tag com `gh release delete <tag> --cleanup-tag --repo micheljatuba/FluiDez-Reader`. Tire também as menções a ela do README, das notas das outras releases e da documentação.

@@ -168,16 +168,23 @@ disconnect behavior.
 
 ### 3.5.1 Calibre Wireless Transfers
 
-FluiDez Reader supports sending books from Calibre using the CrossPoint Reader device plugin.
+FluiDez Reader supports sending books from Calibre with its own FluiDez Reader
+device plugin, a fork of the CrossPoint Reader plugin.
 
-1. Download the current `crosspoint_reader` plugin ZIP from the
-   [CrossPoint Reader plugin releases](https://github.com/crosspoint-reader/calibre-plugins/releases).
+1. Download `fluidez-reader-calibre-plugin.zip` from the
+   [latest FluiDez Reader release](https://github.com/micheljatuba/FluiDez-Reader/releases/latest/download/fluidez-reader-calibre-plugin.zip).
 2. In Calibre, open **Preferences > Plugins > Load plugin from file** and select
-   that ZIP. Restart Calibre if it asks you to.
-3. On the device, open **File Transfer > Calibre Wireless** and join the same
+   that ZIP without extracting it. Restart Calibre if it asks you to.
+3. If the CrossPoint Reader plugin is installed, remove it so the two plugins do
+   not compete for the same reader.
+4. On the device, open **File Transfer > Calibre Wireless** and join the same
    2.4 GHz Wi-Fi network as the computer.
-4. Keep the Calibre Wireless screen open, then use Calibre's **Send to device**
+5. Keep the Calibre Wireless screen open, then use Calibre's **Send to device**
    action. The device screen shows the transfer progress and completion notice.
+
+The plugin finds the reader automatically and also tries `fluidez.local` and the
+hotspot address `192.168.4.1`. Settings and troubleshooting are described in the
+[plugin README](../calibre-plugin/README.md) (in Portuguese).
 
 ### 3.6 Settings
 
@@ -398,8 +405,6 @@ which status-bar items are shown.
   checks the [FluiDez Reader releases](https://github.com/micheljatuba/FluiDez-Reader/releases)
   and offers a release only when its `fluidez` build number is newer. Updates
   are installed at your own risk; see [Installation](./installation.md).
-  Check for Updates in `1.6-fluidez8` can crash the reader; on that version,
-  install a newer release with SD Firmware Update instead.
 
 - **Language**: Set the UI language. FluiDez Reader releases include English and
   Brazilian Portuguese. The source includes translations for 28 languages: English,
@@ -444,7 +449,7 @@ For web-based Wi-Fi network management, see [File Transfer](./webserver.md).
 While in **File Transfer** mode, the web settings page includes management cards for both **Wi-Fi Networks** and **OPDS Servers**.
 
 1. On device: open **File Transfer** and connect through **Join a Network** or **Create Hotspot**.
-2. In a browser, open `http://<device-ip>/settings` or `http://crosspoint.local/settings`.
+2. In a browser, open `http://<device-ip>/settings` or `http://fluidez.local/settings`.
 3. In **Wi-Fi Networks**, add, edit, or delete saved network entries (SSID + optional password).
 4. In **OPDS Servers**, add, edit, or delete OPDS catalogs.
 

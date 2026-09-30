@@ -143,12 +143,20 @@ jobs:
     env:
       RELEASE_VERSION: ${{ needs.prepare-release.outputs.release_version }}
     steps:
+      # Checkout first: it cleans the workspace, which would remove downloaded files.
+      - uses: actions/checkout@v6
+
       - name: Download firmware artifacts
         uses: actions/download-artifact@v7
         with:
           pattern: release-firmware-*
           merge-multiple: true
           path: release-firmware
+
+      # Devices only install assets named firmware-<type>*.bin, so the plugin ZIP
+      # never interferes with Check for Updates.
+      - name: Build Calibre plugin
+        run: python3 scripts/build_calibre_plugin.py --output release-firmware/fluidez-reader-calibre-plugin.zip
 
       # Published (not draft or prerelease) and marked latest: the device's
       # releases/latest lookup ignores drafts and prereleases.
@@ -170,7 +178,7 @@ jobs:
 
             ## Como atualizar
 
-            Atualize pelo próprio leitor em **Configurações > Sistema > Verificar atualizações**, ou copie o `.bin` do seu leitor para o cartão SD e use **Configurações > Sistema > Atualização de firmware do cartão SD**. Se a atualização pelo leitor falhar, ou se o seu leitor está na v1.6-fluidez8 (que tem um bug em *Verificar atualizações*), use o cartão SD.
+            Atualize pelo próprio leitor em **Configurações > Sistema > Verificar atualizações**, ou copie o `.bin` do seu leitor para o cartão SD e use **Configurações > Sistema > Atualização de firmware do cartão SD**. Se a atualização pelo leitor falhar, use o cartão SD.
 
             > **Instalação e atualização por sua conta e risco.** A MJ Cloud Tecnologia não se responsabiliza por danos ao aparelho, perda de dados ou qualquer outro problema decorrente da instalação, da atualização ou do uso deste firmware.
             >
@@ -183,9 +191,14 @@ jobs:
             | Xteink X3 / X4 | `firmware-x3-x4-v${{ env.RELEASE_VERSION }}.bin` |
             | Seeed Studio Sticky | `firmware-sticky-v${{ env.RELEASE_VERSION }}.bin` |
 
+            ## Plugin para o Calibre
+
+            Para enviar livros do Calibre pela rede Wi-Fi, instale o `fluidez-reader-calibre-plugin.zip` em **Preferências > Plugins > Carregar plugin a partir de arquivo** (sem extrair) e remova o plugin *CrossPoint Reader*, se estiver instalado. Instruções: [calibre-plugin/README.md](https://github.com/${{ github.repository }}/blob/v${{ env.RELEASE_VERSION }}/calibre-plugin/README.md).
+
             Histórico técnico completo, em inglês: [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/v${{ env.RELEASE_VERSION }}/CHANGELOG.md).
           files: |
             release-firmware/firmware-x3-x4-v${{ env.RELEASE_VERSION }}.bin
             release-firmware/firmware-sticky-v${{ env.RELEASE_VERSION }}.bin
             release-firmware/firmware-x4-pro-v${{ env.RELEASE_VERSION }}.bin
             release-firmware/firmware-x4-classic-v${{ env.RELEASE_VERSION }}.bin
+            release-firmware/fluidez-reader-calibre-plugin.zip

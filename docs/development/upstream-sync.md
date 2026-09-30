@@ -118,7 +118,7 @@ Antes de resolver um conflito, leia o commit do upstream e o PR citado nele (por
 
 A atualização pelo aparelho compara primeiro a versão numérica e, em caso de empate, o número após `fluidez` (veja `src/network/OtaVersion.h`). Ao publicar a próxima versão:
 
-- se a versão base do CrossInk não mudou, aumente o número do FluiDez (`1.6-fluidez8` → `1.6-fluidez9`);
-- se a base mudou, recomece a contagem na nova base (`1.6-fluidez9` → `1.7-fluidez1`).
+- se a versão base do CrossInk não mudou, aumente o número do FluiDez (`1.6-fluidez11` → `1.6-fluidez12`);
+- se a base mudou, recomece a contagem na nova base (`1.6-fluidez12` → `1.7-fluidez1`).
 
 Os passos para publicar estão em [Publicar uma versão](./releasing.md).

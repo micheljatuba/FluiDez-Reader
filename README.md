@@ -21,9 +21,6 @@
 >
 > **Testado apenas no Xteink X4 Pro.** Os firmwares dos outros leitores (X3, X4, X4 Classic e Seeed Studio Sticky) são gerados a partir do mesmo código, mas não foram testados.
 
-> [!CAUTION]
-> **A versão 1.6-fluidez8 tem um bug na atualização pelo aparelho (OTA).** No X4 Pro, *Verificar atualizações* trava e reinicia o leitor ao conectar ao Wi-Fi; o X4 Classic e o Sticky, que usam o mesmo processador, também podem ser afetados. Se o seu leitor está nessa versão, instale a 1.6-fluidez9 ou mais recente pelo cartão SD, como descrito em [Instalação](#instalação).
-
 ## Sobre
 
 O **FluiDez Reader** é um firmware de código aberto para leitores de tinta eletrônica (e-ink). Ele nasceu como fork do [CrossInk](https://github.com/uxjulia/crossink), que por sua vez é baseado no [CrossPoint Reader](https://github.com/crosspoint-reader/crosspoint-reader), e é modificado e mantido de forma independente por MJ Cloud Tecnologia.
@@ -76,6 +73,7 @@ Imagens do simulador do X4 Pro, com a interface em português. Os livros de exem
 - **Cinco famílias de fontes extras** para o cartão SD: Gelasio, EB Garamond, Crimson Pro, Jost e Arimo ([como gerar](#fontes-extras)).
 - **Português e inglês** embutidos no firmware.
 - **Atualizações por este repositório:** *Verificar atualizações* instala as versões publicadas aqui.
+- **Plugin próprio para o Calibre** e nomes de rede próprios: o portal web atende em `http://fluidez.local/` e o hotspot do leitor se chama `FluiDez-Reader` (veja [Calibre](#calibre)).
 
 As novidades de cada versão, em português, estão em [NOVIDADES](NOVIDADES.md) e na [página de versões](https://github.com/micheljatuba/FluiDez-Reader/releases). O histórico técnico completo, em inglês, está no [CHANGELOG](CHANGELOG.md).
 
@@ -116,7 +114,15 @@ Se o leitor ainda usa o firmware original do CrossInk, a primeira instalação p
 
 Depois da primeira instalação, use **Configurações > Sistema > Verificar atualizações**. O leitor consulta a versão mais recente publicada neste repositório e instala o firmware do seu aparelho. As atualizações também são feitas por sua conta e risco, e o próprio leitor exibe esse aviso antes de instalar.
 
-> **Na versão 1.6-fluidez8, a atualização pelo aparelho tem um bug** (veja o aviso no início desta página). Se o seu leitor está nessa versão, instale a 1.6-fluidez9 ou mais recente pelo cartão SD, como descrito em [Instalação](#instalação). A partir dela, *Verificar atualizações* volta a funcionar.
+## Calibre
+
+Para enviar livros do Calibre pela rede Wi-Fi, use o plugin **FluiDez Reader** para Calibre:
+
+1. Baixe o [`fluidez-reader-calibre-plugin.zip`](https://github.com/micheljatuba/FluiDez-Reader/releases/latest/download/fluidez-reader-calibre-plugin.zip), anexado a cada versão.
+2. No Calibre, abra **Preferências > Plugins > Carregar plugin a partir de arquivo**, escolha o ZIP (sem extrair) e reinicie o Calibre. Se o plugin *CrossPoint Reader* estiver instalado, remova-o.
+3. No leitor, abra **Transferência de arquivos > Calibre sem fio** e, no Calibre, use **Enviar para o dispositivo**.
+
+Mais detalhes, configurações e solução de problemas estão no [README do plugin](calibre-plugin/README.md).
 
 ## Fontes extras
 
@@ -149,7 +155,8 @@ O código é público, mas o desenvolvimento é fechado: no momento, o FluiDez R
 O FluiDez Reader existe graças a:
 
 - [CrossInk](https://github.com/uxjulia/crossink), de Julia Nguyen, a base direta deste projeto;
-- [CrossPoint Reader](https://github.com/crosspoint-reader/crosspoint-reader), de Dave Allie e colaboradores, o projeto original.
+- [CrossPoint Reader](https://github.com/crosspoint-reader/crosspoint-reader), de Dave Allie e colaboradores, o projeto original;
+- [plugins do CrossPoint Reader para o Calibre](https://github.com/crosspoint-reader/calibre-plugins), a base do plugin FluiDez Reader para Calibre.
 
 O histórico completo do código herdado está nesses repositórios. Aqui, o histórico começa na importação da base do CrossInk.
 

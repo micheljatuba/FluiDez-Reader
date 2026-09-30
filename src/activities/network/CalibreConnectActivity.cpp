@@ -15,7 +15,7 @@
 #include "fontIds.h"
 
 namespace {
-constexpr const char* HOSTNAME = "crosspoint";
+constexpr const char* HOSTNAME = "fluidez";
 }  // namespace
 
 void CalibreConnectActivity::onEnter() {
