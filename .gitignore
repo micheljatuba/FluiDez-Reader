@@ -23,10 +23,11 @@ release.md
 lib/EpdFont/scripts/downloaded_fonts/
 lib/EpdFont/scripts/instanced_fonts/
 lib/EpdFont/scripts/output/
-# Claude Code: share project skills with the team, keep local agent state
-# (worktrees, scheduled-task locks, settings.local, scout CLEANUP.md) out.
-.claude/*
-!.claude/skills/
+# AI assistant instructions stay on the maintainer's computer and are not
+# published. Back them up before an upstream sync (docs/development/upstream-sync.md).
+/AGENTS.md
+/CLAUDE.md
+/.claude/
 
 dist-publish/
 

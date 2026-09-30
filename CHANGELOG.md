@@ -10,6 +10,12 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 - `NOVIDADES.md` describes what each version changes for readers, in Brazilian Portuguese. GitHub release pages open with the version's section, and CI fails when the version in `platformio.ini` has none.
 
+### Removed
+
+- Repository files FluiDez Reader does not use: the CrossInk logo images (`src/images/crossink.png`, `crossink-white.png` and `Logo120.h`), the leftover GitHub Agentic Workflows files (`.github/aw/` and `.github/skills/`) and the issue templates, since Issues and pull requests are turned off.
+- The AI assistant instructions (`AGENTS.md`, `CLAUDE.md` and `.claude/`) are no longer published. They stay on the maintainer's computer.
+- Camera and location metadata from the focus reading photos in the documentation.
+
 ## [v1.6-fluidez10] - 2026-09-30
 
 ### Added

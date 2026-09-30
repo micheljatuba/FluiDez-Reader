@@ -886,9 +886,9 @@ Please note that this firmware is currently in active development. The following
 
 ## 7. Troubleshooting Issues & Escaping Bootloop
 
-If an issue or crash is encountered while using FluiDez Reader, feel free to [open an issue](https://github.com/micheljatuba/FluiDez-Reader/issues) and attach the logs.
+If an issue or crash is encountered while using FluiDez Reader, the logs below help find the cause.
 
-**Crash reports on SD card:** After a crash, FluiDez Reader automatically saves a crash report to the SD card (no USB connection needed). Check the root of the SD card for a crash log file and include it with any bug report.
+**Crash reports on SD card:** After a crash, FluiDez Reader automatically saves a crash report to the SD card (no USB connection needed). Check the root of the SD card for a crash log file.
 
 **Serial monitor logs:** For more detailed debugging, connect the device to a computer and run the custom debugging monitor script (requires Python 3 with `pyserial`, `colorama`, and `matplotlib`; install via `pip3 install pyserial colorama matplotlib`):
 
