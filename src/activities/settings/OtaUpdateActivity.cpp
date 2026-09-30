@@ -155,6 +155,10 @@ void OtaUpdateActivity::render(RenderLock&&) {
                       (std::string(tr(STR_CURRENT_VERSION)) + CROSSINK_VERSION).c_str());
     renderer.drawText(UI_10_FONT_ID, metrics.contentSidePadding, top + height * 2 + metrics.verticalSpacing * 2,
                       (std::string(tr(STR_NEW_VERSION)) + updater.getLatestVersion()).c_str());
+    const int riskY = top + height * 3 + metrics.verticalSpacing * 4;
+    const Rect riskBounds{metrics.contentSidePadding, riskY, pageWidth - metrics.contentSidePadding * 2,
+                          pageHeight - riskY};
+    UITheme::drawCenteredWrappedText(renderer, riskBounds, SMALL_FONT_ID, riskY, tr(STR_UPDATE_AT_OWN_RISK), 3);
 
     if (mappedInput.hasTouch()) {
       const auto actions = getOtaActionLayout(renderer);
