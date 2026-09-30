@@ -34,6 +34,21 @@ jobs:
           PATH="/usr/lib/llvm-21/bin:$PATH" ./bin/clang-format-fix
           git diff --exit-code || (echo "Please run 'bin/clang-format-fix' to fix formatting issues" && exit 1)
 
+  release-notes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Test release notes script
+        run: python3 -m unittest discover -s test/scripts -p test_release_notes.py -v
+
+      # Release pages open with the NOVIDADES.md section of their version, so the
+      # version in platformio.ini needs one before it is tagged.
+      - name: Check NOVIDADES.md for the platformio.ini version
+        run: |
+          VERSION="$(sed -n '/^\[crossink\]$/,/^\[/s/^version = //p' platformio.ini)"
+          python3 scripts/release_notes.py "$VERSION" > /dev/null
+
   cppcheck:
     runs-on: ubuntu-latest
     steps:
@@ -263,6 +278,7 @@ jobs:
       - build
       - clang-format
       - cppcheck
+      - release-notes
       - unit-tests
       - x4-pro-simulator-smoke
     if: always()

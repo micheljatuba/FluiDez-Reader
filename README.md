@@ -77,7 +77,7 @@ Imagens do simulador do X4 Pro, com a interface em português. Os livros de exem
 - **Português e inglês** embutidos no firmware.
 - **Atualizações por este repositório:** *Verificar atualizações* instala as versões publicadas aqui.
 
-A lista completa de mudanças está no [CHANGELOG](CHANGELOG.md).
+As novidades de cada versão, em português, estão em [NOVIDADES](NOVIDADES.md) e na [página de versões](https://github.com/micheljatuba/FluiDez-Reader/releases). O histórico técnico completo, em inglês, está no [CHANGELOG](CHANGELOG.md).
 
 ## Recursos herdados
 

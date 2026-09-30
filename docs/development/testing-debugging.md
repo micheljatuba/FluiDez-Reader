@@ -88,7 +88,8 @@ flow should also be checked in a browser against **File Transfer** on the device
 CI's `x4-pro-simulator-smoke` job builds `x4-pro-simulator` once on Ubuntu 24.04,
 then runs the existing smoke runner with the default, Classic, and Dashboard
 themes. It is required by the aggregate **Test Status** job, alongside the
-firmware builds, formatting, static analysis, and host unit tests.
+firmware builds, formatting, static analysis, host unit tests, and the release
+notes check (`NOVIDADES.md` needs a section for the `platformio.ini` version).
 
 The simulator supports Linux/WSL and macOS, not native Windows. On Debian/Ubuntu,
 install the native build dependencies and use the Linux flags from the

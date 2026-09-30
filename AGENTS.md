@@ -194,6 +194,8 @@ SDK.
 
 When new features are added or issues are fixed, make sure to add an entry to `CHANGELOG.md` with the user-facing description of the change. Types of changes should have their own section.
 
+For changes readers will notice, also add a short Brazilian Portuguese description under `## [Próxima versão]` in `NOVIDADES.md`. At release time its entries move to a `## [v<version>] - YYYY-MM-DD` section, which opens the GitHub release page; CI fails when `NOVIDADES.md` has no section for the `[crossink] version` in `platformio.ini`.
+
 ### Changelog Guiding Principles
 
 - Changelogs are _for humans_, not machines.

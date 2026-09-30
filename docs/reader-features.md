@@ -5,7 +5,7 @@ nav_order: 5
 
 # Reader Features
 
-This page covers a subset of FluiDez Reader features that go beyond basic page turning. It is not a complete list of every reader setting or action. For changes by release, see the [changelog](../CHANGELOG.md) and the [releases page](https://github.com/micheljatuba/FluiDez-Reader/releases).
+This page covers a subset of FluiDez Reader features that go beyond basic page turning. It is not a complete list of every reader setting or action. For changes by release, see [NOVIDADES](../NOVIDADES.md) (a summary for readers, in Brazilian Portuguese), the [releases page](https://github.com/micheljatuba/FluiDez-Reader/releases), or the full [changelog](../CHANGELOG.md).
 
 The sections here focus on larger reader features. Small fixes and implementation details are intentionally left out.
 
