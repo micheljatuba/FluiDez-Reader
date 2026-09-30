@@ -6,8 +6,8 @@ O que muda para quem usa o FluiDez Reader em cada versão, da mais recente para 
 
 ## [v1.6-fluidez11] - 2026-09-30
 
-- **Plugin próprio para o Calibre:** envie livros do Calibre para o leitor pelo Wi-Fi com o plugin FluiDez Reader, anexado às versões como `fluidez-reader-calibre-plugin.zip`. Ele substitui o plugin CrossPoint Reader, que deve ser removido do Calibre. No Windows, a busca automática não desiste antes da hora, como acontecia com o plugin CrossPoint Reader. [Como instalar](https://github.com/micheljatuba/FluiDez-Reader/blob/main/calibre-plugin/README.md).
-- **Novo endereço na rede:** o portal do leitor passa a ser `http://fluidez.local/` (antes `crosspoint.local`); atualize seus favoritos. Em *Criar hotspot*, a rede se chama `FluiDez-Reader`, e no roteador o leitor aparece como `FluiDez-Reader-` seguido do código do aparelho.
+- **Plugin FluiDez Reader para o Calibre:** envie livros do Calibre para o leitor pelo Wi-Fi. O plugin encontra o leitor automaticamente na rede e vem anexado às versões como `fluidez-reader-calibre-plugin.zip`. [Como instalar](https://github.com/micheljatuba/FluiDez-Reader/blob/main/calibre-plugin/README.md).
+- **Nomes na rede:** o portal do leitor fica em `http://fluidez.local/`. Em *Criar hotspot*, a rede se chama `FluiDez-Reader`, e no roteador o leitor aparece como `FluiDez-Reader-` seguido do código do aparelho.
 - A tela *Calibre sem fio* indica o plugin FluiDez Reader.
 
 ## [v1.6-fluidez10] - 2026-09-30

@@ -196,7 +196,7 @@ jobs:
 
             ## Plugin para o Calibre
 
-            Para enviar livros do Calibre pela rede Wi-Fi, instale o `fluidez-reader-calibre-plugin.zip` em **Preferências > Plugins > Carregar plugin a partir de arquivo** (sem extrair) e remova o plugin *CrossPoint Reader*, se estiver instalado. Instruções: [calibre-plugin/README.md](https://github.com/${{ github.repository }}/blob/v${{ env.RELEASE_VERSION }}/calibre-plugin/README.md).
+            Para enviar livros do Calibre pela rede Wi-Fi, instale o `fluidez-reader-calibre-plugin.zip` em **Preferências > Plugins > Carregar plugin a partir de arquivo** (sem extrair). Instruções: [calibre-plugin/README.md](https://github.com/${{ github.repository }}/blob/v${{ env.RELEASE_VERSION }}/calibre-plugin/README.md).
 
             Histórico técnico completo, em inglês: [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/v${{ env.RELEASE_VERSION }}/CHANGELOG.md).
 
