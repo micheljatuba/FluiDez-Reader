@@ -14,7 +14,7 @@ Este plugin faz o Calibre reconhecer o **FluiDez Reader** como um dispositivo se
 1. No leitor, abra **Transferência de arquivos** e escolha:
    - **Calibre sem fio**, para usar a mesma rede Wi-Fi do computador; ou
    - **Criar hotspot**, e conecte o computador à rede `FluiDez-Reader` criada pelo leitor.
-2. No Calibre, aguarde o dispositivo **FluiDez Reader** aparecer. O plugin procura o leitor automaticamente na rede e também tenta `fluidez.local` e o IP do hotspot, `192.168.4.1`.
+2. No Calibre, aguarde o dispositivo **FluiDez Reader** aparecer. O plugin procura o leitor automaticamente na rede e também tenta `fluidez.local` e o IP do hotspot, `192.168.4.1`. Na tela do leitor, a seção **Status** passa de "Aguardando o Calibre..." para "Conectado ao Calibre", com o IP do computador.
 3. Envie os livros com **Enviar para o dispositivo** ou pelo menu de contexto do Calibre. Mantenha a tela do leitor aberta durante o envio.
 
 A procura automática também encontra leitores com versões anteriores do FluiDez Reader.

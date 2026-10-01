@@ -4,6 +4,7 @@ O que muda para quem usa o FluiDez Reader em cada versão, da mais recente para 
 
 ## [Próxima versão]
 
+- **Status do Calibre:** a seção *Status* da tela *Calibre sem fio* não fica mais em branco. Ela mostra "Aguardando o Calibre..." até o Calibre encontrar o leitor e depois "Conectado ao Calibre", com o IP do computador. Durante um envio aparecem o livro que está chegando e o progresso; em seguida, o livro recebido ou a falha no envio e quantos livros chegaram.
 - **Capítulo que não abre:** se um capítulo de um livro EPUB não carregar por um erro inesperado, o leitor mostra "Falha ao indexar - livro inválido" em vez de deixar a tela como estava.
 
 ## [v1.6-fluidez12] - 2026-09-30

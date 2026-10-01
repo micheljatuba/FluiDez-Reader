@@ -6,6 +6,9 @@
 #include <WiFi.h>
 #include <esp_task_wdt.h>
 
+#include <string>
+#include <string_view>
+
 #include "MappedInputManager.h"
 #include "SdCardFontSystem.h"
 #include "SilentRestart.h"
@@ -16,6 +19,8 @@
 
 namespace {
 constexpr const char* HOSTNAME = "fluidez";
+// How long a received or failed book stays visible under "Status".
+constexpr unsigned long RESULT_VISIBLE_MS = 6000;
 }  // namespace
 
 void CalibreConnectActivity::onEnter() {
@@ -27,12 +32,13 @@ void CalibreConnectActivity::onEnter() {
   connectedIP.clear();
   connectedSSID.clear();
   lastHandleClientTime = 0;
+  calibreIP.clear();
+  currentUploadName.clear();
+  resultName.clear();
+  result = TransferResult::None;
   lastProgressReceived = 0;
   lastProgressTotal = 0;
-  currentUploadName.clear();
-  lastCompleteName.clear();
-  lastCompleteAt = 0;
-  lastProcessedCompleteAt = 0;
+  receivedCount = 0;
   exitRequested = false;
 
   if (WiFi.status() != WL_CONNECTED) {
@@ -134,45 +140,61 @@ void CalibreConnectActivity::loop() {
     }
     lastHandleClientTime = millis();
 
-    const auto status = webServer->getWsUploadStatus();
-    bool changed = false;
-    if (status.inProgress) {
-      if (status.received != lastProgressReceived || status.total != lastProgressTotal ||
-          status.filename != currentUploadName) {
-        lastProgressReceived = status.received;
-        lastProgressTotal = status.total;
-        currentUploadName = status.filename;
-        changed = true;
-      }
-    } else if (lastProgressReceived != 0 || lastProgressTotal != 0) {
-      lastProgressReceived = 0;
-      lastProgressTotal = 0;
-      currentUploadName.clear();
-      changed = true;
-    }
-    // Only update lastCompleteAt if the server has a NEW value (not one we already processed)
-    // This prevents restoring an old value after the 6s timeout clears it
-    if (status.lastCompleteAt != 0 && status.lastCompleteAt != lastProcessedCompleteAt) {
-      lastCompleteAt = status.lastCompleteAt;
-      lastCompleteName = status.lastCompleteName;
-      lastProcessedCompleteAt = status.lastCompleteAt;  // Mark this value as processed
-      changed = true;
-    }
-    if (lastCompleteAt > 0 && (millis() - lastCompleteAt) >= 6000) {
-      lastCompleteAt = 0;
-      lastCompleteName.clear();
-      // Note: we DON'T reset lastProcessedCompleteAt here, so we won't re-process the old server value
-      changed = true;
-    }
-    if (changed) {
-      requestUpdate();
-    }
+    updateTransferStatus();
   }
 
   if (exitRequested) {
     finish();
     return;
   }
+}
+
+void CalibreConnectActivity::updateTransferStatus() {
+  const auto status = webServer->getWsUploadStatus();
+  const unsigned long now = millis();
+
+  const bool receiving = status.inProgress && status.total > 0 && status.received <= status.total;
+  const bool receivedRecently = status.lastCompleteAt != 0 && now - status.lastCompleteAt < RESULT_VISIBLE_MS;
+  const bool failedRecently = status.lastFailedAt != 0 && now - status.lastFailedAt < RESULT_VISIBLE_MS;
+  TransferResult nextResult = TransferResult::None;
+  std::string_view nextResultName;
+  if (failedRecently && (!receivedRecently || status.lastFailedAt >= status.lastCompleteAt)) {
+    nextResult = TransferResult::Failed;
+    nextResultName = status.lastFailedName;
+  } else if (receivedRecently) {
+    nextResult = TransferResult::Received;
+    nextResultName = status.lastCompleteName;
+  }
+
+  const std::string& clientIP = webServer->getLastClientIp();
+  const std::string_view uploadName = receiving ? std::string_view(status.filename) : std::string_view();
+  const size_t received = receiving ? status.received : 0;
+  const size_t total = receiving ? status.total : 0;
+
+  const bool textChanged =
+      clientIP != calibreIP || uploadName != currentUploadName || nextResult != result || nextResultName != resultName;
+  const bool countersChanged =
+      received != lastProgressReceived || total != lastProgressTotal || status.completedCount != receivedCount;
+  if (!textChanged && !countersChanged) {
+    return;
+  }
+
+  if (textChanged) {
+    // Strings can reallocate while the render task reads them.
+    RenderLock lock(*this);
+    calibreIP = clientIP;
+    currentUploadName = uploadName;
+    result = nextResult;
+    resultName = nextResultName;
+    lastProgressReceived = received;
+    lastProgressTotal = total;
+    receivedCount = status.completedCount;
+  } else {
+    lastProgressReceived = received;
+    lastProgressTotal = total;
+    receivedCount = status.completedCount;
+  }
+  requestUpdate();
 }
 
 void CalibreConnectActivity::render(RenderLock&&) {
@@ -214,27 +236,31 @@ void CalibreConnectActivity::render(RenderLock&&) {
     renderer.drawText(UI_12_FONT_ID, metrics.contentSidePadding, y, tr(STR_CALIBRE_STATUS), true, EpdFontFamily::BOLD);
     y += heightText12 + metrics.verticalSpacing * 2;
 
-    const bool showUploadProgress = lastProgressTotal > 0 && lastProgressReceived <= lastProgressTotal;
-    if (showUploadProgress) {
-      std::string label = tr(STR_CALIBRE_RECEIVING);
-      if (!currentUploadName.empty()) {
-        label += ": " + currentUploadName;
-        label = renderer.truncatedText(SMALL_FONT_ID, label.c_str(), pageWidth - metrics.contentSidePadding * 2,
-                                       EpdFontFamily::REGULAR);
-      }
-      renderer.drawText(SMALL_FONT_ID, metrics.contentSidePadding, y, label.c_str());
-      GUI.drawProgressBar(renderer,
-                          Rect{metrics.contentSidePadding, y + height + metrics.verticalSpacing,
-                               pageWidth - metrics.contentSidePadding * 2, metrics.progressBarHeight},
-                          lastProgressReceived, lastProgressTotal);
-      y += height + metrics.verticalSpacing * 2 + metrics.progressBarHeight;
-    }
+    // Always show whether Calibre has found the reader, even when no book is
+    // arriving, so the section never looks empty.
+    const int textWidth = pageWidth - metrics.contentSidePadding * 2;
+    const std::string connection = calibreIP.empty() ? std::string(tr(STR_CALIBRE_WAITING))
+                                                     : std::string(tr(STR_CALIBRE_CONNECTED)) + " (" + calibreIP + ")";
+    const std::string connectionLine = renderer.truncatedText(UI_10_FONT_ID, connection.c_str(), textWidth);
+    renderer.drawText(UI_10_FONT_ID, metrics.contentSidePadding, y, connectionLine.c_str());
+    y += height + metrics.verticalSpacing;
 
-    if (!showUploadProgress && lastCompleteAt > 0 && (millis() - lastCompleteAt) < 6000) {
-      std::string msg = std::string(tr(STR_CALIBRE_RECEIVED)) + lastCompleteName;
-      msg = renderer.truncatedText(SMALL_FONT_ID, msg.c_str(), pageWidth - metrics.contentSidePadding * 2,
-                                   EpdFontFamily::REGULAR);
-      renderer.drawText(SMALL_FONT_ID, metrics.contentSidePadding, y, msg.c_str());
+    if (lastProgressTotal > 0) {
+      const std::string label = std::string(tr(STR_CALIBRE_RECEIVING)) + currentUploadName;
+      const std::string labelLine = renderer.truncatedText(SMALL_FONT_ID, label.c_str(), textWidth);
+      renderer.drawText(SMALL_FONT_ID, metrics.contentSidePadding, y, labelLine.c_str());
+      GUI.drawProgressBar(
+          renderer,
+          Rect{metrics.contentSidePadding, y + height + metrics.verticalSpacing, textWidth, metrics.progressBarHeight},
+          lastProgressReceived, lastProgressTotal);
+    } else if (result != TransferResult::None) {
+      const char* prefix = result == TransferResult::Failed ? tr(STR_CALIBRE_RECEIVE_FAILED) : tr(STR_CALIBRE_RECEIVED);
+      const std::string message = std::string(prefix) + resultName;
+      const std::string messageLine = renderer.truncatedText(SMALL_FONT_ID, message.c_str(), textWidth);
+      renderer.drawText(SMALL_FONT_ID, metrics.contentSidePadding, y, messageLine.c_str());
+    } else if (receivedCount > 0) {
+      const std::string message = std::string(tr(STR_CALIBRE_BOOKS_RECEIVED)) + std::to_string(receivedCount);
+      renderer.drawText(SMALL_FONT_ID, metrics.contentSidePadding, y, message.c_str());
     }
 
     const auto labels = mappedInput.mapLabels(mappedInput.withBackArrow(tr(STR_EXIT)), "", "", "");

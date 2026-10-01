@@ -489,6 +489,9 @@ network hostname (`FluiDez-Reader-<MAC>` after joining a network, or `fluidez`
 when none is set). The reply keeps the `crosspoint` prefix inherited from
 CrossPoint Reader so existing Calibre plugins keep recognizing the device.
 
+The Calibre Wireless screen shows the address of the last client that sent
+`hello` or opened the upload WebSocket as the connected Calibre computer.
+
 ## Network Modes
 
 ### Station Mode (STA)
@@ -508,5 +511,6 @@ CrossPoint Reader so existing Calibre plugins keep recognizing the device.
 ### Calibre Wireless
 
 Calibre Wireless starts the same web server in STA mode and displays setup
-instructions plus WebSocket upload progress on the device screen. Use it with
+instructions, whether Calibre has found the device, and WebSocket upload
+progress on the device screen. Use it with
 the [FluiDez Reader Calibre plugin](../calibre-plugin/README.md).

@@ -424,7 +424,23 @@ void CrossPointWebServer::begin() {
   LOG_DBG("WEB", "[MEM] Free heap after server.begin(): %d bytes", ESP.getFreeHeap());
 }
 
+void CrossPointWebServer::rememberClient(const IPAddress& ip) {
+  if (ip == IPAddress()) {
+    return;
+  }
+  const String address = ip.toString();
+  if (lastClientIp != address.c_str()) {
+    lastClientIp = address.c_str();
+  }
+}
+
+void CrossPointWebServer::recordWsUploadFailure() {
+  wsLastFailedName = wsUploadFileName.c_str();
+  wsLastFailedAt = millis();
+}
+
 void CrossPointWebServer::abortWsUpload(const char* tag) {
+  recordWsUploadFailure();
   // Explicit close() required: file-scope global persists beyond function scope
   wsUploadFile.close();
   String filePath = wsUploadPath;
@@ -527,6 +543,7 @@ void CrossPointWebServer::handleClient() {
           udp.beginPacket(udp.remoteIP(), udp.remotePort());
           udp.write(reinterpret_cast<const uint8_t*>(message.c_str()), message.length());
           udp.endPacket();
+          rememberClient(udp.remoteIP());
         }
       }
     }
@@ -542,6 +559,9 @@ CrossPointWebServer::WsUploadStatus CrossPointWebServer::getWsUploadStatus() con
   status.lastCompleteName = wsLastCompleteName.c_str();
   status.lastCompleteSize = wsLastCompleteSize;
   status.lastCompleteAt = wsLastCompleteAt;
+  status.lastFailedName = wsLastFailedName;
+  status.lastFailedAt = wsLastFailedAt;
+  status.completedCount = wsCompletedCount;
   return status;
 }
 
@@ -1918,6 +1938,10 @@ void CrossPointWebServer::onWebSocketEvent(uint8_t num, WStype_t type, uint8_t* 
 
     case WStype_CONNECTED: {
       LOG_DBG("WS", "Client %u connected", num);
+#ifndef SIMULATOR
+      // The simulator's WebSocketsServer stand-in has no remoteIP().
+      rememberClient(wsServer->remoteIP(num));
+#endif
       break;
     }
 
@@ -1980,6 +2004,7 @@ void CrossPointWebServer::onWebSocketEvent(uint8_t num, WStype_t type, uint8_t* 
           // Open file for writing
           sdFontSystem.markRegistryDirtyForPath(filePath.c_str());
           if (!Storage.openFileForWrite("WS", filePath, wsUploadFile)) {
+            recordWsUploadFailure();
             wsServer->sendTXT(num, "ERROR:Failed to create file");
             wsUploadInProgress = false;
             wsUploadClientNum = 255;
@@ -1993,6 +2018,7 @@ void CrossPointWebServer::onWebSocketEvent(uint8_t num, WStype_t type, uint8_t* 
             wsLastCompleteName = wsUploadFileName;
             wsLastCompleteSize = 0;
             wsLastCompleteAt = millis();
+            wsCompletedCount++;
             LOG_DBG("WS", "Zero-byte upload complete: %s", filePath.c_str());
             clearBookCachePreservingUserState(filePath.c_str());
             ImageFolderIndex::invalidateForPath(filePath.c_str());
@@ -2052,6 +2078,7 @@ void CrossPointWebServer::onWebSocketEvent(uint8_t num, WStype_t type, uint8_t* 
         wsLastCompleteName = wsUploadFileName;
         wsLastCompleteSize = wsUploadSize;
         wsLastCompleteAt = millis();
+        wsCompletedCount++;
 
         unsigned long elapsed = millis() - wsUploadStartTime;
         float kbps = (elapsed > 0) ? (wsUploadSize / 1024.0) / (elapsed / 1000.0) : 0;

@@ -13,6 +13,8 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ### Fixed
 
+- The Status section of the Calibre Wireless screen no longer stays blank. It shows whether Calibre has found the reader, with the computer's IP address, then the book being received with its progress, the last book received or a failed transfer, and how many books arrived while the screen was open.
+- The Calibre Wireless receiving line no longer repeats the colon ("Receiving: : book").
 - An EPUB chapter load that unexpectedly ends without a chapter shows the indexing error instead of leaving the screen unchanged.
 
 ## [v1.6-fluidez12] - 2026-09-30

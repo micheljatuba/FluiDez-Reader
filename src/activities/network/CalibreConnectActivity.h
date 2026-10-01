@@ -15,6 +15,8 @@ enum class CalibreConnectState { WIFI_SELECTION, SERVER_STARTING, SERVER_RUNNING
  * but renders Calibre-specific instructions instead of the web transfer UI.
  */
 class CalibreConnectActivity final : public Activity {
+  enum class TransferResult : uint8_t { None, Received, Failed };
+
   CalibreConnectState state = CalibreConnectState::WIFI_SELECTION;
   ScreenTransitionRefresh screenTransitionRefresh;
 
@@ -22,20 +24,23 @@ class CalibreConnectActivity final : public Activity {
   std::string connectedIP;
   std::string connectedSSID;
   unsigned long lastHandleClientTime = 0;
+  // Status section. Strings are replaced only under RenderLock; progress
+  // counters change many times per book and stay lock-free so a slow e-ink
+  // refresh never stalls the transfer.
+  std::string calibreIP;
+  std::string currentUploadName;
+  std::string resultName;
+  TransferResult result = TransferResult::None;
   size_t lastProgressReceived = 0;
   size_t lastProgressTotal = 0;
-  std::string currentUploadName;
-  std::string lastCompleteName;
-  unsigned long lastCompleteAt = 0;
-  unsigned long lastProcessedCompleteAt = 0;  // Track which server value we've already processed
+  uint32_t receivedCount = 0;
   bool exitRequested = false;
   bool returnToReader = false;
-
-  void renderServerRunning() const;
 
   void onWifiSelectionComplete(bool connected);
   void startWebServer();
   void stopWebServer();
+  void updateTransferStatus();
 
  public:
   explicit CalibreConnectActivity(GfxRenderer& renderer, MappedInputManager& mappedInput, bool returnToReader = false)

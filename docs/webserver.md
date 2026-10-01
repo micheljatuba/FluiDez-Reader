@@ -68,7 +68,8 @@ opening the web interface.
 ## Calibre Wireless Mode
 
 Calibre Wireless starts the same web server in station mode, then displays setup
-instructions and upload progress on the reader. Use this mode with the
+instructions, whether Calibre has found the reader, and upload progress on the
+reader. Use this mode with the
 [FluiDez Reader Calibre plugin](../calibre-plugin/README.md) or other clients
 that speak the documented WebSocket upload protocol.
 
