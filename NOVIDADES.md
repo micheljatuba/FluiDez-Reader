@@ -4,6 +4,8 @@ O que muda para quem usa o FluiDez Reader em cada versão, da mais recente para 
 
 ## [Próxima versão]
 
+- **Capítulo que não abre:** se um capítulo de um livro EPUB não carregar por um erro inesperado, o leitor mostra "Falha ao indexar - livro inválido" em vez de deixar a tela como estava.
+
 ## [v1.6-fluidez12] - 2026-09-30
 
 - **Autenticação KOReader mais estável:** se o servidor ou um proxy responder com uma página grande no lugar dos dados de login, o leitor avisa que o servidor de sincronização respondeu com dados inválidos e não trava por falta de memória.
