@@ -1,502 +1,482 @@
 ---
-title: User Guide
+title: Guia do usuário
 nav_order: 1.5
 ---
 
-# FluiDez Reader User Guide
+# Guia do usuário do FluiDez Reader
 
-This guide covers day-to-day device use. For focused reference material, see [Reader Features](./reader-features.md), [Controls](./controls.md), [SD Card Fonts](./sd-card-fonts.md), [File Transfer](./webserver.md), and [Troubleshooting](./troubleshooting.md). For Dashboard and Minimal Home-screen gestures, see [Touch Navigation](./touch-navigation.md).
+Este guia cobre o uso diário do aparelho. Para referências específicas, veja [Recursos do leitor](./reader-features.md), [Controles](./controls.md), [Fontes no cartão SD](./sd-card-fonts.md), [Transferência de arquivos](./webserver.md) e [Solução de problemas](./troubleshooting.md). Para gestos no Painel e na tela inicial Minimal, veja [Navegação por toque](./touch-navigation.md).
 
-- [FluiDez Reader User Guide](#fluidez-reader-user-guide)
-  - [1. Hardware Overview](#1-hardware-overview)
-    - [Button Layout](#button-layout)
-    - [Taking a Screenshot](#taking-a-screenshot)
-  - [2. Power \& Startup](#2-power--startup)
-    - [Power On / Off](#power-on--off)
-    - [First Launch](#first-launch)
-  - [3. Screens](#3-screens)
-    - [3.1 Home Screen](#31-home-screen)
-    - [3.2 Reading Mode](#32-reading-mode)
-    - [3.3 Browse Files Screen](#33-browse-files-screen)
-    - [3.4 Recent Books Screen](#34-recent-books-screen)
-    - [3.5 File Transfer Screen](#35-file-transfer-screen)
-    - [3.5.1 Calibre Wireless Transfers](#351-calibre-wireless-transfers)
-    - [3.6 Settings](#36-settings)
-      - [3.6.1 Display](#361-display)
-      - [3.6.2 Reader](#362-reader)
-      - [3.6.3 Controls](#363-controls)
-      - [3.6.4 System](#364-system)
-      - [3.6.5 OPDS Servers (Multiple Libraries)](#365-opds-servers-multiple-libraries)
-      - [3.6.6 Web Settings (Wi-Fi + OPDS)](#366-web-settings-wi-fi--opds)
-      - [3.6.7 KOReader Sync Quick Setup](#367-koreader-sync-quick-setup)
-        - [Option A: CrossPoint Sync Server (`sync.crosspointreader.com`, default)](#option-a-crosspoint-sync-server-synccrosspointreadercom-default)
-        - [Option B: Legacy Public KOReader Server (`sync.koreader.rocks`)](#option-b-legacy-public-koreader-server-synckoreaderrocks)
-        - [Option C: Self-Hosted Server (Docker Compose)](#option-c-self-hosted-server-docker-compose)
-    - [3.7 Sleep Screen](#37-sleep-screen)
-      - [Cover settings](#cover-settings)
-      - [Custom images](#custom-images)
-    - [3.8 Boot Screen](#38-boot-screen)
-    - [3.9 Custom Fonts (SD Card)](#39-custom-fonts-sd-card)
-  - [4. Reading Mode](#4-reading-mode)
-    - [Page Turning](#page-turning)
-    - [Chapter Navigation](#chapter-navigation)
-    - [Auto Page Turn](#auto-page-turn)
-    - [Tilt Page Turn (X3 and Sticky)](#tilt-page-turn-x3-and-sticky)
-    - [Touch Reader Controls](#touch-reader-controls)
-    - [Footnote Navigation](#footnote-navigation)
-    - [System Navigation](#system-navigation)
-    - [Supported Languages](#supported-languages)
-  - [5. Reader Menu](#5-reader-menu)
-    - [5.1 Chapter Selection](#51-chapter-selection)
-    - [5.2 Bookmarks](#52-bookmarks)
-  - [6. Current Limitations & Roadmap](#6-current-limitations--roadmap)
-  - [7. Troubleshooting Issues & Escaping Bootloop](#7-troubleshooting-issues--escaping-bootloop)
+- [Guia do usuário do FluiDez Reader](#guia-do-usuário-do-fluidez-reader)
+  - [1. Visão geral do hardware](#1-visão-geral-do-hardware)
+    - [Layout dos botões](#1-visão-geral-do-hardware)
+    - [Capturando a tela](#capturando-a-tela)
+  - [2. Energia e inicialização](#2-energia-e-inicialização)
+    - [Ligar / desligar](#ligar--desligar)
+    - [Primeira abertura](#primeira-abertura)
+  - [3. Telas](#3-telas)
+    - [3.1 Tela Início](#31-tela-início)
+    - [3.2 Modo de leitura](#32-modo-de-leitura)
+    - [3.3 Tela Explorar arquivos](#33-tela-explorar-arquivos)
+    - [3.4 Tela Livros recentes](#34-tela-livros-recentes)
+    - [3.5 Tela Transferência de arquivos](#35-tela-transferência-de-arquivos)
+    - [3.5.1 Transferências sem fio do Calibre](#351-transferências-sem-fio-do-calibre)
+    - [3.6 Configurações](#36-configurações)
+      - [3.6.1 Tela](#361-tela)
+      - [3.6.2 Leitor](#362-leitor)
+      - [3.6.3 Controles](#363-controles)
+      - [3.6.4 Sistema](#364-sistema)
+      - [3.6.5 Servidores OPDS (várias bibliotecas)](#365-servidores-opds-várias-bibliotecas)
+      - [3.6.6 Configurações web (Wi-Fi + OPDS)](#366-configurações-web-wi-fi--opds)
+      - [3.6.7 Configuração rápida da Sincronização KOReader](#367-configuração-rápida-da-sincronização-koreader)
+        - [Opção A: servidor de sincronização CrossPoint (`sync.crosspointreader.com`, padrão)](#opção-a-servidor-de-sincronização-crosspoint-synccrosspointreadercom-padrão)
+        - [Opção B: servidor público legado do KOReader (`sync.koreader.rocks`)](#opção-b-servidor-público-legado-do-koreader-synckoreaderrocks)
+        - [Opção C: servidor próprio (Docker Compose)](#opção-c-servidor-próprio-docker-compose)
+    - [3.7 Tela de repouso](#37-tela-de-repouso)
+      - [Configurações de capa](#configurações-de-capa)
+      - [Imagens personalizadas](#imagens-personalizadas)
+    - [3.8 Tela inicial](#38-tela-inicial)
+    - [3.9 Fontes personalizadas (cartão SD)](#39-fontes-personalizadas-cartão-sd)
+  - [4. Modo de leitura](#4-modo-de-leitura)
+    - [Virada de página](#virada-de-página)
+    - [Navegação por capítulos](#navegação-por-capítulos)
+    - [Virada automática de página](#virada-automática-de-página)
+    - [Virar página por inclinação (X3 e Sticky)](#virar-página-por-inclinação-x3-e-sticky)
+    - [Controles de toque no leitor](#controles-de-toque-no-leitor)
+    - [Navegação por notas de rodapé](#navegação-por-notas-de-rodapé)
+    - [Navegação do sistema](#navegação-do-sistema)
+    - [Idiomas compatíveis](#idiomas-compatíveis)
+  - [5. Menu do leitor](#5-menu-do-leitor)
+    - [5.1 Escolha de capítulo](#51-escolha-de-capítulo)
+    - [5.2 Marcadores](#52-marcadores)
+  - [6. Limitações atuais e roteiro](#6-limitações-atuais-e-roteiro)
+  - [7. Solução de problemas e saída de bootloop](#7-solução-de-problemas-e-saída-de-bootloop)
 
-## 1. Hardware Overview
+## 1. Visão geral do hardware
 
-FluiDez Reader supports many devices with various button layouts. For the X3/X4 devices with front buttons, by default they will use the following layout from left to right, and this guide will refer to them by those names.
+O FluiDez Reader é compatível com vários aparelhos com diferentes layouts de botões. Nos aparelhos X3/X4 com botões frontais, por padrão eles usam o layout abaixo, da esquerda para a direita, e este guia se refere a eles por estes nomes.
 
 <table>
   <thead>
     <tr>
-      <th colspan="4"><center>Default Front Button Mapping</center></th>
+      <th colspan="4"><center>Mapeamento padrão dos botões frontais</center></th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>Back</td>
-      <td>Confirm</td>
-      <td>Left</td>
-      <td>Right</td>
+      <td>Voltar</td>
+      <td>Confirmar</td>
+      <td>Esquerda</td>
+      <td>Direita</td>
     </tr>
   </tbody>
 </table>
 
-For devices with buttons on either side of the device, this guide may refer to the buttons as follows:
+Em aparelhos com botões nas laterais, este guia pode se referir aos botões assim:
 
-| Location       | Button Mapping     |
-| -------------- | ------------------ |
-| **Left Side**  | **Left**/**Up**    |
-| **Right Side** | **Right**/**Down** |
+| Localização        | Mapeamento do botão       |
+| ------------------ | ------------------------- |
+| **Lado esquerdo**  | **Esquerda**/**Cima**     |
+| **Lado direito**   | **Direita**/**Baixo**     |
 
-Button layout can be customized in **Settings > Controls**.
+O layout dos botões pode ser personalizado em **Configurações > Controles**.
 
-### Taking a Screenshot
+### Capturando a tela
 
-When the Power Button and Down button are pressed at the same time, it will take a screenshot and save it in the folder `screenshots/`.
+Quando o botão liga/desliga e o botão Baixo são pressionados ao mesmo tempo, o leitor captura a tela e salva a imagem na pasta `screenshots/`.
 
-Alternatively, while reading a book, press the **Confirm** button to open the reader menu and select **Take screenshot**.
+Como alternativa, durante a leitura de um livro, pressione o botão **Confirmar** para abrir o menu do leitor e selecione **Capturar tela**.
 
 ---
 
-## 2. Power & Startup
+## 2. Energia e inicialização
 
-### Power On / Off
+### Ligar / desligar
 
-To turn the device on or off, **press and hold the Power button for approximately half a second**.
-In **Settings > Controls > Power Button** you can configure the power button to turn the device off with a short press instead of a long one.
+Para ligar ou desligar o aparelho, **mantenha o botão liga/desliga pressionado por cerca de meio segundo**.
+Em **Configurações > Controles > Botão liga/desliga**, você pode configurar o botão liga/desliga para desligar o aparelho com um toque curto em vez de um toque longo.
 
-To reboot the device (for example after a firmware update or if it's frozen), press and release the Reset button, and then quickly press and hold the Power button for a few seconds.
+Para reiniciar o aparelho (por exemplo, depois de uma atualização de firmware ou se ele travar), pressione e solte o botão Reset e, em seguida, pressione rapidamente e mantenha o botão liga/desliga pressionado por alguns segundos.
 
-### First Launch
+### Primeira abertura
 
-Upon turning the device on for the first time, you will be placed on the **[Home](#31-home-screen)** screen.
+Ao ligar o aparelho pela primeira vez, você será colocado na tela **[Início](#31-tela-início)**.
 
 > [!NOTE]
-> On subsequent restarts, the firmware will automatically reopen the last book you were reading.
+> Em reinicializações posteriores, o firmware reabrirá automaticamente o último livro que você estava lendo.
 
 ---
 
-## 3. Screens
+## 3. Telas
 
-### 3.1 Home Screen
+### 3.1 Tela Início
 
-The Home screen is the main entry point to the firmware. From here you can navigate to **[Reading Mode](#4-reading-mode)** with the most recently read book, the **[Browse Files](#33-browse-files-screen)** screen, the **[Recent Books](#34-recent-books-screen)** screen, the **[File Transfer](#35-file-transfer-screen)** screen, or **[Settings](#36-settings)**.
+A tela Início é o ponto principal de entrada do firmware. A partir dela, você pode navegar para o **[Modo de leitura](#4-modo-de-leitura)** com o livro lido mais recentemente, a tela **[Explorar arquivos](#33-tela-explorar-arquivos)**, a tela **[Livros recentes](#34-tela-livros-recentes)**, a tela **[Transferência de arquivos](#35-tela-transferência-de-arquivos)** ou **[Configurações](#36-configurações)**.
 
-### 3.2 Reading Mode
+### 3.2 Modo de leitura
 
-See [Reading Mode](#4-reading-mode) below for more information.
+Veja [Modo de leitura](#4-modo-de-leitura) abaixo para mais informações.
 
-### 3.3 Browse Files Screen
+### 3.3 Tela Explorar arquivos
 
-The Browse Files screen acts as a file and folder browser. The full path to the current directory is shown at the top of the screen. File extensions are displayed alongside each filename, and directories are shown with brackets (e.g. `[folder-name]`). Hidden directories can be shown from settings.
+A tela Explorar arquivos funciona como navegador de arquivos e pastas. O caminho completo do diretório atual é mostrado no topo da tela. As extensões aparecem ao lado de cada nome de arquivo, e os diretórios são mostrados entre colchetes (por exemplo, `[folder-name]`). Diretórios ocultos podem ser exibidos nas configurações.
 
-- **Navigate List:** Use **Left** (or **Up**), or **Right** (or **Down**) to move the selection cursor up and down through folders and books. You can also long-press these buttons to scroll a full page up or down.
-- **Open Selection:** Press **Confirm** to open a folder or start reading a selected book. Selecting a `.bmp` file will open the image viewer.
-- **Delete Files or Folders:** Hold and release **Confirm** to open the selected file or folder action menu, then choose **Delete**. You will be given an option to either confirm or cancel. Folder deletion is limited to empty folders.
-- **Book Actions:** EPUB and XTC files can also show options such as **Delete Cache** or **Mark Finished** from the same action menu.
+- **Navegar pela lista:** use **Esquerda** (ou **Cima**) ou **Direita** (ou **Baixo**) para mover o cursor de seleção para cima e para baixo por pastas e livros. Você também pode manter esses botões pressionados para rolar uma página inteira para cima ou para baixo.
+- **Abrir seleção:** pressione **Confirmar** para abrir uma pasta ou começar a ler o livro selecionado. Selecionar um arquivo `.bmp` abre o visualizador de imagens.
+- **Excluir arquivos ou pastas:** segure e solte **Confirmar** para abrir o menu de ações do arquivo ou da pasta selecionada e escolha **Excluir**. Você receberá a opção de confirmar ou cancelar. A exclusão de pastas é limitada a pastas vazias.
+- **Ações de livros:** arquivos EPUB e XTC também podem mostrar opções como **Excluir cache do livro** ou **Marcar como concluído** no mesmo menu de ações.
 
-### 3.4 Recent Books Screen
+### 3.4 Tela Livros recentes
 
-The Recent Books screen lists the most recently opened books in a chronological view, displaying title and author.
+A tela Livros recentes lista os livros abertos mais recentemente em uma visão cronológica, exibindo título e autor.
 
-- **Pin Books:** Hold **Confirm** or long-press a book, then choose **Pin to Top**. Up to six pinned books appear first, in the order you pinned them, and are marked **Pinned**. Choose **Unpin** to return a book to its chronological position.
-- **Keep Pinned Books:** Pinned books stay in Recent Books when newer books push older ones out of the 18-book list and when **Clear Read Books from Recent List** is enabled. Choose **Remove from Recent Books** or delete the book to remove it.
-- **Home Screen:** **Continue Reading** still opens the book you read most recently. Pinned books appear after it on multi-cover Home themes (**Lyra Extended** shows 3 books, **Lyra Carousel** 5 and **Lyra Grid** 6). On one-cover themes, switching the Home book (for example, by swiping left or holding **Confirm**) cycles through the current book and up to two pinned books; with one pinned book, the previously read book remains in the cycle.
-- **Pin From Home:** On any Home theme, long-press a book cover (or, on multi-cover themes without touch, hold **Confirm** on the selected book) to open **Pin to Top** / **Unpin**, **Mark Finished** and **Remove from Recent Books** without leaving Home.
+- **Fixar livros:** segure **Confirmar** ou mantenha um livro pressionado e escolha **Fixar no topo**. Até seis livros fixados aparecem primeiro, na ordem em que foram fixados, e são marcados como **Fixado**. Escolha **Desafixar** para devolver o livro à posição cronológica.
+- **Manter livros fixados:** livros fixados permanecem em Livros recentes quando livros mais novos empurram os antigos para fora da lista de 18 livros e quando **Limpar livros lidos da lista de recentes** está ativado. Escolha **Remover dos Livros recentes** ou exclua o livro para removê-lo.
+- **Tela Início:** **Continuar lendo** ainda abre o livro que você leu mais recentemente. Livros fixados aparecem depois dele nos temas de Início com várias capas (**Lyra Extended** mostra 3 livros, **Lyra Carousel** mostra 5 e **Lyra Grade** mostra 6). Em temas de uma capa, trocar o livro do Início (por exemplo, deslizando para a esquerda ou segurando **Confirmar**) alterna entre o livro atual e até dois livros fixados; com um livro fixado, o livro lido anteriormente permanece no ciclo.
+- **Fixar a partir do Início:** em qualquer tema de Início, mantenha a capa de um livro pressionada (ou, em temas com várias capas sem toque, segure **Confirmar** no livro selecionado) para abrir **Fixar no topo** / **Desafixar**, **Marcar como concluído** e **Remover dos Livros recentes** sem sair do Início.
 
-### 3.5 File Transfer Screen
+### 3.5 Tela Transferência de arquivos
 
-The File Transfer screen allows you to upload and manage files on the device.
-Choose **Join a Network**, **Calibre Wireless**, or **Create Hotspot** to start
-the web server for the selected mode.
+A tela Transferência de arquivos permite enviar e gerenciar arquivos no aparelho.
+Escolha **Entrar em uma rede**, **Calibre sem fio** ou **Criar hotspot** para
+iniciar o servidor web no modo selecionado.
 
-See the [File Transfer guide](./webserver.md) for connection and upload details.
+Veja o [guia de Transferência de arquivos](./webserver.md) para detalhes de conexão e envio.
 
-The web file manager can upload, download, rename, move, and delete files on the device.
+O gerenciador de arquivos web pode enviar, baixar, renomear, mover e excluir arquivos no aparelho.
 
-The web interface also supports **WebDAV**, allowing you to mount the device as a network drive and manage files directly from your computer's file manager.
+A interface web também é compatível com **WebDAV**, permitindo montar o aparelho como unidade de rede e gerenciar arquivos diretamente pelo gerenciador de arquivos do computador.
 
-Download links for files already on the device are available in the web interface, so you can retrieve books or screenshots over Wi-Fi without connecting a cable.
+Links de download para arquivos que já estão no aparelho ficam disponíveis na interface web, para você recuperar livros ou capturas de tela por Wi-Fi sem conectar um cabo.
 
-A **Wi-Fi signal strength indicator** (dBm) is displayed on-screen during joined-network web server sessions.
+Um **indicador de intensidade do sinal Wi-Fi** (dBm) é exibido na tela durante sessões do servidor web em rede conectada.
 
-The same screen also has **Receive File**, which receives a supported
-book or image directly from another nearby FluiDez Reader device without joining a
-Wi-Fi network. See [Nearby File Transfer](./nearby-file-transfer.md) for the
-complete sender and receiver workflow.
+A mesma tela também tem **Receber arquivo**, que recebe um livro ou imagem
+compatível diretamente de outro aparelho FluiDez Reader próximo, sem entrar em
+uma rede Wi-Fi. Veja [Transferência por proximidade](./nearby-file-transfer.md)
+para o fluxo completo de envio e recebimento.
 
-On X4 Pro, the screen also includes **USB Drive**. This exposes the reader's SD
-card to a computer over USB for direct file management. See the
-[USB Drive instructions](./installation.md#usb-drive) for the safe-eject and
-disconnect behavior.
+No X4 Pro, a tela também inclui **Unidade USB**. Isso expõe o cartão SD do
+leitor a um computador via USB para gerenciamento direto de arquivos. Veja as
+[instruções de Unidade USB](./installation.md#unidade-usb) para o comportamento
+seguro de ejeção e desconexão.
 
 > [!TIP]
-> Advanced users can manage files programmatically with the same HTTP endpoints
-> used by the web interface. The browser interface is the supported path for
-> normal file management.
+> Usuários avançados podem gerenciar arquivos de forma programática com os
+> mesmos endpoints HTTP usados pela interface web. A interface do navegador é
+> o caminho compatível para gerenciamento normal de arquivos.
 
-### 3.5.1 Calibre Wireless Transfers
+### 3.5.1 Transferências sem fio do Calibre
 
-FluiDez Reader supports sending books from Calibre with its own FluiDez Reader
-device plugin, a fork of the CrossPoint Reader plugin.
+O FluiDez Reader permite enviar livros pelo Calibre com seu próprio plugin de
+dispositivo FluiDez Reader.
 
-1. Download `fluidez-reader-calibre-plugin.zip` from the
-   [latest FluiDez Reader release](https://github.com/micheljatuba/FluiDez-Reader/releases/latest/download/fluidez-reader-calibre-plugin.zip).
-2. In Calibre, open **Preferences > Plugins > Load plugin from file** and select
-   that ZIP without extracting it. Restart Calibre if it asks you to.
-3. If the CrossPoint Reader plugin is installed, remove it so the two plugins do
-   not compete for the same reader.
-4. On the device, open **File Transfer > Calibre Wireless** and join the same
-   2.4 GHz Wi-Fi network as the computer.
-5. Keep the Calibre Wireless screen open, then use Calibre's **Send to device**
-   action. The device screen shows the transfer progress and completion notice.
+1. Baixe `fluidez-reader-calibre-plugin.zip` na
+   [versão mais recente do FluiDez Reader](https://github.com/micheljatuba/FluiDez-Reader/releases/latest/download/fluidez-reader-calibre-plugin.zip).
+2. No Calibre, abra **Preferências > Plugins > Carregar plugin a partir de arquivo** e selecione
+   esse ZIP sem extraí-lo. Reinicie o Calibre se ele pedir.
+3. No aparelho, abra **Transferência de arquivos > Calibre sem fio** e entre na
+   mesma rede Wi-Fi de 2,4 GHz do computador.
+4. Mantenha a tela Calibre sem fio aberta e use a ação **Enviar para o dispositivo**
+   do Calibre. A tela do aparelho mostra o progresso da transferência e o aviso de conclusão.
 
-The plugin finds the reader automatically and also tries `fluidez.local` and the
-hotspot address `192.168.4.1`. Settings and troubleshooting are described in the
-[plugin README](../calibre-plugin/README.md) (in Portuguese).
+O plugin encontra o leitor automaticamente e também tenta `fluidez.local` e o
+endereço do hotspot `192.168.4.1`. Configurações e solução de problemas estão
+descritas no [README do plugin](../calibre-plugin/README.md) (em português).
 
-### 3.6 Settings
+### 3.6 Configurações
 
-The Settings screen groups options by purpose. The exact choices can vary by
-device model and build.
+A tela Configurações agrupa opções por finalidade. As opções exatas podem variar
+conforme o modelo do aparelho e a compilação.
 
-#### 3.6.1 Display
+#### 3.6.1 Tela
 
-- **Sleep Screen**: Which sleep screen to display when the device sleeps:
-  - "Dark" (default) - The default dark FluiDez Reader logo sleep screen
-  - "Light" - The same default sleep screen, on a white background
-  - "Custom" - Custom images from the SD card; see [Sleep Screen](#37-sleep-screen) below for more information
-  - "Cover" - The book cover image (Note: this is experimental and may not work as expected)
-  - "None" - A blank screen
-  - "Cover + Custom" - The book cover image while actively reading, falls back to "Custom" behavior otherwise
-  - "Page Overlay" - Uses an image to overlay on top of the current page. Best used with transparent `.png` files or black and white `.bmp` files.
-  - "Reading Stats" - Recent reading stats on the sleep screen
-  - "Minimal" - A minimal sleep screen
-  - "Minimal Stats" - A minimal stats sleep screen on supported devices
-  - "Dashboard" - A dashboard-style sleep screen based on the Dashboard theme
-  - "Quick Resume" - Keeps the current content visible while sleeping
+- **Tela de repouso**: qual tela de repouso exibir quando o aparelho entra em repouso:
+  - "Escuro" (padrão) - a tela de repouso padrão com o logotipo escuro do FluiDez Reader
+  - "Claro" - a mesma tela de repouso padrão, em fundo branco
+  - "Personalizado" - imagens personalizadas do cartão SD; veja [Tela de repouso](#37-tela-de-repouso) abaixo para mais informações
+  - "Capa" - a imagem da capa do livro (observação: isto é experimental e pode não funcionar como esperado)
+  - "Nenhum" - uma tela em branco
+  - "Capa + personalizado" - a imagem da capa do livro durante a leitura ativa, usando o comportamento "Personalizado" nos demais casos
+  - "Sobreposição da página" - usa uma imagem para sobrepor a página atual. Funciona melhor com arquivos `.png` transparentes ou arquivos `.bmp` em preto e branco.
+  - "Estatísticas de leitura" - estatísticas recentes de leitura na tela de repouso
+  - "Minimal" - uma tela de repouso minimalista
+  - "Minimal Stats" - uma tela de repouso minimalista com estatísticas em aparelhos compatíveis
+  - "Painel" - uma tela de repouso no estilo painel, baseada no tema Painel
+  - "Retomada rápida" - mantém o conteúdo atual visível durante o repouso
 
-- **Sleep Screen Cover Mode**: How to display the book cover when "Cover" sleep screen is selected:
-  - "Fit" (default) - Scale the image down to fit centered on the screen, padding with white borders as necessary
-  - "Crop" - Scale the image down and crop as necessary to try to fill the screen (Note: this is experimental and may not work as expected)
+- **Modo da capa da tela de repouso**: como exibir a capa do livro quando a tela de repouso "Capa" está selecionada:
+  - "Ajustar" (padrão) - reduz a imagem para caber centralizada na tela, preenchendo com bordas brancas conforme necessário
+  - "Recortar" - reduz a imagem e recorta conforme necessário para tentar preencher a tela (observação: isto é experimental e pode não funcionar como esperado)
 
-- **Sleep Screen Cover Filter**: What filter will be applied to the book cover when "Cover" sleep screen is selected:
-  - "None" (default) - The cover image will be converted to a grayscale image and displayed as it is
-  - "Contrast" - The image will be displayed as a black & white image without grayscale conversion
-  - "Inverted" - The image will be inverted as in white & black and will be displayed without grayscale conversion
+- **Filtro capa tela repouso**: qual filtro será aplicado à capa do livro quando a tela de repouso "Capa" está selecionada:
+  - "Nenhum" (padrão) - a imagem da capa será convertida para tons de cinza e exibida como está
+  - "Contraste" - a imagem será exibida em preto e branco sem conversão para tons de cinza
+  - "Invertido" - a imagem será invertida, como branco e preto, e exibida sem conversão para tons de cinza
 
-- **Quick Resume on Timeout**: Whether to enable the "Quick Resume" sleep screen when the device goes to sleep due to inactivity (System > Time to Sleep). This is useful for quickly resuming reading without waiting for the device to fully wake up and load the book. This overwrites the Sleep Screen Cover Mode when enabled.
+- **Retomada rápida após tempo limite**: ativa a tela de repouso "Retomada rápida" quando o aparelho entra em repouso por inatividade (Sistema > Tempo para repousar). Isso é útil para retomar a leitura rapidamente sem esperar o aparelho despertar completamente e carregar o livro. Quando ativado, substitui o Modo da capa da tela de repouso.
 
-- **Hide Battery %**: Configure where to suppress the battery percentage display in the status bar; the battery icon will still be shown:
-  - "Never" (default) - Always show battery percentage
-  - "In Reader" - Show battery percentage everywhere except in reading mode
-  - "Always" - Always hide battery percentage
+- **Ocultar % da bateria**: configure onde suprimir a exibição da porcentagem da bateria na barra de status; o ícone da bateria continuará sendo mostrado:
+  - "Nunca" (padrão) - sempre mostra a porcentagem da bateria
+  - "No leitor" - mostra a porcentagem da bateria em todos os lugares, exceto no modo de leitura
+  - "Sempre" - sempre oculta a porcentagem da bateria
 
-- **Hide Clock**: On devices with a real-time clock, choose whether the clock is
-  shown everywhere, hidden only in the reader, or always hidden.
+- **Ocultar relógio**: em aparelhos com relógio em tempo real, escolha se o
+  relógio aparece em todos os lugares, fica oculto apenas no leitor ou fica sempre oculto.
 
-- **Refresh Frequency**: Set how often the screen does a full refresh while reading to reduce ghosting; options are every 1, 5, 10, 15, or 30 pages.
+- **Freq. atualiz.**: define com que frequência a tela faz uma atualização completa durante a leitura para reduzir fantasmas; as opções são a cada 1, 5, 10, 15 ou 30 páginas.
 
-- **UI Theme**: Set which UI theme to use:
-  - "Classic" - The original theme
-  - "Minimal" - A minimal theme with a large book cover
-  - "Dashboard" - A dashboard-style home layout with reading stats beside the cover; labels shrink or wrap so text never covers the book
-  - "Lyra" - A theme with simple icons featuring your current book
-  - "Lyra Extended" - Lyra, but displays 3 books instead of 1 on the **[Home Screen](#31-home-screen)**
-  - "Lyra Carousel" - A carousel-based Lyra home layout with up to 5 books
-  - "Lyra Grid" - Lyra Carousel's icon menu with a 3x2 grid of 6 books (current, pinned, then recent), each with a progress bar and a ribbon on pinned books
-  - "RoundedRaff" - A rounded theme with additional visual styling
+- **Tema da interface**: define qual tema da interface usar:
+  - "Clássico" - o tema original
+  - "Minimal" - um tema minimalista com capa grande do livro
+  - "Painel" - layout de início no estilo painel, com estatísticas de leitura ao lado da capa; os rótulos encolhem ou quebram linha para que o texto nunca cubra o livro
+  - "Lyra" - um tema com ícones simples destacando o livro atual
+  - "Lyra Extended" - Lyra, mas mostra 3 livros em vez de 1 na **[tela Início](#31-tela-início)**
+  - "Lyra Carousel" - layout inicial Lyra em carrossel, com até 5 livros
+  - "Lyra Grade" - menu de ícones do Lyra Carousel com uma grade 3x2 de 6 livros (atual, fixados e recentes), cada um com barra de progresso e fita nos fixados
+  - "RoundedRaff" - um tema arredondado com estilo visual adicional
 
-- **Recent Books View**: Choose whether the Recent Books screen uses a list or grid layout.
+- **Vista de livros recentes**: escolha se a tela Livros recentes usa layout de lista ou grade.
 
-- **Sunlight Fading Fix**: Configure whether to enable a software-fix for the issue where white X4 models may fade when used in direct sunlight:
-  - "OFF" (default) - Disable the fix
-  - "ON" - Enable the fix
+- **Ajuste desbotamento ao sol**: configure se ativa uma correção por software para o problema em que modelos X4 brancos podem desbotar quando usados sob luz solar direta:
+  - "DESL." (padrão) - desativa a correção
+  - "LIG." - ativa a correção
 
-- **Frontlight and wake schedule** (on supported devices with a frontlight and
-  real-time clock): Open **Settings > Display > Frontlight**.
-  - **Restore Light on Wake**: When enabled, a frontlight that was on before
-    sleep is turned back on when the device wakes. If the light was off before
-    sleep, a complete schedule can still decide whether it should turn on.
-  - **Frontlight Schedule**: Enable the daily wake schedule, then set **Start**
-    and **End** in local time. Times use one-minute increments. The schedule
-    includes the Start time and excludes the End time, and it can cross
-    midnight (for example, 9:00 PM to 7:00 AM). Start and End must both be set
-    and different; otherwise the schedule is inactive.
-  - The schedule is checked when the device boots or wakes, not continuously
-    while it is already awake. Restore on Wake takes precedence when the light
-    was on before sleep. Set the device's local time and UTC offset under
-    **Settings > System > Device** so the schedule uses the expected clock.
-    When the schedule is disabled or an endpoint is unset, the endpoint value
-    is shown as `--`; saved endpoint times are retained for later re-enabling.
+- **Luz frontal e agendamento de despertar** (em aparelhos compatíveis com luz frontal e
+  relógio em tempo real): abra **Configurações > Tela > Luz frontal**.
+  - **Restaurar luz ao despertar**: quando ativado, a luz frontal que estava ligada antes
+    do repouso volta a ligar quando o aparelho desperta. Se a luz estava desligada antes
+    do repouso, um agendamento completo ainda pode decidir se ela deve ligar.
+  - **Agendamento**: ative o agendamento diário de despertar e defina **Início**
+    e **Fim** no horário local. Os horários usam incrementos de um minuto. O agendamento
+    inclui o horário de Início e exclui o horário de Fim, e pode cruzar a meia-noite
+    (por exemplo, de 21:00 a 7:00). Início e Fim devem estar definidos e ser diferentes;
+    caso contrário, o agendamento fica inativo.
+  - O agendamento é verificado quando o aparelho inicia ou desperta, não continuamente
+    enquanto ele já está acordado. Restaurar luz ao despertar tem precedência quando a luz
+    estava ligada antes do repouso. Defina o horário local do aparelho e o deslocamento UTC em
+    **Configurações > Sistema > Dispositivo** para que o agendamento use o relógio esperado.
+    Quando o agendamento está desativado ou uma ponta não foi definida, o valor da ponta
+    aparece como `--`; horários salvos das pontas são mantidos para reativação posterior.
 
 > [!NOTE]
-> A battery charging indicator is shown on the battery icon whenever the device is actively charging.
+> Um indicador de carregamento aparece no ícone da bateria sempre que o aparelho está carregando ativamente.
 
-#### 3.6.2 Reader
+#### 3.6.2 Leitor
 
-- **Reader Font Family**: Choose the font used for reading:
-  - "Lexend Deca" (default)
+- **Família da fonte**: escolha a fonte usada para leitura:
+  - "Lexend Deca" (padrão)
   - "Bitter"
 
-- **Reader Font Size**: Adjust the text size for reading, built-in font sizes include: 10, 12, 14, and 16 pt.
-
-- **Reader Line Spacing**: Adjust the line height as a percentage.
-
-- **Word Spacing**: In EPUB books, choose **Normal** or one of four wider
-  spacing levels between words. Open the reader menu, then select **Reader
-  Options > Font Options > Word Spacing**. Changing it reflows the current
-  book, so page positions may change; it is not available for TXT books.
-
-- **Reader Screen Margin**: Controls the screen margins in Reading Mode between 5 and 40 pixels in 5-pixel increments.
-
-- **Reader Paragraph Alignment**: Set the alignment of paragraphs; options are "Justified" (default), "Left", "Center", "Right", or "Book's Style".
-
-- **Publisher Page Numbers**: Show page numbers supplied by the EPUB when the
-  book includes them.
-
-  Note: This reserves 5px of left margin to your screen to provide space for the page numbers. This is only noticeable if your `Left/Right` margins are set to `5`. If the page has no publisher page number, your margins may appear uneven.
-
-- **Hyphenation**: Whether to hyphenate text in Reading Mode; options are "ON" or "OFF".
-
-- **Reading Orientation**: Set the screen orientation for reading EPUB files:
-  - "Portrait" (default) - Standard portrait orientation
-  - "Landscape CW" - Landscape, rotated clockwise
-  - "Portrait 180" - Portrait, upside down
-  - "Landscape CCW" - Landscape, rotated counter-clockwise
-
-- **Extra Paragraph Spacing**: Set how to handle paragraph breaks:
-  - "ON" - Vertical space will be added between paragraphs in Reading Mode
-  - "OFF" - Paragraphs will not have vertical space added, but will have first-line indentation
-
-- **Reader Dark Mode**, **Embedded Style**, **Images**, **Focus Reading**, and
-  **Guide Dots** are directly available from the Reader settings. See
-  [Reader Features](./reader-features.md) for their behavior, including the
-  [Focus Reading](./reader-features.md#focus-reading) guide.
-
-- **Touch Reader Controls**: Enable or disable touchscreen page turns and
-  reader-menu swipe gestures on supported devices. Device-specific full-screen
-  Home and frontlight gestures remain available as described in [Touch Reader
-  Controls](#touch-reader-controls). **Disable Touchscreen** blocks touch input
-  while a book is open, while leaving touch available in reader menus so you can
-  turn it back on.
-
-- **Customize Status Bar**: Configure the status bar displayed while reading:
-  - Chapter Page Count - Show/Hide the current page in the chapter (ex: 5/25). Page count may change based on the font size and margins set.
-  - Book Progress Percentage - Show/Hide the current percent progress in the book.
-  - Percentage Format - Show book progress as `10%` (default), `10.1%`, or `10.12%`.
-  - Progress Bar - Show/Hide a progress bar for either the book or chapter.
-  - Progress Bar Thickness - Set the thickness of the progress bar
-  - Title - Display the chapter or book title
-  - Time Left - Display the estimated reading time left for the book or chapter
-  - Battery - Show/Hide the battery indicator
-  - XTC Status Bar - Show/Hide a status bar for XTC files
+- **Tamanho da fonte**: ajusta o tamanho do texto de leitura; os tamanhos internos incluem 10, 12, 14 e 16 pt.
 
-On touchscreen readers, when **Tap to Hide Status Bar** is enabled (the default
-in **Settings > Controls > Taps & Gestures**), tap the status-bar area while
-reading to show or hide the entire status bar for the current reading session.
-This tap is available while **Touch Reader Controls** is enabled. The quick
-toggle does not change the page layout or page breaks; tap the same status-bar
-region again to restore a hidden bar. Use **Customize Status Bar** to choose
-which status-bar items are shown.
+- **Espaçamento entre linhas**: ajusta a altura das linhas como porcentagem.
 
-#### 3.6.3 Controls
+- **Espaçamento entre palavras**: em livros EPUB, escolha **Normal** ou um dos quatro níveis
+  mais largos de espaçamento entre palavras. Abra o menu do leitor e selecione **Opções do livro > Opções de fonte > Espaçamento entre palavras**. Alterar essa opção redistribui o livro
+  atual, então as posições das páginas podem mudar; ela não está disponível para livros TXT.
 
-- **Power Button**: Configure short-press and long-press power button actions.
+- **Margem da tela**: controla as margens da tela no Modo de leitura entre 5 e 40 pixels, em incrementos de 5 pixels.
 
-- **Front Buttons**: Configure front-button remapping, orientation awareness,
-  reader-only long-press behavior, Back action, and Menu action.
+- **Alinhamento do parágrafo**: define o alinhamento dos parágrafos; as opções são "Justificar" (padrão), "Esquerda", "Centralizar", "Direita" ou "Estilo do livro".
 
-- **Side Buttons**: Configure side-button layout, orientation awareness, and side-button long-press behavior.
+- **Números de página da editora**: mostra números de página fornecidos pelo EPUB quando o
+  livro os inclui.
 
-- **Side Button Layout (reader)**: Swap the order of the up and down buttons from "Prev/Next" (default) to "Next/Prev" or "Next/Next". You can also disable them entirely. This change is only in effect when reading.
+  Observação: isto reserva 5 px da margem esquerda da tela para abrir espaço para os números de página. Só é perceptível se suas margens `Esquerda/Direita` estiverem definidas como `5`. Se a página não tiver número de página da editora, suas margens podem parecer desiguais.
 
-- **Long-press Behavior**: Set whether long-pressing front page-turn buttons does nothing, skips to the next/previous chapter, or changes reader orientation.
+- **Hifenização**: define se o texto será hifenizado no Modo de leitura; as opções são "LIG." ou "DESL.".
 
-- **Side Button Long-press Action**: Set whether long-pressing side buttons does nothing, skips chapters, changes font size, or changes orientation.
+- **Orientação**: define a orientação da tela para leitura de arquivos EPUB:
+  - "Retrato" (padrão) - orientação retrato padrão
+  - "Paisagem horário" - paisagem, girada no sentido horário
+  - "Retrato 180°" - retrato, de cabeça para baixo
+  - "Paisagem anti-horário" - paisagem, girada no sentido anti-horário
 
-- **Short-press Action / Long-press Action**: Controls the effect of a short or long press of the power button. Available actions include:
-  - "Ignore" (default) - Require a long press to turn off the device
-  - "Sleep" - A short press puts the device into sleep mode
-  - "Page Turn" - A short press in reading mode turns to the next page; a long press turns the device off
-  - "Toggle Bookmark", "Reading Stats", "Mark Finished", "Refresh", "Change Font", "Guide Dots", "Focus Reading", "Auto Page Turn", "Sync Progress", "File Transfer", "Calibre Wireless", "Join a Network", "Create Hotspot", "Screenshot", "Dark Mode", "Browse Files", or "Save Clipping" - Run the matching action
-  - "Footnotes" - A short press in reading mode opens the footnotes submenu; if only one footnote is present on the page, the referenced page is opened directly. The short press on the power button can be used to select the footnote in the submenu, and to go back to the original page after finish reading the footnote (like the back button).
+- **Espaçamento extra entre parágrafos**: define como tratar quebras de parágrafo:
+  - "LIG." - espaço vertical será adicionado entre parágrafos no Modo de leitura
+  - "DESL." - os parágrafos não terão espaço vertical adicional, mas terão recuo na primeira linha
 
-- **Quick-return from footnotes**: Toggles on and off the quick return functionality from the footnotes. When the functionality it's active, a short press of the power button will act as the back button from the footnotes page.
+- **Modo escuro**, **Estilo embutido**, **Imagens**, **Leitura focada** e
+  **Pontos guia** estão disponíveis diretamente nas configurações do Leitor. Veja
+  [Recursos do leitor](./reader-features.md) para o comportamento, incluindo o guia de
+  [Leitura focada](./reader-features.md#focus-reading).
 
-- **Taps & Gestures** (touchscreen devices): Configure the touch interactions
-  available while reading from **Settings > Controls > Taps & Gestures**. The
-  submenu includes:
-  - **Next Page** and **Previous Page**: Choose which taps and swipes advance or
-    go back one page. Each direction can be set to **Tap & Swipe** (default),
-    **Tap Only**, **Swipe Only**, **Inverted Tap**, or **Disabled** independently.
-  - **Pinch to Resize Font** (multi-touch devices): Enable or disable changing
-    the font size with a two-finger pinch in EPUB and TXT readers.
-  - **Two-finger Screen Rotation** (multi-touch devices): Enable or disable
-    twisting two fingers to rotate the reading orientation in EPUB and TXT
-    readers.
-  - **Tap to Hide Status Bar**: Enable or disable tapping the visible status-bar
-    area to show or hide it for the current reading session.
-  - **Two-finger Swipe** (multi-touch devices): Assign an action to each
-    two-finger swipe direction. The available actions depend on the device and
-    reader format.
-    The submenu is not shown on devices without a touchscreen, and the
-    multi-touch entries appear only when the hardware supports them. See [Touch
-    Reader Controls](#touch-reader-controls) for the gesture details.
+- **Controles de toque no leitor**: ativa ou desativa viradas de página por toque e
+  gestos de deslizar para o menu do leitor em aparelhos compatíveis. Gestos de tela cheia
+  específicos do aparelho para Início e luz frontal continuam disponíveis conforme descrito em [Controles de toque no leitor](#controles-de-toque-no-leitor). **Desativar tela sensível ao toque** bloqueia a entrada por toque enquanto um livro está aberto, mantendo o toque disponível nos menus do leitor para você poder reativá-la.
 
-#### 3.6.4 System
+- **Personalizar barra de status**: configure a barra de status exibida durante a leitura:
+  - Contagem de páginas do capítulo - mostra/oculta a página atual no capítulo (ex.: 5/25). A contagem de páginas pode mudar conforme o tamanho da fonte e as margens definidas.
+  - Porcentagem de progresso do livro - mostra/oculta a porcentagem atual de progresso no livro.
+  - Formato da porcentagem - mostra o progresso do livro como `10%` (padrão), `10.1%` ou `10.12%`.
+  - Barra de progresso - mostra/oculta uma barra de progresso do livro ou do capítulo.
+  - Espessura da barra de progresso - define a espessura da barra de progresso
+  - Título - exibe o título do capítulo ou do livro
+  - Tempo restante - exibe o tempo estimado de leitura restante para o livro ou capítulo
+  - Bateria - mostra/oculta o indicador da bateria
+  - Barra de status XTC - mostra/oculta uma barra de status para arquivos XTC
 
-- **Time to Sleep**: Set the duration of inactivity before the device automatically goes to sleep. Values are in minutes, with a "Never" option at the end of the range. Keyboards, the Wi-Fi network list, Nearby ready and result screens, and download results also follow this timeout when left idle. The device stays awake while it is scanning, connecting, transferring, syncing, or downloading; text typed but not yet confirmed is discarded if it goes to sleep.
+Em leitores com tela sensível ao toque, quando **Toque para ocultar barra de status** está ativado (o padrão em **Configurações > Controles > Toques e gestos**), toque na área da barra de status durante a leitura para mostrar ou ocultar a barra inteira na sessão de leitura atual. Esse toque fica disponível enquanto **Controles de toque no leitor** está ativado. A alternância rápida não altera o layout da página nem as quebras de página; toque de novo na mesma região da barra de status para restaurar uma barra oculta. Use **Personalizar barra de status** para escolher quais itens da barra aparecem.
 
-- **Custom Boot Screen**: Enable or disable custom boot screens (enabled by
-  default). When disabled, FluiDez Reader uses the standard logo on cold boot and keeps the current sleep
-  screen visible on power-button wake, even if a custom image or boot-screen
-  folder is configured. Disabling this does not remove the selected image or
-  the folders; turn it back on to use them again.
+#### 3.6.3 Controles
 
-- **Device**: Set the device name and time-to-sleep timeout. Devices with a
-  real-time clock also expose clock format, UTC offset, and a sync action.
+- **Botão liga/desliga**: configure as ações de toque curto e toque longo do botão liga/desliga.
 
-- **Files & Cache**: Configure hidden files, file extensions, file-browser view,
-  finished-book behavior, and clear the reading cache.
+- **Botões frontais**: configure o remapeamento dos botões frontais, a sensibilidade à orientação, o comportamento de toque longo apenas no leitor, a ação Voltar e a ação Menu.
 
-- **Reading Stats**: Configure stats tracking and idle-time filtering, and
-  access all-time stats backup/reset actions.
+- **Botões laterais**: configure o layout dos botões laterais, a sensibilidade à orientação e o comportamento de toque longo dos botões laterais.
 
-- **Wi-Fi Networks**: Connect to Wi-Fi networks for file transfers and firmware updates.
+- **Layout dos botões laterais (leitor)**: troca a ordem dos botões de cima e baixo de "Ant/Próx" (padrão) para "Próx/Ant" ou "Próx/Próx". Você também pode desativá-los totalmente. Essa alteração só vale durante a leitura.
 
-- **KOReader Sync**: Options for setting up KOReader for syncing book progress. **Smart sync** is the default for new configurations and auto-resolves simple push/pull decisions. Existing credential files retain **Ask every time** when migrated; you can switch Sync Behavior at any time if you prefer manual confirmation.
+- **Comportamento de toque longo**: define se manter botões frontais de virar página pressionados não faz nada, pula para o capítulo seguinte/anterior ou altera a orientação do leitor.
 
-- **OPDS Servers**: Manage one or more OPDS [(Open Publication Distribution System)](https://en.wikipedia.org/wiki/Open_Publication_Distribution_System) libraries for browsing and downloading books. See [OPDS Servers (Multiple Libraries)](#365-opds-servers-multiple-libraries) below.
+- **Ação de toque longo dos botões laterais**: define se manter botões laterais pressionados não faz nada, pula capítulos, altera o tamanho da fonte ou altera a orientação.
 
-- **Check for Updates** and **SD Firmware Update**: Check for firmware updates
-  over Wi-Fi or install a `firmware.bin` placed on the SD card. FluiDez Reader
-  checks the [FluiDez Reader releases](https://github.com/micheljatuba/FluiDez-Reader/releases)
-  and offers a release only when its `fluidez` build number is newer. Updates
-  are installed at your own risk; see [Installation](./installation.md).
+- **Ação de toque curto / Ação de toque longo**: controla o efeito de um toque curto ou longo no botão liga/desliga. As ações disponíveis incluem:
+  - "Ignorar" (padrão) - exige um toque longo para desligar o aparelho
+  - "Repouso" - um toque curto coloca o aparelho em modo de repouso
+  - "Virar página" - um toque curto no modo de leitura vira para a próxima página; um toque longo desliga o aparelho
+  - "Alternar marcador", "Estatísticas de leitura", "Marcar como concluído", "Atualizar tela", "Alterar fonte", "Pontos guia", "Leitura focada", "Virada automática", "Sincronizar progresso", "Transferência de arquivos", "Calibre sem fio", "Entrar em uma rede", "Criar hotspot", "Capturar tela", "Modo escuro", "Explorar arquivos" ou "Criar recorte" - executa a ação correspondente
+  - "Notas de rodapé" - um toque curto no modo de leitura abre o submenu de notas de rodapé; se houver apenas uma nota na página, a página referenciada é aberta diretamente. O toque curto no botão liga/desliga pode ser usado para selecionar a nota no submenu e para voltar à página original depois de terminar de ler a nota (como o botão Voltar).
 
-- **Language**: Set the UI language. FluiDez Reader releases include English and
-  Brazilian Portuguese. The source includes translations for 28 languages: English,
-  Spanish, French, German, Czech, Brazilian Portuguese, Russian, Swedish,
-  Romanian, Catalan, Ukrainian, Belarusian, Italian, Polish, Finnish, Danish,
-  Dutch, Turkish, Kazakh, Hungarian, Lithuanian, Slovenian, Valencian, Hebrew,
-  Vietnamese, Slovak, Portuguese (Portugal), and Arabic. A build offers only the
-  languages listed in `custom_i18n_builtin_langs` in `platformio.ini`.
+- **Retorno rápido das notas**: ativa e desativa o retorno rápido das notas de rodapé. Quando a função está ativa, um toque curto no botão liga/desliga atua como o botão Voltar a partir da página da nota.
 
-#### 3.6.5 OPDS Servers (Multiple Libraries)
+- **Toques e gestos** (aparelhos com tela sensível ao toque): configure as interações de toque
+  disponíveis durante a leitura em **Configurações > Controles > Toques e gestos**. O
+  submenu inclui:
+  - **Próxima página** e **Página anterior**: escolha quais toques e deslizes avançam ou
+    voltam uma página. Cada direção pode ser definida de forma independente como **Toque e deslize** (padrão),
+    **Somente toque**, **Somente deslize**, **Toque invertido** ou **Desativado**.
+  - **Tam. fonte por pinça** (aparelhos multitoque): ativa ou desativa a alteração do
+    tamanho da fonte com pinça de dois dedos nos leitores EPUB e TXT.
+  - **Girar com dois dedos** (aparelhos multitoque): ativa ou desativa
+    girar a orientação de leitura torcendo dois dedos nos leitores EPUB e TXT.
+  - **Toque para ocultar barra de status**: ativa ou desativa tocar na área visível da barra de status
+    para mostrá-la ou ocultá-la na sessão de leitura atual.
+  - **Deslizar com dois dedos** (aparelhos multitoque): atribui uma ação a cada
+    direção de deslize com dois dedos. As ações disponíveis dependem do aparelho e
+    do formato do leitor.
+    O submenu não aparece em aparelhos sem tela sensível ao toque, e as entradas
+    multitoque aparecem apenas quando o hardware oferece suporte. Veja [Controles de toque no leitor](#controles-de-toque-no-leitor) para os detalhes dos gestos.
 
-FluiDez Reader supports saving multiple OPDS servers and switching between them when browsing catalogs.
+#### 3.6.4 Sistema
 
-1. Open **Settings -> System -> OPDS Servers**.
+- **Tempo para repousar**: define a duração de inatividade antes de o aparelho entrar automaticamente em repouso. Os valores são em minutos, com uma opção "Nunca" no fim da faixa. Teclados, a lista de redes Wi-Fi, as telas de prontidão e resultado de proximidade e os resultados de download também seguem esse tempo limite quando ficam ociosos. O aparelho permanece acordado enquanto procura, conecta, transfere, sincroniza ou baixa; texto digitado mas ainda não confirmado é descartado se ele entrar em repouso.
 
-2. Select **Add Server** to create a new entry, or select an existing server to edit it.
+- **Tela inicial personalizada**: ativa ou desativa telas iniciais personalizadas (ativadas por
+  padrão). Quando desativado, o FluiDez Reader usa o logotipo padrão em uma inicialização fria e mantém a tela de repouso atual visível ao despertar pelo botão liga/desliga, mesmo se uma imagem personalizada ou pasta de tela inicial estiver configurada. Desativar isso não remove a imagem selecionada nem as pastas; ative novamente para usá-las.
 
-3. Configure these fields:
-   - **Server Name**: Optional display name (for example, "Home Calibre" or "Public Catalog").
+- **Dispositivo**: define o nome do aparelho e o tempo para repousar. Aparelhos com
+  relógio em tempo real também expõem formato do relógio, deslocamento UTC e uma ação de sincronização.
 
-   - **OPDS Server URL**: Full catalog root URL (for Calibre Content Server, usually ends with `/opds`).
+- **Arquivos e cache**: configure arquivos ocultos, extensões de arquivo, visualização do navegador de arquivos, comportamento de livros concluídos e limpeza do cache de leitura.
 
-   - **Username / Password**: Optional credentials for authenticated servers.
+- **Estatísticas de leitura**: configure o registro de estatísticas e o filtro de tempo ocioso, e acesse ações de backup/redefinição de estatísticas de todo o período.
 
-4. Use **Delete Server** inside a server entry to remove it.
+- **Redes Wi‑Fi**: conecte-se a redes Wi-Fi para transferências de arquivos e atualizações de firmware.
 
-Behavior notes:
+- **Sincronização KOReader**: opções para configurar o KOReader para sincronizar progresso de leitura. **Inteligente** é o padrão para novas configurações e resolve automaticamente decisões simples de envio/recebimento. Arquivos de credenciais existentes mantêm **Perguntar sempre** quando migrados; você pode alterar o Modo de sincronização a qualquer momento se preferir confirmação manual.
 
-- You can store up to 8 OPDS servers.
-- OPDS authentication supports HTTP Basic auth. If you use Calibre Content Server with authentication enabled, set it to Basic (not Digest).
+- **Servidores OPDS**: gerencie uma ou mais bibliotecas OPDS [(Open Publication Distribution System)](https://en.wikipedia.org/wiki/Open_Publication_Distribution_System) para navegar e baixar livros. Veja [Servidores OPDS (várias bibliotecas)](#365-servidores-opds-várias-bibliotecas) abaixo.
 
-You can also manage OPDS servers from the web interface while in File Transfer mode:
+- **Verificar atualizações** e **Atualização de firmware do cartão SD**: verificam atualizações de firmware
+  via Wi-Fi ou instalam um `firmware.bin` colocado no cartão SD. O FluiDez Reader
+  verifica as [versões do FluiDez Reader](https://github.com/micheljatuba/FluiDez-Reader/releases)
+  e oferece uma versão apenas quando seu número de compilação `fluidez` é mais novo. As atualizações
+  são instaladas por sua conta e risco; veja [Instalação](./installation.md).
 
-1. Connect to the device web UI.
-2. Open `http://<device-ip>/settings`.
-3. Use the **OPDS Servers** card to add, edit, or delete entries.
+- **Idioma**: define o idioma da interface. As versões do FluiDez Reader incluem inglês e
+  português brasileiro. O código-fonte inclui traduções para 28 idiomas: inglês,
+  espanhol, francês, alemão, tcheco, português brasileiro, russo, sueco,
+  romeno, catalão, ucraniano, bielorrusso, italiano, polonês, finlandês, dinamarquês,
+  holandês, turco, cazaque, húngaro, lituano, esloveno, valenciano, hebraico,
+  vietnamita, eslovaco, português (Portugal) e árabe. Uma compilação oferece apenas os
+  idiomas listados em `custom_i18n_builtin_langs` em `platformio.ini`.
 
-For web-based Wi-Fi network management, see [File Transfer](./webserver.md).
+#### 3.6.5 Servidores OPDS (várias bibliotecas)
 
-#### 3.6.6 Web Settings (Wi-Fi + OPDS)
+O FluiDez Reader permite salvar vários servidores OPDS e alternar entre eles ao navegar por catálogos.
 
-While in **File Transfer** mode, the web settings page includes management cards for both **Wi-Fi Networks** and **OPDS Servers**.
+1. Abra **Configurações -> Sistema -> Servidores OPDS**.
 
-1. On device: open **File Transfer** and connect through **Join a Network** or **Create Hotspot**.
-2. In a browser, open `http://<device-ip>/settings` or `http://fluidez.local/settings`.
-3. In **Wi-Fi Networks**, add, edit, or delete saved network entries (SSID + optional password).
-4. In **OPDS Servers**, add, edit, or delete OPDS catalogs.
+2. Selecione **Adicionar servidor** para criar uma nova entrada ou selecione um servidor existente para editá-lo.
 
-Behavior notes:
+3. Configure estes campos:
+   - **Nome do servidor**: nome de exibição opcional (por exemplo, "Calibre de casa" ou "Catálogo público").
 
-- Passwords are never shown back in the web UI after saving.
-- Leaving Password blank while editing keeps the existing saved password unchanged.
-- The web UI can save hidden-network SSIDs, but connecting to hidden networks still depends on the device-side Wi-Fi connection flow.
+   - **URL do servidor OPDS**: URL raiz completa do catálogo (para o Servidor de conteúdo do Calibre, geralmente termina com `/opds`).
 
-#### 3.6.7 KOReader Sync Quick Setup
+   - **Nome de usuário / Senha**: credenciais opcionais para servidores autenticados.
 
-FluiDez Reader can sync reading progress with KOReader-compatible sync servers.
-It also interoperates with KOReader apps/devices when they use the same server and credentials.
+4. Use **Excluir servidor** dentro de uma entrada de servidor para removê-la.
 
-##### Option A: CrossPoint Sync Server (`sync.crosspointreader.com`, default)
+Notas de comportamento:
 
-When **Sync Server URL** is left empty, FluiDez Reader uses the free CrossPoint sync server at `https://sync.crosspointreader.com`. It speaks the standard KOReader sync protocol (so KOReader apps can use it too) and additionally stores an exact spine/page position for lossless reader-to-reader sync.
+- Você pode armazenar até 8 servidores OPDS.
+- A autenticação OPDS oferece suporte a HTTP Basic auth. Se você usa o Servidor de conteúdo do Calibre com autenticação ativada, defina como Basic (não Digest).
 
-1. On each FluiDez Reader device:
-   - Go to **Settings -> System -> KOReader Sync**.
+Você também pode gerenciar servidores OPDS pela interface web enquanto estiver no modo Transferência de arquivos:
 
-   - Set **Username** and **Password** (enter the plain password; FluiDez Reader computes MD5 internally, and use the same values on all devices).
+1. Conecte-se à interface web do aparelho.
+2. Abra `http://<device-ip>/settings`.
+3. Use o cartão **Servidores OPDS** para adicionar, editar ou excluir entradas.
 
-   - Leave **Sync Server URL** empty (or set it to `https://sync.crosspointreader.com`).
+Para gerenciamento de redes Wi-Fi pela web, veja [Transferência de arquivos](./webserver.md).
 
-   - On the first device, run **Sign Up** once to create the account directly from the device. On every other device, just run **Authenticate**.
+#### 3.6.6 Configurações web (Wi-Fi + OPDS)
 
-Accounts are per server. Existing `sync.koreader.rocks` credentials do not exist on the CrossPoint server; either sign up again with the same username/password or use Option B to keep using the legacy server.
+Enquanto estiver no modo **Transferência de arquivos**, a página de configurações web inclui cartões de gerenciamento para **Redes Wi‑Fi** e **Servidores OPDS**.
 
-##### Option B: Legacy Public KOReader Server (`sync.koreader.rocks`)
+1. No aparelho: abra **Transferência de arquivos** e conecte por **Entrar em uma rede** ou **Criar hotspot**.
+2. Em um navegador, abra `http://<device-ip>/settings` ou `http://fluidez.local/settings`.
+3. Em **Redes Wi‑Fi**, adicione, edite ou exclua entradas de rede salvas (SSID + senha opcional).
+4. Em **Servidores OPDS**, adicione, edite ou exclua catálogos OPDS.
 
-Use this if you already sync KOReader devices against the official public server.
+Notas de comportamento:
 
-1. On each FluiDez Reader device:
-   - Go to **Settings -> System -> KOReader Sync**.
+- Senhas nunca são mostradas de volta na interface web depois de salvas.
+- Deixar Senha em branco durante a edição mantém a senha salva existente sem alterações.
+- A interface web pode salvar SSIDs de redes ocultas, mas conectar a redes ocultas ainda depende do fluxo de conexão Wi-Fi no aparelho.
 
-   - Set **Sync Server URL** to `https://sync.koreader.rocks` (required; an empty URL now points at the CrossPoint server instead).
+#### 3.6.7 Configuração rápida da Sincronização KOReader
 
-   - Set **Username** and **Password** to your existing KOReader Sync credentials.
+O FluiDez Reader pode sincronizar o progresso de leitura com servidores de sincronização compatíveis com KOReader.
+Ele também interoperará com aplicativos/aparelhos KOReader quando eles usarem o mesmo servidor e as mesmas credenciais.
 
-   - Run **Authenticate**.
+##### Opção A: servidor de sincronização CrossPoint (`sync.crosspointreader.com`, padrão)
 
-2. If you do not have an account yet, run **Sign Up** on the device, or register once with curl:
+Quando **URL do servidor de sincronização** fica vazio, o FluiDez Reader usa o servidor gratuito de sincronização CrossPoint em `https://sync.crosspointreader.com`. Ele fala o protocolo padrão de sincronização KOReader (então aplicativos KOReader também podem usá-lo) e também armazena uma posição exata de spine/página para sincronização sem perdas entre leitores.
+
+1. Em cada aparelho FluiDez Reader:
+   - Vá para **Configurações -> Sistema -> Sincronização KOReader**.
+
+   - Defina **Nome de usuário** e **Senha** (digite a senha em texto puro; o FluiDez Reader calcula o MD5 internamente, e use os mesmos valores em todos os aparelhos).
+
+   - Deixe **URL do servidor de sincronização** vazia (ou defina como `https://sync.crosspointreader.com`).
+
+   - No primeiro aparelho, execute **Criar conta** uma vez para criar a conta diretamente pelo aparelho. Em todos os outros aparelhos, execute apenas **Autenticar**.
+
+As contas são por servidor. Credenciais existentes de `sync.koreader.rocks` não existem no servidor CrossPoint; crie a conta novamente com o mesmo nome de usuário/senha ou use a Opção B para continuar usando o servidor legado.
+
+##### Opção B: servidor público legado do KOReader (`sync.koreader.rocks`)
+
+Use esta opção se você já sincroniza aparelhos KOReader com o servidor público oficial.
+
+1. Em cada aparelho FluiDez Reader:
+   - Vá para **Configurações -> Sistema -> Sincronização KOReader**.
+
+   - Defina **URL do servidor de sincronização** como `https://sync.koreader.rocks` (obrigatório; uma URL vazia agora aponta para o servidor CrossPoint).
+
+   - Defina **Nome de usuário** e **Senha** com suas credenciais existentes da Sincronização KOReader.
+
+   - Execute **Autenticar**.
+
+2. Se você ainda não tem uma conta, execute **Criar conta** no aparelho ou registre uma vez com curl:
 
 ```bash
 USERNAME="user"
-PASSWORD="pass"
+******
 PASSWORD_MD5="$(printf '%s' "$PASSWORD" | openssl md5 | awk '{print $2}')"
 
 curl -i "https://sync.koreader.rocks/users/create" \
@@ -505,11 +485,11 @@ curl -i "https://sync.koreader.rocks/users/create" \
   --data "{\"username\":\"$USERNAME\",\"password\":\"$PASSWORD_MD5\"}"
 ```
 
-When this returns `HTTP 402` with `{"code":2002,"message":"Username is already registered."}`, pick a different username or use that existing account.
+Quando isso retornar `HTTP 402` com `{"code":2002,"message":"Username is already registered."}`, escolha outro nome de usuário ou use essa conta existente.
 
-##### Option C: Self-Hosted Server (Docker Compose)
+##### Opção C: servidor próprio (Docker Compose)
 
-1. Start a sync server:
+1. Inicie um servidor de sincronização:
 
 ```bash
 mkdir -p kosync-quickstart
@@ -537,27 +517,27 @@ podman compose up -d
 ```
 
 > [!NOTE]
-> `ENABLE_USER_REGISTRATION=true` is convenient for first setup. After creating your users, set it to `false` (or remove it) to avoid unexpected registrations.
+> `ENABLE_USER_REGISTRATION=true` é conveniente para a primeira configuração. Depois de criar seus usuários, defina como `false` (ou remova) para evitar registros inesperados.
 
-2. Verify the server:
+2. Verifique o servidor:
 
 ```bash
 curl -H "Accept: application/vnd.koreader.v1+json" "http://<server-ip>:17200/healthcheck"
 # Expected: {"state":"OK"}
 ```
 
-3. Register a user once.
-   FluiDez Reader authenticates against KOReader Sync (`koreader/kosync`) using an MD5 key, so register using the MD5 of your password:
+3. Registre um usuário uma vez.
+   O FluiDez Reader autentica na Sincronização KOReader (`koreader/kosync`) usando uma chave MD5, então registre usando o MD5 da sua senha:
 
 > [!WARNING]
-> Sending a reusable MD5-derived password over plain HTTP is insecure.
-> Create unique sync-only credentials and do not reuse main account passwords.
-> Prefer `https://<server-ip>:7200` whenever traffic leaves a fully trusted LAN or when using untrusted networks.
-> Use `curl -k` only for self-signed certificate testing.
+> Enviar uma senha reutilizável derivada de MD5 por HTTP puro é inseguro.
+> Crie credenciais exclusivas apenas para sincronização e não reutilize senhas de contas principais.
+> Prefira `https://<server-ip>:7200` sempre que o tráfego sair de uma LAN totalmente confiável ou quando usar redes não confiáveis.
+> Use `curl -k` apenas para testes com certificado autoassinado.
 
 ```bash
 USERNAME="user"
-PASSWORD="pass"
+******
 PASSWORD_MD5="$(printf '%s' "$PASSWORD" | openssl md5 | awk '{print $2}')"
 
 curl -i "http://<server-ip>:17200/users/create" \
@@ -566,342 +546,335 @@ curl -i "http://<server-ip>:17200/users/create" \
   --data "{\"username\":\"$USERNAME\",\"password\":\"$PASSWORD_MD5\"}"
 ```
 
-If this returns `HTTP 402` with `{"code":2002,"message":"Username is already registered."}`, the account already exists.
+Se isso retornar `HTTP 402` com `{"code":2002,"message":"Username is already registered."}`, a conta já existe.
 
-4. On each device:
-   - Go to **Settings -> System -> KOReader Sync**.
+4. Em cada aparelho:
+   - Vá para **Configurações -> Sistema -> Sincronização KOReader**.
 
-   - Set **Username** and **Password** (enter the plain password; FluiDez Reader computes MD5 internally, and use the same values on all devices).
+   - Defina **Nome de usuário** e **Senha** (digite a senha em texto puro; o FluiDez Reader calcula o MD5 internamente, e use os mesmos valores em todos os aparelhos).
 
-   - Set **Sync Server URL** to `http://<server-ip>:17200`.
+   - Defina **URL do servidor de sincronização** como `http://<server-ip>:17200`.
 
-   - Run **Authenticate**.
+   - Execute **Autenticar**.
 
-If you use the HTTPS listener, use `https://<server-ip>:7200` (`curl -k` only for self-signed certificate testing).
+Se você usar o listener HTTPS, use `https://<server-ip>:7200` (`curl -k` apenas para testes com certificado autoassinado).
 
-##### Syncing While Reading
+##### Sincronizando durante a leitura
 
-Once any of the options above is set up, press **Confirm** while reading to open the reader menu, then select **Sync Progress**. Alternatively, set **Settings -> Controls -> Long-press Menu** to **KOSync** and hold Confirm to launch sync directly.
+Depois que qualquer uma das opções acima estiver configurada, pressione **Confirmar** durante a leitura para abrir o menu do leitor e selecione **Sincronizar progresso**. Como alternativa, defina **Configurações -> Controles -> Menu de toque longo** como **KOSync** e segure Confirmar para iniciar a sincronização diretamente.
 
-- With **Sync Behavior** set to **Ask every time**, choose **Apply Remote** to jump to remote progress or **Upload Local** to push current progress.
-- With **Sync Behavior** set to **Smart sync**, FluiDez Reader auto-resolves simple cases: upload when no remote progress exists, confirm and leave both unchanged when local and remote progress are already synchronized, upload when local progress is further ahead, or apply remote when remote progress is further ahead.
+- Com **Modo de sincronização** definido como **Perguntar sempre**, escolha **Aplicar progresso remoto** para pular para o progresso remoto ou **Enviar progresso local** para enviar o progresso atual.
+- Com **Modo de sincronização** definido como **Inteligente**, o FluiDez Reader resolve automaticamente casos simples: envia quando não existe progresso remoto, confirma e deixa ambos inalterados quando o progresso local e o remoto já estão sincronizados, envia quando o progresso local está mais adiantado ou aplica o remoto quando o progresso remoto está mais adiantado.
 
-### 3.7 Sleep Screen
+### 3.7 Tela de repouso
 
-The **Sleep Screen** setting controls what is displayed when the device goes to sleep:
+A configuração **Tela de repouso** controla o que é exibido quando o aparelho entra em repouso:
 
-| Mode               | Behavior                                                                                                                                         |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Dark** (default) | The FluiDez Reader logo on a dark background.                                                                                                    |
-| **Light**          | The FluiDez Reader logo on a white background.                                                                                                   |
-| **Custom**         | A custom image from the SD card (see below). Falls back to **Dark** if no custom image is found.                                                 |
-| **Cover**          | The cover of the currently open book. Falls back to **Dark** if no book is open.                                                                 |
-| **Cover + Custom** | The cover of the currently open book, shown only while actively reading. Falls back to **Custom** behavior when not reading.                     |
-| **Page Overlay**   | Keeps the current reader page visible and draws a sleep wallpaper over it. If no wallpaper is available, the page remains visible while reading. |
-| **Minimal**        | A compact sleep screen based on the Minimal home layout.                                                                                         |
-| **Minimal Stats**  | A compact sleep screen with recent reading stats, on supported devices.                                                                          |
-| **None**           | A blank screen.                                                                                                                                  |
+| Modo                         | Comportamento                                                                                                                                             |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Escuro** (padrão)          | O logotipo do FluiDez Reader em fundo escuro.                                                                                                            |
+| **Claro**                    | O logotipo do FluiDez Reader em fundo branco.                                                                                                            |
+| **Personalizado**            | Uma imagem personalizada do cartão SD (veja abaixo). Usa **Escuro** se nenhuma imagem personalizada for encontrada.                                      |
+| **Capa**                     | A capa do livro aberto no momento. Usa **Escuro** se nenhum livro estiver aberto.                                                                         |
+| **Capa + personalizado**     | A capa do livro aberto no momento, mostrada apenas durante a leitura ativa. Usa o comportamento **Personalizado** quando não estiver lendo.              |
+| **Sobreposição da página**   | Mantém a página atual do leitor visível e desenha um papel de parede de repouso sobre ela. Se não houver papel de parede, a página permanece visível durante a leitura. |
+| **Minimal**                  | Uma tela de repouso compacta baseada no layout inicial Minimal.                                                                                           |
+| **Minimal Stats**            | Uma tela de repouso compacta com estatísticas recentes de leitura, em aparelhos compatíveis.                                                             |
+| **Nenhum**                   | Uma tela em branco.                                                                                                                                       |
 
-#### Cover settings
+#### Configurações de capa
 
-When using **Cover** or **Cover + Custom**, two additional settings apply:
+Ao usar **Capa** ou **Capa + personalizado**, duas configurações adicionais se aplicam:
 
-- **Sleep Screen Cover Mode**: **Fit** (scale to fit, white borders) or **Crop** (scale and crop to fill the screen).
-- **Sleep Screen Cover Filter**: **None** (grayscale), **Contrast** (black & white), or **Inverted** (inverted black & white).
+- **Modo da capa da tela de repouso**: **Ajustar** (dimensiona para caber, com bordas brancas) ou **Recortar** (dimensiona e recorta para preencher a tela).
+- **Filtro capa tela repouso**: **Nenhum** (tons de cinza), **Contraste** (preto e branco) ou **Invertido** (preto e branco invertido).
 
-#### Custom images
+#### Imagens personalizadas
 
-To use custom sleep images, set the sleep screen mode to **Custom**, **Cover + Custom**, or **Page Overlay**, then place images on the SD card:
+Para usar imagens de repouso personalizadas, defina o modo da tela de repouso como **Personalizado**, **Capa + personalizado** ou **Sobreposição da página** e coloque as imagens no cartão SD:
 
-- **Multiple Images (recommended):** Create a `.sleep` directory in the root of the SD card and place any number of `.bmp` images inside. In **Page Overlay** mode, `.png` images are also supported. One image will be randomly selected each time the device sleeps. (A directory named `sleep` is also accepted as a fallback.)
-- **Single Image:** Place a file named `sleep.bmp` in the root directory. In **Page Overlay** mode, `sleep.png` is also supported. These files are used as fallbacks if no valid image is found in the `.sleep`/`sleep` directory.
+- **Várias imagens (recomendado):** crie um diretório `.sleep` na raiz do cartão SD e coloque qualquer número de imagens `.bmp` dentro dele. No modo **Sobreposição da página**, imagens `.png` também são compatíveis. Uma imagem será selecionada aleatoriamente toda vez que o aparelho entrar em repouso. (Um diretório chamado `sleep` também é aceito como fallback.)
+- **Imagem única:** coloque um arquivo chamado `sleep.bmp` no diretório raiz. No modo **Sobreposição da página**, `sleep.png` também é compatível. Esses arquivos são usados como fallback se nenhuma imagem válida for encontrada no diretório `.sleep`/`sleep`.
 
-In **Page Overlay** mode, white BMP pixels and transparent PNG pixels let the current reader page show through; the remaining wallpaper pixels are drawn over the page. PNG wallpapers are supported only in this mode.
+No modo **Sobreposição da página**, pixels brancos de BMP e pixels transparentes de PNG deixam a página atual do leitor aparecer; os demais pixels do papel de parede são desenhados sobre a página. Papéis de parede PNG são compatíveis apenas nesse modo.
 
 > [!TIP]
-> For best results:
+> Para melhores resultados:
 >
-> - Use uncompressed BMP files with 24-bit color depth
-> - X4: Use a resolution of 480x800 pixels to match the device's screen resolution.
-> - X3: Use a resolution of 528x792 pixels to match the device's screen resolution.
+> - Use arquivos BMP sem compressão com profundidade de cor de 24 bits
+> - X4: use resolução de 480x800 pixels para corresponder à resolução da tela do aparelho.
+> - X3: use resolução de 528x792 pixels para corresponder à resolução da tela do aparelho.
 
 > [!TIP]
-> You can set an image as the sleep screen cover directly from the BMP image viewer in the **[Browse Files](#33-browse-files-screen)** screen.
+> Você pode definir uma imagem como capa da tela de repouso diretamente pelo visualizador de imagens BMP na tela **[Explorar arquivos](#33-tela-explorar-arquivos)**.
 
 ---
 
-### 3.8 Boot Screen
+### 3.8 Tela inicial
 
-The **Custom Boot Screen** toggle is in **Settings -> System** and is enabled by
-default. When it is on, you can replace the default FluiDez Reader logo shown during
-a cold boot with BMP images stored on the SD card. A configured custom boot
-screen is also shown after a power-button wake. This is separate from the
-sleep screen.
+A alternância **Tela inicial personalizada** fica em **Configurações -> Sistema** e vem ativada por
+padrão. Quando ligada, você pode substituir o logotipo padrão do FluiDez Reader mostrado durante
+uma inicialização fria por imagens BMP armazenadas no cartão SD. Uma tela inicial personalizada
+configurada também é mostrada depois de despertar pelo botão liga/desliga. Isso é separado da
+tela de repouso.
 
-FluiDez Reader supports two ways to choose a custom boot screen:
+O FluiDez Reader oferece duas formas de escolher uma tela inicial personalizada:
 
-- **One fixed image:** In **[Browse Files](#33-browse-files-screen)**, open a
-  BMP image from any folder, open its context menu, and choose **Set Boot
-  Screen**. This selected image always takes priority over a boot-screen
-  folder. To stop using it, open the same image and choose **Clear Boot Screen**.
+- **Uma imagem fixa:** em **[Explorar arquivos](#33-tela-explorar-arquivos)**, abra uma
+  imagem BMP de qualquer pasta, abra seu menu de contexto e escolha **Tela inicial**.
+  Essa imagem selecionada sempre tem prioridade sobre uma pasta de tela inicial.
+  Para parar de usá-la, abra a mesma imagem e escolha **Limpar tela**.
 
-- **Rotating images:** Create a `/.bootscreen` folder in the root of the SD card
-  and place BMP files directly inside it. FluiDez Reader randomly selects an image
-  each time it starts and avoids recently used images where possible. A
-  `/bootscreen` folder is also supported. Folder names are case-insensitive; if
-  both folders exist, `/.bootscreen` takes priority.
+- **Imagens rotativas:** crie uma pasta `/.bootscreen` na raiz do cartão SD
+  e coloque arquivos BMP diretamente dentro dela. O FluiDez Reader seleciona uma imagem
+  aleatoriamente a cada inicialização e evita imagens usadas recentemente quando possível. Uma
+  pasta `/bootscreen` também é compatível. Nomes de pasta não diferenciam maiúsculas de minúsculas; se
+  ambas existirem, `/.bootscreen` tem prioridade.
 
-FluiDez Reader caches folder contents for faster startup. If you add BMP files
-directly to an already-used folder while the device is off, the new files may
-not be selected until the index is rebuilt. Upload them through the **File
-Transfer** web file manager or **Nearby File Transfer** to invalidate the
-index automatically.
+O FluiDez Reader armazena o conteúdo da pasta em cache para acelerar a inicialização. Se você adicionar arquivos BMP
+diretamente a uma pasta já usada enquanto o aparelho está desligado, os novos arquivos talvez
+não sejam selecionados até o índice ser reconstruído. Envie-os pelo gerenciador de arquivos web de **Transferência de arquivos** ou pela **Transferência por proximidade** para invalidar o
+índice automaticamente.
 
-The selection and fallback order is:
+A ordem de seleção e fallback é:
 
-1. A selected BMP set with **Set Boot Screen**.
-2. A usable BMP selected from the active root-level boot-screen folder.
-3. The standard FluiDez Reader logo.
+1. Um BMP selecionado com **Tela inicial**.
+2. Um BMP utilizável escolhido na pasta ativa de tela inicial no nível raiz.
+3. O logotipo padrão do FluiDez Reader.
 
-On a cold boot, if a selected image or the active folder is missing, unreadable,
-empty, or contains no usable BMP, FluiDez Reader falls back to the next option in the
-order above. If both folder names exist, `/.bootscreen` masks `/bootscreen`
-even when the hidden folder is empty or unusable; remove or rename it to use
-`/bootscreen` instead.
+Em uma inicialização fria, se uma imagem selecionada ou a pasta ativa estiver ausente, ilegível,
+vazia ou sem BMP utilizável, o FluiDez Reader usa a próxima opção na ordem acima. Se os dois nomes
+de pasta existirem, `/.bootscreen` mascara `/bootscreen` mesmo quando a pasta oculta está vazia ou inutilizável; remova ou renomeie-a para usar
+`/bootscreen` em vez dela.
 
-On a power-button wake, an existing selected BMP or boot-screen folder (even
-an empty or unusable folder) runs the boot-screen flow and then falls back to
-the standard logo if no image can be shown. If the selected file was removed
-and no boot-screen folder exists, the wake is splashless and keeps the current
-sleep screen visible. With no selected image or boot-screen folder, a
-power-button wake is also splashless.
+Ao despertar pelo botão liga/desliga, um BMP selecionado ou uma pasta de tela inicial existente (mesmo
+vazia ou inutilizável) executa o fluxo da tela inicial e depois cai para
+o logotipo padrão se nenhuma imagem puder ser mostrada. Se o arquivo selecionado foi removido
+e não existe pasta de tela inicial, o despertar não mostra splash e mantém a tela de repouso atual
+visível. Sem imagem selecionada nem pasta de tela inicial, o despertar pelo
+botão liga/desliga também não mostra splash.
 
 > [!TIP]
-> Use an uncompressed BMP at your device's screen resolution for the best result: 480x800 pixels on X4 or 528x792 pixels on X3. Images with other dimensions are centered and scaled down as needed.
+> Use um BMP sem compressão na resolução da tela do seu aparelho para o melhor resultado: 480x800 pixels no X4 ou 528x792 pixels no X3. Imagens com outras dimensões são centralizadas e reduzidas conforme necessário.
 
 ---
 
-### 3.9 Custom Fonts (SD Card)
+### 3.9 Fontes personalizadas (cartão SD)
 
-FluiDez Reader supports loading additional fonts from the SD card, extending beyond the built-in Lexend Deca and Bitter families. Custom fonts can include extended Unicode coverage, enabling CJK (Chinese, Japanese, Korean) and other scripts.
+O FluiDez Reader permite carregar fontes adicionais do cartão SD, indo além das famílias integradas Lexend Deca e Bitter. Fontes personalizadas podem incluir cobertura Unicode estendida, habilitando CJK (chinês, japonês, coreano) e outros sistemas de escrita.
 
-There are three ways to install fonts:
+Há três formas de instalar fontes:
 
-1. **Download from device (recommended):** Go to **Settings -> Reader -> Font Options -> Manage Fonts**, browse the available font families, and select one to download over Wi-Fi.
-2. **Upload via web interface:** While in **File Transfer** mode, open the web UI in a browser and navigate to the **Fonts** tab to upload `.cpfont` files.
-3. **Manual SD card copy:** Download font files from the upstream [crossink-fonts repository](https://github.com/uxjulia/crossink-fonts/tree/main/cpfonts) and copy them to `/.fonts/` (preferred) or `/fonts/` on your SD card.
+1. **Baixar pelo aparelho (recomendado):** vá para **Configurações -> Leitor -> Opções de fonte -> Gerenciar fontes**, navegue pelas famílias de fontes disponíveis e selecione uma para baixar via Wi-Fi.
+2. **Enviar pela interface web:** enquanto estiver no modo **Transferência de arquivos**, abra a interface web em um navegador e acesse a aba **Fonts** para enviar arquivos `.cpfont`.
+3. **Cópia manual para o cartão SD:** baixe os arquivos de fonte do [repositório upstream crossink-fonts](https://github.com/uxjulia/crossink-fonts/tree/main/cpfonts) e copie-os para `/.fonts/` (preferido) ou `/fonts/` no cartão SD.
 
-Once installed, custom fonts appear in **Settings -> Reader -> Font Options -> Font Family** alongside the built-in fonts.
+Depois de instaladas, fontes personalizadas aparecem em **Configurações -> Leitor -> Opções de fonte -> Família da fonte** junto das fontes integradas.
 
-See [SD Card Fonts](./sd-card-fonts.md) for full installation details and SD card folder structure.
-
----
-
-## 4. Reading Mode
-
-Once you have opened a book, the button layout changes to facilitate reading.
-
-### Page Turning
-
-| Action            | Buttons                       |
-| ----------------- | ----------------------------- |
-| **Previous Page** | Press **Left** _or_ **Up**    |
-| **Next Page**     | Press **Right** _or_ **Down** |
-
-The role of the side buttons can be swapped in **Settings > Controls > Side Buttons**.
-
-If the **Short-press Action** setting is set to "Page Turn", you can also turn to the next page by briefly pressing the Power button.
-
-### Chapter Navigation
-
-- **Next Chapter:** Press and **hold** the **Right** (or **Down**) button briefly, then release.
-- **Previous Chapter:** Press and **hold** the **Left** (or **Up**) button briefly, then release.
-
-This feature can be disabled in **Settings > Controls > Front Buttons** to help avoid changing chapters by mistake.
-
-### Auto Page Turn
-
-Auto Page Turn automatically advances pages at a set interval, useful for hands-free reading. This feature can be enabled and configured from the **[Reader Menu](#5-reader-menu)** while reading an EPUB.
-
-### Tilt Page Turn (X3 and Sticky)
-
-On the **Xteink X3** and **Sticky**, the gyroscope can be used to turn pages by tilting the device. This feature and its left-right or forward-back direction are available in **Settings -> Controls**.
-
-### Touch Reader Controls
-
-On supported touchscreen devices, **Touch Reader Controls** is enabled by
-default. **Next Page** and **Previous Page**, in **Settings > Controls**, are
-configured independently and both default to **Tap & Swipe**:
-
-| Option           | Taps                             | Swipes   |
-| ---------------- | -------------------------------- | -------- |
-| **Tap & Swipe**  | Enabled                          | Enabled  |
-| **Tap Only**     | Enabled                          | Disabled |
-| **Swipe Only**   | Disabled                         | Enabled  |
-| **Inverted Tap** | Enabled, with reversed tap zones | Disabled |
-| **Disabled**     | Disabled                         | Disabled |
-
-Swipe left for the next page when **Next Page** allows swipes, or swipe right
-for the previous page when **Previous Page** allows swipes. When both directions
-allow taps, the normal zones are the left third for the previous page and the
-right two-thirds for the next page. If either of those settings is **Inverted
-Tap**, the shared zones become the left two-thirds for the next page and the
-right third for the previous page. If only one direction allows taps, taps
-across the page turn in that direction. The top and bottom gesture bands are
-reserved for vertical gestures, so taps in those bands do not turn pages.
-
-For **EPUB readers**, vertical gestures depend on the device:
-
-- On **Sticky**, swipe up to open the reader menu. Swipe down to open the
-  reader-details/frontlight panel; use that panel's header to return Home.
-- On **X4 Pro**, swipe up to open the reader menu and swipe down to open the
-  frontlight panel. The capacitive Home key returns Home on a short press and
-  opens the reader menu on a long press by default. Configure these actions, or
-  disable the key while reading, in **Settings > Controls > Home Button**.
-- On other touchscreen devices, swipe down to open the reader menu and swipe up
-  to return Home.
-
-**XTC** and **TXT** readers use narrower, format-specific vertical routing. For
-example, Sticky TXT has the down-swipe reader-details/frontlight panel but no
-swipe-to-menu or swipe-to-Home action; on X4 Pro, XTC keeps the swipe-up reader
-menu while its down-swipe frontlight panel is top-edge only, and TXT has no
-swipe-to-menu action. These vertical gestures are separate from the page-turn
-settings above.
-
-Choose **Disabled** in **Next Page** or **Previous Page** to stop touch page
-turns in that direction without disabling the touchscreen's vertical reader-menu
-or frontlight gestures. Turn **Touch Reader Controls** off in **Reader Options**
-to disable one-finger page turns and reader-menu swipes; device-specific
-full-screen Home/frontlight gestures remain available. **Disable Touchscreen**
-prevents screen-touch input while a book is open but keeps it available in
-reader menus. For the different touch selection gestures used by [dictionary
-lookup](./dictionary.md#looking-up-a-word) and [clippings](./reader-features.md#clippings-and-highlights), see those feature guides.
-
-On devices with multi-touch support, you can also assign actions to two-finger
-swipes from **Settings > Controls > Taps & Gestures > Two-finger Swipe**. Set an
-action for **Swipe Up**, **Swipe Down**, **Swipe Left**, or **Swipe Right**, then
-move two fingers together in that direction while reading. Available actions
-are **Not Set**, **Increase Brightness**, **Decrease Brightness**, **Increase
-Warmth**, **Decrease Warmth**, **Next Chapter**, **Previous Chapter**, **Increase
-Font Size**, and **Decrease Font Size**. Brightness and warmth options appear
-only when the hardware supports them; chapter options apply to EPUBs, and font
-size options apply to EPUB and TXT books. Each direction starts as **Not Set**,
-and each action can be assigned to only one direction; choosing it again moves
-it to the new direction. On image-based XTC books, chapter and font-size actions
-are consumed but cannot change the pre-rendered pages. See [Two-finger Swipe
-Actions](./controls.md#two-finger-swipe-actions) for the complete list and
-reader-specific limitations.
-
-On supported multi-touch devices, enable **Pinch to Resize Font** in the same
-menu, then move two fingers apart to increase the font or together to decrease
-it. Each completed pinch changes one available font-size step. Pinch resizing
-works in EPUB and TXT readers; XTC pages are pre-rendered and cannot be
-resized. Pinch input also requires **Touch Reader Controls** to remain enabled.
-
-### Slider Controls
-
-For sliders with five-unit increments in the Reader Menu and Settings, tapping
-the slider track rounds the selected value to the nearest multiple of five.
-
-### Footnote Navigation
-
-When reading an EPUB that contains footnotes, you can navigate to the footnote text by selecting the footnote reference in the book. From the footnote, you can return to your original reading position.
-
-If the device goes to sleep or you close the book while viewing a footnote, the book reopens to your original reading position, not the footnote.
-
-### System Navigation
-
-- **Return to Home:** Press the **Back** button to close the book and return to the **[Home](#31-home-screen)** screen.
-- **Return to Browse Files:** Press and hold the **Back** button to close the book and return to the **[Browse Files](#33-browse-files-screen)** screen.
-- **Reader Menu:** Press **Confirm** to open the **[Reader Menu](#5-reader-menu)**, which includes chapter navigation, reading options, and more.
-
-### Supported Languages
-
-FluiDez Reader renders text using the following Unicode character blocks, enabling support for a wide range of languages:
-
-- **Latin Script (Basic, Supplement, Extended-A/B):** Covers English, German, French, Spanish, Portuguese, Italian, Dutch, Swedish, Norwegian, Danish, Finnish, Polish, Czech, Hungarian, Romanian, Slovak, Slovenian, Turkish, Catalan, and others.
-- **Cyrillic Script (Standard and Extended):** Covers Russian, Ukrainian, Belarusian, Bulgarian, Serbian, Macedonian, Kazakh, Kyrgyz, Mongolian, and others.
-- **Vietnamese:** Supported via extended Latin glyph coverage in the built-in reader fonts.
-
-What is not supported with built-in reader fonts: Chinese, Japanese, Korean, Arabic, Greek, Hebrew, and Farsi. However, **CJK, Hebrew, Greek, and other extended scripts can be enabled by installing custom SD card fonts** — see [Custom Fonts (SD Card)](#38-custom-fonts-sd-card).
+Veja [Fontes no cartão SD](./sd-card-fonts.md) para detalhes completos de instalação e estrutura de pastas do cartão SD.
 
 ---
 
-## 5. Reader Menu
+## 4. Modo de leitura
 
-Press **Confirm** while reading to open the Reader Menu. From here you can access reading utilities and navigation options without leaving the book.
+Depois que você abre um livro, o layout dos botões muda para facilitar a leitura.
 
-Available options include:
+### Virada de página
 
-- **Select Chapter** – Open the table of contents to jump to a specific chapter (see [Chapter Selection](#51-chapter-selection) below).
-- **Footnotes** – Navigate to the footnotes for the current section _(only shown in books that contain footnotes)_.
-- **Reader Options** – Open reader-specific options without leaving the book.
-- **Controls** – Open reader control options without leaving the book.
-- **Reading Orientation** – Cycle through screen orientations without leaving the reader.
-- **Auto Turn Interval** – Configure automatic page turns for hands-free reading.
-- **Go to %** – Jump to a specific position in the book by percentage.
-- **Add Bookmark / Remove Bookmark** – Toggle a bookmark on the current page.
-- **View Bookmarks / Delete Bookmarks** – Manage existing bookmarks when the book has bookmarks.
-- **Take screenshot** – Save a screenshot of the current page to the `screenshots/` folder.
-- **Show page as QR** – Display a QR code encoding the current reading position.
-- **Delete Book Cache** – Clear the cached layout data for the current book, forcing a re-index on next open.
-- **Sync Progress** – Push or pull reading progress with a KOReader sync server (see [KOReader Sync Quick Setup](#367-koreader-sync-quick-setup)).
-- **Reading Stats** – Open the current book's reading stats.
-- **Mark Finished / Mark Unfinished** – Toggle whether the current book is marked as finished.
-- **Look Up Word / Lookup History** – Select words on the page and revisit recent per-book lookups when a dictionary is active.
-- **Book Dictionary** – Choose a per-book dictionary override from the reader menu's settings tab.
+| Ação                  | Botões                              |
+| --------------------- | ----------------------------------- |
+| **Página anterior**   | Pressione **Esquerda** _ou_ **Cima** |
+| **Próxima página**    | Pressione **Direita** _ou_ **Baixo** |
 
-Press **Back** at any time to close the menu and return to your current page.
+A função dos botões laterais pode ser trocada em **Configurações > Controles > Botões laterais**.
 
-### 5.1 Chapter Selection
+Se a configuração **Toque curto** estiver definida como "Virar página", você também pode virar para a próxima página pressionando rapidamente o botão liga/desliga.
 
-Accessible by selecting **Chapters** from the Reader Menu.
+### Navegação por capítulos
 
-1. Use **Left** (or **Up**), or **Right** (or **Down**) to highlight the desired chapter.
-2. Press **Confirm** to jump to that chapter.
-3. _Alternatively, press **Back** to cancel and return to your current page._
+- **Próximo capítulo:** pressione e **segure** o botão **Direita** (ou **Baixo**) brevemente e solte.
+- **Capítulo anterior:** pressione e **segure** o botão **Esquerda** (ou **Cima**) brevemente e solte.
+
+Esse recurso pode ser desativado em **Configurações > Controles > Botões frontais** para ajudar a evitar troca de capítulos por engano.
+
+### Virada automática de página
+
+A Virada automática de página avança páginas automaticamente em um intervalo definido, útil para leitura sem as mãos. Esse recurso pode ser ativado e configurado pelo **[Menu do leitor](#5-menu-do-leitor)** durante a leitura de um EPUB.
+
+### Virar página por inclinação (X3 e Sticky)
+
+No **Xteink X3** e no **Sticky**, o giroscópio pode ser usado para virar páginas inclinando o aparelho. Esse recurso e sua direção esquerda-direita ou frente-trás ficam disponíveis em **Configurações -> Controles**.
+
+### Controles de toque no leitor
+
+Em aparelhos compatíveis com tela sensível ao toque, **Controles de toque no leitor** vem ativado por
+padrão. **Próxima página** e **Página anterior**, em **Configurações > Controles**, são
+configurados de forma independente e ambos usam **Toque e deslize** por padrão:
+
+| Opção                | Toques                                   | Deslizes    |
+| -------------------- | ---------------------------------------- | ----------- |
+| **Toque e deslize**  | Ativado                                  | Ativado     |
+| **Somente toque**    | Ativado                                  | Desativado  |
+| **Somente deslize**  | Desativado                               | Ativado     |
+| **Toque invertido**  | Ativado, com zonas de toque invertidas   | Desativado  |
+| **Desativado**       | Desativado                               | Desativado  |
+
+Deslize para a esquerda para a próxima página quando **Próxima página** permite deslizes, ou deslize para a direita
+para a página anterior quando **Página anterior** permite deslizes. Quando ambas as direções
+permitem toques, as zonas normais são o terço esquerdo para a página anterior e os
+dois terços direitos para a próxima página. Se qualquer uma dessas configurações for **Toque invertido**, as zonas compartilhadas passam a ser os dois terços esquerdos para a próxima página e o
+terço direito para a página anterior. Se apenas uma direção permite toques, toques
+em toda a página viram nessa direção. As faixas de gesto superior e inferior são
+reservadas para gestos verticais, então toques nessas faixas não viram páginas.
+
+Para **leitores EPUB**, os gestos verticais dependem do aparelho:
+
+- No **Sticky**, deslize para cima para abrir o menu do leitor. Deslize para baixo para abrir o
+  painel de detalhes do leitor/luz frontal; use o cabeçalho desse painel para voltar ao Início.
+- No **X4 Pro**, deslize para cima para abrir o menu do leitor e deslize para baixo para abrir o
+  painel de luz frontal. A tecla capacitiva Início volta ao Início com toque curto e
+  abre o menu do leitor com toque longo por padrão. Configure essas ações, ou
+  desative a tecla durante a leitura, em **Configurações > Controles > Botão Início**.
+- Em outros aparelhos com tela sensível ao toque, deslize para baixo para abrir o menu do leitor e deslize para cima
+  para voltar ao Início.
+
+Leitores **XTC** e **TXT** usam roteamento vertical mais estreito e específico do formato. Por
+exemplo, no Sticky TXT há o painel de detalhes do leitor/luz frontal ao deslizar para baixo, mas não há
+ação de deslizar para o menu nem deslizar para Início; no X4 Pro, XTC mantém o menu do leitor por deslize para cima
+enquanto seu painel de luz frontal por deslize para baixo funciona apenas a partir da borda superior, e TXT não tem
+ação de deslizar para o menu. Esses gestos verticais são separados das configurações de virada de página acima.
+
+Escolha **Desativado** em **Próxima página** ou **Página anterior** para interromper viradas de página por toque
+nessa direção sem desativar os gestos verticais de menu do leitor ou luz frontal da tela sensível ao toque. Desative **Controles de toque no leitor** em **Opções do livro**
+para desativar viradas de página com um dedo e deslizes para o menu do leitor; gestos de tela cheia
+específicos do aparelho para Início/luz frontal continuam disponíveis. **Desativar tela sensível ao toque**
+impede entrada por toque na tela enquanto um livro está aberto, mas mantém o toque disponível nos
+menus do leitor. Para os diferentes gestos de seleção por toque usados na [consulta de dicionário](./dictionary.md#looking-up-a-word) e em [recortes](./reader-features.md#clippings-and-highlights), veja esses guias de recursos.
+
+Em aparelhos com suporte multitoque, você também pode atribuir ações a deslizes com dois dedos
+em **Configurações > Controles > Toques e gestos > Deslizar com dois dedos**. Defina uma
+ação para **Deslizar para cima**, **Deslizar para baixo**, **Deslizar para a esquerda** ou **Deslizar para a direita**, então
+mova dois dedos juntos nessa direção durante a leitura. As ações disponíveis
+são **Não definido**, **Aumentar brilho**, **Diminuir brilho**, **Aumentar tom quente**,
+**Diminuir tom quente**, **Próximo capítulo**, **Capítulo anterior**, **Aumentar fonte**
+e **Diminuir fonte**. Opções de brilho e tom quente aparecem
+apenas quando o hardware oferece suporte; opções de capítulo se aplicam a EPUBs, e opções de fonte
+se aplicam a livros EPUB e TXT. Cada direção começa como **Não definido**,
+e cada ação só pode ser atribuída a uma direção; escolhê-la de novo move
+para a nova direção. Em livros XTC baseados em imagem, ações de capítulo e tamanho da fonte
+são consumidas, mas não conseguem alterar as páginas pré-renderizadas. Veja [Ações de deslizar com dois dedos](./controls.md#two-finger-swipe-actions) para a lista completa e
+limitações específicas de cada leitor.
+
+Em aparelhos multitoque compatíveis, ative **Tam. fonte por pinça** no mesmo
+menu e afaste dois dedos para aumentar a fonte ou aproxime-os para diminuí-la.
+Cada pinça concluída altera um passo de tamanho de fonte disponível. O redimensionamento por pinça
+funciona em leitores EPUB e TXT; páginas XTC são pré-renderizadas e não podem ser
+redimensionadas. A entrada por pinça também exige que **Controles de toque no leitor** permaneça ativado.
+
+### Controles deslizantes
+
+Em controles deslizantes com incrementos de cinco unidades no Menu do leitor e nas Configurações, tocar
+na trilha do controle arredonda o valor selecionado para o múltiplo de cinco mais próximo.
+
+### Navegação por notas de rodapé
+
+Ao ler um EPUB que contém notas de rodapé, você pode navegar até o texto da nota selecionando a referência da nota no livro. A partir da nota, você pode voltar à posição original de leitura.
+
+Se o aparelho entrar em repouso ou você fechar o livro enquanto vê uma nota de rodapé, o livro reabre na posição original de leitura, não na nota.
+
+### Navegação do sistema
+
+- **Voltar ao Início:** pressione o botão **Voltar** para fechar o livro e voltar à tela **[Início](#31-tela-início)**.
+- **Voltar para Explorar arquivos:** mantenha o botão **Voltar** pressionado para fechar o livro e voltar à tela **[Explorar arquivos](#33-tela-explorar-arquivos)**.
+- **Menu do leitor:** pressione **Confirmar** para abrir o **[Menu do leitor](#5-menu-do-leitor)**, que inclui navegação por capítulos, opções de leitura e mais.
+
+### Idiomas compatíveis
+
+O FluiDez Reader renderiza texto usando os seguintes blocos de caracteres Unicode, habilitando suporte a uma ampla variedade de idiomas:
+
+- **Escrita latina (básica, suplemento, estendida A/B):** cobre inglês, alemão, francês, espanhol, português, italiano, holandês, sueco, norueguês, dinamarquês, finlandês, polonês, tcheco, húngaro, romeno, eslovaco, esloveno, turco, catalão e outros.
+- **Escrita cirílica (padrão e estendida):** cobre russo, ucraniano, bielorrusso, búlgaro, sérvio, macedônio, cazaque, quirguiz, mongol e outros.
+- **Vietnamita:** compatível via cobertura estendida de glifos latinos nas fontes integradas do leitor.
+
+O que não é compatível com as fontes integradas do leitor: chinês, japonês, coreano, árabe, grego, hebraico e farsi. Porém, **CJK, hebraico, grego e outros sistemas de escrita estendidos podem ser habilitados instalando fontes personalizadas no cartão SD** — veja [Fontes personalizadas (cartão SD)](#39-fontes-personalizadas-cartão-sd).
 
 ---
 
-### 5.2 Bookmarks
+## 5. Menu do leitor
 
-Bookmarks can be created to quickly save and restore your place in a book.
+Pressione **Confirmar** durante a leitura para abrir o Menu do leitor. A partir dele, você pode acessar utilitários de leitura e opções de navegação sem sair do livro.
 
-To create a bookmark, hold **Confirm** for 1 second while inside a book. A popup will appear letting you know a bookmark was created. The popup message will automatically disappear in a couple of seconds.
+As opções disponíveis incluem:
 
-To open bookmarks, press **Confirm** while inside a book. Then navigate to the **Bookmarks** menu. Bookmarks can be opened by navigating to them and pressing **Confirm**, which will redirect you to that place in the book. You can delete bookmarks by holding **Confirm** for 1 second, and then pressing **Confirm** again to confirm deletion, or **Back** to cancel.
+- **Escolher capítulo** – abre o sumário para pular para um capítulo específico (veja [Escolha de capítulo](#51-escolha-de-capítulo) abaixo).
+- **Notas de rodapé** – navega para as notas de rodapé da seção atual _(mostrado apenas em livros que contêm notas de rodapé)_.
+- **Opções do livro** – abre opções específicas do leitor sem sair do livro.
+- **Controles** – abre opções de controle do leitor sem sair do livro.
+- **Orientação** – alterna entre orientações da tela sem sair do leitor.
+- **Virada automática de página** – configura viradas automáticas de página para leitura sem as mãos.
+- **Ir para %** – pula para uma posição específica no livro por porcentagem.
+- **Adicionar marcador / Remover marcador** – alterna um marcador na página atual.
+- **Ver marcadores / Limpar lista de marcadores** – gerencia marcadores existentes quando o livro tem marcadores.
+- **Capturar tela** – salva uma captura da página atual na pasta `screenshots/`.
+- **Mostrar página como QR** – exibe um código QR codificando a posição atual de leitura.
+- **Excluir cache do livro** – limpa os dados de layout em cache do livro atual, forçando uma nova indexação na próxima abertura.
+- **Sincronizar progresso** – envia ou recebe progresso de leitura com um servidor de sincronização KOReader (veja [Configuração rápida da Sincronização KOReader](#367-configuração-rápida-da-sincronização-koreader)).
+- **Estatísticas de leitura** – abre as estatísticas de leitura do livro atual.
+- **Marcar como concluído / Marcar como não concluído** – alterna se o livro atual está marcado como concluído.
+- **Consultar palavra / Histórico de consultas** – selecione palavras na página e revisite consultas recentes por livro quando um dicionário está ativo.
+- **Dicionário do livro** – escolha uma substituição de dicionário por livro pela aba de configurações do menu do leitor.
 
-Bookmarks are stored as per-book `.bin` files in the `.crosspoint/bookmarks` folder.
+Pressione **Voltar** a qualquer momento para fechar o menu e voltar à página atual.
 
-### 5.3 Dictionary
+### 5.1 Escolha de capítulo
 
-Dictionary lookup supports word selection, recent per-book history, chained lookups from definitions, and per-book dictionary overrides. See the [Dictionary guide](./dictionary.md) for installation and preparation instructions.
+Acessível ao selecionar **Escolher capítulo** no Menu do leitor.
 
-## 6. Current Limitations & Roadmap
-
-Please note that this firmware is currently in active development. The following features are **not yet supported** but are planned for future updates:
-
-- **Cover Images:** Large cover images embedded into EPUB can take several
-  seconds to convert for the sleep screen and home-screen thumbnail. Use the
-  built-in [EPUB optimization](./webserver.md#epub-optimization) before upload
-  if a book is slow or memory-sensitive.
-- **Unsupported Image Formats:** Most JPG and PNG images in EPUBs render correctly. GIFs and progressive JPEGs are not supported and will fall back to an `[Image]` placeholder.
+1. Use **Esquerda** (ou **Cima**) ou **Direita** (ou **Baixo**) para destacar o capítulo desejado.
+2. Pressione **Confirmar** para pular para esse capítulo.
+3. _Como alternativa, pressione **Voltar** para cancelar e retornar à página atual._
 
 ---
 
-## 7. Troubleshooting Issues & Escaping Bootloop
+### 5.2 Marcadores
 
-If an issue or crash is encountered while using FluiDez Reader, the logs below help find the cause.
+Marcadores podem ser criados para salvar e restaurar rapidamente sua posição em um livro.
 
-**Crash reports on SD card:** After a crash, FluiDez Reader automatically saves a crash report to the SD card (no USB connection needed). Check the root of the SD card for a crash log file.
+Para criar um marcador, segure **Confirmar** por 1 segundo dentro de um livro. Um pop-up aparecerá informando que o marcador foi criado. A mensagem do pop-up desaparecerá automaticamente em alguns segundos.
 
-**Serial monitor logs:** For more detailed debugging, connect the device to a computer and run the custom debugging monitor script (requires Python 3 with `pyserial`, `colorama`, and `matplotlib`; install via `pip3 install pyserial colorama matplotlib`):
+Para abrir os marcadores, pressione **Confirmar** dentro de um livro. Depois navegue até o menu **Marcadores**. Marcadores podem ser abertos navegando até eles e pressionando **Confirmar**, o que redirecionará você para aquele ponto do livro. Você pode excluir marcadores segurando **Confirmar** por 1 segundo e depois pressionando **Confirmar** novamente para confirmar a exclusão, ou **Voltar** para cancelar.
+
+Marcadores são armazenados como arquivos `.bin` por livro na pasta `.crosspoint/bookmarks`.
+
+### 5.3 Dicionário
+
+A consulta de dicionário oferece seleção de palavras, histórico recente por livro, consultas encadeadas a partir de definições e substituições de dicionário por livro. Veja o [guia do dicionário](./dictionary.md) para instruções de instalação e preparação.
+
+## 6. Limitações atuais e roteiro
+
+Observe que este firmware ainda está em desenvolvimento ativo. Os seguintes recursos **ainda não são compatíveis**, mas estão planejados para atualizações futuras:
+
+- **Imagens de capa:** imagens de capa grandes embutidas em EPUB podem levar vários
+  segundos para converter para a tela de repouso e a miniatura da tela inicial. Use a
+  [otimização de EPUB](./webserver.md#epub-optimization) integrada antes do envio
+  se um livro estiver lento ou for sensível à memória.
+- **Formatos de imagem não compatíveis:** a maioria das imagens JPG e PNG em EPUBs é renderizada corretamente. GIFs e JPEGs progressivos não são compatíveis e cairão para um espaço reservado `[Image]`.
+
+---
+
+## 7. Solução de problemas e saída de bootloop
+
+Se ocorrer um problema ou travamento durante o uso do FluiDez Reader, os logs abaixo ajudam a encontrar a causa.
+
+**Relatórios de falha no cartão SD:** depois de uma falha, o FluiDez Reader salva automaticamente um relatório de falha no cartão SD (sem precisar de conexão USB). Verifique a raiz do cartão SD para encontrar um arquivo de log de falha.
+
+**Logs do monitor serial:** para depuração mais detalhada, conecte o aparelho a um computador e execute o script personalizado de monitoramento de depuração (requer Python 3 com `pyserial`, `colorama` e `matplotlib`; instale com `pip3 install pyserial colorama matplotlib`):
 
 ```
 python3 scripts/debugging_monitor.py
 ```
 
-The script auto-detects the serial port. You can also specify one explicitly:
+O script detecta automaticamente a porta serial. Você também pode especificar uma explicitamente:
 
 ```
 python3 scripts/debugging_monitor.py /dev/ttyACM0        # Linux
@@ -909,22 +882,22 @@ python3 scripts/debugging_monitor.py /dev/tty.usbmodem1  # macOS
 python3 scripts/debugging_monitor.py COM7                # Windows
 ```
 
-**Features:**
+**Recursos:**
 
-- Color-coded log output by category (errors, memory, display, EPUB parsing, etc.)
-- Live memory usage graph (free RAM, total RAM, max contiguous allocation) updated every second
-- Interactive command prompt — type a command and press Enter to send it to the device
-- Screenshot capture — saves the current display to `screenshot.bmp` when triggered by the device
+- Saída de log colorida por categoria (erros, memória, tela, análise de EPUB etc.)
+- Gráfico ao vivo de uso de memória (RAM livre, RAM total, maior alocação contígua) atualizado a cada segundo
+- Prompt de comando interativo — digite um comando e pressione Enter para enviá-lo ao aparelho
+- Captura de tela — salva a tela atual em `screenshot.bmp` quando acionada pelo aparelho
 
-**Options:**
+**Opções:**
 
-| Option               | Description                                               |
-| -------------------- | --------------------------------------------------------- |
-| `--baud RATE`        | Baud rate (default: 115200)                               |
-| `--filter KEYWORD`   | Show only lines containing the keyword (case-insensitive) |
-| `--suppress KEYWORD` | Hide lines containing the keyword (case-insensitive)      |
+| Opção                | Descrição                                                   |
+| -------------------- | ----------------------------------------------------------- |
+| `--baud RATE`        | Taxa de transmissão (padrão: 115200)                        |
+| `--filter KEYWORD`   | Mostra apenas linhas que contêm a palavra-chave (sem diferenciar maiúsculas/minúsculas) |
+| `--suppress KEYWORD` | Oculta linhas que contêm a palavra-chave (sem diferenciar maiúsculas/minúsculas)        |
 
-**Examples:**
+**Exemplos:**
 
 ```
 # Show only memory-related log lines
@@ -934,8 +907,8 @@ python3 scripts/debugging_monitor.py --filter MEM
 python3 scripts/debugging_monitor.py --suppress "[SD]"
 ```
 
-Press **Ctrl-C** or close the graph window to exit.
+Pressione **Ctrl-C** ou feche a janela do gráfico para sair.
 
-If the device is stuck in a bootloop, press and release the Reset button. Then, press and hold on to the configured Back button and the Power Button to boot to the Home Screen.
+Se o aparelho ficar preso em um bootloop, pressione e solte o botão Reset. Depois, pressione e mantenha pressionados o botão Voltar configurado e o botão liga/desliga para iniciar na tela Início.
 
-There can be issues with broken cache or config. In this case, delete the `.crosspoint` directory on your SD card (or consider deleting only `settings.json`, `state.json`, or `epub_*` cache directories in the `.crosspoint/` folder).
+Podem ocorrer problemas com cache ou configuração corrompidos. Nesse caso, exclua o diretório `.crosspoint` do cartão SD (ou considere excluir apenas `settings.json`, `state.json` ou os diretórios de cache `epub_*` na pasta `.crosspoint/`).
