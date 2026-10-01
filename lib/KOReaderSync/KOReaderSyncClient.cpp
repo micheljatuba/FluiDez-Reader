@@ -22,6 +22,7 @@
 #include <string>
 
 #include "KOReaderCredentialStore.h"
+#include "Memory.h"
 
 #ifndef SIMULATOR
 #include <esp_heap_caps.h>
@@ -127,6 +128,9 @@ KOReaderSyncClient::Error validateAuthResponse(const char* body) {
 // floors for total free heap and the largest contiguous block.
 constexpr uint32_t MIN_FREE_HEAP_FOR_TLS = 35000;
 constexpr uint32_t MIN_MAX_ALLOC_HEAP_FOR_TLS = 20000;
+// Authentication returns a small JSON object. Cap unexpected HTML/error pages
+// before they can exhaust the C3 heap while the TLS connection is still open.
+constexpr size_t MAX_AUTH_RESPONSE_BYTES = 4096;
 
 #ifdef SIMULATOR
 void addAuthHeaders(HTTPClient& http) {
@@ -205,6 +209,12 @@ KOReaderSyncClient::Error KOReaderSyncClient::authenticate() {
   LOG_DBG("KOSync", "Auth response: %d", httpCode);
 
   if (httpCode == 200) {
+    if (http.getSize() > static_cast<int>(MAX_AUTH_RESPONSE_BYTES)) {
+      LOG_ERR("KOSync", "Auth response exceeded %u bytes (HTTP %d)", static_cast<unsigned>(MAX_AUTH_RESPONSE_BYTES),
+              httpCode);
+      http.end();
+      return INVALID_AUTH_RESPONSE;
+    }
     String responseBody = http.getString();
     http.end();
     return validateAuthResponse(responseBody.c_str());
@@ -225,7 +235,29 @@ KOReaderSyncClient::Error KOReaderSyncClient::authenticate() {
     return NETWORK_ERROR;
   }
   applyAuthHeaders(http);
-  const int httpCode = http.GET();
+  std::unique_ptr<char[]> responseBody;
+  size_t responseSize = 0;
+  bool responseTooLarge = false;
+  bool responseOutOfMemory = false;
+  const int httpCode = http.GET([&](const uint8_t* data, size_t len) {
+    // Only HTTP 200 needs its JSON body; other statuses are handled below.
+    if (http.getStatus() != 200) return true;
+    if (len > MAX_AUTH_RESPONSE_BYTES - responseSize) {
+      responseTooLarge = true;
+      return false;
+    }
+    if (!responseBody) {
+      responseBody = makeUniqueNoThrow<char[]>(MAX_AUTH_RESPONSE_BYTES + 1);
+      if (!responseBody) {
+        responseOutOfMemory = true;
+        return false;
+      }
+    }
+    std::memcpy(responseBody.get() + responseSize, data, len);
+    responseSize += len;
+    responseBody[responseSize] = '\0';
+    return true;
+  });
   lastHttpCode = httpCode;
   lastTransportError = (httpCode < 0) ? httpCode : 0;
 
@@ -235,8 +267,24 @@ KOReaderSyncClient::Error KOReaderSyncClient::authenticate() {
     http.end();
     return NETWORK_ERROR;
   }
+  if (responseTooLarge) {
+    LOG_ERR("KOSync", "Auth response exceeded %u bytes (HTTP %d)", static_cast<unsigned>(MAX_AUTH_RESPONSE_BYTES),
+            httpCode);
+    http.end();
+    return INVALID_AUTH_RESPONSE;
+  }
+  if (responseOutOfMemory) {
+    LOG_ERR("KOSync", "Not enough memory for auth response (HTTP %d)", httpCode);
+    http.end();
+    return LOW_MEMORY;
+  }
   if (httpCode == 200) {
-    const Error result = validateAuthResponse(http.getString().c_str());
+    if (!http.responseComplete()) {
+      LOG_ERR("KOSync", "Auth response incomplete");
+      http.end();
+      return NETWORK_ERROR;
+    }
+    const Error result = validateAuthResponse(responseBody ? responseBody.get() : "");
     http.end();
     return result;
   }
