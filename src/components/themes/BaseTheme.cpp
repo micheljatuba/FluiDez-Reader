@@ -33,6 +33,67 @@ constexpr int homeMarginTop = 30;
 constexpr int roundedRaffHeaderClockYOffset = 5;
 constexpr int detachedHeaderBatteryTopInset = 5;
 
+struct RecentBookCoverLayout {
+  int x;
+  int y;
+  int width;
+  int height;
+};
+
+std::string recentBookCoverPath(const RecentBook& book) {
+  return UITheme::getCoverThumbPath(book.coverBmpPath, BaseMetrics::values.homeCoverHeight);
+}
+
+RecentBookCoverLayout calculateRecentBookCoverLayout(const Rect& rect, const std::vector<RecentBook>& recentBooks) {
+  int bookWidth = rect.width / 2;
+  if (!recentBooks.empty() && !recentBooks[0].coverBmpPath.empty()) {
+    FsFile file;
+    if (Storage.openFileForRead("HOME", recentBookCoverPath(recentBooks[0]), file)) {
+      Bitmap bitmap(file);
+      if (bitmap.parseHeaders() == BmpReaderError::Ok && bitmap.getWidth() > 0 && bitmap.getHeight() > 0) {
+        const float aspectRatio = static_cast<float>(bitmap.getWidth()) / static_cast<float>(bitmap.getHeight());
+        bookWidth = std::min(static_cast<int>(rect.height * aspectRatio), static_cast<int>(rect.width * 0.9f));
+      }
+    }
+  }
+
+  return {rect.x + (rect.width - bookWidth) / 2, rect.y, bookWidth, rect.height};
+}
+
+void drawRecentBookSelection(const GfxRenderer& renderer, const RecentBookCoverLayout& layout) {
+  renderer.drawRect(layout.x + 1, layout.y + 1, layout.width - 2, layout.height - 2);
+  renderer.drawRect(layout.x + 2, layout.y + 2, layout.width - 4, layout.height - 4);
+}
+
+void drawRecentBookBookmark(const GfxRenderer& renderer, const RecentBookCoverLayout& layout, const bool bookSelected) {
+  const int bookmarkWidth = layout.width / 8;
+  const int bookmarkHeight = layout.height / 5;
+  const int bookmarkX = layout.x + layout.width - bookmarkWidth - 10;
+  const int bookmarkY = layout.y + 5;
+  const int notchDepth = bookmarkHeight / 3;
+  const int centerX = bookmarkX + bookmarkWidth / 2;
+  const int xPoints[5] = {bookmarkX, bookmarkX + bookmarkWidth, bookmarkX + bookmarkWidth, centerX, bookmarkX};
+  const int yPoints[5] = {bookmarkY, bookmarkY, bookmarkY + bookmarkHeight, bookmarkY + bookmarkHeight - notchDepth,
+                          bookmarkY + bookmarkHeight};
+  renderer.fillPolygon(xPoints, yPoints, 5, !bookSelected);
+}
+
+bool drawRecentBookImage(const GfxRenderer& renderer, const RecentBook& book, const RecentBookCoverLayout& layout) {
+  FsFile file;
+  if (!Storage.openFileForRead("HOME", recentBookCoverPath(book), file)) {
+    return false;
+  }
+
+  Bitmap bitmap(file);
+  if (bitmap.parseHeaders() != BmpReaderError::Ok) {
+    return false;
+  }
+
+  renderer.drawBitmap(bitmap, layout.x, layout.y, layout.width, layout.height);
+  renderer.drawRect(layout.x, layout.y, layout.width, layout.height);
+  return true;
+}
+
 }  // namespace
 
 void BaseTheme::drawBatteryOutline(const GfxRenderer& renderer, int x, int y, int battWidth, int rectHeight,
@@ -592,8 +653,6 @@ bool BaseTheme::tabIndexFromPoint(const GfxRenderer& renderer, const Rect rect, 
   return false;
 }
 
-// Draw the "Recent Book" cover card on the home screen
-// TODO: Refactor method to make it cleaner, split into smaller methods
 void BaseTheme::drawRecentBookCover(GfxRenderer& renderer, Rect rect, const std::vector<RecentBook>& recentBooks,
                                     int selectorIndex, bool& coverRendered, bool& coverBufferStored,
                                     bool& bufferRestored, const std::function<bool()>& storeCoverBuffer,
@@ -602,145 +661,38 @@ void BaseTheme::drawRecentBookCover(GfxRenderer& renderer, Rect rect, const std:
                                     const char* /*currentChapterTitle*/) const {
   const bool hasContinueReading = !recentBooks.empty();
   const bool bookSelected = hasContinueReading && selectorIndex == 0;
-
-  // --- Top "book" card for the current title (selectorIndex == 0) ---
-  // When there's no cover image, use fixed size (half screen)
-  // When there's cover image, adapt width to image aspect ratio, keep height fixed at 400px
-  const int baseHeight = rect.height;  // Fixed height (400px)
-
-  int bookWidth, bookX;
-  bool hasCoverImage = false;
-
-  if (hasContinueReading && !recentBooks[0].coverBmpPath.empty()) {
-    // Try to get actual image dimensions from BMP header
-    const std::string coverBmpPath =
-        UITheme::getCoverThumbPath(recentBooks[0].coverBmpPath, BaseMetrics::values.homeCoverHeight);
-
-    FsFile file;
-    if (Storage.openFileForRead("HOME", coverBmpPath, file)) {
-      Bitmap bitmap(file);
-      if (bitmap.parseHeaders() == BmpReaderError::Ok) {
-        hasCoverImage = true;
-        const int imgWidth = bitmap.getWidth();
-        const int imgHeight = bitmap.getHeight();
-
-        // Calculate width based on aspect ratio, maintaining baseHeight
-        if (imgWidth > 0 && imgHeight > 0) {
-          const float aspectRatio = static_cast<float>(imgWidth) / static_cast<float>(imgHeight);
-          bookWidth = static_cast<int>(baseHeight * aspectRatio);
-
-          // Ensure width doesn't exceed reasonable limits (max 90% of screen width)
-          const int maxWidth = static_cast<int>(rect.width * 0.9f);
-          if (bookWidth > maxWidth) {
-            bookWidth = maxWidth;
-          }
-        } else {
-          bookWidth = rect.width / 2;  // Fallback
-        }
-      }
-    }
-  }
-
-  if (!hasCoverImage) {
-    // No cover: use half screen size
-    bookWidth = rect.width / 2;
-  }
-
-  bookX = rect.x + (rect.width - bookWidth) / 2;
-  const int bookY = rect.y;
-  const int bookHeight = baseHeight;
+  const RecentBookCoverLayout layout = calculateRecentBookCoverLayout(rect, recentBooks);
   if (hasContinueReading) {
-    TouchRegistry::getInstance().add(Rect{bookX, bookY, bookWidth, bookHeight}, 0, TouchRegistry::Cover);
+    TouchRegistry::getInstance().add(Rect{layout.x, layout.y, layout.width, layout.height}, 0, TouchRegistry::Cover);
   }
 
-  // Bookmark dimensions (used in multiple places)
-  const int bookmarkWidth = bookWidth / 8;
-  const int bookmarkHeight = bookHeight / 5;
-  const int bookmarkX = bookX + bookWidth - bookmarkWidth - 10;
-  const int bookmarkY = bookY + 5;
-
-  // Draw book card regardless, fill with message based on `hasContinueReading`
-  {
-    // Draw cover image as background if available (inside the box)
-    // Only load from SD on first render, then use stored buffer
-
-    if (hasContinueReading && !recentBooks[0].coverBmpPath.empty() && !coverRendered) {
-      const std::string coverBmpPath =
-          UITheme::getCoverThumbPath(recentBooks[0].coverBmpPath, BaseMetrics::values.homeCoverHeight);
-
-      // First time: load cover from SD and render
-      FsFile file;
-      if (Storage.openFileForRead("HOME", coverBmpPath, file)) {
-        Bitmap bitmap(file);
-        if (bitmap.parseHeaders() == BmpReaderError::Ok) {
-          // Draw the cover image (bookWidth and bookHeight already match image aspect ratio)
-          renderer.drawBitmap(bitmap, bookX, bookY, bookWidth, bookHeight);
-
-          // Draw border around the card
-          renderer.drawRect(bookX, bookY, bookWidth, bookHeight);
-
-          // No bookmark ribbon when cover is shown - it would just cover the art
-
-          // Store the buffer with cover image for fast navigation
-          coverBufferStored = storeCoverBuffer();
-          coverRendered = coverBufferStored;  // Only consider it rendered if we successfully stored the buffer
-
-          // First render: if selected, draw selection indicators now
-          if (bookSelected) {
-            renderer.drawRect(bookX + 1, bookY + 1, bookWidth - 2, bookHeight - 2);
-            renderer.drawRect(bookX + 2, bookY + 2, bookWidth - 4, bookHeight - 4);
-          }
-        }
-      }
+  if (hasContinueReading && !recentBooks[0].coverBmpPath.empty() && !coverRendered &&
+      drawRecentBookImage(renderer, recentBooks[0], layout)) {
+    coverBufferStored = storeCoverBuffer();
+    coverRendered = coverBufferStored;
+    if (bookSelected) {
+      drawRecentBookSelection(renderer, layout);
     }
+  }
 
-    if (!bufferRestored && !coverRendered) {
-      // No cover image: draw border or fill, plus bookmark as visual flair
-      if (bookSelected) {
-        renderer.fillRect(bookX, bookY, bookWidth, bookHeight);
-      } else {
-        renderer.drawRect(bookX, bookY, bookWidth, bookHeight);
-      }
-
-      // Draw bookmark ribbon when no cover image (visual decoration)
-      if (hasContinueReading) {
-        const int notchDepth = bookmarkHeight / 3;
-        const int centerX = bookmarkX + bookmarkWidth / 2;
-
-        const int xPoints[5] = {
-            bookmarkX,                  // top-left
-            bookmarkX + bookmarkWidth,  // top-right
-            bookmarkX + bookmarkWidth,  // bottom-right
-            centerX,                    // center notch point
-            bookmarkX                   // bottom-left
-        };
-        const int yPoints[5] = {
-            bookmarkY,                                // top-left
-            bookmarkY,                                // top-right
-            bookmarkY + bookmarkHeight,               // bottom-right
-            bookmarkY + bookmarkHeight - notchDepth,  // center notch point
-            bookmarkY + bookmarkHeight                // bottom-left
-        };
-
-        // Draw bookmark ribbon (inverted if selected)
-        renderer.fillPolygon(xPoints, yPoints, 5, !bookSelected);
-      }
+  if (!bufferRestored && !coverRendered) {
+    if (bookSelected) {
+      renderer.fillRect(layout.x, layout.y, layout.width, layout.height);
+    } else {
+      renderer.drawRect(layout.x, layout.y, layout.width, layout.height);
     }
-
-    // If buffer was restored, draw selection indicators if needed
-    if (bufferRestored && bookSelected && coverRendered) {
-      // Draw selection border (no bookmark inversion needed since cover has no bookmark)
-      renderer.drawRect(bookX + 1, bookY + 1, bookWidth - 2, bookHeight - 2);
-      renderer.drawRect(bookX + 2, bookY + 2, bookWidth - 4, bookHeight - 4);
-    } else if (!coverRendered && !bufferRestored) {
-      // Selection border already handled above in the no-cover case
+    if (hasContinueReading) {
+      drawRecentBookBookmark(renderer, layout, bookSelected);
     }
+  }
+
+  if (bufferRestored && bookSelected && coverRendered) {
+    drawRecentBookSelection(renderer, layout);
   }
 
   if (!hasContinueReading) {
-    // No book to continue reading
     const int y =
-        bookY + (bookHeight - renderer.getLineHeight(UI_12_FONT_ID) - renderer.getLineHeight(UI_10_FONT_ID)) / 2;
+        layout.y + (layout.height - renderer.getLineHeight(UI_12_FONT_ID) - renderer.getLineHeight(UI_10_FONT_ID)) / 2;
     renderer.drawCenteredText(UI_12_FONT_ID, y, tr(STR_NO_OPEN_BOOK));
     renderer.drawCenteredText(UI_10_FONT_ID, y + renderer.getLineHeight(UI_12_FONT_ID), tr(STR_START_READING));
   }
