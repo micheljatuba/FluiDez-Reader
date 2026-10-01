@@ -177,8 +177,10 @@ dispositivo FluiDez Reader.
    esse ZIP sem extraí-lo. Reinicie o Calibre se ele pedir.
 3. No aparelho, abra **Transferência de arquivos > Calibre sem fio** e entre na
    mesma rede Wi-Fi de 2,4 GHz do computador.
-4. Mantenha a tela Calibre sem fio aberta e use a ação **Enviar para o dispositivo**
-   do Calibre. A tela do aparelho mostra o progresso da transferência e o aviso de conclusão.
+4. Espere a seção **Status** da tela mostrar "Conectado ao Calibre". Mantenha a tela
+   Calibre sem fio aberta e use a ação **Enviar para o dispositivo** do Calibre. A tela do
+   aparelho mostra o progresso da transferência, o livro recebido ou a falha no envio e
+   quantos livros chegaram.
 
 O plugin encontra o leitor automaticamente e também tenta `fluidez.local` e o
 endereço do hotspot `192.168.4.1`. Configurações e solução de problemas estão

@@ -27,6 +27,9 @@ class CrossPointWebServer {
     std::string lastCompleteName;
     size_t lastCompleteSize = 0;
     unsigned long lastCompleteAt = 0;
+    std::string lastFailedName;
+    unsigned long lastFailedAt = 0;
+    uint32_t completedCount = 0;
   };
 
   // Used by POST upload handler
@@ -65,6 +68,10 @@ class CrossPointWebServer {
 
   WsUploadStatus getWsUploadStatus() const;
 
+  // Address of the last client that discovered the reader (Calibre plugin) or
+  // opened a WebSocket upload; empty until one appears.
+  const std::string& getLastClientIp() const { return lastClientIp; }
+
   // Get the port number
   uint16_t getPort() const { return port; }
 
@@ -77,6 +84,14 @@ class CrossPointWebServer {
   uint16_t wsPort = 81;  // WebSocket port
   NetworkUDP udp;
   bool udpActive = false;
+
+  // Transfer feedback shown on the device while the server runs.
+  std::string lastClientIp;
+  std::string wsLastFailedName;
+  unsigned long wsLastFailedAt = 0;
+  uint32_t wsCompletedCount = 0;
+  void rememberClient(const IPAddress& ip);
+  void recordWsUploadFailure();
 
   // WebSocket upload state
   void onWebSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length);
