@@ -4,6 +4,14 @@ O que muda para quem usa o FluiDez Reader em cada versão, da mais recente para 
 
 ## [Próxima versão]
 
+## [v1.6-fluidez12] - 2026-09-30
+
+- **Autenticação KOReader mais estável:** se o servidor ou um proxy responder com uma página grande no lugar dos dados de login, o leitor avisa que o servidor de sincronização respondeu com dados inválidos e não trava por falta de memória.
+- **Mais memória ao sair de um livro:** ao sair de um livro EPUB ou TXT, o leitor libera a memória temporária das fontes para as outras telas, como as capas do *Início*.
+- **Relatório de falha mais completo:** o arquivo `crash_report.txt` identifica a compilação exata do firmware e, no X4 Pro, no X4 Classic e no Sticky, traz os dados dos dois núcleos do processador e o nome da tarefa que estava rodando. Isso ajuda a encontrar a causa de um travamento.
+- **Identificação na internet:** ao baixar fontes, abrir catálogos OPDS e verificar atualizações, o leitor se identifica para os servidores como FluiDez Reader.
+- **Guias em português:** o [guia de instalação](https://github.com/micheljatuba/FluiDez-Reader/blob/main/docs/installation.md) e o [guia do usuário](https://github.com/micheljatuba/FluiDez-Reader/blob/main/docs/user-guide.md) estão em português, com os mesmos nomes de menu do leitor.
+
 ## [v1.6-fluidez11] - 2026-09-30
 
 - **Plugin FluiDez Reader para o Calibre:** envie livros do Calibre para o leitor pelo Wi-Fi. O plugin encontra o leitor automaticamente na rede e vem anexado às versões como `fluidez-reader-calibre-plugin.zip`. [Como instalar](https://github.com/micheljatuba/FluiDez-Reader/blob/main/calibre-plugin/README.md).
