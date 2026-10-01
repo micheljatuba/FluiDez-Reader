@@ -490,7 +490,9 @@ when none is set). The reply keeps the `crosspoint` prefix inherited from
 CrossPoint Reader so existing Calibre plugins keep recognizing the device.
 
 The Calibre Wireless screen shows the address of the last client that sent
-`hello` or opened the upload WebSocket as the connected Calibre computer.
+`hello` or opened the upload WebSocket as the connected Calibre computer. The
+FluiDez Reader plugin repeats `hello` every 5 seconds while connected, as a
+keepalive, and disconnects after 3 unanswered requests in a row.
 
 ## Network Modes
 

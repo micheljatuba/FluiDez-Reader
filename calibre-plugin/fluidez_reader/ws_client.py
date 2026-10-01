@@ -7,6 +7,9 @@ import threading
 import time
 
 HOTSPOT_IP = '192.168.4.1'
+# UDP port where the reader answers "hello"; the others are Calibre's
+# smart-device broadcast ports, kept for discovery compatibility.
+DEVICE_UDP_PORT = 8134
 _UNRESOLVED_RETRY_SECONDS = 30.0
 _unresolved_until = {}
 
@@ -271,8 +274,13 @@ def _local_broadcast_addrs():
     return addrs
 
 
+def _is_reader_reply(text):
+    lowered = text.lower()
+    return lowered.startswith('crosspoint') or lowered.startswith('fluidez')
+
+
 def discover_device(timeout=2.0, debug=False, logger=None, extra_hosts=None):
-    ports = [8134, 54982, 48123, 39001, 44044, 59678]
+    ports = [DEVICE_UDP_PORT, 54982, 48123, 39001, 44044, 59678]
     local_port = 0
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -339,12 +347,8 @@ def discover_device(timeout=2.0, debug=False, logger=None, extra_hosts=None):
                 except Exception:
                     break
                 _log(logger, debug, f'[FluiDez WS] discovery {addr} {data}')
-                try:
-                    text = data.decode('utf-8', 'ignore')
-                except Exception:
-                    continue
-                lowered = text.lower()
-                if not (lowered.startswith('crosspoint') or lowered.startswith('fluidez')):
+                text = data.decode('utf-8', 'ignore')
+                if not _is_reader_reply(text):
                     _log(logger, debug, f'[FluiDez WS] discovery ignoring non-FluiDez response: {text}')
                     continue
                 semi = text.find(';')
@@ -358,6 +362,41 @@ def discover_device(timeout=2.0, debug=False, logger=None, extra_hosts=None):
     finally:
         sock.close()
     return None, None
+
+
+def ping_device(host, timeout=1.0, debug=False, logger=None):
+    """Send one "hello" straight to a connected reader and wait for its answer.
+
+    Works as a keepalive in both directions: the reader shows Calibre as
+    connected when the hello arrives, and a missing answer tells the driver that
+    the reader left Calibre mode. Never raises, because Calibre polls presence
+    without catching errors."""
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    except Exception as exc:
+        _log(logger, debug, f'[FluiDez WS] keepalive socket failed: {exc}')
+        return False
+    try:
+        sock.sendto(b'hello', (host, DEVICE_UDP_PORT))
+        deadline = time.time() + timeout
+        while True:
+            remaining = deadline - time.time()
+            if remaining <= 0:
+                return False
+            sock.settimeout(remaining)
+            try:
+                data, addr = sock.recvfrom(256)
+            except (socket.timeout, ConnectionResetError):
+                # ConnectionResetError is Windows reporting ICMP "port
+                # unreachable": nothing listens there anymore.
+                return False
+            if addr[0] == host and _is_reader_reply(data.decode('utf-8', 'ignore')):
+                return True
+    except Exception as exc:
+        _log(logger, debug, f'[FluiDez WS] keepalive to {host} failed: {exc}')
+        return False
+    finally:
+        sock.close()
 
 
 def upload_file(host, port, upload_path, filename, filepath, chunk_size=16384, debug=False, progress_cb=None,
