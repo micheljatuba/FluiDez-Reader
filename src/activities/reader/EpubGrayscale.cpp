@@ -14,10 +14,28 @@ namespace EpubGrayscale {
 bool runTiledGrayscalePass(GfxRenderer& renderer, const Page& page, const int fontId, const int marginLeft,
                            const int marginTop, const bool foregroundBlack, const bool needsTextGrayscale,
                            const bool needsImageGrayscale, uint8_t* scratch, const size_t scratchSize,
-                           const bool asyncRefreshPending) {
+                           const bool asyncRefreshPending, const std::function<bool()>& skipRequested) {
   if ((!needsTextGrayscale && !needsImageGrayscale) || !renderer.supportsStripGrayscale()) {
     return false;
   }
+
+  bool baseRefreshPending = asyncRefreshPending;
+  const auto finishBaseRefresh = [&] {
+    if (!baseRefreshPending) return;
+    renderer.waitRefreshComplete();
+    baseRefreshPending = false;
+  };
+  // Only the shadow-free async base may drop its overlay. Its B/W page is a
+  // complete frame, and the cleanup re-syncs the controller baseline from the
+  // live framebuffer whatever gray rows were already uploaded.
+  const auto overlaySkipped = [&] { return asyncRefreshPending && skipRequested && skipRequested(); };
+  const auto dropOverlay = [&] {
+    renderer.setRenderMode(GfxRenderer::BW);
+    finishBaseRefresh();
+    renderer.cleanupGrayscaleWithFrameBuffer();
+    return true;
+  };
+  if (overlaySkipped()) return dropOverlay();
 
   const int displayHeight = renderer.getDisplayHeight();
   const int displayWidthBytes = renderer.getDisplayWidthBytes();
@@ -65,14 +83,17 @@ bool runTiledGrayscalePass(GfxRenderer& renderer, const Page& page, const int fo
     }
     renderPlaneToBuffer(GfxRenderer::GRAYSCALE_LSB, lsbPlaneBuf.get());
     if (msbPlaneBuf) {
+      if (overlaySkipped()) return dropOverlay();
       renderPlaneToBuffer(GfxRenderer::GRAYSCALE_MSB, msbPlaneBuf.get());
     }
 
-    renderer.waitRefreshComplete();
+    finishBaseRefresh();
+    if (overlaySkipped()) return dropOverlay();
     renderer.writeGrayscalePlaneStrip(true, lsbPlaneBuf.get(), 0, displayHeight);
     if (msbPlaneBuf) {
       renderer.writeGrayscalePlaneStrip(false, msbPlaneBuf.get(), 0, displayHeight);
     } else {
+      if (overlaySkipped()) return dropOverlay();
       renderPlaneToBuffer(GfxRenderer::GRAYSCALE_MSB, lsbPlaneBuf.get());
       renderer.writeGrayscalePlaneStrip(false, lsbPlaneBuf.get(), 0, displayHeight);
     }
@@ -83,11 +104,9 @@ bool runTiledGrayscalePass(GfxRenderer& renderer, const Page& page, const int fo
     return true;
   }
 
-  if (asyncRefreshPending) {
-    // Controller writes and the BW snapshot fallback both need the refresh to
-    // be complete when the whole-plane allocation cannot be satisfied.
-    renderer.waitRefreshComplete();
-  }
+  // Controller writes and the BW snapshot fallback both need the refresh to be
+  // complete when the whole-plane allocation cannot be satisfied.
+  finishBaseRefresh();
 
   const size_t requiredScratchSize = static_cast<size_t>(displayWidthBytes) * GRAYSCALE_STRIP_ROWS;
   if (!scratch || scratchSize < requiredScratchSize) {
@@ -95,15 +114,19 @@ bool runTiledGrayscalePass(GfxRenderer& renderer, const Page& page, const int fo
       // The shadow-free async update does not rebuild the controller's
       // differential baseline. Re-sync it even when grayscale is skipped.
       renderer.cleanupGrayscaleWithFrameBuffer();
+      // True stops the caller's fallback overlay for a page a queued turn replaces.
+      return overlaySkipped();
     }
     return false;
   }
 
   // Keep the live BW framebuffer intact, stream grayscale planes by row-band,
-  // then re-sync the controller BW state from the framebuffer.
+  // then re-sync the controller BW state from the framebuffer. False means a
+  // skip request interrupted the plane.
   const auto renderPlane = [&](const GfxRenderer::RenderMode mode, const bool lsbPlane) {
     renderer.setRenderMode(mode);
     for (int y = 0; y < displayHeight; y += GRAYSCALE_STRIP_ROWS) {
+      if (overlaySkipped()) return false;
       const int rows = std::min(GRAYSCALE_STRIP_ROWS, displayHeight - y);
       renderer.beginStripTarget(scratch, y, rows);
       renderer.clearScreen(0x00);
@@ -115,11 +138,12 @@ bool runTiledGrayscalePass(GfxRenderer& renderer, const Page& page, const int fo
       renderer.endStripTarget();
       renderer.writeGrayscalePlaneStrip(lsbPlane, scratch, y, rows);
     }
+    return true;
   };
 
-  renderPlane(GfxRenderer::GRAYSCALE_LSB, true);
-
-  renderPlane(GfxRenderer::GRAYSCALE_MSB, false);
+  if (!renderPlane(GfxRenderer::GRAYSCALE_LSB, true) || !renderPlane(GfxRenderer::GRAYSCALE_MSB, false)) {
+    return dropOverlay();
+  }
 
   renderer.setRenderMode(GfxRenderer::BW);
   renderer.displayGrayBuffer();

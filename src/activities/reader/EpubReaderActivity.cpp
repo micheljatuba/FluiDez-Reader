@@ -7032,12 +7032,30 @@ bool EpubReaderActivity::renderContents(std::unique_ptr<Page> page, const int fo
   } else {
     ReaderUtils::displayWithRefreshCycle(renderer, pagesUntilFullRefresh);
   }
+  // A turn queued during the overlay replaces this page, so its gray tones
+  // would be discarded. Committing to the skip leaves the decision DEFERRED, so
+  // cancelling that turn redraws this page with its overlay.
+  const auto queuedTurnReplacesPage = [this] {
+    if (!pendingManualPageTurns.hasPending()) return false;
+    queuedTurnRendering.beginDecision();
+    return queuedTurnRendering.finishDecision(pendingManualPageTurns.hasPending());
+  };
   if (needsAnyGrayscale) {
     ensureGrayscaleStripScratch();
   }
   if (EpubGrayscale::runTiledGrayscalePass(renderer, *page, fontId, orientedMarginLeft, orientedMarginTop,
                                            foregroundBlack, needsTextGrayscale, needsImageGrayscale,
-                                           grayscaleStripScratch.get(), grayscaleStripScratchSize, overlapRefresh)) {
+                                           grayscaleStripScratch.get(), grayscaleStripScratchSize, overlapRefresh,
+                                           queuedTurnReplacesPage)) {
+    return true;
+  }
+
+  // Without strip uploads (or with grayscale disabled by inversion) the base
+  // refresh above already left a complete B/W page. Until the MSB plane is
+  // written, restoreBwBuffer() alone puts the controller back on that page.
+  const bool fallbackCanSkipGrayscale = !renderer.supportsStripGrayscale();
+  const auto skipFallbackGrayscale = [&] { return fallbackCanSkipGrayscale && queuedTurnReplacesPage(); };
+  if (needsAnyGrayscale && skipFallbackGrayscale()) {
     return true;
   }
 
@@ -7050,15 +7068,22 @@ bool EpubReaderActivity::renderContents(std::unique_ptr<Page> page, const int fo
 
   // grayscale rendering
   if (canApplyGrayscale) {
+    const auto dropFallbackGrayscale = [&] {
+      renderer.setRenderMode(GfxRenderer::BW);
+      renderer.restoreBwBuffer();
+      return true;
+    };
     renderer.clearScreen(0x00);
     renderer.setRenderMode(GfxRenderer::GRAYSCALE_LSB);
     composeGrayscaleBuffer();
+    if (skipFallbackGrayscale()) return dropFallbackGrayscale();
     renderer.copyGrayscaleLsbBuffers();
 
     // Render and copy to MSB buffer
     renderer.clearScreen(0x00);
     renderer.setRenderMode(GfxRenderer::GRAYSCALE_MSB);
     composeGrayscaleBuffer();
+    if (skipFallbackGrayscale()) return dropFallbackGrayscale();
     renderer.copyGrayscaleMsbBuffers();
 
     // display grayscale part
