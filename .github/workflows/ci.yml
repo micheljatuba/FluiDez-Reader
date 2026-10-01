@@ -9,9 +9,11 @@ on:
 permissions:
   contents: read
 
+# Runners stay on Ubuntu 24.04: ubuntu-latest moves to Ubuntu 26 from
+# 2026-10-19, and the builds are only validated on 24.04.
 jobs:
   clang-format:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
         with:
@@ -35,7 +37,7 @@ jobs:
           git diff --exit-code || (echo "Please run 'bin/clang-format-fix' to fix formatting issues" && exit 1)
 
   release-notes:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
 
@@ -51,7 +53,7 @@ jobs:
 
   # Releases attach this ZIP, so a plugin that stops compiling fails here first.
   calibre-plugin:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
 
@@ -59,7 +61,7 @@ jobs:
         run: python3 scripts/build_calibre_plugin.py
 
   cppcheck:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
         with:
@@ -76,7 +78,7 @@ jobs:
           enable-cache: true
 
       - name: Cache PlatformIO packages
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           # Do not cache PlatformIO's Python virtual environment. It is tied to
           # the runner's Python and can become invalid when restored elsewhere.
@@ -92,7 +94,7 @@ jobs:
         run: pio check --fail-on-defect low --fail-on-defect medium --fail-on-defect high
 
   unit-tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
         with:
@@ -200,7 +202,7 @@ jobs:
           retention-days: 7
 
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -221,7 +223,7 @@ jobs:
           enable-cache: true
 
       - name: Cache PlatformIO packages
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           # Do not cache PlatformIO's Python virtual environment. It is tied to
           # the runner's Python and can become invalid when restored elsewhere.
@@ -292,7 +294,7 @@ jobs:
       - unit-tests
       - x4-pro-simulator-smoke
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Fail because needed jobs failed
         # Fail if any job failed or was cancelled (skipped jobs are ok)
