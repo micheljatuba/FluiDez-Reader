@@ -1,86 +1,87 @@
 ---
-title: Installation
+title: Instalação
 nav_order: 2
 ---
 
-# Installation
+# Instalação
 
-FluiDez Reader firmware is published on the
-[FluiDez Reader releases page](https://github.com/micheljatuba/FluiDez-Reader/releases).
-Each release has one firmware file per reader:
+O firmware do FluiDez Reader é publicado na
+[página de versões do FluiDez Reader](https://github.com/micheljatuba/FluiDez-Reader/releases).
+Cada versão tem um arquivo de firmware para cada leitor:
 
-| Reader              | Firmware file                        |
+| Leitor              | Arquivo do firmware                  |
 | ------------------- | ------------------------------------ |
 | Xteink X4 Pro       | `firmware-x4-pro-v<version>.bin`     |
 | Xteink X4 Classic   | `firmware-x4-classic-v<version>.bin` |
 | Xteink X3 / X4      | `firmware-x3-x4-v<version>.bin`      |
 | Seeed Studio Sticky | `firmware-sticky-v<version>.bin`     |
 
-FluiDez Reader is tested only on the Xteink X4 Pro. The other files are built
-from the same source and pass the automated checks, but have not been tested on
-a device.
+O FluiDez Reader é testado apenas no Xteink X4 Pro. Os outros arquivos são
+gerados a partir do mesmo código e passam nas verificações automatizadas, mas
+não foram testados em um aparelho.
 
-> **Use at your own risk.** You install and update FluiDez Reader at your own
-> risk. MJ Cloud Tecnologia is not responsible for damage to your reader, data
-> loss, or any other problem that results from installing, updating, or using
-> the firmware. Charge the battery first and keep the reader on until the
-> update finishes.
+> **Use por sua conta e risco.** Você instala e atualiza o FluiDez Reader por
+> sua conta e risco. A MJ Cloud Tecnologia não se responsabiliza por danos ao
+> leitor, perda de dados ou qualquer outro problema decorrente da instalação,
+> da atualização ou do uso do firmware. Carregue a bateria antes e mantenha o
+> leitor ligado até a atualização terminar.
 
-## Over-the-Air Updates
+## Atualizações pelo aparelho
 
-After FluiDez Reader is installed, `Settings > System > Check for Updates`
-downloads the newest FluiDez Reader release for your reader over Wi-Fi. A
-release is offered only when its version is newer than the installed one, for
-example `v1.6-fluidez10` over `1.6-fluidez9`. Before installing, the reader shows
-that updates are installed at your own risk.
+Depois que o FluiDez Reader estiver instalado, `Configurações > Sistema > Verificar atualizações`
+baixa a versão mais nova do FluiDez Reader para o seu leitor via Wi-Fi. Uma
+versão só é oferecida quando é mais nova que a instalada, por exemplo
+`v1.6-fluidez10` sobre `1.6-fluidez9`. Antes de instalar, o leitor avisa que as
+atualizações são feitas por sua conta e risco.
 
-## SD Card Firmware Update
+## Atualização de firmware do cartão SD
 
-Use this method when the reader already runs FluiDez Reader or the CrossInk
-firmware it is based on. It also works on readers with USB data transfer
-disabled.
+Use este método quando o leitor já roda o FluiDez Reader ou o firmware CrossInk
+no qual ele se baseia. Ele também funciona em leitores com transferência de
+dados por USB desativada.
 
-1. Download the `firmware-*.bin` for your reader from the
-   [releases page](https://github.com/micheljatuba/FluiDez-Reader/releases).
-2. Copy the file to the SD card. Any folder works.
-3. On the reader, open `Settings > System > SD Card Firmware Update`, select the
-   `.bin` file, and confirm.
+1. Baixe o `firmware-*.bin` do seu leitor na
+   [página de versões](https://github.com/micheljatuba/FluiDez-Reader/releases).
+2. Copie o arquivo para o cartão SD. Qualquer pasta serve.
+3. No leitor, abra `Configurações > Sistema > Atualização de firmware do cartão SD`, escolha o
+   arquivo `.bin` e confirme.
 
-## USB Drive
+## Unidade USB
 
-On X4 Pro, choose `Home > File Transfer > USB Drive` to expose the SD card to
-your computer. Eject the drive from the computer before disconnecting it; the
-reader restarts to Home when the drive is safely ejected or the cable is
-removed.
+No X4 Pro, escolha `Início > Transferência de arquivos > Unidade USB` para
+expor o cartão SD ao computador. Ejete a unidade pelo computador antes de
+desconectá-la; o leitor reinicia no Início quando a unidade é ejetada com
+segurança ou o cabo é removido.
 
-## USB Flashing
+## Gravação por USB
 
-Use USB flashing for a reader that runs other firmware, or to recover a reader
-that no longer starts. Connect the reader to your computer with a USB-C data
-cable. If the flashing tool cannot connect, put the reader in download mode as
-described by the device manufacturer and try again.
+Use a gravação por USB em um leitor que roda outro firmware ou para recuperar
+um leitor que não inicia mais. Conecte o leitor ao computador com um cabo de
+dados USB-C. Se a ferramenta de gravação não conseguir conectar, coloque o
+leitor em modo de download conforme descrito pelo fabricante do aparelho e
+tente novamente.
 
-### From Source with PlatformIO
+### Pelo código-fonte com PlatformIO
 
-With the [development setup](./development/getting-started.md) installed, build
-and upload the environment for your reader: `x4-pro`, `x4-classic`, `default`
-(X3/X4), or `sticky`.
+Com o [ambiente de desenvolvimento](./development/getting-started.md)
+instalado, compile e grave o ambiente do seu leitor: `x4-pro`, `x4-classic`,
+`default` (X3/X4) ou `sticky`.
 
 ```sh
 pio run -e x4-pro --target upload
 ```
 
-PlatformIO writes the bootloader, partition table, and firmware.
+O PlatformIO grava o bootloader, a tabela de partições e o firmware.
 
-### Release File with esptool
+### Arquivo de versão com esptool
 
-Install `esptool`:
+Instale o `esptool`:
 
 ```sh
 pip3 install esptool
 ```
 
-Find the reader's serial port:
+Encontre a porta serial do leitor:
 
 ```sh
 # Linux
@@ -90,17 +91,17 @@ dmesg | grep tty
 ls /dev/cu.*
 ```
 
-On Windows, the port appears as `COM<n>` in Device Manager under
-**Ports (COM & LPT)**.
+No Windows, a porta aparece como `COM<n>` no Gerenciador de Dispositivos, em
+**Portas (COM e LPT)**.
 
-Clear the saved update slot so the reader starts the image you write, then
-write the firmware:
+Limpe o slot de atualização salvo para o leitor iniciar a imagem que você vai
+gravar e, em seguida, grave o firmware:
 
 ```sh
 python3 -m esptool --port /dev/ttyACM0 erase_region 0xe000 0x2000
 python3 -m esptool --port /dev/ttyACM0 --baud 921600 write_flash 0x10000 /path/to/firmware.bin
 ```
 
-Replace the port and firmware path with your actual values. This writes only the
-application, so use it on a reader that already runs FluiDez Reader. For other
-firmware, use PlatformIO.
+Substitua a porta e o caminho do firmware pelos seus valores reais. Isso grava
+apenas a aplicação, então use em um leitor que já roda o FluiDez Reader. Para
+outros firmwares, use o PlatformIO.

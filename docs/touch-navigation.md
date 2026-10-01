@@ -62,4 +62,4 @@ works on the side covers too.
 - Swipe right from the left edge, or use the on-screen back arrow when shown,
   to go back from most screens.
 - Reader-specific page-turn and menu gestures are documented in
-  [Touch Reader Controls](./user-guide.md#touch-reader-controls).
+  [Touch Reader Controls](./user-guide.md#controles-de-toque-no-leitor).
