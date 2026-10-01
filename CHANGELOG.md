@@ -11,6 +11,7 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 - Home navigation and book opening call `ActivityManager` directly, completing the transition away from the temporary `Activity::onGoHome` and `Activity::onSelectBook` wrappers.
 - The default theme's recent-book cover rendering is split into focused layout and drawing helpers without changing its appearance or interaction.
 - The Calibre plugin, now version 1.1.0, checks every 5 seconds that the connected reader still answers. When the reader leaves Calibre Wireless, Calibre shows it as disconnected after about 15 seconds and reconnects on its own when the screen is reopened. Reopening the screen while Calibre is still connected shows Calibre as connected within a few seconds instead of waiting for the next book.
+- Text drawing resolves clipping and screen rotation once per glyph, reducing work when painting menus and book pages.
 
 ### Fixed
 
