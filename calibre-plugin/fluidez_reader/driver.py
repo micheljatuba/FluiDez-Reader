@@ -14,6 +14,11 @@ from . import ws_client
 from .config import FluiDezConfigWidget, PREFS
 from .log import add_log
 
+# While connected, check that the reader still answers this often, and treat
+# it as gone after this many unanswered checks in a row.
+KEEPALIVE_INTERVAL = 5.0
+KEEPALIVE_MAX_MISSES = 3
+
 
 class FluiDezDevice(DeviceConfig, DevicePlugin):
     name = 'FluiDez Reader'
@@ -21,7 +26,7 @@ class FluiDezDevice(DeviceConfig, DevicePlugin):
     description = 'Envia livros do Calibre para o FluiDez Reader pela rede Wi-Fi'
     supported_platforms = ['windows', 'osx', 'linux']
     author = 'MJ Cloud Tecnologia'
-    version = (1, 0, 0)
+    version = (1, 1, 0)
 
     # Invalid USB vendor info to avoid USB scans matching.
     VENDOR_ID = [0xFFFF]
@@ -46,6 +51,8 @@ class FluiDezDevice(DeviceConfig, DevicePlugin):
         self.device_port = None
         self.device_model = None  # 'X3' | 'X4' from /api/status
         self.last_discovery = 0.0
+        self.last_keepalive = 0.0
+        self.keepalive_misses = 0
         self.report_progress = lambda x, y: x
         self._debug_enabled = False
 
@@ -73,9 +80,28 @@ class FluiDezDevice(DeviceConfig, DevicePlugin):
             return host, port
         return None, None
 
+    def _reader_still_present(self):
+        now = time.time()
+        if now - self.last_keepalive < KEEPALIVE_INTERVAL:
+            return True
+        self.last_keepalive = now
+        if ws_client.ping_device(self.device_host, timeout=1.0, debug=PREFS['debug'], logger=self._log):
+            self.keepalive_misses = 0
+            return True
+        self.keepalive_misses += 1
+        self._log(f'[FluiDez] reader at {self.device_host} did not answer '
+                  f'({self.keepalive_misses}/{KEEPALIVE_MAX_MISSES})')
+        return self.keepalive_misses < KEEPALIVE_MAX_MISSES
+
     def detect_managed_devices(self, devices_on_system, force_refresh=False):
         if self.is_connected:
-            return self
+            if self._reader_still_present():
+                return self
+            # Returning None makes Calibre show the reader as disconnected and
+            # resume discovery, so it reconnects when Calibre mode reopens.
+            self._log(f'[FluiDez] reader at {self.device_host} stopped answering; disconnecting')
+            self.is_connected = False
+            return None
         debug = PREFS['debug']
         self._debug_enabled = debug
         if debug:
@@ -87,6 +113,8 @@ class FluiDezDevice(DeviceConfig, DevicePlugin):
             self.device_host = host
             self.device_port = port
             self.is_connected = True
+            self.last_keepalive = time.time()
+            self.keepalive_misses = 0
             self._detect_device_model()
             return self
         if debug:

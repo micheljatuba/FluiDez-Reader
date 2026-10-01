@@ -183,7 +183,9 @@ dispositivo FluiDez Reader.
    quantos livros chegaram.
 
 O plugin encontra o leitor automaticamente e também tenta `fluidez.local` e o
-endereço do hotspot `192.168.4.1`. Configurações e solução de problemas estão
+endereço do hotspot `192.168.4.1`. Se você sair da tela Calibre sem fio, o Calibre
+mostra o leitor como desconectado em cerca de 15 segundos e conecta de novo sozinho
+quando a tela é reaberta. Configurações e solução de problemas estão
 descritas no [README do plugin](../calibre-plugin/README.md) (em português).
 
 ### 3.6 Configurações

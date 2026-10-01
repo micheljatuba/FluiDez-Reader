@@ -19,6 +19,8 @@ Este plugin faz o Calibre reconhecer o **FluiDez Reader** como um dispositivo se
 
 A procura automática também encontra leitores com versões anteriores do FluiDez Reader.
 
+Depois de conectado, o plugin confere a cada 5 segundos se o leitor continua respondendo. Se você sair da tela **Calibre sem fio**, o Calibre mostra o leitor como desconectado em cerca de 15 segundos e conecta de novo sozinho quando a tela é reaberta.
+
 ## Configurações principais
 
 Abra **Preferências > Plugins**, expanda **Interface do dispositivo**, selecione **FluiDez Reader** e clique em **Configurar plugin**.
