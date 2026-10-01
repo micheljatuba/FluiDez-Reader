@@ -777,7 +777,7 @@ void SettingsActivity::closeRootSettings() {
   if (returnToParentOnClose) {
     finish();
   } else {
-    onGoHome();
+    activityManager.goHome();
   }
 }
 

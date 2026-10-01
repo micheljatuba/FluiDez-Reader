@@ -226,7 +226,7 @@ void FontDownloadActivity::onWifiSelectionComplete(const bool success) {
 
   if (!fetchAndParseManifest()) {
     if (goHomeRequested_) {
-      onGoHome();
+      activityManager.goHome();
       return;
     }
     if (cancelRequested_) {
@@ -879,7 +879,7 @@ void FontDownloadActivity::downloadFamily(ManifestFamily& family) {
         LOG_INF("FONT", "Download cancelled: %s", file.name);
         Storage.remove(tempPath);
         if (goHomeRequested_) {
-          onGoHome();
+          activityManager.goHome();
           return;
         }
         // The Back release that confirmed the cancel would otherwise be seen by

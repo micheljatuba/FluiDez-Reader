@@ -21,7 +21,7 @@ void AlertActivity::onEnter() {
 void AlertActivity::loop() {
   if (mappedInput.wasReleased(MappedInputManager::Button::Back)) {
     if (goHomeOnBack) {
-      onGoHome();
+      activityManager.goHome();
     } else {
       finish();
     }

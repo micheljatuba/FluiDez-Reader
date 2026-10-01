@@ -69,7 +69,7 @@ void RecentBooksActivity::onRowEvent(const fui::ActionEvent& event, void* user) 
   // Opening the book leaves this screen; a lingering flash would gray an
   // unrelated row when the list next appears.
   self->app.clearTapFlash();
-  self->onSelectBook(self->recentBooks[self->selectorIndex].path);
+  activityManager.goToReader(self->recentBooks[self->selectorIndex].path);
 }
 
 void RecentBooksActivity::onEnter() {
@@ -107,7 +107,7 @@ void RecentBooksActivity::loop() {
   }
 
   if (TouchHeaderBackButton::wasTapped(mappedInput, renderer)) {
-    onGoHome();
+    activityManager.goHome();
     return;
   }
   const int listSize = static_cast<int>(recentBooks.size());
@@ -146,13 +146,13 @@ void RecentBooksActivity::loop() {
 
   if (mappedInput.wasReleased(MappedInputManager::Button::Confirm)) {
     if (!recentBooks.empty() && selectorIndex < recentBooks.size()) {
-      onSelectBook(recentBooks[selectorIndex].path);
+      activityManager.goToReader(recentBooks[selectorIndex].path);
       return;
     }
   }
 
   if (mappedInput.wasReleased(MappedInputManager::Button::Back)) {
-    onGoHome();
+    activityManager.goHome();
     return;
   }
 

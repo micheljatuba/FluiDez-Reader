@@ -105,11 +105,11 @@ void SavedItemsHomeActivity::onExit() {
 
 void SavedItemsHomeActivity::loop() {
   if (TouchHeaderBackButton::wasTapped(mappedInput, TouchHeaderBackButton::compactHeaderRect(renderer))) {
-    onGoHome();
+    activityManager.goHome();
     return;
   }
   if (mappedInput.wasReleased(MappedInputManager::Button::Back)) {
-    onGoHome();
+    activityManager.goHome();
     return;
   }
 
@@ -355,7 +355,7 @@ void SavedItemsHomeActivity::openBookmarkList(const SavedBookEntry& entry) {
             APP_STATE.pendingBookmarkParagraphIndex = bm->paragraphIndex;
             APP_STATE.pendingClippingIndex = UINT16_MAX;
             APP_STATE.saveToFile();
-            onSelectBook(entry.bookPath);
+            activityManager.goToReader(entry.bookPath);
           } else {
             LOG_ERR("SVA", "openBookmarkList: unexpected result variant");
             requestUpdate();
@@ -382,7 +382,7 @@ void SavedItemsHomeActivity::openClippingList(const SavedBookEntry& entry) {
                                APP_STATE.pendingBookmarkParagraphIndex = clipping->paragraphIndex;
                                APP_STATE.pendingClippingIndex = clipping->clippingIndex;
                                APP_STATE.saveToFile();
-                               onSelectBook(entry.bookPath);
+                               activityManager.goToReader(entry.bookPath);
                              } else {
                                LOG_ERR("SVA", "openClippingList: unexpected result variant");
                                requestUpdate();

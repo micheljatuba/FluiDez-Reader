@@ -349,7 +349,7 @@ void CrossPointWebServerActivity::exitToOrigin() {
   }
 
   if (returnBookPath.empty()) {
-    onGoHome();
+    activityManager.goHome();
     return;
   }
 
@@ -383,7 +383,7 @@ void CrossPointWebServerActivity::loop() {
       if (millis() - lastWifiCheck > 2000) {  // Check every 2 seconds
         lastWifiCheck = millis();
         const wl_status_t wifiStatus = WiFi.status();
-        // Driver auto-reconnect handles retries; abandon (via onGoHome) only
+        // Driver auto-reconnect handles retries; return home only
         // after WIFI_ABANDON_MS, otherwise the activity freezes on a blip.
         bool repaint = false;
         if (wifiStatus != WL_CONNECTED) {
@@ -397,7 +397,7 @@ void CrossPointWebServerActivity::loop() {
           if (millis() - firstDisconnectAt > WIFI_ABANDON_MS) {
             LOG_DBG("WEBACT", "WiFi unavailable for >%lu s; returning to network selection", WIFI_ABANDON_MS / 1000UL);
             state = WebServerActivityState::SHUTTING_DOWN;
-            onGoHome();
+            activityManager.goHome();
             return;
           }
         } else {

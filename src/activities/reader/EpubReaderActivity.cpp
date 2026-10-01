@@ -2665,7 +2665,7 @@ void EpubReaderActivity::loop() {
   if (goHomeAfterBuildCancel.load(std::memory_order_relaxed) && !RenderLock::peek()) {
     goHomeAfterBuildCancel.store(false, std::memory_order_relaxed);
     sectionBuildCancelRequested.store(false, std::memory_order_relaxed);
-    onGoHome();
+    activityManager.goHome();
     return;
   }
 
@@ -2865,7 +2865,7 @@ void EpubReaderActivity::loop() {
         activityManager.goToReader(openPath);
         return;
       case EndOfBookOptions::Action::GoHome:
-        onGoHome();
+        activityManager.goHome();
         return;
       case EndOfBookOptions::Action::LastPage:
         currentSpineIndex = std::max(epub->getSpineItemsCount() - 1, 0);
@@ -2976,7 +2976,7 @@ void EpubReaderActivity::loop() {
       restoreSavedPosition();
       return;
     }
-    onGoHome();
+    activityManager.goHome();
     return;
   }
 
@@ -3084,7 +3084,7 @@ void EpubReaderActivity::loop() {
         clearPendingManualPageTurns();
         if (currentSpineIndex > 0 && currentSpineIndex >= epub->getSpineItemsCount()) {
           if (nextLongPressed) {
-            onGoHome();
+            activityManager.goHome();
           } else {
             currentSpineIndex = epub->getSpineItemsCount() - 1;
             nextPageNumber = 0;
@@ -3172,7 +3172,7 @@ void EpubReaderActivity::loop() {
       return;
     }
     if (nextTriggered) {
-      onGoHome();
+      activityManager.goHome();
     } else {
       currentSpineIndex = epub->getSpineItemsCount() - 1;
       nextPageNumber = 0;
@@ -3727,7 +3727,7 @@ void EpubReaderActivity::onReaderMenuConfirm(EpubReaderMenuActivity::MenuAction 
       break;
     }
     case EpubReaderMenuActivity::MenuAction::GO_HOME: {
-      onGoHome();
+      activityManager.goHome();
       return;
     }
     case EpubReaderMenuActivity::MenuAction::DELETE_STATS: {
@@ -3801,7 +3801,7 @@ void EpubReaderActivity::onReaderMenuConfirm(EpubReaderMenuActivity::MenuAction 
             } else {
               LOG_ERR("ERS", "Failed to delete book cache");
             }
-            onGoHome();
+            activityManager.goHome();
           });
       break;
     }

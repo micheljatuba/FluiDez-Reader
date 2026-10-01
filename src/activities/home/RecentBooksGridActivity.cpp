@@ -371,7 +371,7 @@ void RecentBooksGridActivity::loop() {
   }
 
   if (TouchHeaderBackButton::wasTapped(mappedInput, TouchHeaderBackButton::compactHeaderRect(renderer))) {
-    onGoHome();
+    activityManager.goHome();
     return;
   }
   if (longPressFired) {
@@ -404,13 +404,13 @@ void RecentBooksGridActivity::loop() {
 
   if (mappedInput.wasReleased(MappedInputManager::Button::Confirm)) {
     if (!recentBooks.empty() && selectorIndex >= 0 && selectorIndex < static_cast<int>(recentBooks.size())) {
-      onSelectBook(recentBooks[selectorIndex].book.path);
+      activityManager.goToReader(recentBooks[selectorIndex].book.path);
       return;
     }
   }
 
   if (mappedInput.wasReleased(MappedInputManager::Button::Back)) {
-    onGoHome();
+    activityManager.goHome();
     return;
   }
 
@@ -455,7 +455,7 @@ void RecentBooksGridActivity::loop() {
     if (touchedIndex >= 0) {
       selectorIndex = touchedIndex;
       ensureProgressLoaded(selectorIndex);
-      onSelectBook(recentBooks[selectorIndex].book.path);
+      activityManager.goToReader(recentBooks[selectorIndex].book.path);
       return;
     }
   }

@@ -1083,7 +1083,7 @@ void FileBrowserActivity::activateSelected() {
   if (isDirectory) {
     requestUpdate();
   } else {
-    onSelectBook(fullPath);
+    activityManager.goToReader(fullPath);
   }
 }
 
@@ -1289,7 +1289,7 @@ void FileBrowserActivity::navigateBack() {
     setResult(std::move(result));
     finish();
   } else {
-    onGoHome();
+    activityManager.goHome();
   }
 }
 
