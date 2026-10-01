@@ -9,6 +9,7 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 ### Changed
 
 - Home navigation and book opening call `ActivityManager` directly, completing the transition away from the temporary `Activity::onGoHome` and `Activity::onSelectBook` wrappers.
+- The default theme's recent-book cover rendering is split into focused layout and drawing helpers without changing its appearance or interaction.
 
 ## [v1.6-fluidez12] - 2026-09-30
 
