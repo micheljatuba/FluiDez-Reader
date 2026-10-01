@@ -568,7 +568,7 @@ void NearbyBookTransferActivity::exitAfterRadio() {
       silentRestart();
     }
   } else {
-    onGoHome();
+    activityManager.goHome();
   }
 }
 

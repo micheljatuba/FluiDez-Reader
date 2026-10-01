@@ -250,7 +250,7 @@ void XtcReaderActivity::loop() {
       activityManager.goToReader(openPath);
       return;
     case EndOfBookOptions::Action::GoHome:
-      onGoHome();
+      activityManager.goHome();
       return;
     case EndOfBookOptions::Action::LastPage:
     case EndOfBookOptions::Action::Redraw:
@@ -310,7 +310,7 @@ void XtcReaderActivity::loop() {
   // Short press BACK goes directly to home
   if (!touch.prev && !touch.next && mappedInput.wasReleased(MappedInputManager::Button::Back) &&
       mappedInput.getHeldTime() < ReaderUtils::GO_HOME_MS) {
-    onGoHome();
+    activityManager.goHome();
     return;
   }
 
@@ -362,7 +362,7 @@ void XtcReaderActivity::loop() {
         }
       }
       if (goHome) {
-        onGoHome();
+        activityManager.goHome();
         return;
       }
       if (needsUpdate) {
@@ -466,7 +466,7 @@ void XtcReaderActivity::loop() {
         }
       }
       if (goHome) {
-        onGoHome();
+        activityManager.goHome();
         return;
       }
       if (needsUpdate) {
@@ -559,7 +559,7 @@ void XtcReaderActivity::loop() {
     }
   }
   if (goHome) {
-    onGoHome();
+    activityManager.goHome();
   } else if (needsUpdate) {
     requestUpdate();
   }

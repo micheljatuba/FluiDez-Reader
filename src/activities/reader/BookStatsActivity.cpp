@@ -286,7 +286,7 @@ void BookStatsActivity::onExit() {
 
 void BookStatsActivity::exitStatsActivity() {
   if (returnToHomeOnExit) {
-    onGoHome();
+    activityManager.goHome();
     return;
   }
 
