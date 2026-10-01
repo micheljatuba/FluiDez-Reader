@@ -5548,7 +5548,6 @@ void EpubReaderActivity::pageTurn(bool isForwardTurn, const char* source) {
   requestUpdate();
 }
 
-// TODO: Failure handling
 void EpubReaderActivity::render(RenderLock&& lock) {
   // The render task now owns the mutex requested by the input action. Background
   // indexing may resume only after this render releases it.
@@ -6027,7 +6026,7 @@ void EpubReaderActivity::render(RenderLock&& lock) {
 
     if (!section) {
       LOG_ERR("ERS", "Section load/build did not produce a section");
-      showPendingSyncSaveError();
+      showBuildError();
       return;
     }
 
