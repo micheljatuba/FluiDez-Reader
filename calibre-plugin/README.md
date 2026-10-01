@@ -1,6 +1,6 @@
 # Plugin FluiDez Reader para Calibre
 
-Este plugin faz o Calibre reconhecer o **FluiDez Reader** como um dispositivo sem fio e enviar arquivos EPUB diretamente para o leitor por WebSocket. Ele é uma bifurcação independente do plugin MIT **CrossPoint Reader**, adaptada para o firmware FluiDez Reader, mantido pela **MJ Cloud Tecnologia** e testado apenas no **Xteink X4 Pro**.
+Este plugin faz o Calibre reconhecer o **FluiDez Reader** como um dispositivo sem fio e enviar arquivos EPUB diretamente para o leitor por WebSocket. Ele é mantido pela **MJ Cloud Tecnologia** e foi testado apenas no **Xteink X4 Pro**.
 
 ## Download e instalação
 
@@ -8,7 +8,6 @@ Este plugin faz o Calibre reconhecer o **FluiDez Reader** como um dispositivo se
 2. No Calibre, abra **Preferências > Plugins > Carregar plugin a partir de arquivo**.
 3. Selecione o arquivo `fluidez-reader-calibre-plugin.zip` sem extrair.
 4. Confirme o aviso de segurança do Calibre e reinicie o Calibre.
-5. Se o plugin **CrossPoint Reader** estiver instalado, remova-o (**Preferências > Plugins**, selecione-o e clique em **Remover plugin**) para que os dois não disputem o mesmo leitor.
 
 ## Como conectar
 
@@ -18,7 +17,7 @@ Este plugin faz o Calibre reconhecer o **FluiDez Reader** como um dispositivo se
 2. No Calibre, aguarde o dispositivo **FluiDez Reader** aparecer. O plugin procura o leitor automaticamente na rede e também tenta `fluidez.local` e o IP do hotspot, `192.168.4.1`.
 3. Envie os livros com **Enviar para o dispositivo** ou pelo menu de contexto do Calibre. Mantenha a tela do leitor aberta durante o envio.
 
-O plugin também funciona com as versões anteriores do firmware (até a v1.6-fluidez10), que usavam o nome `crosspoint.local` e a rede `CrossPoint-Reader`: a procura automática encontra o leitor do mesmo jeito.
+A procura automática também encontra leitores com versões anteriores do FluiDez Reader.
 
 ## Configurações principais
 
@@ -37,7 +36,7 @@ Abra **Preferências > Plugins**, expanda **Interface do dispositivo**, selecion
 
 ## Otimizador de EPUB
 
-O plugin pode otimizar EPUBs antes da transferência (opção **Otimizar EPUBs antes da transferência**), de forma semelhante ao otimizador da página web do leitor. O trabalho original do otimizador vem de [@zgredex](https://github.com/zgredex) e foi portado para Python no projeto CrossPoint Reader.
+O plugin pode otimizar EPUBs antes da transferência (opção **Otimizar EPUBs antes da transferência**), de forma semelhante ao otimizador da página web do leitor.
 
 Quando ativado, cada EPUB pode passar por estas etapas antes do envio:
 
@@ -61,7 +60,7 @@ Se a detecção falhar, o plugin usa o perfil X4 por padrão. Durante a transfer
 - **O dispositivo não aparece**: confirme que o leitor está na tela **Calibre sem fio** (ou em **Criar hotspot**, com o computador conectado à rede `FluiDez-Reader`) e que computador e leitor estão na mesma rede. Depois, tente novamente.
 - **`fluidez.local` não funciona na sua rede**: coloque no campo **Host** o IP mostrado na tela do leitor. No hotspot, o IP é `192.168.4.1`, que o plugin sempre tenta.
 - **Transferência falha**: reduza o tamanho do bloco para 2048, aumente o timeout do socket e mantenha o leitor acordado durante o envio.
-- **Dois plugins aparecem para o mesmo leitor**: remova o plugin **CrossPoint Reader** e deixe apenas **FluiDez Reader** instalado.
+- **Dois plugins aparecem para o mesmo leitor**: em **Preferências > Plugins**, remova ou desative o outro plugin de dispositivo sem fio e deixe apenas o **FluiDez Reader** ativo.
 - **Livro já existe no leitor**: ative **Sobrescrever arquivo se ele já existir no dispositivo** ou apague o arquivo antigo no leitor antes de reenviar.
 - **Livros carregados fora do Calibre não aparecem como “no dispositivo”**: ative **Buscar metadados de livros carregados manualmente** apenas se a correspondência por nome não for suficiente.
 
@@ -71,4 +70,4 @@ Uso por sua conta e risco. A MJ Cloud Tecnologia não se responsabiliza por perd
 
 ## Créditos e licença
 
-Este plugin é uma bifurcação do plugin **CrossPoint Reader**: <https://github.com/crosspoint-reader/calibre-plugins>. O código original é distribuído sob a licença MIT. As modificações de marca, compatibilidade e empacotamento para o FluiDez Reader também são distribuídas sob a licença MIT; veja [LICENSE](LICENSE).
+Este plugin é uma bifurcação do plugin **CrossPoint Reader**: <https://github.com/crosspoint-reader/calibre-plugins>. O otimizador de EPUB se baseia no trabalho original de [@zgredex](https://github.com/zgredex), portado para Python nesse projeto. O código original é distribuído sob a licença MIT. As modificações de marca, compatibilidade e empacotamento para o FluiDez Reader também são distribuídas sob a licença MIT; veja [LICENSE](LICENSE).
