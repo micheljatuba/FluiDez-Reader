@@ -6,6 +6,20 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ## [Unreleased]
 
+## [v1.6-fluidez12] - 2026-09-30
+
+### Changed
+
+- Font downloads, OPDS catalogs and downloads, and Check for Updates identify themselves with the User-Agent `FluiDez-Reader-ESP32-<version>`. KOReader sync requests are unchanged.
+- The installation guide and the user guide are in Brazilian Portuguese and use the reader's Portuguese menu names. The Calibre plugin guide describes only the FluiDez Reader plugin.
+- CI and release jobs run on `ubuntu-24.04`, where the builds are validated, instead of `ubuntu-latest`, and use `actions/cache@v6`. The simulator used by the CI smoke tests is pinned to a fixed commit.
+
+### Fixed
+
+- KOReader authentication rejects server responses larger than 4 KB, such as a proxy's HTML error page, instead of running out of memory while the secure connection is open. An incomplete response is reported as a network error. From CrossInk [`56a29f61`](https://github.com/uxjulia/crossink/commit/56a29f61885e96658dd93cc867d6ac9af061e8bb).
+- Leaving an EPUB or TXT book releases every rebuildable font cache, including those of fonts used earlier in the session and the built-in fonts' decompression cache, so other screens such as the Home covers get that memory back. From CrossInk [`bc1ef410`](https://github.com/uxjulia/crossink/commit/bc1ef410cfeaded280746d5a796906a6e5d7380e).
+- Crash reports from the ESP32-S3 readers (X4 Pro, X4 Classic, and Sticky) keep both cores' registers, backtraces, and running task names, and mark the core that panicked first. Reports from every reader include the firmware ELF SHA256 needed to decode them. From CrossInk [`2dd96fa2`](https://github.com/uxjulia/crossink/commit/2dd96fa22b89c71a9f1f521abe9712c543d00828).
+
 ## [v1.6-fluidez11] - 2026-09-30
 
 ### Added
