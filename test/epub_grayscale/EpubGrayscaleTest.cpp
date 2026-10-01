@@ -2,6 +2,7 @@
 #include <EpubGrayscale.h>
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstdlib>
 
 namespace {
@@ -301,6 +302,87 @@ TEST_F(EpubGrayscaleTest, MissingScratchAndUnsupportedPathsPreserveFallbackContr
     EXPECT_FALSE(r.active);
     EXPECT_EQ(page.imageVisits, 0);
     EXPECT_EQ(r.events, reason == 3 ? (std::vector<std::string>{"wait", "cleanup"}) : std::vector<std::string>{});
+  }
+}
+
+TEST_F(EpubGrayscaleTest, QueuedTurnSkipDropsOverlayBeforeGrayAtEveryPoll) {
+  struct Poll {
+    std::vector<std::string> events;
+    int imageVisits;
+  };
+  // Sync strips never poll; async strips poll at entry and before each strip;
+  // one- and two-plane buffers poll at entry, before the second plane render
+  // or upload, and after the base refresh.
+  const size_t expectedPolls[] = {0, 15, 3, 3};
+  for (int path = 0; path < 4; ++path) {
+    std::vector<Poll> polls;
+    // skipAt -1 records every poll without skipping; then skip at each one.
+    for (int skipAt = -1; skipAt < static_cast<int>(polls.size()); ++skipAt) {
+      SCOPED_TRACE(testing::Message() << path << ' ' << skipAt);
+      ImageBlock::releaseSessionPixelCache();
+      fakeheap::reset(path != 0);
+      if (path == 1) fakeheap::external.failOnAttempt = 1;
+      if (path == 2) fakeheap::external.failOnAttempt = 2;
+      GfxRenderer r;
+      const int w = r.getScreenWidth() - 7, h = r.getScreenHeight() - 11;
+      Storage.put("one.pxc", cache(w, h));
+      ImageBlock one("one.jpg", "", w, h);
+      Page page;
+      page.images = {{&one, -3, 2}};
+      std::vector<uint8_t> scratch(r.stride * 80);
+      const auto live = r.bw;
+      int poll = 0;
+      const auto skip = [&] {
+        if (skipAt < 0) polls.push_back({r.events, page.imageVisits});
+        return poll++ == skipAt;
+      };
+      ASSERT_TRUE(EpubGrayscale::runTiledGrayscalePass(r, page, 1, 0, 0, true, true, true, scratch.data(),
+                                                       scratch.size(), path != 0, skip));
+      EXPECT_EQ(r.bw, live);
+      EXPECT_EQ(r.mode, GfxRenderer::BW);
+      EXPECT_FALSE(r.active);
+      if (skipAt < 0) {
+        ASSERT_EQ(polls.size(), expectedPolls[path]);
+        std::vector<std::string> expected;
+        if (path != 0) expected.push_back("wait");
+        expected.insert(expected.end(), path < 2 ? 7 : 1, "lsb");
+        expected.insert(expected.end(), path < 2 ? 7 : 1, "msb");
+        expected.push_back("gray");
+        expected.push_back("cleanup");
+        EXPECT_EQ(r.events, expected);
+        continue;
+      }
+      // The skip finishes the base refresh, never starts the gray waveform and
+      // re-syncs the controller baseline without rendering more planes.
+      EXPECT_EQ(poll, skipAt + 1);
+      auto expected = polls[skipAt].events;
+      if (std::find(expected.begin(), expected.end(), "wait") == expected.end()) expected.push_back("wait");
+      expected.push_back("cleanup");
+      EXPECT_EQ(r.events, expected);
+      EXPECT_EQ(page.imageVisits, polls[skipAt].imageVisits);
+    }
+  }
+}
+
+TEST_F(EpubGrayscaleTest, QueuedTurnSkipWithoutScratchStopsCallerFallback) {
+  // Polls at entry and again after the baseline re-sync that replaces the
+  // overlay; true there stops the caller's whole-buffer fallback.
+  for (int skipAt : {-1, 0, 1}) {
+    SCOPED_TRACE(skipAt);
+    GfxRenderer r;
+    Page page;
+    const auto live = r.bw;
+    fakeheap::internal.free = 0;
+    int poll = 0;
+    EXPECT_EQ(EpubGrayscale::runTiledGrayscalePass(r, page, 1, 0, 0, true, true, true, nullptr, 0, true,
+                                                   [&] { return poll++ == skipAt; }),
+              skipAt >= 0);
+    EXPECT_EQ(poll, skipAt == 0 ? 1 : 2);
+    EXPECT_EQ(r.events, (std::vector<std::string>{"wait", "cleanup"}));
+    EXPECT_EQ(r.bw, live);
+    EXPECT_EQ(r.mode, GfxRenderer::BW);
+    EXPECT_FALSE(r.active);
+    EXPECT_EQ(page.imageVisits, 0);
   }
 }
 }  // namespace
