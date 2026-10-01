@@ -119,7 +119,7 @@ Depois da primeira instalação, use **Configurações > Sistema > Verificar atu
 Para enviar livros do Calibre pela rede Wi-Fi, use o plugin **FluiDez Reader** para Calibre:
 
 1. Baixe o [`fluidez-reader-calibre-plugin.zip`](https://github.com/micheljatuba/FluiDez-Reader/releases/latest/download/fluidez-reader-calibre-plugin.zip), anexado a cada versão.
-2. No Calibre, abra **Preferências > Plugins > Carregar plugin a partir de arquivo**, escolha o ZIP (sem extrair) e reinicie o Calibre. Se o plugin *CrossPoint Reader* estiver instalado, remova-o.
+2. No Calibre, abra **Preferências > Plugins > Carregar plugin a partir de arquivo**, escolha o ZIP (sem extrair) e reinicie o Calibre.
 3. No leitor, abra **Transferência de arquivos > Calibre sem fio** e, no Calibre, use **Enviar para o dispositivo**.
 
 Mais detalhes, configurações e solução de problemas estão no [README do plugin](calibre-plugin/README.md).
