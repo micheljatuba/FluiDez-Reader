@@ -6,12 +6,14 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ## [Unreleased]
 
+## [v1.6-fluidez13] - 2026-10-01
+
 ### Changed
 
 - Home navigation and book opening call `ActivityManager` directly, completing the transition away from the temporary `Activity::onGoHome` and `Activity::onSelectBook` wrappers.
 - The default theme's recent-book cover rendering is split into focused layout and drawing helpers without changing its appearance or interaction.
 - The Calibre plugin, now version 1.1.0, checks every 5 seconds that the connected reader still answers. When the reader leaves Calibre Wireless, Calibre shows it as disconnected after about 15 seconds and reconnects on its own when the screen is reopened. Reopening the screen while Calibre is still connected shows Calibre as connected within a few seconds instead of waiting for the next book.
-- Text drawing resolves clipping and screen rotation once per glyph, reducing work when painting menus and book pages.
+- Text drawing resolves clipping and screen rotation once per glyph, reducing work when painting menus and book pages. From CrossInk [`8940d64e`](https://github.com/uxjulia/crossink/commit/8940d64eee29718f2c0abc09bc191a334a6c93d9).
 - With text anti-aliasing on, a page turn pressed before the current page's text is lightened skips that page's anti-aliasing and shows the next page at once. The page you stop on is still anti-aliased.
 
 ### Fixed
