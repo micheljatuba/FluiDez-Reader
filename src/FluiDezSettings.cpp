@@ -232,7 +232,7 @@ bool isValidQuickActionSlot(const uint8_t action) {
          action == FluiDezSettings::TOGGLE_FRONTLIGHT || action == FluiDezSettings::TOGGLE_TOUCHSCREEN ||
          action == FluiDezSettings::PREVIOUS_PAGE || action == FluiDezSettings::NEARBY_POSITION_SYNC ||
          action == FluiDezSettings::LIBRARY || action == FluiDezSettings::HOME_READER ||
-         action == FluiDezSettings::BACK_HOME;
+         action == FluiDezSettings::BACK_HOME || action == FluiDezSettings::SELECT_CHAPTER;
 }
 
 uint8_t migrateTiltDirectionValue(const uint8_t direction) {
@@ -280,6 +280,7 @@ bool FluiDezSettings::isTwoFingerSwipeActionAvailable(const uint8_t action, cons
     case TWO_FINGER_SWIPE_NOT_SET:
     case TWO_FINGER_SWIPE_BACK_HOME:
     case TWO_FINGER_SWIPE_HOME_READER:
+    case TWO_FINGER_SWIPE_SELECT_CHAPTER:
     case TWO_FINGER_SWIPE_NEXT_CHAPTER:
     case TWO_FINGER_SWIPE_PREVIOUS_CHAPTER:
     case TWO_FINGER_SWIPE_INCREASE_FONT_SIZE:

@@ -300,13 +300,17 @@ void XtcReaderActivity::loop() {
   }
 
   if ((longPressMenuAction == FluiDezSettings::LONG_MENU_LIBRARY ||
-       ReaderUtils::isNavigationLongPressAction(longPressMenuAction)) &&
+       ReaderUtils::isNavigationLongPressAction(longPressMenuAction) ||
+       longPressMenuAction == FluiDezSettings::LONG_MENU_SELECT_CHAPTER) &&
       mappedInput.getHeldTime() >= LONG_PRESS_MENU_MS &&
       (mappedInput.isPressed(MappedInputManager::Button::Confirm) ||
        mappedInput.wasReleased(MappedInputManager::Button::Confirm))) {
     longPressMenuHandled = mappedInput.isPressed(MappedInputManager::Button::Confirm);
     mappedInput.suppressNextConfirmRelease();
-    if (!ReaderUtils::dispatchNavigationLongPressAction(SETTINGS.longPressMenuAction)) activityManager.goToLibrary();
+    if (longPressMenuAction == FluiDezSettings::LONG_MENU_SELECT_CHAPTER)
+      openChapterSelection();
+    else if (!ReaderUtils::dispatchNavigationLongPressAction(longPressMenuAction))
+      activityManager.goToLibrary();
     return;
   }
 
@@ -585,7 +589,11 @@ void XtcReaderActivity::loop() {
   }
 }
 
-bool XtcReaderActivity::handleTwoFingerSwipeAction(const FluiDezSettings::TWO_FINGER_SWIPE_ACTION) {
+bool XtcReaderActivity::handleTwoFingerSwipeAction(const FluiDezSettings::TWO_FINGER_SWIPE_ACTION action) {
+  if (action == FluiDezSettings::TWO_FINGER_SWIPE_SELECT_CHAPTER) {
+    openChapterSelection();
+    return true;
+  }
   // XTC pages are pre-rendered images: they cannot be reflowed for font-size
   // changes, and the reader does not expose stable chapter jumps. Consume the
   // configured command without letting it turn into a regular page swipe.
@@ -882,6 +890,9 @@ void XtcReaderActivity::onFrontlightPanelClosed() {
 }
 
 void XtcReaderActivity::openChapterSelection() {
+  // Direct shortcuts have not passed through the already-paused reader menu.
+  // Record their current interval before any success or failure path restarts it.
+  pauseReadingStatsTimer("chapter_selection");
   uint32_t pageToSelect = 0;
   bool hasChapters = false;
   {
@@ -892,20 +903,35 @@ void XtcReaderActivity::openChapterSelection() {
     }
   }
   if (!hasChapters) {
+    {
+      RenderLock lock(*this);
+      drawToast(renderer, tr(STR_NO_CHAPTERS));
+    }
+    delay(1000);
     resumeReadingStatsTimer("chapter_selection_unavailable");
     requestUpdate();
     return;
   }
 
-  startActivityForResult(std::make_unique<XtcReaderChapterSelectionActivity>(renderer, mappedInput, xtc, pageToSelect),
-                         [this](const ActivityResult& result) {
-                           if (!result.isCancelled) {
-                             RenderLock lock(*this);
-                             currentPage = std::get<PageResult>(result.data).page;
-                           }
-                           resumeReadingStatsTimer("chapter_selection_return");
-                           requestUpdate();
-                         });
+  auto chapterSelection =
+      makeUniqueNoThrow<XtcReaderChapterSelectionActivity>(renderer, mappedInput, xtc, pageToSelect);
+  if (!chapterSelection) {
+    LOG_ERR("XTR", "OOM: chapter selection activity");
+    resumeReadingStatsTimer("chapter_selection_oom");
+    requestUpdate();
+    return;
+  }
+  mappedInput.suppressNextConfirmRelease();
+  mappedInput.suppressNextPowerRelease();
+  mappedInput.suppressNextPowerConfirmRelease();
+  startActivityForResult(std::move(chapterSelection), [this](const ActivityResult& result) {
+    if (!result.isCancelled) {
+      RenderLock lock(*this);
+      currentPage = std::get<PageResult>(result.data).page;
+    }
+    resumeReadingStatsTimer("chapter_selection_return");
+    requestUpdate();
+  });
 }
 
 void XtcReaderActivity::openReadingStats() {
@@ -1024,6 +1050,7 @@ bool XtcReaderActivity::handleFrontlightPanelResult(const FrontlightPanelResult&
 
 bool XtcReaderActivity::supportsQuickAction(const FluiDezSettings::SHORT_PWRBTN action) {
   switch (action) {
+    case FluiDezSettings::SHORT_PWRBTN::SELECT_CHAPTER:
     case FluiDezSettings::SHORT_PWRBTN::PREVIOUS_PAGE:
     case FluiDezSettings::SHORT_PWRBTN::SLEEP:
     case FluiDezSettings::SHORT_PWRBTN::FORCE_REFRESH:
@@ -1050,6 +1077,9 @@ bool XtcReaderActivity::executeReaderShortcutAction(const FluiDezSettings::SHORT
       return true;
     case FluiDezSettings::SHORT_PWRBTN::PREVIOUS_PAGE:
       shortcutPreviousPagePending = true;
+      return true;
+    case FluiDezSettings::SHORT_PWRBTN::SELECT_CHAPTER:
+      openChapterSelection();
       return true;
     case FluiDezSettings::SHORT_PWRBTN::FILE_TRANSFER:
       activityManager.goToFileTransfer(xtc ? xtc->getPath() : "");
@@ -1110,6 +1140,9 @@ bool XtcReaderActivity::executeLongPressBackAction() {
       return true;
     case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_FILE_BROWSER:
       activityManager.goToFileBrowser(xtc ? xtc->getPath() : "");
+      return true;
+    case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_SELECT_CHAPTER:
+      openChapterSelection();
       return true;
     case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_LIBRARY:
       activityManager.goToLibrary();

@@ -3511,6 +3511,9 @@ bool EpubReaderActivity::handleTwoFingerSwipeAction(const FluiDezSettings::TWO_F
   if (!epub) return false;
 
   switch (action) {
+    case FluiDezSettings::TWO_FINGER_SWIPE_SELECT_CHAPTER:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_SELECT_CHAPTER);
+      return true;
     case FluiDezSettings::TWO_FINGER_SWIPE_INCREASE_FONT_SIZE:
       if (ReaderUtils::changeReaderFontSizeWithFeedback(renderer, /*larger=*/true, FontSizeStepMode::Clamp))
         reindexCurrentSection();
@@ -3869,32 +3872,37 @@ void EpubReaderActivity::onReaderMenuConfirm(EpubReaderMenuAction action, const 
     case EpubReaderMenuAction::SELECT_CHAPTER: {
       const int spineIdx = currentSpineIndex;
       const std::string path = epub->getPath();
+      auto chapterSelection =
+          makeUniqueNoThrow<EpubReaderChapterSelectionActivity>(renderer, mappedInput, epub, path, spineIdx);
+      if (!chapterSelection) {
+        LOG_ERR("ERE", "OOM: chapter selection activity");
+        requestUpdate();
+        break;
+      }
       pauseReadingPaceTimer("chapter_selection");
-      startActivityForResult(
-          std::make_unique<EpubReaderChapterSelectionActivity>(renderer, mappedInput, epub, path, spineIdx),
-          [this, returnToReaderMenu](const ActivityResult& result) {
-            if (!result.isCancelled) {
-              const auto& chapterResult = std::get<ChapterResult>(result.data);
-              RenderLock lock(*this);
+      startActivityForResult(std::move(chapterSelection), [this, returnToReaderMenu](const ActivityResult& result) {
+        if (!result.isCancelled) {
+          const auto& chapterResult = std::get<ChapterResult>(result.data);
+          RenderLock lock(*this);
 
-              clearFootnotePreviewState();
-              currentSpineIndex = chapterResult.spineIndex;
+          clearFootnotePreviewState();
+          currentSpineIndex = chapterResult.spineIndex;
 
-              // If anchor is not empty, it will be used later to calculate the page number.
-              pendingAnchor = chapterResult.anchor;
+          // If anchor is not empty, it will be used later to calculate the page number.
+          pendingAnchor = chapterResult.anchor;
 
-              // Otherwise page 0 will be used.
-              nextPageNumber = 0;
+          // Otherwise page 0 will be used.
+          nextPageNumber = 0;
 
-              section.reset();
-              armReadingPaceWarmup("chapter_jump");
-              pauseReadingPaceTimer("chapter_jump");
-            } else if (returnToReaderMenu) {
-              openReaderMenu();
-            } else {
-              requestUpdate();
-            }
-          });
+          section.reset();
+          armReadingPaceWarmup("chapter_jump");
+          pauseReadingPaceTimer("chapter_jump");
+        } else if (returnToReaderMenu) {
+          openReaderMenu();
+        } else {
+          requestUpdate();
+        }
+      });
       break;
     }
     case EpubReaderMenuAction::FOOTNOTES: {
@@ -5151,6 +5159,13 @@ void EpubReaderActivity::executeReaderQuickAction(FluiDezSettings::LONG_PRESS_ME
     case FluiDezSettings::LONG_MENU_FILE_BROWSER:
       activityManager.goToFileBrowser(epub ? epub->getPath() : "");
       break;
+    case FluiDezSettings::LONG_MENU_SELECT_CHAPTER:
+      if (epub) {
+        mappedInput.suppressNextConfirmRelease();
+        suppressPowerShortcutRelease();
+        onReaderMenuConfirm(EpubReaderMenuAction::SELECT_CHAPTER);
+      }
+      break;
     case FluiDezSettings::LONG_MENU_LIBRARY:
       activityManager.goToLibrary();
       break;
@@ -5191,6 +5206,9 @@ bool EpubReaderActivity::handleShortcutAction(const uint8_t rawAction) {
       return true;
     case FluiDezSettings::SHORT_PWRBTN::NEARBY_POSITION_SYNC:
       onReaderMenuConfirm(EpubReaderMenuAction::NEARBY_POSITION_SYNC);
+      return true;
+    case FluiDezSettings::SHORT_PWRBTN::SELECT_CHAPTER:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_SELECT_CHAPTER);
       return true;
     case FluiDezSettings::SHORT_PWRBTN::TOGGLE_FONT:
       executeReaderQuickAction(FluiDezSettings::LONG_MENU_CHANGE_FONT);
@@ -5286,6 +5304,9 @@ bool EpubReaderActivity::handleShortcutAction(const FluiDezSettings::SHORT_PWRBT
       return true;
     case FluiDezSettings::SHORT_PWRBTN::NEARBY_POSITION_SYNC:
       onReaderMenuConfirm(EpubReaderMenuAction::NEARBY_POSITION_SYNC);
+      return true;
+    case FluiDezSettings::SHORT_PWRBTN::SELECT_CHAPTER:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_SELECT_CHAPTER);
       return true;
     case FluiDezSettings::SHORT_PWRBTN::TOGGLE_FONT:
       executeReaderQuickAction(FluiDezSettings::LONG_MENU_CHANGE_FONT);
@@ -5488,6 +5509,9 @@ bool EpubReaderActivity::executeShortPowerButtonAction() {
     case FluiDezSettings::SHORT_PWRBTN::NEARBY_POSITION_SYNC:
       onReaderMenuConfirm(EpubReaderMenuAction::NEARBY_POSITION_SYNC);
       return true;
+    case FluiDezSettings::SHORT_PWRBTN::SELECT_CHAPTER:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_SELECT_CHAPTER);
+      return true;
     case FluiDezSettings::SHORT_PWRBTN::TOGGLE_FONT:
       executeReaderQuickAction(FluiDezSettings::LONG_MENU_CHANGE_FONT);
       return true;
@@ -5597,6 +5621,9 @@ bool EpubReaderActivity::executeLongPowerButtonAction() {
   }
 
   switch (SETTINGS.longPwrBtn) {
+    case FluiDezSettings::SHORT_PWRBTN::SELECT_CHAPTER:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_SELECT_CHAPTER);
+      return true;
     case FluiDezSettings::SHORT_PWRBTN::TOGGLE_FONT:
       executeReaderQuickAction(FluiDezSettings::LONG_MENU_CHANGE_FONT);
       return true;

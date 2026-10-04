@@ -777,12 +777,13 @@ em **Configurações > Controles > Toques e gestos > Deslizar com dois dedos**. 
 ação para **Deslizar para cima**, **Deslizar para baixo**, **Deslizar para a esquerda** ou **Deslizar para a direita**, então
 mova dois dedos juntos nessa direção durante a leitura. As ações disponíveis
 são **Não definido**, **Aumentar brilho**, **Diminuir brilho**, **Aumentar tom quente**,
-**Diminuir tom quente**, **Próximo capítulo**, **Capítulo anterior**, **Aumentar fonte**
+**Diminuir tom quente**, **Escolher capítulo**, **Próximo capítulo**, **Capítulo anterior**, **Aumentar fonte**
 e **Diminuir fonte**. Opções de brilho e tom quente aparecem
-apenas quando o hardware oferece suporte; opções de capítulo se aplicam a EPUBs, e opções de fonte
+apenas quando o hardware oferece suporte; **Escolher capítulo** abre a lista de capítulos em livros EPUB e XTC,
+**Próximo capítulo** e **Capítulo anterior** se aplicam a EPUBs, e opções de fonte
 se aplicam a livros EPUB e TXT. Cada direção começa como **Não definido**,
 e cada ação só pode ser atribuída a uma direção; escolhê-la de novo move
-para a nova direção. Em livros XTC baseados em imagem, ações de capítulo e tamanho da fonte
+para a nova direção. Em livros XTC baseados em imagem, **Próximo capítulo**, **Capítulo anterior** e tamanho da fonte
 são consumidas, mas não conseguem alterar as páginas pré-renderizadas. Veja [Ações de deslizar com dois dedos](./controls.md#two-finger-swipe-actions) para a lista completa e
 limitações específicas de cada leitor.
 

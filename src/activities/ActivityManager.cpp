@@ -205,6 +205,7 @@ bool applyConfiguredSwipeAction(Activity& activity, ActivityManager& activityMan
       return activityManager.handleShortcutAction(FluiDezSettings::BACK_HOME);
     case FluiDezSettings::TWO_FINGER_SWIPE_HOME_READER:
       return activityManager.handleShortcutAction(FluiDezSettings::HOME_READER);
+    case FluiDezSettings::TWO_FINGER_SWIPE_SELECT_CHAPTER:
     case FluiDezSettings::TWO_FINGER_SWIPE_NEXT_CHAPTER:
     case FluiDezSettings::TWO_FINGER_SWIPE_PREVIOUS_CHAPTER:
     case FluiDezSettings::TWO_FINGER_SWIPE_INCREASE_FONT_SIZE:

@@ -61,11 +61,12 @@ inline constexpr std::array<StrId, FluiDezSettings::QUICK_ACTION_SLOT_ACTION_COU
 
 // Shared display order for shortcut pickers. The values remain the persisted
 // SHORT_PWRBTN IDs; only their presentation order is centralized here.
-inline constexpr std::array<FluiDezSettings::SHORT_PWRBTN, 33> shortcutActionOrder = {
+inline constexpr std::array<FluiDezSettings::SHORT_PWRBTN, 34> shortcutActionOrder = {
     FluiDezSettings::IGNORE,
     FluiDezSettings::SLEEP,
     FluiDezSettings::PAGE_TURN,
     FluiDezSettings::PREVIOUS_PAGE,
+    FluiDezSettings::SELECT_CHAPTER,
     FluiDezSettings::TOGGLE_BOOKMARK,
     FluiDezSettings::READING_STATS,
     FluiDezSettings::MARK_FINISHED,
@@ -102,7 +103,7 @@ inline bool supportsTiltPageTurn() { return halTiltSensor.isAvailable(); }
 inline bool isActionAvailable(const uint8_t action) {
   if (action == FluiDezSettings::READING_STATS && !SETTINGS.shouldTrackReadingStats()) return false;
   if (action == FluiDezSettings::PREVIOUS_PAGE || action == FluiDezSettings::NEARBY_POSITION_SYNC ||
-      action == FluiDezSettings::LIBRARY)
+      action == FluiDezSettings::LIBRARY || action == FluiDezSettings::SELECT_CHAPTER)
     return true;
   if (action == FluiDezSettings::QUICK_ACTIONS || action == FluiDezSettings::QUICK_LOCK) return true;
   if (action == FluiDezSettings::TOGGLE_FRONTLIGHT) return Frontlight.present();
@@ -133,6 +134,7 @@ inline StrId actionLabel(const uint8_t action) {
   if (action == FluiDezSettings::LIBRARY) return StrId::STR_LIBRARY;
   if (action == FluiDezSettings::HOME_READER) return StrId::STR_HOME_READER;
   if (action == FluiDezSettings::BACK_HOME) return StrId::STR_BACK_HOME;
+  if (action == FluiDezSettings::SELECT_CHAPTER) return StrId::STR_SELECT_CHAPTER;
   return StrId::STR_HOME_BUTTON_LOCK;
 }
 

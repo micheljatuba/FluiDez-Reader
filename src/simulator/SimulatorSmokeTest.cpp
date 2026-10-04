@@ -204,6 +204,11 @@ class SimulatorSmokeTest {
     Release,
     HomeTap,
     HomeLongPress,
+    ConfigureChapterShortcuts,
+    RestoreChapterShortcuts,
+    ConfigureChapterHomeDoubleTap,
+    WaitForChapterSelection,
+    WaitForMenuLongPress,
     ConfigureHomeButtonPowerLock,
     WaitForPowerLongPress,
     AssertHomeButtonDisabled,
@@ -241,6 +246,8 @@ class SimulatorSmokeTest {
     int y;
   };
 
+  uint8_t savedChapterShortcuts[7]{};
+  uint32_t lastInjectedHomeAt = 0;
   SmokeStep step = SmokeStep::Start;
   int settleFrames = 0;
   const char* activeStepName = nullptr;
@@ -668,8 +675,9 @@ class SimulatorSmokeTest {
                   FluiDezSettings::CHORD_QUICK_ACTIONS) == chordSetting->enumRawValues.end()) {
       fail("Quick Actions is missing from the Power + Up chord setting");
     }
-    if (FluiDezSettings::HOME_READER != 36 || FluiDezSettings::SHORT_PWRBTN_COUNT != 38 ||
-        FluiDezSettings::CHORD_HOME_READER != 32 || FluiDezSettings::POWER_CHORD_ACTION_COUNT != 34) {
+    if (FluiDezSettings::HOME_READER != 36 || FluiDezSettings::SELECT_CHAPTER != 38 ||
+        FluiDezSettings::SHORT_PWRBTN_COUNT != 39 || FluiDezSettings::CHORD_HOME_READER != 32 ||
+        FluiDezSettings::CHORD_SELECT_CHAPTER != 34 || FluiDezSettings::POWER_CHORD_ACTION_COUNT != 35) {
       fail("Home/Reader changed persisted shortcut IDs or counts");
     }
     if (QuickActions::actionLabel(FluiDezSettings::HOME_READER) != StrId::STR_HOME_READER ||
@@ -947,6 +955,59 @@ class SimulatorSmokeTest {
         QuickActions::actionLabel(FluiDezSettings::LIBRARY) != StrId::STR_LIBRARY) {
       fail("Library is missing from Quick Actions choices");
     }
+
+    const auto verifyChapterChoice = [&](const char* key, const uint8_t raw) {
+      const auto setting = std::find_if(allSettings.begin(), allSettings.end(),
+                                        [key](const SettingInfo& candidate) { return settingKeyIs(candidate, key); });
+      if (setting == allSettings.end()) fail("Missing shortcut setting: %s", key);
+      const auto choice = std::find(setting->enumRawValues.begin(), setting->enumRawValues.end(), raw);
+      if (choice == setting->enumRawValues.end() ||
+          setting->enumValues[static_cast<size_t>(choice - setting->enumRawValues.begin())] !=
+              StrId::STR_SELECT_CHAPTER) {
+        fail("Select Chapter is missing or mislabeled in %s", key);
+      }
+    };
+    for (const char* key : {"shortPwrBtn", "longPwrBtn", "sideButtonUpShort", "sideButtonUpLong", "sideButtonDownShort",
+                            "sideButtonDownLong"}) {
+      verifyChapterChoice(key, FluiDezSettings::SELECT_CHAPTER);
+    }
+    verifyChapterChoice("powerChordAction", FluiDezSettings::CHORD_SELECT_CHAPTER);
+    verifyChapterChoice("longPressMenuAction", FluiDezSettings::LONG_MENU_SELECT_CHAPTER);
+    verifyChapterChoice("longPressBackAction", FluiDezSettings::LONG_MENU_SELECT_CHAPTER);
+    if (hasSideButtonChord) verifyChapterChoice("sideButtonChordAction", FluiDezSettings::CHORD_SELECT_CHAPTER);
+    if (gpio.hasHomeKey()) {
+      for (const char* key : {"homeButtonTapAction", "homeButtonLongPressAction", "homeButtonDoubleTapAction"})
+        verifyChapterChoice(key, FluiDezSettings::SELECT_CHAPTER);
+    }
+    if (gpio.hasTouch()) {
+      for (const char* key : {"twoFingerSwipeUp", "twoFingerSwipeDown", "twoFingerSwipeLeft", "twoFingerSwipeRight",
+                              "leftEdgeUp", "leftEdgeDown", "rightEdgeUp", "rightEdgeDown"})
+        verifyChapterChoice(key, FluiDezSettings::TWO_FINGER_SWIPE_SELECT_CHAPTER);
+    }
+    if (!QuickActions::isQuickActionSlotActionAvailable(FluiDezSettings::SELECT_CHAPTER) ||
+        QuickActions::actionLabel(FluiDezSettings::SELECT_CHAPTER) != StrId::STR_SELECT_CHAPTER) {
+      fail("Select Chapter is missing from Quick Actions");
+    }
+    JsonDocument originalChapterSettings;
+    SETTINGS.toJson(originalChapterSettings);
+    JsonDocument chapterSettings;
+    SETTINGS.toJson(chapterSettings);
+    chapterSettings["shortPwrBtn"] = FluiDezSettings::SELECT_CHAPTER;
+    chapterSettings["longPwrBtn"] = FluiDezSettings::SELECT_CHAPTER;
+    chapterSettings["powerChordAction"] = FluiDezSettings::CHORD_SELECT_CHAPTER;
+    chapterSettings["longPressMenuAction"] = FluiDezSettings::LONG_MENU_SELECT_CHAPTER;
+    chapterSettings["longPressBackAction"] = FluiDezSettings::LONG_MENU_SELECT_CHAPTER;
+    chapterSettings["quickActionSlots"][0] = FluiDezSettings::SELECT_CHAPTER;
+    SETTINGS.fromJson(chapterSettings.as<JsonVariantConst>());
+    if (SETTINGS.shortPwrBtn != FluiDezSettings::SELECT_CHAPTER ||
+        SETTINGS.longPwrBtn != FluiDezSettings::SELECT_CHAPTER ||
+        SETTINGS.powerChordAction != FluiDezSettings::CHORD_SELECT_CHAPTER ||
+        SETTINGS.longPressMenuAction != FluiDezSettings::LONG_MENU_SELECT_CHAPTER ||
+        SETTINGS.longPressBackAction != FluiDezSettings::LONG_MENU_SELECT_CHAPTER ||
+        SETTINGS.quickActionSlots[0] != FluiDezSettings::SELECT_CHAPTER) {
+      fail("Select Chapter settings did not survive reload");
+    }
+    SETTINGS.fromJson(originalChapterSettings.as<JsonVariantConst>());
 
     const uint8_t savedTrackReadingStats = SETTINGS.trackReadingStats;
     SETTINGS.trackReadingStats = 0;
@@ -2677,6 +2738,58 @@ class SimulatorSmokeTest {
     }
     const auto sizeIt = std::find(currentFontSizes.begin(), currentFontSizes.end(), SETTINGS.readerFontPointSize);
     const int currentSizeIndex = sizeIt == currentFontSizes.end() ? 0 : std::distance(currentFontSizes.begin(), sizeIt);
+    inputScript.push_back(
+        {ScriptActionType::ConfigureChapterShortcuts, MappedInputManager::Button::Power, nullptr, 0, 0, 0});
+    addTap(MappedInputManager::Button::Power);
+    inputScript.push_back(render("Select Chapter from short Power", 4));
+    inputScript.push_back(
+        {ScriptActionType::AssertActivity, MappedInputManager::Button::Back, "EpubReaderChapterSelection", 0, 0, 0});
+    addTap(MappedInputManager::Button::Back);
+    inputScript.push_back(render("Reader after cancelling chapter selection", 4));
+    inputScript.push_back(press(MappedInputManager::Button::Power));
+    inputScript.push_back(waitForPowerLongPress());
+    inputScript.push_back(render("Select Chapter from long Power", 4));
+    inputScript.push_back(release(MappedInputManager::Button::Power));
+    inputScript.push_back(render("Chapter selection after Power release", 4));
+    inputScript.push_back(
+        {ScriptActionType::AssertActivity, MappedInputManager::Button::Back, "EpubReaderChapterSelection", 0, 0, 0});
+    addTap(MappedInputManager::Button::Back);
+    inputScript.push_back(render("Reader after long Power chapter shortcut", 4));
+    inputScript.push_back(press(MappedInputManager::Button::Confirm));
+    inputScript.push_back(
+        {ScriptActionType::WaitForMenuLongPress, MappedInputManager::Button::Confirm, nullptr, 0, 0, 0});
+    inputScript.push_back(render("Select Chapter from long Menu", 4));
+    inputScript.push_back(release(MappedInputManager::Button::Confirm));
+    inputScript.push_back(render("Chapter selection after Menu release", 4));
+    inputScript.push_back(
+        {ScriptActionType::AssertActivity, MappedInputManager::Button::Back, "EpubReaderChapterSelection", 0, 0, 0});
+    addTap(MappedInputManager::Button::Back);
+    inputScript.push_back(render("Reader after long Menu chapter shortcut", 4));
+    if (mappedInputManager.hasHomeKey()) {
+      for (const auto action : {ScriptActionType::HomeTap, ScriptActionType::HomeLongPress}) {
+        inputScript.push_back({action, MappedInputManager::Button::Power, nullptr, 0, 0, 0});
+        inputScript.push_back(
+            {ScriptActionType::WaitForChapterSelection, MappedInputManager::Button::Power, nullptr, 0, 0, 0});
+        inputScript.push_back(render("Select Chapter from Home key", 8));
+        inputScript.push_back(assertActivity("EpubReaderChapterSelection"));
+        addTap(MappedInputManager::Button::Back);
+        inputScript.push_back(render("Reader after Home chapter shortcut", 4));
+        inputScript.push_back(assertActivity("EpubReader"));
+      }
+      inputScript.push_back(
+          {ScriptActionType::ConfigureChapterHomeDoubleTap, MappedInputManager::Button::Power, nullptr, 0, 0, 0});
+      inputScript.push_back({ScriptActionType::HomeTap, MappedInputManager::Button::Power, nullptr, 0, 0, 0});
+      inputScript.push_back({ScriptActionType::HomeTap, MappedInputManager::Button::Power, nullptr, 0, 0, 0});
+      inputScript.push_back(
+          {ScriptActionType::WaitForChapterSelection, MappedInputManager::Button::Power, nullptr, 0, 0, 0});
+      inputScript.push_back(render("Select Chapter from Home double tap", 4));
+      inputScript.push_back(assertActivity("EpubReaderChapterSelection"));
+      addTap(MappedInputManager::Button::Back);
+      inputScript.push_back(render("Reader after Home double tap chapter shortcut", 4));
+      inputScript.push_back(assertActivity("EpubReader"));
+    }
+    inputScript.push_back(
+        {ScriptActionType::RestoreChapterShortcuts, MappedInputManager::Button::Power, nullptr, 0, 0, 0});
 
     const int turns = pageTurnCount();
 #if FLUIDEZ_APP_CAP_TOUCH
@@ -3256,10 +3369,50 @@ class SimulatorSmokeTest {
         mappedInputManager.simulatorInjectRelease(action.button);
         break;
       case ScriptActionType::HomeTap:
+        lastInjectedHomeAt = millis();
         simulatorHomeKeyInput.injectTap();
         break;
       case ScriptActionType::HomeLongPress:
+        lastInjectedHomeAt = millis();
         simulatorHomeKeyInput.injectLongPress();
+        break;
+      case ScriptActionType::WaitForChapterSelection:
+        if (!activityManager.isCurrentActivityNamed("EpubReaderChapterSelection")) {
+          if (millis() - lastInjectedHomeAt > 1000) fail("Home shortcut did not open chapter selection");
+          --scriptIndex;
+        }
+        break;
+      case ScriptActionType::ConfigureChapterShortcuts:
+        savedChapterShortcuts[0] = SETTINGS.shortPwrBtn;
+        savedChapterShortcuts[1] = SETTINGS.longPwrBtn;
+        savedChapterShortcuts[2] = SETTINGS.longPressMenuAction;
+        savedChapterShortcuts[3] = SETTINGS.longPressBackAction;
+        savedChapterShortcuts[4] = SETTINGS.homeButtonTapAction;
+        savedChapterShortcuts[5] = SETTINGS.homeButtonLongPressAction;
+        savedChapterShortcuts[6] = SETTINGS.homeButtonDoubleTapAction;
+        SETTINGS.shortPwrBtn = FluiDezSettings::SELECT_CHAPTER;
+        SETTINGS.longPwrBtn = FluiDezSettings::SELECT_CHAPTER;
+        SETTINGS.longPressMenuAction = FluiDezSettings::LONG_MENU_SELECT_CHAPTER;
+        SETTINGS.longPressBackAction = FluiDezSettings::LONG_MENU_OFF;
+        SETTINGS.homeButtonTapAction = FluiDezSettings::SELECT_CHAPTER;
+        SETTINGS.homeButtonLongPressAction = FluiDezSettings::SELECT_CHAPTER;
+        SETTINGS.homeButtonDoubleTapAction = FluiDezSettings::IGNORE;
+        break;
+      case ScriptActionType::ConfigureChapterHomeDoubleTap:
+        SETTINGS.homeButtonTapAction = FluiDezSettings::IGNORE;
+        SETTINGS.homeButtonDoubleTapAction = FluiDezSettings::SELECT_CHAPTER;
+        break;
+      case ScriptActionType::RestoreChapterShortcuts:
+        SETTINGS.shortPwrBtn = savedChapterShortcuts[0];
+        SETTINGS.longPwrBtn = savedChapterShortcuts[1];
+        SETTINGS.longPressMenuAction = savedChapterShortcuts[2];
+        SETTINGS.longPressBackAction = savedChapterShortcuts[3];
+        SETTINGS.homeButtonTapAction = savedChapterShortcuts[4];
+        SETTINGS.homeButtonLongPressAction = savedChapterShortcuts[5];
+        SETTINGS.homeButtonDoubleTapAction = savedChapterShortcuts[6];
+        break;
+      case ScriptActionType::WaitForMenuLongPress:
+        if (mappedInputManager.getHeldTime() < 650) --scriptIndex;
         break;
       case ScriptActionType::ConfigureHomeButtonPowerLock:
         SETTINGS.homeButtonInReaderEnabled = 1;
