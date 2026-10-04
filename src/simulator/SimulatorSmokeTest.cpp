@@ -645,8 +645,8 @@ class SimulatorSmokeTest {
         std::string(I18N.get(StrId::STR_HOME_READER)) != "Home/Reader") {
       fail("Home/Reader shortcut label mismatch");
     }
-    if (QuickActions::isActionAvailable(FluiDezSettings::HOME_READER) != !gpio.hasTouch()) {
-      fail("Home/Reader capability gating does not match button-only devices");
+    if (!QuickActions::isActionAvailable(FluiDezSettings::HOME_READER)) {
+      fail("Home/Reader is unavailable on this device");
     }
     const auto containsShortcut = [](const std::vector<SettingInfo>& settings, const char* key,
                                      const ShortcutOptionCatalog catalog) {
@@ -659,12 +659,9 @@ class SimulatorSmokeTest {
              setting->enumValues[static_cast<size_t>(choice - setting->enumRawValues.begin())] ==
                  StrId::STR_HOME_READER;
     };
-    const bool shouldExposeHomeReader = !gpio.hasTouch();
-    if (containsShortcut(allSettings, "shortPwrBtn", ShortcutOptionCatalog::PowerButton) != shouldExposeHomeReader ||
-        containsShortcut(sideButtonSettings, "sideButtonUpShort", ShortcutOptionCatalog::SideButton) !=
-            shouldExposeHomeReader ||
-        containsShortcut(allSettings, "powerChordAction", ShortcutOptionCatalog::ButtonChord) !=
-            shouldExposeHomeReader) {
+    if (!containsShortcut(allSettings, "shortPwrBtn", ShortcutOptionCatalog::PowerButton) ||
+        !containsShortcut(sideButtonSettings, "sideButtonUpShort", ShortcutOptionCatalog::SideButton) ||
+        !containsShortcut(allSettings, "powerChordAction", ShortcutOptionCatalog::ButtonChord)) {
       fail("Home/Reader shortcut availability or settings mapping mismatch");
     }
     if (shortcutRawValue(ShortcutOptionCatalog::HomeButton, FluiDezSettings::HOME_READER) !=
@@ -675,12 +672,15 @@ class SimulatorSmokeTest {
     }
     const uint8_t savedPowerAction = SETTINGS.shortPwrBtn;
     const uint8_t savedChordAction = SETTINGS.powerChordAction;
+    const uint8_t savedQuickActionSlot = SETTINGS.quickActionSlots[0];
     SETTINGS.shortPwrBtn = FluiDezSettings::HOME_READER;
     SETTINGS.powerChordAction = FluiDezSettings::CHORD_HOME_READER;
+    SETTINGS.quickActionSlots[0] = FluiDezSettings::HOME_READER;
     JsonDocument shortcutRoundTrip;
     SETTINGS.toJson(shortcutRoundTrip);
     SETTINGS.shortPwrBtn = FluiDezSettings::IGNORE;
     SETTINGS.powerChordAction = FluiDezSettings::CHORD_DISABLED;
+    SETTINGS.quickActionSlots[0] = FluiDezSettings::IGNORE;
     SETTINGS.fromJson(shortcutRoundTrip.as<JsonVariantConst>());
     const uint8_t expectedPowerAction = shouldExposeHomeReader ? FluiDezSettings::HOME_READER : FluiDezSettings::IGNORE;
     const uint8_t expectedChordAction =
@@ -690,6 +690,7 @@ class SimulatorSmokeTest {
     }
     SETTINGS.shortPwrBtn = savedPowerAction;
     SETTINGS.powerChordAction = savedChordAction;
+    SETTINGS.quickActionSlots[0] = savedQuickActionSlot;
     if (!gpio.hasHomeKey() &&
         std::find(chordSetting->enumRawValues.begin(), chordSetting->enumRawValues.end(),
                   FluiDezSettings::CHORD_TOGGLE_HOME_BUTTON) != chordSetting->enumRawValues.end()) {

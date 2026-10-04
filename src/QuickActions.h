@@ -106,7 +106,7 @@ inline bool isActionAvailable(const uint8_t action) {
   if (action == FluiDezSettings::QUICK_ACTIONS || action == FluiDezSettings::QUICK_LOCK) return true;
   if (action == FluiDezSettings::TOGGLE_FRONTLIGHT) return Frontlight.present();
   if (action == FluiDezSettings::TOGGLE_TOUCHSCREEN) return gpio.hasTouch();
-  if (action == FluiDezSettings::HOME_READER) return !gpio.hasTouch();
+  if (action == FluiDezSettings::HOME_READER) return true;
   if (action < FluiDezSettings::QUICK_ACTION_SLOT_ACTION_COUNT) {
     return action != FluiDezSettings::TOGGLE_TILT_PAGE_TURN || supportsTiltPageTurn();
   }
