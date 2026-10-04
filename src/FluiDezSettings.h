@@ -166,6 +166,8 @@ class FluiDezSettings : public PersistableStore<FluiDezSettings> {
     TWO_FINGER_SWIPE_PREVIOUS_CHAPTER,
     TWO_FINGER_SWIPE_INCREASE_FONT_SIZE,
     TWO_FINGER_SWIPE_DECREASE_FONT_SIZE,
+    TWO_FINGER_SWIPE_BACK_HOME,
+    TWO_FINGER_SWIPE_HOME_READER,
     TWO_FINGER_SWIPE_ACTION_COUNT,
   };
 
@@ -284,6 +286,7 @@ class FluiDezSettings : public PersistableStore<FluiDezSettings> {
     SLEEP_ONLY = 34,
     WAKE_ONLY = 35,
     HOME_READER = 36,
+    BACK_HOME = 37,
     SHORT_PWRBTN_COUNT
   };
 
@@ -324,6 +327,7 @@ class FluiDezSettings : public PersistableStore<FluiDezSettings> {
     CHORD_NEARBY_POSITION_SYNC = 30,
     CHORD_LIBRARY = 31,
     CHORD_HOME_READER = 32,
+    CHORD_BACK_HOME = 33,
     POWER_CHORD_ACTION_COUNT
   };
 
@@ -422,6 +426,8 @@ class FluiDezSettings : public PersistableStore<FluiDezSettings> {
     LONG_MENU_QUICK_ACTIONS = 22,
     LONG_MENU_QUICK_LOCK = 23,
     LONG_MENU_LIBRARY = 24,
+    LONG_MENU_HOME_READER = 25,
+    LONG_MENU_BACK_HOME = 26,
     LONG_PRESS_MENU_ACTION_COUNT
   };
 

@@ -61,7 +61,7 @@ inline constexpr std::array<StrId, FluiDezSettings::QUICK_ACTION_SLOT_ACTION_COU
 
 // Shared display order for shortcut pickers. The values remain the persisted
 // SHORT_PWRBTN IDs; only their presentation order is centralized here.
-inline constexpr std::array<FluiDezSettings::SHORT_PWRBTN, 32> shortcutActionOrder = {
+inline constexpr std::array<FluiDezSettings::SHORT_PWRBTN, 33> shortcutActionOrder = {
     FluiDezSettings::IGNORE,
     FluiDezSettings::SLEEP,
     FluiDezSettings::PAGE_TURN,
@@ -93,6 +93,7 @@ inline constexpr std::array<FluiDezSettings::SHORT_PWRBTN, 32> shortcutActionOrd
     FluiDezSettings::QUICK_LOCK,
     FluiDezSettings::TOGGLE_FRONTLIGHT,
     FluiDezSettings::TOGGLE_TOUCHSCREEN,
+    FluiDezSettings::BACK_HOME,
     FluiDezSettings::HOME_READER,
 };
 
@@ -106,7 +107,7 @@ inline bool isActionAvailable(const uint8_t action) {
   if (action == FluiDezSettings::QUICK_ACTIONS || action == FluiDezSettings::QUICK_LOCK) return true;
   if (action == FluiDezSettings::TOGGLE_FRONTLIGHT) return Frontlight.present();
   if (action == FluiDezSettings::TOGGLE_TOUCHSCREEN) return gpio.hasTouch();
-  if (action == FluiDezSettings::HOME_READER) return true;
+  if (action == FluiDezSettings::HOME_READER || action == FluiDezSettings::BACK_HOME) return true;
   if (action < FluiDezSettings::QUICK_ACTION_SLOT_ACTION_COUNT) {
     return action != FluiDezSettings::TOGGLE_TILT_PAGE_TURN || supportsTiltPageTurn();
   }
@@ -131,6 +132,7 @@ inline StrId actionLabel(const uint8_t action) {
   if (action == FluiDezSettings::NEARBY_POSITION_SYNC) return StrId::STR_NEARBY_POSITION_SYNC;
   if (action == FluiDezSettings::LIBRARY) return StrId::STR_LIBRARY;
   if (action == FluiDezSettings::HOME_READER) return StrId::STR_HOME_READER;
+  if (action == FluiDezSettings::BACK_HOME) return StrId::STR_BACK_HOME;
   return StrId::STR_HOME_BUTTON_LOCK;
 }
 

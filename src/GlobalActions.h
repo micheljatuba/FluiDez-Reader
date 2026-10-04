@@ -36,6 +36,7 @@ inline bool isPowerButtonActionAvailableOutsideReader(const FluiDezSettings::SHO
     case FluiDezSettings::SHORT_PWRBTN::TOGGLE_TOUCHSCREEN:
     case FluiDezSettings::SHORT_PWRBTN::LIBRARY:
     case FluiDezSettings::SHORT_PWRBTN::HOME_READER:
+    case FluiDezSettings::SHORT_PWRBTN::BACK_HOME:
       return true;
     case FluiDezSettings::SHORT_PWRBTN::IGNORE:
     case FluiDezSettings::SHORT_PWRBTN::PAGE_TURN:

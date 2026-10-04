@@ -238,12 +238,13 @@ void TxtReaderActivity::loop() {
     return;
   }
 
-  if (SETTINGS.longPressMenuAction == FluiDezSettings::LONG_MENU_LIBRARY &&
+  if ((SETTINGS.longPressMenuAction == FluiDezSettings::LONG_MENU_LIBRARY ||
+       ReaderUtils::isNavigationLongPressAction(SETTINGS.longPressMenuAction)) &&
       mappedInput.getHeldTime() >= LONG_PRESS_MENU_MS &&
       (mappedInput.isPressed(MappedInputManager::Button::Confirm) || confirmReleased)) {
     longPressMenuHandled = mappedInput.isPressed(MappedInputManager::Button::Confirm);
     mappedInput.suppressNextConfirmRelease();
-    activityManager.goToLibrary();
+    if (!ReaderUtils::dispatchNavigationLongPressAction(SETTINGS.longPressMenuAction)) activityManager.goToLibrary();
     return;
   }
 
@@ -500,6 +501,7 @@ bool TxtReaderActivity::supportsQuickAction(const FluiDezSettings::SHORT_PWRBTN 
     case FluiDezSettings::SHORT_PWRBTN::LIBRARY:
     case FluiDezSettings::SHORT_PWRBTN::TOGGLE_FRONTLIGHT:
     case FluiDezSettings::SHORT_PWRBTN::TOGGLE_TOUCHSCREEN:
+    case FluiDezSettings::SHORT_PWRBTN::BACK_HOME:
     case FluiDezSettings::SHORT_PWRBTN::HOME_READER:
       return true;
     default:
@@ -587,6 +589,7 @@ void TxtReaderActivity::toggleHomeButtonInReader() {
 }
 
 bool TxtReaderActivity::executeLongPressBackAction() {
+  if (ReaderUtils::dispatchNavigationLongPressAction(SETTINGS.longPressBackAction)) return true;
   switch (static_cast<FluiDezSettings::LONG_PRESS_MENU_ACTION>(SETTINGS.longPressBackAction)) {
     case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_SLEEP:
       enterDeepSleep();
@@ -634,7 +637,8 @@ bool TxtReaderActivity::handleShortcutAction(const uint8_t action) {
 }
 
 bool TxtReaderActivity::handleShortcutAction(const FluiDezSettings::SHORT_PWRBTN action) {
-  if (action == FluiDezSettings::SHORT_PWRBTN::HOME_READER) return dispatchShortcutAction(action);
+  if (action == FluiDezSettings::SHORT_PWRBTN::HOME_READER || action == FluiDezSettings::SHORT_PWRBTN::BACK_HOME)
+    return dispatchShortcutAction(action);
   if (action == FluiDezSettings::SHORT_PWRBTN::QUICK_ACTIONS) {
     QuickActions::showConfiguredPopup(
         quickActionsPopup, [this] { requestUpdate(); },

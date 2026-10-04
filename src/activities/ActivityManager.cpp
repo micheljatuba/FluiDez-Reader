@@ -201,6 +201,10 @@ bool applyConfiguredSwipeAction(Activity& activity, ActivityManager& activityMan
         activityManager.persistGlobalSettings();
       return true;
     }
+    case FluiDezSettings::TWO_FINGER_SWIPE_BACK_HOME:
+      return activityManager.handleShortcutAction(FluiDezSettings::BACK_HOME);
+    case FluiDezSettings::TWO_FINGER_SWIPE_HOME_READER:
+      return activityManager.handleShortcutAction(FluiDezSettings::HOME_READER);
     case FluiDezSettings::TWO_FINGER_SWIPE_NEXT_CHAPTER:
     case FluiDezSettings::TWO_FINGER_SWIPE_PREVIOUS_CHAPTER:
     case FluiDezSettings::TWO_FINGER_SWIPE_INCREASE_FONT_SIZE:
@@ -1232,6 +1236,10 @@ bool ActivityManager::continueHomeReaderUnwind() {
 }
 
 bool ActivityManager::handleShortcutAction(const FluiDezSettings::SHORT_PWRBTN action) {
+  if (action == FluiDezSettings::SHORT_PWRBTN::BACK_HOME) {
+    handleHomeButtonBackOrHome();
+    return true;
+  }
   if (action == FluiDezSettings::SHORT_PWRBTN::HOME_READER) return handleHomeReaderShortcut();
   return currentActivity && (currentActivity->isReaderActivity() || currentActivity->isHomeActivity()) &&
          currentActivity->handleShortcutAction(action);
