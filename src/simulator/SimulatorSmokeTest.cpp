@@ -42,6 +42,7 @@
 #include "activities/home/RecentBookProgress.h"
 #include "activities/library/LibraryActivity.h"
 #include "activities/reader/BookReadingStats.h"
+#include "activities/reader/EpubReaderActivity.h"
 #include "activities/reader/EpubReaderDrawerActivity.h"
 #include "activities/reader/GlobalReadingStats.h"
 #include "activities/reader/ReaderFontLoading.h"
@@ -61,6 +62,45 @@
 extern ActivityManager activityManager;
 extern GfxRenderer renderer;
 extern MappedInputManager mappedInputManager;
+
+// Use a detached reader so these boundary checks cannot race its render task.
+struct EpubReaderCompletionSmokeTest {
+  static bool run(EpubReaderActivity& active) {
+    auto reader = std::make_unique<EpubReaderActivity>(renderer, mappedInputManager, nullptr,
+                                                       EpubReaderActivity::BookReaderSettingsData{}, 1);
+    reader->epub = active.epub;
+    const int spineCount = reader->epub->getSpineItemsCount();
+    if (spineCount <= 0) return false;
+
+    // Both shortcut entry points must tolerate a chapter that has not loaded yet.
+    for (const auto action :
+         {FluiDezSettings::SHORT_PWRBTN::PAGE_TURN, FluiDezSettings::SHORT_PWRBTN::PREVIOUS_PAGE}) {
+      reader->handleShortcutAction(action);
+      reader->handleShortcutAction(static_cast<uint8_t>(action));
+      if (reader->section || reader->currentSpineIndex != 0) return false;
+    }
+    reader->pageTurn(true, "auto");
+    reader->pageTurn(false, "test");
+
+    // Previous-page shortcuts on the plain end screen return to the final page.
+    for (const bool homeButton : {false, true}) {
+      reader->currentSpineIndex = spineCount;
+      reader->pendingPageJump = 0;
+      if (homeButton) {
+        reader->handleShortcutAction(static_cast<uint8_t>(FluiDezSettings::SHORT_PWRBTN::PREVIOUS_PAGE));
+      } else {
+        reader->handleShortcutAction(FluiDezSettings::SHORT_PWRBTN::PREVIOUS_PAGE);
+      }
+      if (reader->currentSpineIndex != spineCount - 1 || reader->nextPageNumber != 0 ||
+          reader->pendingPageJump != std::numeric_limits<uint16_t>::max())
+        return false;
+    }
+    reader->currentSpineIndex = spineCount;
+    reader->handleShortcutAction(FluiDezSettings::SHORT_PWRBTN::PAGE_TURN);
+    LOG_INF("SMOKE", "EPUB completion shortcuts: missing chapter and end-screen return passed");
+    return true;
+  }
+};
 
 namespace {
 
@@ -90,6 +130,8 @@ enum class SmokeStep : uint8_t {
   Sleep,
   Reader,
   ReaderInput,
+  CompletionReturnedHome,
+  CompletionReaderRestored,
   CarouselHome,
   FrontlightLayout,
   FrontlightLayoutRendered,
@@ -2075,6 +2117,21 @@ class SimulatorSmokeTest {
       }
 
       case SmokeStep::Reader:
+        if (!activityManager.isCurrentActivityNamed("EpubReader")) fail("Completion test requires EPUB reader");
+        if (!EpubReaderCompletionSmokeTest::run(
+                *static_cast<EpubReaderActivity*>(activityManager.simulatorCurrentActivity()))) {
+          fail("EPUB completion shortcut regression");
+        }
+        queueStep("Completion shortcut returned Home", SmokeStep::CompletionReturnedHome);
+        break;
+
+      case SmokeStep::CompletionReturnedHome:
+        if (!activityManager.isCurrentActivityNamed("Home")) fail("End-screen forward shortcut did not return Home");
+        activityManager.goToReader(std::getenv("FLUIDEZ_SIMULATOR_SMOKE_BOOK"), true);
+        queueStep("Reader after completion shortcuts", SmokeStep::CompletionReaderRestored, 8);
+        break;
+
+      case SmokeStep::CompletionReaderRestored:
         verifyWakePowerReaderShortcut();
         buildReaderInputScript();
         step = SmokeStep::ReaderInput;
