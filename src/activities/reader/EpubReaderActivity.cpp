@@ -7355,8 +7355,9 @@ bool EpubReaderActivity::renderContents(std::unique_ptr<Page> page, const int fo
 
   const bool pageHasImages = page->hasImages();
   const bool foregroundBlack = ReaderUtils::readerForegroundBlack();
-  bool needsImageGrayscale = SETTINGS.imageGrayscale && pageHasImages;
-  bool needsTextGrayscale = SETTINGS.textAntiAliasing && foregroundBlack && page->hasText() &&
+  const bool grayscaleAvailable = !renderer.isDisplayInverted();
+  bool needsImageGrayscale = grayscaleAvailable && SETTINGS.imageGrayscale && pageHasImages;
+  bool needsTextGrayscale = grayscaleAvailable && SETTINGS.textAntiAliasing && foregroundBlack && page->hasText() &&
                             !sdFontSystem.fontUsesMonochromeRaster(renderer, fontId, SETTINGS.sdFontFamilyName);
   const int contentBottom = renderer.getScreenHeight() - orientedMarginBottom;
 
