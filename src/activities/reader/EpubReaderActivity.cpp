@@ -2712,8 +2712,8 @@ void EpubReaderActivity::openReaderMenu() {
 
 void EpubReaderActivity::showBuildPopup() {
   if (!buildPopupPending || !renderer.hasFrameBuffer()) return;
+  // drawPopup() already refreshes the panel with a FAST waveform.
   GUI.drawPopup(renderer, tr(STR_INDEXING));
-  renderer.displayBuffer(HalDisplay::FAST_REFRESH);
   pagesUntilFullRefresh = 1;
   buildPopupPending = false;
 }
@@ -2730,7 +2730,6 @@ void EpubReaderActivity::invalidatePageBufferAfterBuild(const uint32_t loansBefo
     // A storage failure must not expose the returned white frame to overlays.
     renderer.clearScreen(ReaderUtils::readerBackgroundColor());
     GUI.drawPopup(renderer, tr(STR_PAGE_LOAD_ERROR));
-    renderer.displayBuffer();
     requestUpdate();
   }
 }
@@ -2748,7 +2747,6 @@ void EpubReaderActivity::restoreStalePageBufferForInputLock() {
     if (pageBufferStale.load(std::memory_order_relaxed)) {
       renderer.clearScreen(ReaderUtils::readerBackgroundColor());
       GUI.drawPopup(renderer, tr(STR_PAGE_LOAD_ERROR));
-      renderer.displayBuffer();
     }
   }
   pauseReadingPaceTimer("quick_lock");
@@ -6083,8 +6081,9 @@ void EpubReaderActivity::render(RenderLock&& lock) {
   };
 
   const auto showIndexingPopup = [this]() {
+    // drawPopup() already refreshes the panel with a FAST waveform. A second
+    // refresh of the identical frame cost ~0.55-0.7 s before every index build.
     GUI.drawPopup(renderer, tr(STR_INDEXING));
-    renderer.displayBuffer(HalDisplay::FAST_REFRESH);
     pagesUntilFullRefresh = 1;
   };
 
@@ -6802,7 +6801,6 @@ void EpubReaderActivity::render(RenderLock&& lock) {
 #endif
       renderer.clearScreen(ReaderUtils::readerBackgroundColor());
       GUI.drawPopup(renderer, renderer.isSdCardFont(renderFontId) ? tr(STR_MEMORY_ERROR) : tr(STR_PAGE_LOAD_ERROR));
-      renderer.displayBuffer();
       pageBufferStale.store(false, std::memory_order_relaxed);
       automaticPageTurnActive = false;
       showPendingSyncSaveError();
