@@ -48,6 +48,8 @@ Imagens do simulador do X4 Pro, com a interface em português. Os livros de exem
 
 ### Início e biblioteca
 
+- **Temas FluiDez:** três layouts próprios para a tela *Início*, com a identidade do FluiDez. *Estante* (o padrão) mostra a capa do livro atual com o progresso num anel e uma estante com as lombadas dos recentes; *Cartões* reúne o livro atual, tempo de leitura, dias seguidos e livros concluídos em cartões; *Fluxo* é só texto e não lê nenhuma capa, a *Início* mais rápida.
+- **Sua imagem na tela de repouso:** em `http://fluidez.local/sleep`, escolha qualquer foto ou desenho, ajuste o enquadramento com prévia em tons de cinza e salve. O navegador converte a imagem no tamanho exato da tela e o leitor passa a mostrá-la ao bloquear. Fotos JPG e PNG copiadas para a pasta `sleep` do cartão também funcionam.
 - **Livros fixados:** fixe até seis livros no topo de *Livros recentes*. Eles ficam na ordem em que foram fixados, logo depois de *Continuar lendo*, e continuam na lista quando livros mais antigos ou concluídos saem dela.
 - **Menu do livro no Início:** segure a capa de um livro para *Fixar no topo* ou *Desafixar*, *Marcar como concluído* ou *Remover dos Livros recentes*, sem sair do *Início*. Em leitores sem toque, segure *Confirmar* sobre o livro selecionado.
 - **Tema Lyra Grade:** grade 3x2 com seis livros (o atual, os fixados e os recentes), cada um com barra de progresso e uma fita nos fixados.

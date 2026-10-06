@@ -6,6 +6,13 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ## [Unreleased]
 
+### Added
+
+- **FluiDez themes:** three native Home layouts with FluiDez's own look, chosen in **UI Theme**. **FluiDez Shelf** (the new default) shows the current book's cover with a progress ring and a shelf of text spines for recent books. **FluiDez Cards** shows a card with the current book, cards for reading time, streak and finished books, recent covers and an icon menu. **FluiDez Flow** is text-only and reads no cover from the SD card, which makes it the fastest Home. All three paint progress and stats from data loaded once when Home opens, and generate cover thumbnails only for the covers they show.
+- **Sleep Screen page in the web interface** (`/sleep`): pick any picture, frame it, adjust brightness and contrast with a 4-gray e-ink preview, and save. The browser converts it to an 8-bit grayscale BMP at the panel's exact size, uploads it to `/sleep`, pins it and switches the sleep screen to Custom. The page also lists, pins and deletes the images in `/sleep`. New endpoints: `GET`/`POST /api/sleep-image`.
+- The Custom sleep screen accepts JPG and PNG photos in the sleep folder or pinned from the web page. Each photo is converted once to a screen-sized BMP under `/.crosspoint/sleep-converted/` and streamed from there afterwards.
+- The simulator smoke runner can capture each FluiDez Home layout (`--fluidez-captures <dir>`).
+
 ### Changed
 
 - FluiDez Reader is synced with CrossInk `development` at [`6fbc97d1`](https://github.com/uxjulia/crossink/commit/6fbc97d1) (2026-10-01, after CrossInk v1.6.1). This brings in, among others, the Library screen that replaces Recent Books, the five-tab EPUB reader menu on every device, separate top and bottom reader status bars, separate short- and long-press actions for each side button, device-wide and per-book reading-stats tracking, edge gestures on touch readers, the Cover Grid Home theme on PSRAM readers, TTF fonts on ESP32-S3 readers, and faster SD-card reads. The [CrossInk changelog](https://github.com/uxjulia/crossink/blob/main/CHANGELOG.md) lists every change.
@@ -24,6 +31,8 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ### Notes
 
+- New installs start with **FluiDez Shelf**. Existing installs keep their saved theme. The FluiDez themes use **UI Theme** values 9 (Flow), 10 (Cards) and 11 (Shelf).
+- The web interface footer no longer names CrossInk; the credits remain in this changelog and the README.
 - The **UI Theme** setting keeps value 7 for Lyra Grid. CrossInk's Cover Grid uses value 8 in FluiDez Reader, so existing installs keep their theme after updating.
 
 ## [v1.6-fluidez13] - 2026-10-01

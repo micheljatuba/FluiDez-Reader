@@ -241,6 +241,9 @@ conforme o modelo do aparelho e a compilação.
 - **Freq. atualiz.**: define com que frequência a tela faz uma atualização completa durante a leitura para reduzir fantasmas; as opções são a cada 1, 5, 10, 15 ou 30 páginas.
 
 - **Tema da interface**: define qual tema da interface usar:
+  - "FluiDez Estante" (padrão) - o tema próprio do FluiDez: a capa do livro atual com o progresso num anel, o botão **Continuar** e uma estante com as lombadas dos livros recentes; o livro selecionado sobe na estante e o nome dele aparece embaixo
+  - "FluiDez Cartões" - o tema próprio do FluiDez em cartões: um cartão grande com a capa e o progresso do livro atual, três cartões com tempo de leitura, dias seguidos e livros concluídos, as capas recentes e um menu de botões com ícones
+  - "FluiDez Fluxo" - o tema próprio do FluiDez só com texto: título grande, autor, progresso e a lista **A seguir**. Não lê nenhuma capa do cartão, por isso é a tela Início mais rápida
   - "Clássico" - o tema original
   - "Minimal" - um tema minimalista com capa grande do livro
   - "Painel" - layout de início no estilo painel, com estatísticas de leitura ao lado da capa; os rótulos encolhem ou quebram linha para que o texto nunca cubra o livro
@@ -606,7 +609,8 @@ Ao usar **Capa** ou **Capa + personalizado**, duas configurações adicionais se
 
 Para usar imagens de repouso personalizadas, defina o modo da tela de repouso como **Personalizado**, **Capa + personalizado** ou **Sobreposição da página** e coloque as imagens no cartão SD:
 
-- **Várias imagens (recomendado):** crie um diretório `.sleep` na raiz do cartão SD e coloque qualquer número de imagens `.bmp` dentro dele. No modo **Sobreposição da página**, imagens `.png` também são compatíveis. Uma imagem será selecionada aleatoriamente toda vez que o aparelho entrar em repouso. (Um diretório chamado `sleep` também é aceito como fallback.)
+- **Pela interface web (mais fácil):** com a transferência de arquivos ativa, abra `http://fluidez.local/sleep` (ou o IP mostrado no aparelho) e vá em **Sleep Screen**. Escolha qualquer foto ou desenho, ajuste o enquadramento, o zoom, o brilho e o contraste vendo a prévia em 4 tons de cinza, e toque em **Salvar e usar no aparelho**. A imagem é convertida no navegador para o tamanho exato da tela, salva em `/sleep` e fixada; o modo da tela de repouso muda sozinho para **Personalizado**. Na mesma página você vê as imagens já salvas, escolhe outra ou apaga.
+- **Várias imagens:** crie um diretório `.sleep` na raiz do cartão SD e coloque qualquer número de imagens `.bmp` dentro dele. No modo **Personalizado**, fotos `.jpg` e `.png` também funcionam: na primeira vez que forem usadas, o aparelho converte cada uma para BMP e guarda o resultado em `/.crosspoint/sleep-converted`, então das próximas vezes elas abrem tão rápido quanto um BMP. No modo **Sobreposição da página**, imagens `.png` também são compatíveis. Uma imagem será selecionada aleatoriamente toda vez que o aparelho entrar em repouso. (Um diretório chamado `sleep` também é aceito como fallback.)
 - **Imagem única:** coloque um arquivo chamado `sleep.bmp` no diretório raiz. No modo **Sobreposição da página**, `sleep.png` também é compatível. Esses arquivos são usados como fallback se nenhuma imagem válida for encontrada no diretório `.sleep`/`sleep`.
 
 No modo **Sobreposição da página**, pixels brancos de BMP e pixels transparentes de PNG deixam a página atual do leitor aparecer; os demais pixels do papel de parede são desenhados sobre a página. Papéis de parede PNG são compatíveis apenas nesse modo.

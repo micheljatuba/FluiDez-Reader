@@ -4,6 +4,10 @@ O que muda para quem usa o FluiDez Reader em cada versão, da mais recente para 
 
 ## [Próxima versão]
 
+- **Temas FluiDez:** três telas *Início* com a identidade do FluiDez, em *Configurações > Tela > Tema da interface*. *FluiDez Estante*, o novo padrão, mostra a capa do livro atual com o progresso num anel e uma estante com as lombadas dos livros recentes. *FluiDez Cartões* reúne o livro atual, o tempo de leitura, os dias seguidos e os livros concluídos em cartões, com as capas recentes e um menu de botões. *FluiDez Fluxo* é só texto e não lê nenhuma capa do cartão, por isso abre mais rápido. Quem já usa outro tema continua com ele depois de atualizar.
+- **Sua imagem na tela de repouso:** abra `http://fluidez.local/sleep` com a transferência de arquivos ativa, escolha uma foto ou desenho, ajuste o enquadramento, o zoom, o brilho e o contraste vendo como fica em 4 tons de cinza e toque em *Salvar e usar no aparelho*. A imagem vai para a pasta `sleep`, fica fixada e o modo da tela de repouso muda para *Personalizado*. Na mesma página dá para trocar ou apagar as imagens salvas.
+- **Fotos JPG e PNG na tela de repouso:** no modo *Personalizado*, fotos copiadas direto para a pasta `sleep` do cartão também aparecem. O leitor converte cada foto uma vez, na primeira vez que a usa, e das próximas vezes ela abre tão rápido quanto um BMP.
+
 ## [v1.6-fluidez13] - 2026-10-01
 
 - **Status do Calibre:** a seção *Status* da tela *Calibre sem fio* não fica mais em branco. Ela mostra "Aguardando o Calibre..." até o Calibre encontrar o leitor e depois "Conectado ao Calibre", com o IP do computador. Durante um envio aparecem o livro que está chegando e o progresso; em seguida, o livro recebido ou a falha no envio e quantos livros chegaram.
