@@ -29,6 +29,10 @@ constexpr char INDEX_MAGIC[] = {'C', 'S', 'I', 'X'};
 constexpr uint8_t INDEX_VERSION = 1;
 constexpr uint8_t FLAG_INCLUDE_PNG = 1 << 0;
 constexpr uint8_t FLAG_VALIDATED = 1 << 1;
+constexpr uint8_t FLAG_INCLUDE_JPEG = 1 << 2;
+// Record flags: which decoder a listed file needs.
+constexpr uint8_t RECORD_PNG = 1 << 0;
+constexpr uint8_t RECORD_JPEG = 1 << 1;
 constexpr size_t MAX_FILENAME_LENGTH = 255;
 constexpr size_t NAME_BUFFER_SIZE = MAX_FILENAME_LENGTH + 1;
 constexpr size_t MAX_CACHE_PATH = 128;
@@ -98,10 +102,11 @@ bool isTrackedImageFolderPath(std::string_view path) {
          pathHasPrefix("/bootscreen", path, true);
 }
 
-bool makeCachePath(const std::string& directory, const bool includePng, char* output, const size_t outputSize) {
+bool makeCachePath(const std::string& directory, const uint8_t kinds, char* output, const size_t outputSize) {
   const uint64_t hash = fnv1a64(directory);
-  const int written = snprintf(output, outputSize, "%s/%016llx-%s.idx", INDEX_DIR,
-                               static_cast<unsigned long long>(hash), includePng ? "all" : "bmp");
+  const int written =
+      snprintf(output, outputSize, "%s/%016llx-%s.idx", INDEX_DIR, static_cast<unsigned long long>(hash),
+               (kinds & KIND_JPEG) ? "photo" : ((kinds & KIND_PNG) ? "all" : "bmp"));
   return written > 0 && static_cast<size_t>(written) < outputSize;
 }
 
@@ -111,22 +116,26 @@ bool readExact(HalFile& file, void* buffer, const size_t size) {
 
 bool writeExact(HalFile& file, const void* buffer, const size_t size) { return file.write(buffer, size) == size; }
 
-bool headerMatches(const IndexHeader& header, const std::string& directory, const bool includePng,
+uint8_t kindFlags(const uint8_t kinds) {
+  return ((kinds & KIND_PNG) ? FLAG_INCLUDE_PNG : 0) | ((kinds & KIND_JPEG) ? FLAG_INCLUDE_JPEG : 0);
+}
+
+bool headerMatches(const IndexHeader& header, const std::string& directory, const uint8_t kinds,
                    const bool requireValidated) {
   return memcmp(header.magic, INDEX_MAGIC, sizeof(INDEX_MAGIC)) == 0 && header.version == INDEX_VERSION &&
-         (header.flags & FLAG_INCLUDE_PNG) == (includePng ? FLAG_INCLUDE_PNG : 0) &&
+         (header.flags & (FLAG_INCLUDE_PNG | FLAG_INCLUDE_JPEG)) == kindFlags(kinds) &&
          (!requireValidated || (header.flags & FLAG_VALIDATED) != 0) && header.pathLength == directory.size() &&
          header.recordSize == sizeof(IndexRecord) && header.recordsOffset == sizeof(IndexHeader) + header.pathLength &&
          header.recordCount <= MAX_RECORDS;
 }
 
-bool openValidIndex(const std::string& directory, const bool includePng, const bool requireValidated, HalFile& file,
+bool openValidIndex(const std::string& directory, const uint8_t kinds, const bool requireValidated, HalFile& file,
                     IndexHeader& header, char* cachePath, const size_t cachePathSize) {
-  if (!makeCachePath(directory, includePng, cachePath, cachePathSize)) return false;
+  if (!makeCachePath(directory, kinds, cachePath, cachePathSize)) return false;
   file = Storage.open(cachePath);
   if (!file) return false;
 
-  if (!readExact(file, &header, sizeof(header)) || !headerMatches(header, directory, includePng, requireValidated)) {
+  if (!readExact(file, &header, sizeof(header)) || !headerMatches(header, directory, kinds, requireValidated)) {
     file.close();
     return false;
   }
@@ -164,8 +173,10 @@ bool readRecordName(HalFile& file, const IndexHeader& header, const uint16_t ind
   name.assign(NAME_BUFFER_SIZE, '\0');
   if (!readExact(file, name.data(), NAME_BUFFER_SIZE) || name[nameLength] != '\0') return false;
   name.resize(nameLength);
-  isPng = (flags & 1) != 0;
-  return (isPng && FsHelpers::hasPngExtension(name)) || (!isPng && FsHelpers::hasBmpExtension(name));
+  isPng = (flags & RECORD_PNG) != 0;
+  if (isPng) return FsHelpers::hasPngExtension(name);
+  if ((flags & RECORD_JPEG) != 0) return FsHelpers::hasJpgExtension(name);
+  return FsHelpers::hasBmpExtension(name);
 }
 
 bool cacheRecordExists(const std::string& directory, const std::string& name) {
@@ -208,14 +219,14 @@ uint16_t chooseIndex(const uint16_t recordCount, const uint16_t* recentIndices, 
   return rank;
 }
 
-bool buildIndex(const std::string& directory, const bool includePng, const bool validateBmpHeaders, char* cachePath,
+bool buildIndex(const std::string& directory, const uint8_t kinds, const bool validateBmpHeaders, char* cachePath,
                 const size_t cachePathSize) {
   if (!Storage.ensureDirectoryExists("/.crosspoint") || !Storage.ensureDirectoryExists(INDEX_DIR)) {
     LOG_ERR("IMGIDX", "Cannot create image index directory");
     return false;
   }
 
-  if (!makeCachePath(directory, includePng, cachePath, cachePathSize)) return false;
+  if (!makeCachePath(directory, kinds, cachePath, cachePathSize)) return false;
   char tempPath[MAX_CACHE_PATH] = {};
   const int tempWritten = snprintf(tempPath, sizeof(tempPath), "%s.tmp", cachePath);
   if (tempWritten <= 0 || static_cast<size_t>(tempWritten) >= sizeof(tempPath)) return false;
@@ -236,7 +247,7 @@ bool buildIndex(const std::string& directory, const bool includePng, const bool 
   IndexHeader header{};
   memcpy(header.magic, INDEX_MAGIC, sizeof(INDEX_MAGIC));
   header.version = INDEX_VERSION;
-  header.flags = includePng ? FLAG_INCLUDE_PNG : 0;
+  header.flags = kindFlags(kinds);
   header.flags |= validateBmpHeaders ? FLAG_VALIDATED : 0;
   header.pathLength = static_cast<uint16_t>(directory.size());
   header.recordSize = sizeof(IndexRecord);
@@ -260,9 +271,10 @@ bool buildIndex(const std::string& directory, const bool includePng, const bool 
     const size_t nameLength = file.getName(nameBuffer.get(), NAME_BUFFER_SIZE);
     const std::string_view name(nameBuffer.get(), std::min(nameLength, MAX_FILENAME_LENGTH));
     const bool isBmp = FsHelpers::hasBmpExtension(name);
-    const bool isPng = includePng && FsHelpers::hasPngExtension(name);
+    const bool isPng = (kinds & KIND_PNG) && FsHelpers::hasPngExtension(name);
+    const bool isJpeg = (kinds & KIND_JPEG) && FsHelpers::hasJpgExtension(name);
     bool valid = nameLength > 0 && nameLength <= MAX_FILENAME_LENGTH && !name.empty() && name.front() != '.' &&
-                 !file.isDirectory() && (isBmp || isPng);
+                 !file.isDirectory() && (isBmp || isPng || isJpeg);
 
     if (valid && validateBmpHeaders && isBmp) {
       Bitmap bitmap(file);
@@ -272,7 +284,7 @@ bool buildIndex(const std::string& directory, const bool includePng, const bool 
     if (valid && header.recordCount < MAX_RECORDS) {
       memset(record.get(), 0, sizeof(IndexRecord));
       record->nameLength = static_cast<uint16_t>(nameLength);
-      record->flags = isPng ? 1 : 0;
+      record->flags = isPng ? RECORD_PNG : (isJpeg ? RECORD_JPEG : 0);
       memcpy(record->name, name.data(), nameLength);
       if (!writeExact(output, record.get(), sizeof(IndexRecord))) {
         file.close();
@@ -311,17 +323,16 @@ bool buildIndex(const std::string& directory, const bool includePng, const bool 
   return true;
 }
 
-bool selectFromCache(const std::string& directory, const bool includePng, const bool validateBmpHeaders,
+bool selectFromCache(const std::string& directory, const uint8_t kinds, const bool validateBmpHeaders,
                      const uint16_t* recentIndices, const uint8_t recentCapacity, const uint8_t recentPos,
                      const uint8_t recentFill, const uint8_t recentWindow, Selection& selection,
                      const bool allowRebuild) {
   char cachePath[MAX_CACHE_PATH] = {};
   IndexHeader header{};
   HalFile cache;
-  if (!openValidIndex(directory, includePng, validateBmpHeaders, cache, header, cachePath, sizeof(cachePath))) {
-    if (!allowRebuild || !buildIndex(directory, includePng, validateBmpHeaders, cachePath, sizeof(cachePath)))
-      return false;
-    if (!openValidIndex(directory, includePng, validateBmpHeaders, cache, header, cachePath, sizeof(cachePath)))
+  if (!openValidIndex(directory, kinds, validateBmpHeaders, cache, header, cachePath, sizeof(cachePath))) {
+    if (!allowRebuild || !buildIndex(directory, kinds, validateBmpHeaders, cachePath, sizeof(cachePath))) return false;
+    if (!openValidIndex(directory, kinds, validateBmpHeaders, cache, header, cachePath, sizeof(cachePath)))
       return false;
   }
 
@@ -331,8 +342,8 @@ bool selectFromCache(const std::string& directory, const bool includePng, const 
   bool isPng = false;
   if (!readRecordName(cache, header, selectedIndex, filename, isPng)) {
     cache.close();
-    if (!allowRebuild || !buildIndex(directory, includePng, validateBmpHeaders, cachePath, sizeof(cachePath)) ||
-        !openValidIndex(directory, includePng, validateBmpHeaders, cache, header, cachePath, sizeof(cachePath))) {
+    if (!allowRebuild || !buildIndex(directory, kinds, validateBmpHeaders, cachePath, sizeof(cachePath)) ||
+        !openValidIndex(directory, kinds, validateBmpHeaders, cache, header, cachePath, sizeof(cachePath))) {
       return false;
     }
     const uint16_t rebuiltIndex =
@@ -356,8 +367,8 @@ bool selectFromCache(const std::string& directory, const bool includePng, const 
   // The card can be changed outside the firmware, so an otherwise valid index
   // may point at a deleted or renamed entry. Rebuild once before giving the
   // caller a chance to use its safe legacy fallback.
-  if (!allowRebuild || !buildIndex(directory, includePng, validateBmpHeaders, cachePath, sizeof(cachePath)) ||
-      !openValidIndex(directory, includePng, validateBmpHeaders, cache, header, cachePath, sizeof(cachePath))) {
+  if (!allowRebuild || !buildIndex(directory, kinds, validateBmpHeaders, cachePath, sizeof(cachePath)) ||
+      !openValidIndex(directory, kinds, validateBmpHeaders, cache, header, cachePath, sizeof(cachePath))) {
     return false;
   }
 
@@ -389,7 +400,7 @@ bool resolveBootScreenDirectory(std::string& directory) {
   return true;
 }
 
-bool select(const std::string& directory, const bool includePng, const bool validateBmpHeaders,
+bool select(const std::string& directory, const uint8_t kinds, const bool validateBmpHeaders,
             const uint16_t* recentIndices, const uint8_t recentCapacity, const uint8_t recentPos,
             const uint8_t recentFill, const uint8_t recentWindow, Selection& selection) {
   selection = Selection{};
@@ -398,7 +409,7 @@ bool select(const std::string& directory, const bool includePng, const bool vali
   // A normal selection may use an existing index. A missing entry triggers one
   // rebuild, which catches deletions and renames without a directory walk on
   // every selection. A second miss falls back to the caller's legacy scan.
-  if (selectFromCache(directory, includePng, validateBmpHeaders, recentIndices, recentCapacity, recentPos, recentFill,
+  if (selectFromCache(directory, kinds, validateBmpHeaders, recentIndices, recentCapacity, recentPos, recentFill,
                       recentWindow, selection, true))
     return true;
 

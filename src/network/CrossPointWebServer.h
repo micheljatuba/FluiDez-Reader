@@ -140,6 +140,12 @@ class CrossPointWebServer {
   void handlePostStatusBars();
 
   // Font management handlers
+  // Sleep image (FluiDez): the page converts in the browser, uploads to /sleep
+  // through /upload, then pins the result here.
+  void handleSleepPage() const;
+  void handleGetSleepImage() const;
+  void handlePostSleepImage();
+
   void handleFontsPage() const;
   void handleFontList() const;
   void handleFontUpload();

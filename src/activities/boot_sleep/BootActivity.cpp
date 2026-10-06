@@ -94,7 +94,7 @@ bool tryDrawRotatingBootImage(const GfxRenderer& renderer) {
 
   const auto pickAndDraw = [&](const bool validateBmpHeaders) {
     ImageFolderIndex::Selection selection;
-    if (!ImageFolderIndex::select(bootDir, false, validateBmpHeaders, APP_STATE.recentBootImages,
+    if (!ImageFolderIndex::select(bootDir, ImageFolderIndex::KIND_BMP, validateBmpHeaders, APP_STATE.recentBootImages,
                                   CrossPointState::BOOT_RECENT_COUNT, APP_STATE.recentBootPos, APP_STATE.recentBootFill,
                                   std::min(APP_STATE.recentBootFill, CrossPointState::BOOT_RECENT_COUNT), selection)) {
       return false;

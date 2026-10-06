@@ -51,7 +51,7 @@ the stem-darkening toggle. Missing families use automatic hinting, grayscale
 output, the default interpreter, and no outline adjustments. The file currently
 keeps at most 24 modified family profiles to bound RAM use while settings are open.
 
-## `/.crosspoint/sleep-image-index/<directory-hash>-{bmp,all}.idx`
+## `/.crosspoint/sleep-image-index/<directory-hash>-{bmp,all,photo}.idx`
 
 ### Version 1
 
@@ -61,10 +61,13 @@ folder and the boot-screen folder (`/bootscreen` or `/.bootscreen`); the
 directory name predates the boot-screen use and was kept as-is so existing
 sleep caches aren't orphaned by an unrelated rename. The index avoids walking
 a folder on every selection while using only one fixed-size record at a time
-in RAM. `bmp` contains BMP files and `all` contains BMP and PNG files (sleep's
-Page Overlay mode only; the boot screen is BMP-only and always uses a `bmp`
-index). The `validated` header flag means BMP headers were checked while
-rebuilding after a failed render.
+in RAM. `bmp` contains BMP files, `all` contains BMP and PNG files (sleep's
+Page Overlay mode), and `photo` contains BMP, PNG and JPG/JPEG files (sleep's
+Custom mode, which converts photos through `SleepImageConverter`). The boot
+screen is BMP-only and always uses a `bmp` index. The `validated` header flag
+means BMP headers were checked while rebuilding after a failed render.
+FluiDez added the `photo` variant without a version bump: older readers never
+request it, and its header flag keeps it from matching a `bmp`/`all` lookup.
 
 The index is disposable: a missing, malformed, or stale selected entry causes
 one rebuild and then the caller falls back to its directory scan. File
@@ -77,7 +80,8 @@ cached entry is found missing or when an index is otherwise rebuilt.
 struct ImageFolderIndexHeader {
     char magic[4];       // "CSIX"
     u8 version;          // 1
-    u8 flags;            // bit 0: BMP+PNG, bit 1: BMP headers validated
+    u8 flags;            // bit 0: PNG listed, bit 1: BMP headers validated,
+                         // bit 2: JPG/JPEG listed
     u16 pathLength;
     u16 recordCount;
     u16 recordSize;      // sizeof(ImageFolderIndexRecord)
@@ -87,11 +91,22 @@ struct ImageFolderIndexHeader {
 
 struct ImageFolderIndexRecord {
     u16 nameLength;
-    u8 flags;             // bit 0: PNG (otherwise BMP)
+    u8 flags;             // bit 0: PNG, bit 1: JPG/JPEG (otherwise BMP)
     u8 reserved;
     char name[256];      // zero-padded UTF-8 filename, max 255 bytes
 };
 ```
+
+## `/.crosspoint/sleep-converted/<key>.bmp`
+
+`SleepImageConverter` (`src/activities/boot_sleep/SleepImageConverter.{h,cpp}`)
+lets the Custom sleep screen use JPG/PNG photos. On first use a photo is
+decoded with the EPUB cover converters into a screen-sized, cropped BMP and
+written here; later sleeps stream the BMP. `<key>` is the FNV-1a hash (8 hex
+digits) of the source path, its size and whether image-specific gray levels
+were requested, so a replaced photo or a changed sleep filter converts again.
+Files are written as `<key>.bmp.tmp` and renamed when complete. The cache is
+disposable; stale entries are never read once their source changes.
 
 ## `/.crosspoint/library.idx`
 

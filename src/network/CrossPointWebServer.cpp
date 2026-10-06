@@ -7,6 +7,7 @@
 #endif
 #include <Epub.h>
 #include <FsHelpers.h>
+#include <HalDisplay.h>
 #include <HalGPIO.h>
 #include <HalStorage.h>
 #include <Logging.h>
@@ -22,6 +23,7 @@
 
 #include "AppVersion.h"
 #include "CrossPointSettings.h"
+#include "CrossPointState.h"
 #include "FontInstaller.h"
 #include "OpdsServerStore.h"
 #include "QuickActions.h"
@@ -30,12 +32,14 @@
 #include "WebDAVHandler.h"
 #include "WifiCredentialStore.h"
 #include "activities/boot_sleep/ImageFolderIndex.h"
+#include "activities/boot_sleep/SleepImageConverter.h"
 #include "components/HeaderDate.h"
 #include "html/FilesPageHtml.generated.h"
 #include "html/FontsPageHtml.generated.h"
 #include "html/HomePageHtml.generated.h"
 #include "html/LogoPng.generated.h"
 #include "html/SettingsPageHtml.generated.h"
+#include "html/SleepPageHtml.generated.h"
 #include "html/StyleCss.generated.h"
 #include "html/js/jszip_minJs.generated.h"
 #include "util/BookCacheUtils.h"
@@ -401,6 +405,11 @@ void CrossPointWebServer::begin() {
   server->on("/api/settings", HTTP_POST, [this] { handlePostSettings(); });
   server->on("/api/status-bars", HTTP_GET, [this] { handleGetStatusBars(); });
   server->on("/api/status-bars", HTTP_POST, [this] { handlePostStatusBars(); });
+
+  // Sleep image endpoints
+  server->on("/sleep", HTTP_GET, [this] { handleSleepPage(); });
+  server->on("/api/sleep-image", HTTP_GET, [this] { handleGetSleepImage(); });
+  server->on("/api/sleep-image", HTTP_POST, [this] { handlePostSleepImage(); });
 
   // Font management endpoints
   server->on("/fonts", HTTP_GET, [this] { handleFontsPage(); });
@@ -2278,6 +2287,85 @@ void CrossPointWebServer::onWebSocketEvent(uint8_t num, WStype_t type, uint8_t* 
     default:
       break;
   }
+}
+
+// --- Sleep image handlers ---
+
+void CrossPointWebServer::handleSleepPage() const {
+  sendStaticContent(server.get(), SleepPageHtml, sizeof(SleepPageHtml), SleepPageHtmlETag);
+}
+
+void CrossPointWebServer::handleGetSleepImage() const {
+  // The sleep screen always renders in portrait; report that geometry so the
+  // browser can produce an image that needs no scaling on the device.
+  const uint16_t panelW = display.getDisplayWidth();
+  const uint16_t panelH = display.getDisplayHeight();
+
+  JsonDocument doc;
+  doc["pinned"] = APP_STATE.favoriteSleepImagePath.c_str();
+  doc["mode"] = SETTINGS.sleepScreen;
+  doc["customMode"] = SETTINGS.sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::CUSTOM;
+  doc["width"] = std::min(panelW, panelH);
+  doc["height"] = std::max(panelW, panelH);
+  doc["folder"] = "/sleep";
+
+  String response;
+  serializeJson(doc, response);
+  server->send(200, "application/json", response);
+}
+
+void CrossPointWebServer::handlePostSleepImage() {
+  const String action = server->hasArg("action") ? server->arg("action") : String("pin");
+
+  if (action == "unpin") {
+    APP_STATE.favoriteSleepImagePath.clear();
+    if (!APP_STATE.saveToFile()) {
+      server->send(500, "text/plain", "Failed to save state");
+      return;
+    }
+    server->send(200, "application/json", "{\"pinned\":\"\"}");
+    return;
+  }
+
+  if (action != "pin" || !server->hasArg("path")) {
+    server->send(400, "text/plain", "Missing path");
+    return;
+  }
+
+  const String path = normalizeWebPath(server->arg("path"));
+  if (isProtectedPath(path)) {
+    server->send(403, "text/plain", "Access denied to protected path");
+    return;
+  }
+  // Custom mode streams BMPs and converts JPG/PNG photos once on first use.
+  const std::string pathStr = path.c_str();
+  if ((!FsHelpers::hasBmpExtension(pathStr) && !SleepImageConverter::isConvertible(pathStr)) ||
+      !Storage.exists(path.c_str())) {
+    server->send(400, "text/plain", "Sleep image must be an existing BMP, JPG or PNG file");
+    return;
+  }
+
+  APP_STATE.favoriteSleepImagePath = path.c_str();
+  if (!APP_STATE.saveToFile()) {
+    server->send(500, "text/plain", "Failed to save state");
+    return;
+  }
+
+  // A pinned image only shows in Custom mode; switch so the next lock uses it.
+  bool modeChanged = false;
+  if (SETTINGS.sleepScreen != CrossPointSettings::SLEEP_SCREEN_MODE::CUSTOM) {
+    SETTINGS.sleepScreen = CrossPointSettings::SLEEP_SCREEN_MODE::CUSTOM;
+    modeChanged = SETTINGS.saveToFile();
+    if (!modeChanged) LOG_ERR("WEB", "Failed to save Custom sleep mode after pinning");
+  }
+  LOG_INF("WEB", "Pinned sleep image: %s", path.c_str());
+
+  JsonDocument doc;
+  doc["pinned"] = path;
+  doc["modeChanged"] = modeChanged;
+  String response;
+  serializeJson(doc, response);
+  server->send(200, "application/json", response);
 }
 
 // --- Font management handlers ---

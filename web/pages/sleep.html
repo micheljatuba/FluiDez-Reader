@@ -1,0 +1,57 @@
+<div class="card">
+      <h2 data-i18n="currentTitle">Current sleep image</h2>
+      <div class="current">
+        <div class="current-frame" id="currentFrame"><span class="empty" data-i18n="noneShort">None</span></div>
+        <div class="current-info">
+          <p id="currentText" class="muted" data-i18n="loading">Loading...</p>
+          <p id="modeText" class="muted"></p>
+          <button type="button" class="btn btn-secondary" id="unpinBtn" hidden data-i18n="unpin">Stop using this image</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="newTitle">New sleep image</h2>
+      <p class="muted" data-i18n="newHelp">Pick any photo or drawing. It is converted here in your browser to the exact size of the screen, so the device shows it instantly.</p>
+      <label class="picker">
+        <input type="file" id="imageInput" accept="image/*" />
+        <span class="btn btn-primary" data-i18n="choose">Choose image</span>
+        <span id="fileName" class="muted"></span>
+      </label>
+
+      <div class="editor" id="editor" hidden>
+        <div class="stage">
+          <canvas id="preview"></canvas>
+          <p class="hint muted" data-i18n="dragHint">Drag to reposition</p>
+        </div>
+        <div class="controls">
+          <div class="control">
+            <span class="label" data-i18n="fit">Fit</span>
+            <div class="segmented" id="fitGroup">
+              <button type="button" data-fit="fill" class="active" data-i18n="fitFill">Fill screen</button>
+              <button type="button" data-fit="white" data-i18n="fitWhite">Whole image, white edges</button>
+              <button type="button" data-fit="black" data-i18n="fitBlack">Whole image, black edges</button>
+            </div>
+          </div>
+          <label class="control"><span class="label" data-i18n="zoom">Zoom</span>
+            <input type="range" id="zoom" min="100" max="300" value="100" /></label>
+          <label class="control"><span class="label" data-i18n="brightness">Brightness</span>
+            <input type="range" id="brightness" min="-60" max="60" value="0" /></label>
+          <label class="control"><span class="label" data-i18n="contrast">Contrast</span>
+            <input type="range" id="contrast" min="-50" max="80" value="10" /></label>
+          <label class="control toggle"><input type="checkbox" id="einkPreview" checked />
+            <span data-i18n="einkPreview">Show e-ink preview (4 grays)</span></label>
+          <div class="actions">
+            <button type="button" class="btn btn-primary" id="saveBtn" data-i18n="save">Save and use on device</button>
+            <button type="button" class="btn btn-secondary" id="resetBtn" data-i18n="reset">Reset</button>
+          </div>
+          <div id="status" class="status"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="galleryTitle">Images on the device</h2>
+      <p class="muted" data-i18n="galleryHelp">Images in the /sleep folder. When none is pinned, the device picks one at random each time it sleeps.</p>
+      <div class="gallery" id="gallery"><p class="muted" data-i18n="loading">Loading...</p></div>
+    </div>

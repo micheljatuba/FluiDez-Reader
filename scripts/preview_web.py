@@ -26,6 +26,7 @@ PAGES = {
     "files":    ("/files",    "Files - FluiDez Reader",      "files",    '  <script src="/js/jszip.min.js"></script>'),
     "settings": ("/settings", "Settings - FluiDez Reader",   "settings", ""),
     "fonts":    ("/fonts",    "Fonts - FluiDez Reader",      "fonts",    ""),
+    "sleep":    ("/sleep",    "Sleep Screen - FluiDez Reader", "sleep",  ""),
 }
 ROUTE_TO_SLUG = {route: slug for slug, (route, *_rest) in PAGES.items()}
 
@@ -41,7 +42,7 @@ def render_page(slug):
         "styles": read(WEB, "pages", f"{slug}.css"),
         "body": read(WEB, "pages", f"{slug}.html"),
         "script": f"<script>\n{js}\n</script>" if js else "",
-        "cls_home": "", "cls_files": "", "cls_settings": "", "cls_fonts": "",
+        "cls_home": "", "cls_files": "", "cls_settings": "", "cls_fonts": "", "cls_sleep": "",
     }
     values[f"cls_{active}"] = ' class="active"'
     base = read(WEB, "templates", "base.html")
@@ -61,6 +62,8 @@ MOCK_API = {
         {"name": "Bookerly", "sizes": [10, 12, 14], "files": [{"size": 120000}, {"size": 140000}]},
         {"name": "Literata", "sizes": [12], "files": [{"size": 160000}]},
     ]},
+    "/api/sleep-image": {"pinned": "", "mode": 3, "customMode": False, "width": 480, "height": 800,
+                         "folder": "/sleep"},
     "/api/wifi": [
         {"ssid": "HomeNetwork", "hasPassword": True, "isLastConnected": True},
         {"ssid": "Library Guest", "hasPassword": False, "isLastConnected": False},
@@ -120,6 +123,10 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         # Accept saves/uploads/deletes during preview so the JS does not error.
+        # Drain the body first: replying early resets large uploads.
+        length = int(self.headers.get("Content-Length") or 0)
+        if length:
+            self.rfile.read(length)
         self._send(200, json.dumps({"ok": True}), "application/json")
 
     def log_message(self, fmt, *args):

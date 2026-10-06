@@ -37,6 +37,7 @@
 #include "ImageFolderIndex.h"
 #include "RecentBooksStore.h"
 #include "SleepCoverAssets.h"
+#include "SleepImageConverter.h"
 #include "activities/reader/ReaderUtils.h"
 #include "components/FluiDezBrand.h"
 #include "components/UITheme.h"
@@ -382,6 +383,13 @@ bool selectPinnedSleepImage(SleepImageMode mode, SleepImageSelection& selection)
     return true;
   }
 
+  // Custom mode converts photos once (SleepImageConverter) and then streams the BMP.
+  if (mode == SleepImageMode::Custom && SleepImageConverter::isConvertible(favorite)) {
+    selection.path = favorite;
+    selection.isPng = false;
+    return true;
+  }
+
   if (isPngSleepImagePath(favorite)) {
     if (mode == SleepImageMode::Overlay) {
       selection.path = favorite;
@@ -404,8 +412,14 @@ bool selectRandomSleepImage(SleepImageMode mode, SleepImageSelection& selection,
   if (!resolvePreferredSleepDirectory(sleepDir)) return false;
 
   const bool allowPng = mode == SleepImageMode::Overlay && !bmpOnly;
+  // Overlay draws PNGs directly; Custom converts PNG/JPG photos to BMP on first use.
+  const uint8_t kinds = bmpOnly
+                            ? ImageFolderIndex::KIND_BMP
+                            : (mode == SleepImageMode::Overlay
+                                   ? ImageFolderIndex::KIND_PNG
+                                   : static_cast<uint8_t>(ImageFolderIndex::KIND_PNG | ImageFolderIndex::KIND_JPEG));
   ImageFolderIndex::Selection indexedSelection;
-  if (ImageFolderIndex::select(sleepDir, allowPng, validateBmpHeaders, APP_STATE.recentSleepImages,
+  if (ImageFolderIndex::select(sleepDir, kinds, validateBmpHeaders, APP_STATE.recentSleepImages,
                                CrossPointState::SLEEP_RECENT_COUNT, APP_STATE.recentSleepPos, APP_STATE.recentSleepFill,
                                std::min(APP_STATE.recentSleepFill, CrossPointState::SLEEP_RECENT_COUNT),
                                indexedSelection)) {
@@ -624,17 +638,24 @@ bool SleepActivity::rendersBeforeExit() const {
 
 void SleepActivity::renderCustomSleepScreen() const {
   const auto tryRenderSelection = [this](const SleepImageSelection& selection) {
-    FsFile file;
-    if (!Storage.openFileForRead("SLP", selection.path, file)) {
-      LOG_ERR("SLP", "Failed to open custom sleep image: %s", selection.path.c_str());
+    // Use image-specific gray levels only when the panel accepts complete planes.
+    const bool imageLevels =
+        renderer.supportsAbsoluteGrayscale() &&
+        SETTINGS.sleepScreenCoverFilter == CrossPointSettings::SLEEP_SCREEN_COVER_FILTER::NO_FILTER;
+    std::string bmpPath;
+    if (!SleepImageConverter::resolveRenderableBmp(selection.path, imageLevels, bmpPath)) {
+      LOG_ERR("SLP", "Cannot prepare custom sleep image: %s", selection.path.c_str());
       return false;
     }
 
-    LOG_INF("SLP", "Loading custom sleep image: %s", selection.path.c_str());
-    // Use image-specific gray levels only when the panel accepts complete planes.
-    Bitmap bitmap(file, true,
-                  renderer.supportsAbsoluteGrayscale() &&
-                      SETTINGS.sleepScreenCoverFilter == CrossPointSettings::SLEEP_SCREEN_COVER_FILTER::NO_FILTER);
+    FsFile file;
+    if (!Storage.openFileForRead("SLP", bmpPath, file)) {
+      LOG_ERR("SLP", "Failed to open custom sleep image: %s", bmpPath.c_str());
+      return false;
+    }
+
+    LOG_INF("SLP", "Loading custom sleep image: %s", bmpPath.c_str());
+    Bitmap bitmap(file, true, imageLevels);
     const BmpReaderError parseResult = bitmap.parseHeaders();
     if (parseResult != BmpReaderError::Ok) {
       LOG_ERR("SLP", "Failed to parse custom sleep BMP %s: %s", selection.path.c_str(),

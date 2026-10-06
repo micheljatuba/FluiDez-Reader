@@ -5,6 +5,11 @@
 
 namespace ImageFolderIndex {
 
+// Which files a selection may return besides BMP. KIND_JPEG also lists .jpeg.
+constexpr uint8_t KIND_BMP = 0;
+constexpr uint8_t KIND_PNG = 1 << 0;
+constexpr uint8_t KIND_JPEG = 1 << 1;
+
 struct Selection {
   std::string path;
   bool isPng = false;
@@ -25,7 +30,7 @@ bool resolveBootScreenDirectory(std::string& directory);
 // write slot, recentFill is the number of valid entries), so this module has
 // no dependency on any particular caller's history storage. recentWindow caps
 // how far back to look when avoiding repeats.
-bool select(const std::string& directory, bool includePng, bool validateBmpHeaders, const uint16_t* recentIndices,
+bool select(const std::string& directory, uint8_t kinds, bool validateBmpHeaders, const uint16_t* recentIndices,
             uint8_t recentCapacity, uint8_t recentPos, uint8_t recentFill, uint8_t recentWindow, Selection& selection);
 
 // Drop all indexes. This only removes files owned by this module.

@@ -35,6 +35,7 @@ PAGES = {
     "files":    ("FilesPageHtml",    "Files - FluiDez Reader",      "files",    '  <script src="/js/jszip.min.js"></script>'),
     "settings": ("SettingsPageHtml", "Settings - FluiDez Reader",   "settings", ""),
     "fonts":    ("FontsPageHtml",    "Fonts - FluiDez Reader",      "fonts",    ""),
+    "sleep":    ("SleepPageHtml",    "Sleep Screen - FluiDez Reader", "sleep",  ""),
 }
 
 PRESERVE_TAGS = "pre|code|textarea|script|style"
@@ -138,7 +139,7 @@ for slug, (ident, title, active, head_extra) in PAGES.items():
     values = {
         "title": title, "v": v, "head_extra": head_extra,
         "styles": page_css, "body": page_html, "script": script,
-        "cls_home": "", "cls_files": "", "cls_settings": "", "cls_fonts": "",
+        "cls_home": "", "cls_files": "", "cls_settings": "", "cls_fonts": "", "cls_sleep": "",
     }
     values[f"cls_{active}"] = ' class="active"'
     html = minify_html(render(base, values))
