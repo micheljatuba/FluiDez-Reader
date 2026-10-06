@@ -460,7 +460,9 @@ void NearbyBookPositionSyncActivity::renderComparison() const {
 #include <memory>
 #include <string>
 
+#include "Epub/EpubRenderMode.h"
 #include "Epub/Section.h"
+#include "EpubReaderActivity.h"
 #include "EpubReaderUtils.h"
 #include "FluiDezSettings.h"
 #include "KOReaderCredentialStore.h"
@@ -1179,7 +1181,8 @@ bool NearbyBookPositionSyncActivity::mapPeerPosition() {
   }
 
   if (peerCrossPoint_.hasLiIndex || peerCrossPoint_.xpathAnchorId[0] != '\0' || peerCrossPoint_.hasParagraphIndex) {
-    Section tempSection(epub_, peerCrossPoint_.spineIndex, renderer);
+    const auto renderMode = static_cast<EpubRenderMode>(EpubReaderActivity::loadBookRenderMode(*epub_));
+    Section tempSection(epub_, peerCrossPoint_.spineIndex, renderer, sectionCacheSuffixForRenderMode(renderMode));
     bool refined = false;
     if (peerCrossPoint_.hasLiIndex) {
       const auto liPage = tempSection.getPageForListItemIndex(peerCrossPoint_.liIndex);

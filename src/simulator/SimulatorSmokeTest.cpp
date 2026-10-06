@@ -2338,6 +2338,10 @@ class SimulatorSmokeTest {
       }
 
       case SmokeStep::Done:
+        if (std::getenv("FLUIDEZ_SIMULATOR_SMOKE_APP_NOTES")) {
+          RenderLock lock;
+          captureStatusBarScreen("short-note-popup");
+        }
         if (SETTINGS.uiTheme == FluiDezSettings::LYRA_CAROUSEL && carouselCachePass == 0 &&
             std::getenv("FLUIDEZ_SIMULATOR_SMOKE_BOOK")) {
           const RecentBook book = RECENT_BOOKS.getBooks().front();

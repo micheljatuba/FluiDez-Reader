@@ -486,8 +486,13 @@ void OpdsBookBrowserActivity::render(RenderLock&&) {
 }
 
 void OpdsBookBrowserActivity::showLoadingBeforeFetch() {
-  state = BrowserState::LOADING;
-  statusMessage = tr(STR_LOADING);
+  {
+    RenderLock lock;
+    state = BrowserState::LOADING;
+    statusMessage = tr(STR_LOADING);
+    clearEntries();
+    selectorIndex = 0;
+  }
   if (requestUpdateAndWait() != RequestUpdateResult::Rendered) {
     LOG_ERR("OPDS", "Loading screen could not be rendered before feed fetch");
     requestUpdate(true);
@@ -495,6 +500,7 @@ void OpdsBookBrowserActivity::showLoadingBeforeFetch() {
 }
 
 void OpdsBookBrowserActivity::fetchFeed(const std::string& path) {
+  RenderLock lock;  // Loading is visible; publish the new feed and final state together.
   if (!ensureEntryBuffer()) {
     state = BrowserState::ERROR;
     errorMessage = tr(STR_MEMORY_ERROR);
@@ -631,8 +637,6 @@ void OpdsBookBrowserActivity::navigateToEntry(const OpdsEntry& entry, const bool
   const std::string feedUrl = UrlUtils::buildUrl(server.url, currentPath);
   currentPath = UrlUtils::buildUrl(feedUrl, entry.href);
 
-  clearEntries();
-  selectorIndex = 0;
   showLoadingBeforeFetch();
   fetchFeed(currentPath);
 }
@@ -643,8 +647,6 @@ void OpdsBookBrowserActivity::navigateBack() {
   } else {
     currentPath = navigationHistory.back();
     navigationHistory.pop_back();
-    clearEntries();
-    selectorIndex = 0;
     showLoadingBeforeFetch();
     fetchFeed(currentPath);
   }
@@ -832,8 +834,6 @@ void OpdsBookBrowserActivity::performSearch(const std::string& query) {
   navigationHistory.push_back(currentPath);
   currentPath = url;
 
-  clearEntries();
-  selectorIndex = 0;
   showLoadingBeforeFetch();
   fetchFeed(url);
 }

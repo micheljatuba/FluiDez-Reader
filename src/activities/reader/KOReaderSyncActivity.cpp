@@ -13,7 +13,9 @@
 #include <cassert>
 #include <cmath>
 
+#include "Epub/EpubRenderMode.h"
 #include "Epub/Section.h"
+#include "EpubReaderActivity.h"
 #include "EpubReaderUtils.h"
 #include "FluiDezSettings.h"
 #include "FluiDezState.h"
@@ -424,11 +426,13 @@ void KOReaderSyncActivity::performSync() {
   const PositionCoordinateSpace remoteCoordinateSpace = remoteMatchMethod == DocumentMatchMethod::FILENAME
                                                             ? PositionCoordinateSpace::SourceDocument
                                                             : PositionCoordinateSpace::CurrentDocument;
+  const auto renderMode = static_cast<EpubRenderMode>(EpubReaderActivity::loadBookRenderMode(*epub));
+  const char* cacheSuffix = sectionCacheSuffixForRenderMode(renderMode);
   bool usedRichPosition = false;
   // The client only accepts rich positions from the official CrossPoint Sync server.
   // Filename matching still needs source-document mapping because optimized books can diverge.
   if (remoteCoordinateSpace == PositionCoordinateSpace::CurrentDocument && remoteProgress.position.has_value()) {
-    const auto richMapped = ProgressMapper::fromRichPosition(epub, *remoteProgress.position, renderer);
+    const auto richMapped = ProgressMapper::fromRichPosition(epub, *remoteProgress.position, renderer, cacheSuffix);
     if (richMapped.has_value()) {
       remotePosition = *richMapped;
       usedRichPosition = true;
@@ -454,7 +458,7 @@ void KOReaderSyncActivity::performSync() {
   // watermark; preserving that offset lets the reader index through to it.
   if (!usedRichPosition && (remotePosition.hasVisibleTextOffset || remotePosition.hasLiIndex ||
                             remotePosition.xpathAnchorId[0] != '\0' || remotePosition.hasParagraphIndex)) {
-    Section tempSection(epub, remotePosition.spineIndex, renderer);
+    Section tempSection(epub, remotePosition.spineIndex, renderer, cacheSuffix);
     bool refined = false;
     if (remotePosition.hasVisibleTextOffset) {
       const auto contentPage = tempSection.getPageForVisibleTextOffset(remotePosition.visibleTextOffset, true);
