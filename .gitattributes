@@ -1,1 +1,4 @@
 .github/workflows/*.lock.yml linguist-generated=true
+# Patches are applied with `git apply` to LF sources; keep them LF on Windows checkouts too.
+scripts/sdfat_patches/*.patch eol=lf
+scripts/jpegdec_patches/*.patch eol=lf

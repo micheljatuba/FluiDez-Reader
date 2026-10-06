@@ -56,6 +56,9 @@ class Activity {
   // Request fast polling only for incremental work; waiting screens keep the loop delay and CPU power saving.
   virtual bool skipLoopDelay() { return false; }
   // Stay awake only during bounded work; idle input, list, and result screens follow Time to Sleep.
+  // Read on the main task even while render() holds the render lock.
+  // Overrides must return a fixed value that does not depend on render state.
+  virtual uint8_t inputPollDelayMs() const { return 10; }
   virtual bool preventAutoSleep() { return false; }
   // While true, main-loop global controls and activity replacement are
   // suspended so an exclusive storage owner cannot race the filesystem.
@@ -70,6 +73,9 @@ class Activity {
   // activity validates that trigger without routing any other normal input.
   virtual bool handleQuickLockUnlock(QuickLockTrigger) { return false; }
   virtual bool isReaderActivity() const { return false; }
+  // Reader-mode child screens may also report isReaderActivity(); only the
+  // activity owning the open book should be the Home/Reader unwind target.
+  virtual bool isBookReaderActivity() const { return false; }
   virtual bool isHomeActivity() const { return false; }
   // The open book uses its vertical swipe actions across the entire page;
   // dialogs and lists retain their normal edge or scroll gestures.
@@ -93,9 +99,11 @@ class Activity {
   // Let overlays consume the global Home gesture as a dismiss action.
   virtual bool handleHomeGesture() { return false; }
   virtual bool canSnapshotForSleepOverlay() const { return false; }
-  // Activity-specific two-finger actions (chapter and font commands). Global
+  // Activity-specific swipe actions (chapter and font commands). Global
   // frontlight commands are handled by ActivityManager before this callback.
   virtual bool handleTwoFingerSwipeAction(CrossPointSettings::TWO_FINGER_SWIPE_ACTION) { return false; }
+  // An overlay may cache the live frontlight value for its controls.
+  virtual void onExternalFrontlightChange() {}
   // Completed two-finger rotations are routed only to activities that can
   // safely rebuild their content for a new screen orientation.
   virtual bool handleTwoFingerRotation(bool clockwise) { return false; }
@@ -114,7 +122,7 @@ class Activity {
   virtual void persistGlobalSettings() { SETTINGS.saveToFile(); }
   virtual bool onFrontlightGlobalSettingsOpened() { return false; }
   virtual void onFrontlightGlobalSettingsClosed() {}
-  virtual bool handleFrontlightPanelResult(const FrontlightPanelResult&) { return false; }
+  virtual bool handleFrontlightPanelResult(const FrontlightPanelResult& result);
   virtual bool handleExternalReaderMenuAction(uint8_t) { return false; }
   virtual bool restorePendingOverlay(const PendingOverlayResume&) { return false; }
   virtual ScreenshotInfo getScreenshotInfo() const { return {}; }

@@ -15,6 +15,8 @@ std::vector<unsigned long> delays;
 unsigned yields = 0;
 unsigned renderLocks = 0;
 unsigned delaysUnderRenderLock = 0;
+// When set, RenderLock(Mode::Try) fails as if the render task held the lock.
+bool renderTaskBusy = false;
 unsigned sleeps = 0;
 unsigned screenshots = 0;
 bool homeGesturePending = false;
@@ -34,7 +36,16 @@ void yield() { ++yields; }
 namespace {
 struct CrossPointSettings {
   enum class SHORT_PWRBTN { NONE, QUICK_LOCK };
+  static constexpr int IGNORE = 0;
 };
+
+struct MappedInputManager {
+  enum class Button { Back, Confirm, Left, Right, Up, Down, Power, PageBack, PageForward };
+};
+
+namespace ReaderUtils {
+constexpr unsigned long SKIP_HOLD_MS = 700;
+}  // namespace ReaderUtils
 
 struct Settings {
   bool tiltPageTurn = false;
@@ -42,6 +53,8 @@ struct Settings {
   int orientation = 0;
   bool fadingFix = false;
   bool disableReaderTouchscreen = false;
+  int sideButtonUpLong = CrossPointSettings::IGNORE;
+  int sideButtonDownLong = CrossPointSettings::IGNORE;
   CrossPointSettings::SHORT_PWRBTN shortPwrBtn = CrossPointSettings::SHORT_PWRBTN::NONE;
   unsigned long sleepTimeoutMs = 0;
 
@@ -68,6 +81,9 @@ struct {
   void update() { ++inputPolls; }
   void clearInjectedReleases() { ++releaseClears; }
   void clearDeferredHomeGesture() {}
+  bool isPressed(MappedInputManager::Button) const { return false; }
+  bool wasPressed(MappedInputManager::Button) const { return false; }
+  bool wasReleased(MappedInputManager::Button) const { return false; }
 } mappedInputManager;
 
 struct {
@@ -87,6 +103,8 @@ struct {
   bool blocksGlobalInput() const { return modal; }
   bool handleQuickLockUnlock(QuickLockTrigger) const { return false; }
   bool skipLoopDelay() const { return fastPolling; }
+  uint8_t pollDelayMs = 10;
+  uint8_t inputPollDelayMs() const { return pollDelayMs; }
   void notifyUserInput() { ++inputNotifications; }
   void requestUpdate() {}
   void loop() {
@@ -102,6 +120,10 @@ struct {
 } display;
 
 constexpr bool Serial = false;
+// BoardConfig log transports; the tests use the serial one so periodic memory logs stay off.
+#define FREEINK_LOG_TRANSPORT_SERIAL 0
+#define FREEINK_LOG_TRANSPORT_ROM_PRINTF 2
+#define FREEINK_LOG_TRANSPORT FREEINK_LOG_TRANSPORT_SERIAL
 struct {
   void printf(const char*, ...) {}
   void write(const uint8_t*, uint32_t) {}
@@ -109,8 +131,17 @@ struct {
 
 class RenderLock {
  public:
-  RenderLock() { ++renderLocks; }
-  ~RenderLock() { --renderLocks; }
+  enum class Mode { Blocking, Try };
+  explicit RenderLock(Mode mode = Mode::Blocking) : owns(mode == Mode::Blocking || !renderTaskBusy) {
+    if (owns) ++renderLocks;
+  }
+  ~RenderLock() {
+    if (owns) --renderLocks;
+  }
+  bool ownsLock() const { return owns; }
+
+ private:
+  bool owns;
 };
 
 namespace ScreenshotUtil {
@@ -196,6 +227,7 @@ class MainLoopPacingTest : public testing::Test {
     powerButtonReleasedSinceWake = true;
     wakePowerReleasePending = false;
     renderLocks = 0;
+    renderTaskBusy = false;
     recordInput();
   }
 
@@ -218,6 +250,26 @@ TEST_F(MainLoopPacingTest, ActiveFrameKeepsTenMillisecondDelay) {
   EXPECT_EQ(delays, std::vector<unsigned long>({10}));
   EXPECT_TRUE(powerManager.requests.empty());
   EXPECT_EQ(activityManager.dispatches, 1U);
+}
+
+TEST_F(MainLoopPacingTest, ActiveFrameUsesTheActivityPollInterval) {
+  // Text entry asks for faster polling (Activity::inputPollDelayMs()).
+  activityManager.pollDelayMs = 2;
+  loop();
+  EXPECT_EQ(delays, std::vector<unsigned long>({2}));
+  EXPECT_EQ(activityManager.dispatches, 1U);
+}
+
+TEST_F(MainLoopPacingTest, BusyRenderTaskWaitsOnePollIntervalWithoutPowerSaving) {
+  // While a page is drawn the loop keeps reading input at the activity's rate
+  // instead of blocking on the render lock or entering the idle budget.
+  becomeIdle();
+  activityManager.pollDelayMs = 2;
+  renderTaskBusy = true;
+  loop();
+  EXPECT_EQ(delays, std::vector<unsigned long>({2}));
+  EXPECT_EQ(yields, 0U);
+  EXPECT_EQ(delaysUnderRenderLock, 0U);
 }
 
 TEST_F(MainLoopPacingTest, IdleTouchFrameKeepsExistingBudget) {

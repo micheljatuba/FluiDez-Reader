@@ -6,6 +6,26 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ## [Unreleased]
 
+### Changed
+
+- FluiDez Reader is synced with CrossInk `development` at [`6fbc97d1`](https://github.com/uxjulia/crossink/commit/6fbc97d1) (2026-10-01, after CrossInk v1.6.1). This brings in, among others, the Library screen that replaces Recent Books, the five-tab EPUB reader menu on every device, separate top and bottom reader status bars, separate short- and long-press actions for each side button, device-wide and per-book reading-stats tracking, edge gestures on touch readers, the Cover Grid Home theme on PSRAM readers, TTF fonts on ESP32-S3 readers, and faster SD-card reads. The [CrossInk changelog](https://github.com/uxjulia/crossink/blob/main/CHANGELOG.md) lists every change.
+- The FluiDez Reader repository history now continues from CrossInk's, so later CrossInk updates arrive as ordinary merges.
+- Lyra Carousel now uses CrossInk's Home cache, which stores only cover artwork and draws progress, reading time, the header and menu live. Reading a book no longer invalidates any cached position. It replaces FluiDez Reader's earlier per-book frame cache, which is removed after the first write.
+- **Pin to Top** and **Unpin** are available from the Library book actions, and pinned books come first in Library's **Recently Opened** order, as they did in Recent Books.
+- The Dashboard Home and sleep screens follow the new reading-stats switches: with tracking off for the device or the book, only progress and Time Left remain, and the all-time footer is hidden.
+- Long date formats in the header and in Library date groups use the translated month names.
+
+### Fixed
+
+- Windows builds no longer stop with "Two environments with different actions" once pioarduino shortens long include paths: the build-identity step now only touches `src/util/BuildInfo.cpp` and hands its version defines to the platform's single compile action.
+- The SdFat and JPEGDEC patches stay LF on Windows checkouts, so `git apply` accepts them.
+- The X4 Pro simulator smoke test drags the frontlight drawer's handle where the theme draws it, so the Classic theme passes as well.
+- Two loops flagged by cppcheck in the bookmark and clipping stores use `std::any_of`, keeping the static analysis job clean.
+
+### Notes
+
+- The **UI Theme** setting keeps value 7 for Lyra Grid. CrossInk's Cover Grid uses value 8 in FluiDez Reader, so existing installs keep their theme after updating.
+
 ## [v1.6-fluidez13] - 2026-10-01
 
 ### Changed

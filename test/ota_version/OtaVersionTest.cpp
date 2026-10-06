@@ -91,7 +91,7 @@ TEST(OtaVersion, ChecksFluiDezReaderReleasesForUpdates) {
   // must not silently point FluiDez firmware back at another repository.
   EXPECT_NE(text.find("\"https://api.github.com/repos/micheljatuba/FluiDez-Reader/releases/latest\""),
             std::string::npos);
-  EXPECT_NE(text.find("OtaVersion::compare(latestVersion.c_str(), CROSSINK_VERSION)"), std::string::npos);
+  EXPECT_NE(text.find("OtaVersion::compare(latestVersion.c_str(), AppVersion::version())"), std::string::npos);
 }
 
 }  // namespace

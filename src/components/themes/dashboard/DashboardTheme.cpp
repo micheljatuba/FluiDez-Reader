@@ -8,6 +8,7 @@
 #include <HalGPIO.h>
 #include <HalStorage.h>
 #include <I18n.h>
+#include <Xtc.h>
 
 #include <algorithm>
 #include <cmath>
@@ -16,8 +17,10 @@
 #include <string>
 #include <vector>
 
+#include "CrossPointSettings.h"
 #include "RecentBooksStore.h"
 #include "activities/reader/BookReadingStats.h"
+#include "activities/reader/BookStatsTracking.h"
 #include "activities/reader/GlobalReadingStats.h"
 #include "activities/reader/ReadingStatsUtils.h"
 #include "components/TouchRegistry.h"
@@ -202,7 +205,10 @@ std::string withNoBreakSpaces(const char* text) {
   return out;
 }
 
-std::vector<DashboardLayout::StatRow> dashboardStats(const BookReadingStats* stats, const float progressPercent) {
+// showStats is false when reading stats are off globally or for this book: only the
+// progress-derived rows remain.
+std::vector<DashboardLayout::StatRow> dashboardStats(const BookReadingStats* stats, const float progressPercent,
+                                                     const bool showStats) {
   const bool showRtcStats = halClock.isAvailable();
   const BookReadingStats emptyStats{};
   const BookReadingStats& bookStats = stats != nullptr ? *stats : emptyStats;
@@ -214,6 +220,17 @@ std::vector<DashboardLayout::StatRow> dashboardStats(const BookReadingStats* sta
   char finishDate[24];
   uint32_t estimatedSeconds = 0;
   const bool hasEstimate = estimatedTimeLeft(bookStats, progressPercent, estimatedSeconds);
+  if (!showStats) {
+    if (hasEstimate) {
+      formatCompactDuration(estimatedSeconds, value, sizeof(value));
+      rows.push_back({value, tr(STR_TIME_LEFT_SHORT)});
+    }
+    if (progressPercent >= 0.0f) {
+      snprintf(value, sizeof(value), "%d%%", static_cast<int>(progressPercent + 0.5f));
+      rows.push_back({value, tr(STR_STATS_PROGRESS_LBL)});
+    }
+    return rows;
+  }
   ReadingStatsDateTime today;
   const bool hasToday = showRtcStats && getCurrentLocalReadingStatsDateTime(today);
   const ReadingStatsDate endDate = bookStats.isCompleted && bookStats.finishedDate.isValid()
@@ -284,6 +301,15 @@ std::vector<DashboardLayout::StatRow> dashboardStats(const BookReadingStats* sta
   snprintf(value, sizeof(value), "%.1f", pagesPerMinute(bookStats.totalPagesTurned, bookStats.totalReadingSeconds));
   rows.push_back({value, tr(STR_STATS_PAGES_PER_MIN)});
   return rows;
+}
+
+bool showBookStatsForPath(const std::string& path) {
+  if (!SETTINGS.shouldTrackReadingStats()) return false;
+  if (FsHelpers::hasEpubExtension(path))
+    return BookStatsTracking::isBookEnabled(Epub::cachePathForFilePath(path, "/.crosspoint"));
+  if (FsHelpers::hasXtcExtension(path))
+    return BookStatsTracking::isBookEnabled(Xtc(path, "/.crosspoint").getCachePath());
+  return false;
 }
 
 bool dominantReaderTypeBucket(const GlobalReadingStats& globalStats, ReadingTimeBucket& bucketOut) {
@@ -367,12 +393,15 @@ void formatStreakStat(const GlobalReadingStats* globalStats, char* buf, const si
 DashboardLayout::Content dashboardContent(const RecentBook& book, const BookReadingStats* stats,
                                           const GlobalReadingStats* globalStats, const float progressPercent,
                                           const char* currentChapterTitle) {
+  const bool showStats = showBookStatsForPath(book.path);
   DashboardLayout::Content content;
   content.title = book.title.empty() ? book.path : book.title;
   const char* subtitle =
       (currentChapterTitle != nullptr && currentChapterTitle[0] != '\0') ? currentChapterTitle : book.author.c_str();
   content.subtitle = subtitle != nullptr ? subtitle : "";
-  content.stats = dashboardStats(stats, progressPercent);
+  content.stats = dashboardStats(stats, progressPercent, showStats);
+  // The global footer summarises tracked reading, so it is hidden with stats off.
+  if (!SETTINGS.shouldTrackReadingStats()) return content;
   if (!halClock.isAvailable()) {
     char totalTime[40];
     char booksRead[16];

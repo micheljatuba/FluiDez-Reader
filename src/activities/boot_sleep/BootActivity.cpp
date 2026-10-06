@@ -123,7 +123,7 @@ void drawDefaultBootLogo(const GfxRenderer& renderer) {
   const int lockupBottom =
       FluiDezBrand::drawLockup(renderer, FluiDezBrand::centredLockupTop(renderer, statusGap + statusHeight));
   renderer.drawCenteredText(SMALL_FONT_ID, lockupBottom + statusGap, tr(STR_BOOTING));
-  renderer.drawCenteredText(SMALL_FONT_ID, pageHeight - 30, CROSSINK_VERSION);
+  renderer.drawCenteredText(SMALL_FONT_ID, pageHeight - 30, AppVersion::version());
 }
 
 }  // namespace

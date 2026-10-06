@@ -5,6 +5,11 @@
 #include <HalPowerManager.h>
 
 MainLoopPacing::~MainLoopPacing() {
+  if (renderBusy) {
+    delay(inputPollDelayMs);
+    return;
+  }
+
   if (skipDelay) {
     powerManager.setPowerSaving(false);
     yield();
@@ -12,7 +17,7 @@ MainLoopPacing::~MainLoopPacing() {
   }
 
   if (millis() - lastActivityTime < HalPowerManager::IDLE_POWER_SAVING_MS) {
-    delay(10);
+    delay(inputPollDelayMs);
     return;
   }
 

@@ -10,6 +10,8 @@ class HalPowerManager {
 
   void setPowerSaving(bool enabled) { requests.push_back(enabled); }
   uint16_t getBatteryPercentage() const { return 50; }
+  // Calibration finishes immediately in tests.
+  bool updateBatteryCalibration() { return false; }
 };
 
 extern HalPowerManager powerManager;

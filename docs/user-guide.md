@@ -18,7 +18,7 @@ Este guia cobre o uso diário do aparelho. Para referências específicas, veja 
     - [3.1 Tela Início](#31-tela-início)
     - [3.2 Modo de leitura](#32-modo-de-leitura)
     - [3.3 Tela Explorar arquivos](#33-tela-explorar-arquivos)
-    - [3.4 Tela Livros recentes](#34-tela-livros-recentes)
+    - [3.4 Tela Biblioteca](#34-tela-biblioteca)
     - [3.5 Tela Transferência de arquivos](#35-tela-transferência-de-arquivos)
     - [3.5.1 Transferências sem fio do Calibre](#351-transferências-sem-fio-do-calibre)
     - [3.6 Configurações](#36-configurações)
@@ -93,8 +93,7 @@ Como alternativa, durante a leitura de um livro, pressione o botão **Confirmar*
 
 ### Ligar / desligar
 
-Para ligar ou desligar o aparelho, **mantenha o botão liga/desliga pressionado por cerca de meio segundo**.
-Em **Configurações > Controles > Botão liga/desliga**, você pode configurar o botão liga/desliga para desligar o aparelho com um toque curto em vez de um toque longo.
+Por padrão, **mantenha o botão liga/desliga pressionado por cerca de meio segundo** para colocar o aparelho em repouso ou despertá-lo. Em **Configurações > Controles > Botão liga/desliga**, você configura separadamente as ações do toque curto e do toque longo. Um toque curto só desperta o aparelho quando a **Ação do toque curto** está como **Repouso** ou **Despertar**; nos demais casos, segure o botão por cerca de meio segundo para despertá-lo. Veja [Controles](#363-controles) para mais detalhes.
 
 Para reiniciar o aparelho (por exemplo, depois de uma atualização de firmware ou se ele travar), pressione e solte o botão Reset e, em seguida, pressione rapidamente e mantenha o botão liga/desliga pressionado por alguns segundos.
 
@@ -111,7 +110,7 @@ Ao ligar o aparelho pela primeira vez, você será colocado na tela **[Início](
 
 ### 3.1 Tela Início
 
-A tela Início é o ponto principal de entrada do firmware. A partir dela, você pode navegar para o **[Modo de leitura](#4-modo-de-leitura)** com o livro lido mais recentemente, a tela **[Explorar arquivos](#33-tela-explorar-arquivos)**, a tela **[Livros recentes](#34-tela-livros-recentes)**, a tela **[Transferência de arquivos](#35-tela-transferência-de-arquivos)** ou **[Configurações](#36-configurações)**.
+A tela Início é o ponto principal de entrada do firmware. A partir dela, você pode navegar para o **[Modo de leitura](#4-modo-de-leitura)** com o livro lido mais recentemente, a tela **[Explorar arquivos](#33-tela-explorar-arquivos)**, a tela **[Biblioteca](#34-tela-biblioteca)**, a tela **[Transferência de arquivos](#35-tela-transferência-de-arquivos)** ou **[Configurações](#36-configurações)**.
 
 ### 3.2 Modo de leitura
 
@@ -124,14 +123,25 @@ A tela Explorar arquivos funciona como navegador de arquivos e pastas. O caminho
 - **Navegar pela lista:** use **Esquerda** (ou **Cima**) ou **Direita** (ou **Baixo**) para mover o cursor de seleção para cima e para baixo por pastas e livros. Você também pode manter esses botões pressionados para rolar uma página inteira para cima ou para baixo.
 - **Abrir seleção:** pressione **Confirmar** para abrir uma pasta ou começar a ler o livro selecionado. Selecionar um arquivo `.bmp` abre o visualizador de imagens.
 - **Excluir arquivos ou pastas:** segure e solte **Confirmar** para abrir o menu de ações do arquivo ou da pasta selecionada e escolha **Excluir**. Você receberá a opção de confirmar ou cancelar. A exclusão de pastas é limitada a pastas vazias.
-- **Ações de livros:** arquivos EPUB e XTC também podem mostrar opções como **Excluir cache do livro** ou **Marcar como concluído** no mesmo menu de ações.
+- **Ações de livros:** arquivos EPUB e XTC também podem mostrar opções como **Excluir cache do livro**, **Marcar como concluído** e **Registrar estatísticas de leitura** no mesmo menu de ações. Desligar o registro de um livro mantém as estatísticas já salvas; só interrompe os registros novos daquele livro.
 
-### 3.4 Tela Livros recentes
+### 3.4 Tela Biblioteca
 
-A tela Livros recentes lista os livros abertos mais recentemente em uma visão cronológica, exibindo título e autor.
+A **Biblioteca** substitui a antiga tela Livros recentes e lista os livros compatíveis de todo o cartão SD. Na primeira visita, ela lê o cartão para montar a lista; nas visitas seguintes, reaproveita a lista e a atualiza depois de mudanças em arquivos ou transferências.
 
-- **Fixar livros:** segure **Confirmar** ou mantenha um livro pressionado e escolha **Fixar no topo**. Até seis livros fixados aparecem primeiro, na ordem em que foram fixados, e são marcados como **Fixado**. Escolha **Desafixar** para devolver o livro à posição cronológica.
-- **Manter livros fixados:** livros fixados permanecem em Livros recentes quando livros mais novos empurram os antigos para fora da lista de 18 livros e quando **Limpar livros lidos da lista de recentes** está ativado. Escolha **Remover dos Livros recentes** ou exclua o livro para removê-lo.
+- **Encontrar um livro:** use **Buscar** para filtrar por título ou autor. Com **Usar metadados do livro** desligado, os livros são mostrados e buscados pelo nome do arquivo.
+- **Ordenar:** escolha **Data de adição**, **Título**, **Autor (sobrenome)**, **Autor (nome)**, **Abertos recentemente**, **Série** ou **Gênero**. A ordem pode ser invertida. **Abertos recentemente** mostra só o seu histórico de leitura, e não todos os livros do cartão.
+- **Botões:** use **Cima/Baixo** para selecionar um livro e **Confirmar** para abri-lo. Segure **Confirmar** para as ações do livro. **Esquerda** abre a ordenação; **Direita** abre o menu com **Buscar**, **Configurações** e **Atualizar biblioteca**.
+- **Toque:** toque em um livro para abri-lo, mantenha-o pressionado para as ações do livro e deslize para rolar. Use os controles de busca, configurações, atualização e ordenação no topo.
+- **Configurações da Biblioteca:** abra as **Configurações** da Biblioteca para escolher entre metadados do EPUB ou nomes de arquivo, linhas compactas ou expandidas, e lista ou grade de capas em **Visualização de abertos recentemente**. Também é possível ocultar livros concluídos, mostrar série e gênero e filtrar os formatos exibidos.
+- **Ações de livros:** livros EPUB e XTC podem oferecer **Estatísticas de leitura** sem abrir o livro, quando o registro está ativado no aparelho e no livro. O menu também traz controles do livro, como **Marcar como concluído** e **Registrar estatísticas de leitura**, quando disponíveis.
+
+Se os arquivos foram alterados por fora enquanto o leitor ficou ligado, use **Atualizar biblioteca** para ler o cartão de novo. **Data de adição** usa a data de criação do arquivo quando disponível, então um programa de cópia que preserva datas antigas pode afetar essa ordem.
+
+#### Livros fixados
+
+- **Fixar livros:** no menu de ações de um livro do seu histórico de leitura (segurando **Confirmar** ou mantendo o livro pressionado), escolha **Fixar no topo**. Até seis livros fixados aparecem primeiro em **Abertos recentemente**, na ordem em que foram fixados. Escolha **Desafixar** para devolver o livro à posição cronológica.
+- **Manter livros fixados:** livros fixados permanecem no histórico quando livros mais novos empurram os antigos para fora da lista de 18 livros e quando **Limpar livros lidos da lista de recentes** está ativado. Escolha **Remover dos Livros recentes** ou exclua o livro para removê-lo.
 - **Tela Início:** **Continuar lendo** ainda abre o livro que você leu mais recentemente. Livros fixados aparecem depois dele nos temas de Início com várias capas (**Lyra Extended** mostra 3 livros, **Lyra Carousel** mostra 5 e **Lyra Grade** mostra 6). Em temas de uma capa, trocar o livro do Início (por exemplo, deslizando para a esquerda ou segurando **Confirmar**) alterna entre o livro atual e até dois livros fixados; com um livro fixado, o livro lido anteriormente permanece no ciclo.
 - **Fixar a partir do Início:** em qualquer tema de Início, mantenha a capa de um livro pressionada (ou, em temas com várias capas sem toque, segure **Confirmar** no livro selecionado) para abrir **Fixar no topo** / **Desafixar**, **Marcar como concluído** e **Remover dos Livros recentes** sem sair do Início.
 
@@ -203,9 +213,9 @@ conforme o modelo do aparelho e a compilação.
   - "Nenhum" - uma tela em branco
   - "Capa + personalizado" - a imagem da capa do livro durante a leitura ativa, usando o comportamento "Personalizado" nos demais casos
   - "Sobreposição da página" - usa uma imagem para sobrepor a página atual. Funciona melhor com arquivos `.png` transparentes ou arquivos `.bmp` em preto e branco.
-  - "Estatísticas de leitura" - estatísticas recentes de leitura na tela de repouso
+  - "Estatísticas de leitura" - estatísticas recentes de leitura na tela de repouso; usa **Minimal** enquanto o registro estiver desligado no aparelho ou no livro recente
   - "Minimal" - uma tela de repouso minimalista
-  - "Minimal Stats" - uma tela de repouso minimalista com estatísticas em aparelhos compatíveis
+  - "Minimal Stats" - uma tela de repouso minimalista com estatísticas em aparelhos compatíveis; usa **Minimal** enquanto o registro estiver desligado no aparelho ou no livro recente
   - "Painel" - uma tela de repouso no estilo painel, baseada no tema Painel
   - "Retomada rápida" - mantém o conteúdo atual visível durante o repouso
 
@@ -239,8 +249,11 @@ conforme o modelo do aparelho e a compilação.
   - "Lyra Carousel" - layout inicial Lyra em carrossel, com até 5 livros
   - "Lyra Grade" - menu de ícones do Lyra Carousel com uma grade 3x2 de 6 livros (atual, fixados e recentes), cada um com barra de progresso e fita nos fixados
   - "RoundedRaff" - um tema arredondado com estilo visual adicional
+  - "Cover Grid" (aparelhos com PSRAM, como Sticky e X4 Pro) - mostra o livro atual e até seis outras capas; toque em uma capa para abrir o livro
 
-- **Vista de livros recentes**: escolha se a tela Livros recentes usa layout de lista ou grade.
+  Temas que mostram estatísticas de leitura as ocultam enquanto **Registrar estatísticas de leitura** estiver desligado.
+
+- As opções de exibição e filtro da lista de livros agora ficam em **Biblioteca > Configurações**; veja [Tela Biblioteca](#34-tela-biblioteca).
 
 - **Ajuste desbotamento ao sol**: configure se ativa uma correção por software para o problema em que modelos X4 brancos podem desbotar quando usados sob luz solar direta:
   - "DESL." (padrão) - desativa a correção
@@ -268,16 +281,20 @@ conforme o modelo do aparelho e a compilação.
 
 #### 3.6.2 Leitor
 
+**Configurações globais e livros individuais:** as escolhas em **Configurações > Leitor** são o padrão para seus livros EPUB. Escolhas de layout, como família e tamanho da fonte e margens, podem ser salvas para um único livro nas abas **Fonte** e **Layout** do menu do livro. Uma escolha salva no livro prevalece sobre a configuração global correspondente; o que você não alterou naquele livro continua seguindo o padrão global. Por exemplo, um livro com tamanho de fonte próprio ainda recebe uma mudança posterior nas margens globais. Se você abrir as configurações globais pelo painel deslizante de um leitor com toque, mudanças herdadas de fonte e layout também valem para o livro aberto quando você voltar. **Modo escuro** e **Números de página estáveis** são configurações globais.
+
+Se uma mudança global não afetar um EPUB, abra a aba **Configurações** do menu do leitor e escolha **Redefinir configurações de leitura do livro**, ou use o menu de ações do livro em **Explorar arquivos** ou **Biblioteca**. Isso remove as escolhas salvas daquele livro para que ele volte a seguir os padrões globais atuais; mantém progresso, marcadores, recortes e estatísticas, e não redefine outros livros nem as configurações globais. Livros salvos em versões antigas podem precisar dessa redefinição antes de herdar mudanças globais. **Excluir cache do livro** não redefine essas escolhas.
+
 - **Família da fonte**: escolha a fonte usada para leitura:
   - "Lexend Deca" (padrão)
   - "Bitter"
 
-- **Tamanho da fonte**: ajusta o tamanho do texto de leitura; os tamanhos internos incluem 10, 12, 14 e 16 pt.
+- **Tamanho da fonte**: escolha entre os tamanhos disponíveis para a fonte selecionada e o firmware. Leitores ESP32-S3 usam fontes TTF escaláveis com todos os tamanhos inteiros de **8 a 22 pt**; veja [Fontes TTF escaláveis](./scalable-fonts.md).
 
 - **Espaçamento entre linhas**: ajusta a altura das linhas como porcentagem.
 
 - **Espaçamento entre palavras**: em livros EPUB, escolha **Normal** ou um dos quatro níveis
-  mais largos de espaçamento entre palavras. Abra o menu do leitor e selecione **Opções do livro > Opções de fonte > Espaçamento entre palavras**. Alterar essa opção redistribui o livro
+  mais largos de espaçamento entre palavras. Abra o menu do leitor e selecione **Fonte > Espaçamento entre linhas/palavras > Espaçamento entre palavras**. Alterar essa opção redistribui o livro
   atual, então as posições das páginas podem mudar; ela não está disponível para livros TXT.
 
 - **Margem da tela**: controla as margens da tela no Modo de leitura entre 5 e 40 pixels, em incrementos de 5 pixels.
@@ -289,7 +306,7 @@ conforme o modelo do aparelho e a compilação.
 
   Observação: isto reserva 5 px da margem esquerda da tela para abrir espaço para os números de página. Só é perceptível se suas margens `Esquerda/Direita` estiverem definidas como `5`. Se a página não tiver número de página da editora, suas margens podem parecer desiguais.
 
-- **Hifenização**: define se o texto será hifenizado no Modo de leitura; as opções são "LIG." ou "DESL.".
+- **Hifenização**: define se o texto será hifenizado no Modo de leitura; as opções são "LIG." ou "DESL.". Com "DESL.", o texto coreano quebra nos espaços; com "LIG.", uma palavra coreana também pode ser dividida no fim da linha, sem desenhar hífen.
 
 - **Orientação**: define a orientação da tela para leitura de arquivos EPUB:
   - "Retrato" (padrão) - orientação retrato padrão
@@ -299,52 +316,42 @@ conforme o modelo do aparelho e a compilação.
 
 - **Espaçamento extra entre parágrafos**: define como tratar quebras de parágrafo:
   - "LIG." - espaço vertical será adicionado entre parágrafos no Modo de leitura
-  - "DESL." - os parágrafos não terão espaço vertical adicional, mas terão recuo na primeira linha
+  - "DESL." - os parágrafos não terão espaço vertical adicional; o recuo da primeira linha definido pelo livro é exibido quando existir
 
-- **Modo escuro**, **Estilo embutido**, **Imagens**, **Leitura focada** e
+- **Estilo embutido**, **Imagens**, **Leitura focada** e
   **Pontos guia** estão disponíveis diretamente nas configurações do Leitor. Veja
   [Recursos do leitor](./reader-features.md) para o comportamento, incluindo o guia de
   [Leitura focada](./reader-features.md#focus-reading).
 
-- **Controles de toque no leitor**: ativa ou desativa viradas de página por toque e
-  gestos de deslizar para o menu do leitor em aparelhos compatíveis. Gestos de tela cheia
-  específicos do aparelho para Início e luz frontal continuam disponíveis conforme descrito em [Controles de toque no leitor](#controles-de-toque-no-leitor). **Desativar tela sensível ao toque** bloqueia a entrada por toque enquanto um livro está aberto, mantendo o toque disponível nos menus do leitor para você poder reativá-la.
+- **Desativar tela sensível ao toque**: bloqueia a entrada por toque enquanto um livro está aberto, mantendo o toque disponível nos menus do leitor para você poder reativá-la. Para desativar só as viradas de página por toque, use **Próxima página** e **Página anterior** em **Configurações > Controles > Toques e gestos**.
 
-- **Personalizar barra de status**: configure a barra de status exibida durante a leitura:
-  - Contagem de páginas do capítulo - mostra/oculta a página atual no capítulo (ex.: 5/25). A contagem de páginas pode mudar conforme o tamanho da fonte e as margens definidas.
-  - Porcentagem de progresso do livro - mostra/oculta a porcentagem atual de progresso no livro.
-  - Formato da porcentagem - mostra o progresso do livro como `10%` (padrão), `10.1%` ou `10.12%`.
-  - Barra de progresso - mostra/oculta uma barra de progresso do livro ou do capítulo.
-  - Espessura da barra de progresso - define a espessura da barra de progresso
-  - Título - exibe o título do capítulo ou do livro
-  - Tempo restante - exibe o tempo estimado de leitura restante para o livro ou capítulo
-  - Bateria - mostra/oculta o indicador da bateria
-  - Barra de status XTC - mostra/oculta uma barra de status para arquivos XTC
+- **Barras de status**: configure as barras superior e inferior separadamente para leitura de EPUB, TXT e XTC. Abra **Configurações > Leitor > Barras de status** ou **Configurações > Barras de status** no menu do leitor EPUB. Selecione uma barra para pré-visualizá-la na posição de leitura e escolher seus itens:
+  - As barras superior e inferior têm três espaços à esquerda, um no centro e três à direita.
+  - Os itens incluem contagem de páginas do capítulo, porcentagem de progresso do livro (`10%`, `10.1%` ou `10.12%`), barra de progresso, título, tempo restante, bateria e, em aparelhos com relógio, hora e data.
+  - Números de página estáveis - adiciona uma contagem de páginas de referência a um espaço quando o EPUB tem metadados de referência; veja [Números de página estáveis](./reader-features.md#stable-page-numbers).
 
-Em leitores com tela sensível ao toque, quando **Toque para ocultar barra de status** está ativado (o padrão em **Configurações > Controles > Toques e gestos**), toque na área da barra de status durante a leitura para mostrar ou ocultar a barra inteira na sessão de leitura atual. Esse toque fica disponível enquanto **Controles de toque no leitor** está ativado. A alternância rápida não altera o layout da página nem as quebras de página; toque de novo na mesma região da barra de status para restaurar uma barra oculta. Use **Personalizar barra de status** para escolher quais itens da barra aparecem.
+Em leitores com tela sensível ao toque, quando **Toque para ocultar barra de status** está ativado (o padrão em **Configurações > Controles > Toques e gestos**), toque na área da barra de status durante a leitura para mostrar ou ocultar a barra inteira na sessão de leitura atual. Esse toque fica disponível enquanto a entrada por toque do leitor estiver ativada. A alternância rápida não altera o layout da página nem as quebras de página; toque de novo na mesma região da barra de status para restaurar uma barra oculta. Use **Barras de status** para escolher quais itens da barra aparecem.
 
 #### 3.6.3 Controles
 
-- **Botão liga/desliga**: configure as ações de toque curto e toque longo do botão liga/desliga.
+- **Botão liga/desliga**: configure as ações de toque curto e toque longo de forma independente. Em aparelhos compatíveis, também é possível configurar o atalho **Liga/desliga + Cima**.
 
 - **Botões frontais**: configure o remapeamento dos botões frontais, a sensibilidade à orientação, o comportamento de toque longo apenas no leitor, a ação Voltar e a ação Menu.
 
-- **Botões laterais**: configure o layout dos botões laterais, a sensibilidade à orientação e o comportamento de toque longo dos botões laterais.
-
-- **Layout dos botões laterais (leitor)**: troca a ordem dos botões de cima e baixo de "Ant/Próx" (padrão) para "Próx/Ant" ou "Próx/Próx". Você também pode desativá-los totalmente. Essa alteração só vale durante a leitura.
+- **Botões laterais**: atribua uma **Ação do toque curto** e uma **Ação do toque longo** separadamente para **Esquerda/Cima** e **Direita/Baixo** durante a leitura. Escolha virar página ou capítulo, mudar o tamanho da fonte, girar a página (anti-horário, horário ou 180°) ou outros atalhos disponíveis. Defina uma ação como **Ignorar** para deixar aquele toque sem função. Layouts antigos são migrados para ações individuais equivalentes. **Sensível à orientação** e o atalho combinado dos botões laterais continuam disponíveis em aparelhos compatíveis. Ações de rotação e de tamanho da fonte valem para texto EPUB/TXT; elas não giram nem redimensionam páginas XTC pré-renderizadas.
 
 - **Comportamento de toque longo**: define se manter botões frontais de virar página pressionados não faz nada, pula para o capítulo seguinte/anterior ou altera a orientação do leitor.
 
-- **Ação de toque longo dos botões laterais**: define se manter botões laterais pressionados não faz nada, pula capítulos, altera o tamanho da fonte ou altera a orientação.
+- **Ação do toque curto / Ação do toque longo do botão liga/desliga**: escolha o que fazem um toque curto e um toque de cerca de 0,4 segundo. As ações disponíveis incluem:
+  - "Ignorar" (padrão do toque curto) - não faz nada para essa duração de toque
+  - "Repouso" (padrão do toque longo) - coloca em repouso o aparelho acordado; quando escolhida como **Ação do toque curto**, também permite despertar com um toque curto
+  - "Repouso" (a segunda opção com esse nome) - coloca o aparelho em repouso sem habilitar o despertar por toque curto
+  - "Despertar" - quando escolhida como **Ação do toque curto**, permite despertar o aparelho com um toque curto; não faz nada enquanto o aparelho está acordado
+  - "Próxima página" - vira para a próxima página durante a leitura
+  - "Alternar marcador", "Estatísticas de leitura", "Marcar como concluído", "Atualizar tela", "Alterar fonte", "Pontos guia", "Leitura focada", "Virada automática", "Sincronizar progresso", "Transferência de arquivos", "Calibre sem fio", "Entrar em uma rede", "Criar hotspot", "Capturar tela", "Modo escuro", "Explorar arquivos", "Biblioteca" ou "Criar recorte" - executa a ação correspondente
+  - "Notas de rodapé" - escolhe uma referência de nota na página atual, com uma lista quando necessário; veja [Navegação por notas de rodapé](#navegação-por-notas-de-rodapé).
 
-- **Ação de toque curto / Ação de toque longo**: controla o efeito de um toque curto ou longo no botão liga/desliga. As ações disponíveis incluem:
-  - "Ignorar" (padrão) - exige um toque longo para desligar o aparelho
-  - "Repouso" - um toque curto coloca o aparelho em modo de repouso
-  - "Virar página" - um toque curto no modo de leitura vira para a próxima página; um toque longo desliga o aparelho
-  - "Alternar marcador", "Estatísticas de leitura", "Marcar como concluído", "Atualizar tela", "Alterar fonte", "Pontos guia", "Leitura focada", "Virada automática", "Sincronizar progresso", "Transferência de arquivos", "Calibre sem fio", "Entrar em uma rede", "Criar hotspot", "Capturar tela", "Modo escuro", "Explorar arquivos" ou "Criar recorte" - executa a ação correspondente
-  - "Notas de rodapé" - um toque curto no modo de leitura abre o submenu de notas de rodapé; se houver apenas uma nota na página, a página referenciada é aberta diretamente. O toque curto no botão liga/desliga pode ser usado para selecionar a nota no submenu e para voltar à página original depois de terminar de ler a nota (como o botão Voltar).
-
-- **Retorno rápido das notas**: ativa e desativa o retorno rápido das notas de rodapé. Quando a função está ativa, um toque curto no botão liga/desliga atua como o botão Voltar a partir da página da nota.
+- **Retorno rápido das notas**: aparece em **Configurações > Controles > Botão liga/desliga** depois que você atribui **Notas de rodapé** à ação de toque curto ou longo do botão liga/desliga, ou à ação de toque longo de Voltar ou Menu. Quando ativado, um toque curto no botão liga/desliga volta da página da nota para a página de leitura original.
 
 - **Toques e gestos** (aparelhos com tela sensível ao toque): configure as interações de toque
   disponíveis durante a leitura em **Configurações > Controles > Toques e gestos**. O
@@ -361,6 +368,8 @@ Em leitores com tela sensível ao toque, quando **Toque para ocultar barra de st
   - **Deslizar com dois dedos** (aparelhos multitoque): atribui uma ação a cada
     direção de deslize com dois dedos. As ações disponíveis dependem do aparelho e
     do formato do leitor.
+  - **Gestos nas bordas**: atribua ações a deslizes para cima e para baixo nas bordas esquerda e direita
+    da tela; veja [Gestos nas bordas](./controls.md#edge-gestures).
     O submenu não aparece em aparelhos sem tela sensível ao toque, e as entradas
     multitoque aparecem apenas quando o hardware oferece suporte. Veja [Controles de toque no leitor](#controles-de-toque-no-leitor) para os detalhes dos gestos.
 
@@ -376,7 +385,7 @@ Em leitores com tela sensível ao toque, quando **Toque para ocultar barra de st
 
 - **Arquivos e cache**: configure arquivos ocultos, extensões de arquivo, visualização do navegador de arquivos, comportamento de livros concluídos e limpeza do cache de leitura.
 
-- **Estatísticas de leitura**: configure o registro de estatísticas e o filtro de tempo ocioso, e acesse ações de backup/redefinição de estatísticas de todo o período.
+- **Estatísticas de leitura**: ligue ou desligue o registro de estatísticas no aparelho todo, configure o filtro de tempo ocioso e acesse ações de backup/redefinição de estatísticas de todo o período. Desligar o registro pausa novas estatísticas por livro e de todo o período, mas mantém o histórico e as estimativas de Tempo restante já salvas no aparelho. Entradas de estatísticas e exibições de estatísticas registradas em menus e temas ficam ocultas com o registro desligado; o Painel ainda pode mostrar uma estimativa salva de Tempo restante. Ligue o registro de novo para ver o histórico salvo e voltar a registrar. Tempo e páginas do período desligado não são somados depois. Veja [Recursos do leitor](./reader-features.md#turn-tracking-on-or-off) para os controles por livro.
 
 - **Redes Wi‑Fi**: conecte-se a redes Wi-Fi para transferências de arquivos e atualizações de firmware.
 
@@ -583,7 +592,7 @@ A configuração **Tela de repouso** controla o que é exibido quando o aparelho
 | **Capa + personalizado**     | A capa do livro aberto no momento, mostrada apenas durante a leitura ativa. Usa o comportamento **Personalizado** quando não estiver lendo.              |
 | **Sobreposição da página**   | Mantém a página atual do leitor visível e desenha um papel de parede de repouso sobre ela. Se não houver papel de parede, a página permanece visível durante a leitura. |
 | **Minimal**                  | Uma tela de repouso compacta baseada no layout inicial Minimal.                                                                                           |
-| **Minimal Stats**            | Uma tela de repouso compacta com estatísticas recentes de leitura, em aparelhos compatíveis.                                                             |
+| **Minimal Stats**            | Uma tela de repouso compacta com estatísticas recentes de leitura, em aparelhos compatíveis; usa **Minimal** enquanto o registro estiver desligado.      |
 | **Nenhum**                   | Uma tela em branco.                                                                                                                                       |
 
 #### Configurações de capa
@@ -605,7 +614,7 @@ No modo **Sobreposição da página**, pixels brancos de BMP e pixels transparen
 > [!TIP]
 > Para melhores resultados:
 >
-> - Use arquivos BMP sem compressão com profundidade de cor de 24 bits
+> - Use arquivos BMP sem compressão, de preferência BMP indexado de 4 ou 8 bits
 > - X4: use resolução de 480x800 pixels para corresponder à resolução da tela do aparelho.
 > - X3: use resolução de 528x792 pixels para corresponder à resolução da tela do aparelho.
 
@@ -669,9 +678,9 @@ O FluiDez Reader permite carregar fontes adicionais do cartão SD, indo além da
 
 Há três formas de instalar fontes:
 
-1. **Baixar pelo aparelho (recomendado):** vá para **Configurações -> Leitor -> Opções de fonte -> Gerenciar fontes**, navegue pelas famílias de fontes disponíveis e selecione uma para baixar via Wi-Fi.
-2. **Enviar pela interface web:** enquanto estiver no modo **Transferência de arquivos**, abra a interface web em um navegador e acesse a aba **Fonts** para enviar arquivos `.cpfont`.
-3. **Cópia manual para o cartão SD:** baixe os arquivos de fonte do [repositório upstream crossink-fonts](https://github.com/uxjulia/crossink-fonts/tree/main/cpfonts) e copie-os para `/.fonts/` (preferido) ou `/fonts/` no cartão SD.
+1. **Cópia manual para o cartão SD (recomendado):** baixe os arquivos de fonte do [Inky](https://inky.crossink.dev/#downloads) ou do [repositório upstream crossink-fonts](https://github.com/uxjulia/crossink-fonts/tree/main/cpfonts) e copie-os para `/.fonts/` (preferido) ou `/fonts/` no cartão SD.
+2. **Baixar pelo aparelho:** vá para **Configurações -> Leitor -> Opções de fonte -> Gerenciar fontes**, navegue pelas famílias de fontes disponíveis e selecione uma para baixar via Wi-Fi. O download por Wi-Fi pode ser instável; se der erro, use outra forma.
+3. **Enviar pela interface web:** enquanto estiver no modo **Transferência de arquivos**, abra a interface web em um navegador e acesse a aba **Fonts** para enviar arquivos `.cpfont`. Em aparelhos compatíveis (ESP32-S3), arquivos `.ttf` também podem ser enviados.
 
 Depois de instaladas, fontes personalizadas aparecem em **Configurações -> Leitor -> Opções de fonte -> Família da fonte** junto das fontes integradas.
 
@@ -690,16 +699,16 @@ Depois que você abre um livro, o layout dos botões muda para facilitar a leitu
 | **Página anterior**   | Pressione **Esquerda** _ou_ **Cima** |
 | **Próxima página**    | Pressione **Direita** _ou_ **Baixo** |
 
-A função dos botões laterais pode ser trocada em **Configurações > Controles > Botões laterais**.
+Altere as ações de cada botão lateral em **Configurações > Controles > Botões laterais**.
 
-Se a configuração **Toque curto** estiver definida como "Virar página", você também pode virar para a próxima página pressionando rapidamente o botão liga/desliga.
+Se a **Ação do toque curto** estiver definida como "Próxima página", você também pode virar para a próxima página pressionando rapidamente o botão liga/desliga.
 
 ### Navegação por capítulos
 
 - **Próximo capítulo:** pressione e **segure** o botão **Direita** (ou **Baixo**) brevemente e solte.
 - **Capítulo anterior:** pressione e **segure** o botão **Esquerda** (ou **Cima**) brevemente e solte.
 
-Esse recurso pode ser desativado em **Configurações > Controles > Botões frontais** para ajudar a evitar troca de capítulos por engano.
+Essas são as ações padrão de pular capítulo. Altere os toques longos dos botões frontais em **Configurações > Controles > Botões frontais**, ou atribua o toque longo de cada botão lateral separadamente em **Configurações > Controles > Botões laterais**.
 
 ### Virada automática de página
 
@@ -711,8 +720,8 @@ No **Xteink X3** e no **Sticky**, o giroscópio pode ser usado para virar págin
 
 ### Controles de toque no leitor
 
-Em aparelhos compatíveis com tela sensível ao toque, **Controles de toque no leitor** vem ativado por
-padrão. **Próxima página** e **Página anterior**, em **Configurações > Controles**, são
+Em aparelhos compatíveis com tela sensível ao toque, as viradas de página por toque vêm ativadas por
+padrão. **Próxima página** e **Página anterior**, em **Configurações > Controles > Toques e gestos**, são
 configurados de forma independente e ambos usam **Toque e deslize** por padrão:
 
 | Opção                | Toques                                   | Deslizes    |
@@ -724,8 +733,9 @@ configurados de forma independente e ambos usam **Toque e deslize** por padrão:
 | **Desativado**       | Desativado                               | Desativado  |
 
 Deslize para a esquerda para a próxima página quando **Próxima página** permite deslizes, ou deslize para a direita
-para a página anterior quando **Página anterior** permite deslizes. Quando ambas as direções
-permitem toques, as zonas normais são o terço esquerdo para a página anterior e os
+para a página anterior quando **Página anterior** permite deslizes. Em EPUBs da direita para a esquerda,
+as zonas normais de toque e as direções dos deslizes horizontais seguem o sentido de leitura do livro. Em livros
+da esquerda para a direita, quando ambas as direções permitem toques, as zonas normais são o terço esquerdo para a página anterior e os
 dois terços direitos para a próxima página. Se qualquer uma dessas configurações for **Toque invertido**, as zonas compartilhadas passam a ser os dois terços esquerdos para a próxima página e o
 terço direito para a página anterior. Se apenas uma direção permite toques, toques
 em toda a página viram nessa direção. As faixas de gesto superior e inferior são
@@ -736,7 +746,8 @@ Para **leitores EPUB**, os gestos verticais dependem do aparelho:
 - No **Sticky**, deslize para cima para abrir o menu do leitor. Deslize para baixo para abrir o
   painel de detalhes do leitor/luz frontal; use o cabeçalho desse painel para voltar ao Início.
 - No **X4 Pro**, deslize para cima para abrir o menu do leitor e deslize para baixo para abrir o
-  painel de luz frontal. A tecla capacitiva Início volta ao Início com toque curto e
+  painel de luz frontal, que também mostra as páginas do capítulo e o progresso do livro durante a
+  leitura. A tecla capacitiva Início volta ao Início com toque curto e
   abre o menu do leitor com toque longo por padrão. Configure essas ações, ou
   desative a tecla durante a leitura, em **Configurações > Controles > Botão Início**.
 - Em outros aparelhos com tela sensível ao toque, deslize para baixo para abrir o menu do leitor e deslize para cima
@@ -749,9 +760,7 @@ enquanto seu painel de luz frontal por deslize para baixo funciona apenas a part
 ação de deslizar para o menu. Esses gestos verticais são separados das configurações de virada de página acima.
 
 Escolha **Desativado** em **Próxima página** ou **Página anterior** para interromper viradas de página por toque
-nessa direção sem desativar os gestos verticais de menu do leitor ou luz frontal da tela sensível ao toque. Desative **Controles de toque no leitor** em **Opções do livro**
-para desativar viradas de página com um dedo e deslizes para o menu do leitor; gestos de tela cheia
-específicos do aparelho para Início/luz frontal continuam disponíveis. **Desativar tela sensível ao toque**
+nessa direção sem desativar os gestos verticais de menu do leitor ou luz frontal da tela sensível ao toque. **Desativar tela sensível ao toque**, em **Configurações > Leitor**,
 impede entrada por toque na tela enquanto um livro está aberto, mas mantém o toque disponível nos
 menus do leitor. Para os diferentes gestos de seleção por toque usados na [consulta de dicionário](./dictionary.md#looking-up-a-word) e em [recortes](./reader-features.md#clippings-and-highlights), veja esses guias de recursos.
 
@@ -773,7 +782,7 @@ Em aparelhos multitoque compatíveis, ative **Tam. fonte por pinça** no mesmo
 menu e afaste dois dedos para aumentar a fonte ou aproxime-os para diminuí-la.
 Cada pinça concluída altera um passo de tamanho de fonte disponível. O redimensionamento por pinça
 funciona em leitores EPUB e TXT; páginas XTC são pré-renderizadas e não podem ser
-redimensionadas. A entrada por pinça também exige que **Controles de toque no leitor** permaneça ativado.
+redimensionadas. A entrada por pinça também exige que a entrada por toque do leitor permaneça ativada.
 
 ### Controles deslizantes
 
@@ -782,9 +791,9 @@ na trilha do controle arredonda o valor selecionado para o múltiplo de cinco ma
 
 ### Navegação por notas de rodapé
 
-Ao ler um EPUB que contém notas de rodapé, você pode navegar até o texto da nota selecionando a referência da nota no livro. A partir da nota, você pode voltar à posição original de leitura.
+Ao ler um EPUB que contém notas de rodapé, toque em uma referência ou escolha **Notas de rodapé** na aba **Mais** do menu do leitor (ou em um atalho atribuído). Se houver uma nota, ela abre direto. Com várias referências visíveis, o FluiDez Reader as destaca na página: use os botões de direção para escolher uma e **Confirmar** para abri-la, ou toque na referência. Links sem destino visível usam uma lista. Pressione **Voltar** para retornar à posição original de leitura.
 
-Se o aparelho entrar em repouso ou você fechar o livro enquanto vê uma nota de rodapé, o livro reabre na posição original de leitura, não na nota.
+Depois de seguir um link interno até um capítulo inteiro, entrar em repouso ou fechar o livro reabre na última página lida. Voltar guarda as três origens de link mais recentes, mesmo depois de reabrir o livro e da sincronização KOReader. Se você fechar uma pré-visualização temporária de nota, o livro retoma na página que abriu a pré-visualização, com as origens de link anteriores ainda disponíveis em Voltar.
 
 ### Navegação do sistema
 
@@ -808,31 +817,27 @@ O que não é compatível com as fontes integradas do leitor: chinês, japonês,
 
 Pressione **Confirmar** durante a leitura para abrir o Menu do leitor. A partir dele, você pode acessar utilitários de leitura e opções de navegação sem sair do livro.
 
-As opções disponíveis incluem:
+Livros EPUB usam as mesmas cinco abas com ícones em aparelhos com toque e com botões:
 
-- **Escolher capítulo** – abre o sumário para pular para um capítulo específico (veja [Escolha de capítulo](#51-escolha-de-capítulo) abaixo).
-- **Notas de rodapé** – navega para as notas de rodapé da seção atual _(mostrado apenas em livros que contêm notas de rodapé)_.
-- **Opções do livro** – abre opções específicas do leitor sem sair do livro.
-- **Controles** – abre opções de controle do leitor sem sair do livro.
-- **Orientação** – alterna entre orientações da tela sem sair do leitor.
-- **Virada automática de página** – configura viradas automáticas de página para leitura sem as mãos.
-- **Ir para %** – pula para uma posição específica no livro por porcentagem.
-- **Adicionar marcador / Remover marcador** – alterna um marcador na página atual.
-- **Ver marcadores / Limpar lista de marcadores** – gerencia marcadores existentes quando o livro tem marcadores.
-- **Capturar tela** – salva uma captura da página atual na pasta `screenshots/`.
-- **Mostrar página como QR** – exibe um código QR codificando a posição atual de leitura.
-- **Excluir cache do livro** – limpa os dados de layout em cache do livro atual, forçando uma nova indexação na próxima abertura.
-- **Sincronizar progresso** – envia ou recebe progresso de leitura com um servidor de sincronização KOReader (veja [Configuração rápida da Sincronização KOReader](#367-configuração-rápida-da-sincronização-koreader)).
-- **Estatísticas de leitura** – abre as estatísticas de leitura do livro atual.
-- **Marcar como concluído / Marcar como não concluído** – alterna se o livro atual está marcado como concluído.
-- **Consultar palavra / Histórico de consultas** – selecione palavras na página e revisite consultas recentes por livro quando um dicionário está ativo.
-- **Dicionário do livro** – escolha uma substituição de dicionário por livro pela aba de configurações do menu do leitor.
+| Aba (ícone)                | Principais opções                                                                                                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Fonte** (letras)         | Fonte do leitor, fonte do dicionário, espaçamento entre linhas/palavras, suavização do texto, Leitura focada, Pontos guia                                                  |
+| **Layout** (linhas)        | Margens, orientação, alinhamento, imagens, hifenização, números de página da editora, espaçamento de parágrafos e estilo da editora                                        |
+| **Mais** (três pontos)     | Consulta de palavras, Escolher capítulo, Ir para %, Ir para página estável quando disponível, Virada automática, Notas de rodapé; Estatísticas de leitura em aparelhos com botões quando o registro está ativado |
+| **Marcadores** (marcador)  | Adicionar/remover e ver marcadores, criar/ver recortes, captura de tela, QR da posição; Sincronizar progresso, sincronização de posição por proximidade e envio de livro por proximidade em aparelhos com botões |
+| **Configurações** (engrenagem) | Barras de status, Controles, Dicionário do livro, modo de renderização EPUB, método de indexação, status de concluído, Registrar estatísticas de leitura, redefinições de cache/estatísticas, Redefinir configurações de leitura do livro |
+
+Algumas ações aparecem só quando o livro ou o aparelho oferece suporte. Em telas sensíveis ao toque, toque em uma aba e depois em uma opção. Em aparelhos com botões, **Esquerda/Direita** trocam de aba, **Cima/Baixo** selecionam linhas e **Confirmar** abre a opção selecionada. Mudanças de fonte, espaçamento e margem têm pré-visualização ao vivo. As configurações globais usam a mesma navegação por abas e linhas.
+
+**Redefinir configurações de leitura do livro** restaura os padrões globais herdados do EPUB atual sem apagar progresso, marcadores, recortes ou estatísticas. **Excluir cache do livro** reconstrói os dados em cache do livro e mantém essas escolhas de leitura.
+
+Livros TXT e XTC têm menus próprios, com menos opções; o layout de cinco abas acima é para EPUBs. Para o registro de estatísticas, use **Registrar estatísticas de leitura** na aba **Configurações** do EPUB ou no menu do leitor XTC. Para recursos específicos de cada formato, veja [Recursos do leitor](./reader-features.md).
 
 Pressione **Voltar** a qualquer momento para fechar o menu e voltar à página atual.
 
 ### 5.1 Escolha de capítulo
 
-Acessível ao selecionar **Escolher capítulo** no Menu do leitor.
+Em livros EPUB, abra a aba **Mais** do menu do leitor e selecione **Escolher capítulo**.
 
 1. Use **Esquerda** (ou **Cima**) ou **Direita** (ou **Baixo**) para destacar o capítulo desejado.
 2. Pressione **Confirmar** para pular para esse capítulo.

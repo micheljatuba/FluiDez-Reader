@@ -25,6 +25,8 @@ class SimulatorSmokeRunnerTest(unittest.TestCase):
         self.args = argparse.Namespace(
             book=str(self.book), env="x4-pro-simulator", build=False,
             page_turns=2, theme="classic", headless=True, timeout=120,
+            font_dir=None, font_family=None, frontlight_sync=False,
+            frontlight_layout=False, frontlight_captures=None, home_themes=False,
         )
 
     def run_smoke(self, *, output="", returncode=0, error=None):

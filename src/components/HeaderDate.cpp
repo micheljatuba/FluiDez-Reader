@@ -14,7 +14,7 @@
 namespace {
 constexpr int kHeaderDateRightInset = 12;
 constexpr int kHeaderDateBottomGap = 10;
-constexpr size_t kHeaderDateBufferSize = 24;
+constexpr size_t kHeaderDateBufferSize = 32;
 
 char dateSeparatorChar() {
   switch (SETTINGS.dateSeparator) {

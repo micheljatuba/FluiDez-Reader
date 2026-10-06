@@ -1,5 +1,6 @@
 #include "HalClock.h"
 
+#include <DateFormatting.h>
 #include <Logging.h>
 #include <WiFi.h>
 #include <esp_netif.h>
@@ -13,10 +14,6 @@ HalClock halClock;  // Singleton instance
 
 namespace {
 constexpr uint16_t kBaseYear = 2000;
-constexpr const char* kMonthNames[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                                       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-constexpr char kFullMonthNames[][10] = {"January", "February", "March",     "April",   "May",      "June",
-                                        "July",    "August",   "September", "October", "November", "December"};
 
 esp_err_t clearDnsCache(void*) {
   dns_clear_cache();
@@ -191,45 +188,7 @@ bool HalClock::formatDate(char* buf, size_t bufSize, uint8_t utcOffsetQuarterHou
   adjustDateByDays(year, month, day, dayDelta);
   if (!isValidDate(year, month, day)) return false;
 
-  const unsigned int displayMonth = month;
-  const unsigned int displayDay = day;
-  const unsigned int displayYear = year;
-  const char separator = numericSeparator == '.' || numericSeparator == '-' ? numericSeparator : '/';
-  const char* shortMonth =
-      shortMonthNames && shortMonthNames[month - 1] ? shortMonthNames[month - 1] : kMonthNames[month - 1];
-  const char* fullMonth =
-      fullMonthNames && fullMonthNames[month - 1] ? fullMonthNames[month - 1] : kFullMonthNames[month - 1];
-  switch (dateFormat) {
-    case DAY_MONTH_YEAR_LONG:
-      snprintf(buf, bufSize, "%02u %s %u", displayDay, shortMonth, displayYear);
-      break;
-    case MONTH_DAY_YEAR_NUMERIC:
-      snprintf(buf, bufSize, "%02u%c%02u%c%u", displayMonth, separator, displayDay, separator, displayYear);
-      break;
-    case DAY_MONTH_YEAR_NUMERIC:
-      snprintf(buf, bufSize, "%02u%c%02u%c%u", displayDay, separator, displayMonth, separator, displayYear);
-      break;
-    case YEAR_MONTH_DAY_NUMERIC:
-      snprintf(buf, bufSize, "%u%c%02u%c%02u", displayYear, separator, displayMonth, separator, displayDay);
-      break;
-    case MONTH_DAY_NUMERIC:
-      snprintf(buf, bufSize, "%02u%c%02u", displayMonth, separator, displayDay);
-      break;
-    case DAY_MONTH_NUMERIC:
-      snprintf(buf, bufSize, "%02u%c%02u", displayDay, separator, displayMonth);
-      break;
-    case MONTH_DAY_LONG:
-      snprintf(buf, bufSize, "%s %02u", fullMonth, displayDay);
-      break;
-    case DAY_MONTH_LONG:
-      snprintf(buf, bufSize, "%02u %s", displayDay, fullMonth);
-      break;
-    case MONTH_DAY_YEAR_LONG:
-    default:
-      snprintf(buf, bufSize, "%s %02u, %u", shortMonth, displayDay, displayYear);
-      break;
-  }
-  return true;
+  return formatDateParts(buf, bufSize, year, month, day, dateFormat, numericSeparator, shortMonthNames, fullMonthNames);
 }
 
 bool HalClock::writeDateTimeToRTC(uint16_t year, uint8_t month, uint8_t day, uint8_t weekday, uint8_t hour,

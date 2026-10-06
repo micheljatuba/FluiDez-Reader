@@ -26,8 +26,6 @@ class RecentBooksStore : public PersistableStore<RecentBooksStore> {
  private:
   std::vector<RecentBook> recentBooks;
 
-  static constexpr int MAX_RECENT_BOOKS = 18;
-
   RecentBooksStore() = default;
   ~RecentBooksStore() = default;
   bool loadFromBinaryFile();
@@ -35,6 +33,7 @@ class RecentBooksStore : public PersistableStore<RecentBooksStore> {
   friend class PersistableStore<RecentBooksStore>;
 
  public:
+  static constexpr int MAX_RECENT_BOOKS = 18;
   static constexpr int MAX_PINNED_BOOKS = 6;
   using DisplayOrder = std::array<uint8_t, MAX_RECENT_BOOKS>;
   enum class PinResult : uint8_t { Changed, LimitReached, Failed };
