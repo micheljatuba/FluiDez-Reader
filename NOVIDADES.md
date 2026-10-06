@@ -4,9 +4,13 @@ O que muda para quem usa o FluiDez Reader em cada versão, da mais recente para 
 
 ## [Próxima versão]
 
+## [v1.6-fluidez14] - 2026-10-06
+
 - **Temas FluiDez:** três telas *Início* com a identidade do FluiDez, em *Configurações > Tela > Tema da interface*. *FluiDez Estante*, o novo padrão, mostra a capa do livro atual com o progresso num anel e uma estante com as lombadas dos livros recentes. *FluiDez Cartões* reúne o livro atual, o tempo de leitura, os dias seguidos e os livros concluídos em cartões, com as capas recentes. *FluiDez Fluxo* é só texto e não lê nenhuma capa do cartão, por isso abre mais rápido. Nos três, o menu é uma barra de ícones no rodapé, com o nome do item selecionado logo acima. Quem já usa outro tema continua com ele depois de atualizar.
 - **Sua imagem na tela de repouso:** abra `http://fluidez.local/sleep` com a transferência de arquivos ativa, escolha uma foto ou desenho, ajuste o enquadramento, o zoom, o brilho e o contraste vendo como fica em 4 tons de cinza e toque em *Salvar e usar no aparelho*. A imagem vai para a pasta `sleep`, fica fixada e o modo da tela de repouso muda para *Personalizado*. Na mesma página dá para trocar ou apagar as imagens salvas.
 - **Fotos JPG e PNG na tela de repouso:** no modo *Personalizado*, fotos copiadas direto para a pasta `sleep` do cartão também aparecem. O leitor converte cada foto uma vez, na primeira vez que a usa, e das próximas vezes ela abre tão rápido quanto um BMP.
+- **Base atualizada com o CrossInk:** o FluiDez agora acompanha o CrossInk de 1º de outubro (depois da versão 1.6.1). Entre as novidades estão a tela *Biblioteca* no lugar de *Livros recentes* (com *Fixar no topo* e os livros fixados primeiro em *Abertos recentemente*), o menu do leitor em cinco abas, barras de status separadas no topo e no rodapé da leitura, ações diferentes para toque curto e longo em cada botão lateral, estatísticas de leitura que podem ser ligadas ou desligadas no aparelho todo ou por livro, gestos nas bordas em leitores com toque, fontes TTF no X4 Pro e leitura mais rápida do cartão SD.
+- **Datas em português:** os meses aparecem traduzidos no cabeçalho e nos grupos de data da *Biblioteca*.
 
 ## [v1.6-fluidez13] - 2026-10-01
 

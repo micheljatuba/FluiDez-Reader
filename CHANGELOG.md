@@ -6,6 +6,8 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ## [Unreleased]
 
+## [v1.6-fluidez14] - 2026-10-06
+
 ### Added
 
 - **FluiDez themes:** three native Home layouts with FluiDez's own look, chosen in **UI Theme**. **FluiDez Shelf** (the new default) shows the current book's cover with a progress ring and a shelf of text spines for recent books. **FluiDez Cards** shows a card with the current book, cards for reading time, streak and finished books, and recent covers. **FluiDez Flow** is text-only and reads no cover from the SD card, which makes it the fastest Home. All three share a bottom row of icon buttons whose focused item's full label is shown above it, so long translations are never cut. All three paint progress and stats from data loaded once when Home opens, and generate cover thumbnails only for the covers they show.
