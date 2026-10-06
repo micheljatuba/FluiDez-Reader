@@ -204,42 +204,77 @@ void FluiDezTheme::formatShortDuration(const uint32_t seconds, char* buf, const 
   }
 }
 
-void FluiDezTheme::drawTextGridMenu(const GfxRenderer& renderer, const Rect rect, const int buttonCount,
-                                    const int selectedIndex, const std::function<const char*(int index)>& buttonLabel,
-                                    const bool pillSelection) const {
+void FluiDezTheme::drawIconDock(const GfxRenderer& renderer, const Rect rect, const int buttonCount,
+                                const int selectedIndex, const std::function<const char*(int index)>& buttonLabel,
+                                const std::function<UIIcon(int index)>& rowIcon, const DockStyle style) const {
   if (buttonCount <= 0 || rect.height <= 0) return;
-  constexpr int columns = 2;
-  constexpr int columnGap = 12;
-  const int rows = (buttonCount + columns - 1) / columns;
-  const int rowH = std::min(60, rect.height / rows);
-  const int cellW = (rect.width - kSidePadding * 2 - columnGap) / columns;
-  const int lineH = renderer.getLineHeight(UI_12_FONT_ID);
+  constexpr int pad = 18;
+  constexpr int gap = 8;
+  constexpr int cellH = 58;
+  constexpr int iconSize = 32;
+  // Anchored to the bottom so Home's content keeps the space above it.
+  const int dockY = std::max(rect.y, rect.y + rect.height - cellH - 6);
+  const int cellW = std::min(84, (rect.width - 2 * pad - (buttonCount - 1) * gap) / buttonCount);
+  const int totalW = buttonCount * cellW + (buttonCount - 1) * gap;
+  const int startX = rect.x + (rect.width - totalW) / 2;
 
   for (int i = 0; i < buttonCount; ++i) {
-    const int col = i % columns;
-    const int row = i / columns;
-    const Rect cell{rect.x + kSidePadding + col * (cellW + columnGap), rect.y + row * rowH, cellW, rowH - 6};
-    TouchRegistry::getInstance().add(Rect{cell.x, cell.y, cell.width, rowH}, i, TouchRegistry::Item);
-
+    const Rect cell{startX + i * (cellW + gap), dockY, cellW, cellH};
+    TouchRegistry::getInstance().add(cell, i, TouchRegistry::Item);
     const bool selected = i == selectedIndex;
-    const char* label = buttonLabel != nullptr ? buttonLabel(i) : "";
-    if (label == nullptr) label = "";
-    const auto text = renderer.truncatedText(UI_12_FONT_ID, label, cell.width - 24,
-                                             selected ? EpdFontFamily::BOLD : EpdFontFamily::REGULAR);
-    const int textY = cell.y + (cell.height - lineH) / 2;
+    const int cx = cell.x + cell.width / 2;
+    const int cy = cell.y + cell.height / 2;
+    bool filled = false;
 
-    if (pillSelection) {
-      if (selected) {
-        renderer.fillRoundedRect(cell.x, cell.y, cell.width, cell.height, cell.height / 2, Color::Black);
-      } else {
-        renderer.drawRoundedRect(cell.x, cell.y, cell.width, cell.height, 1, cell.height / 2, true);
+    switch (style) {
+      case DockStyle::Circle: {
+        const int d = std::min(cell.width, cell.height) - 2;
+        if (selected) {
+          renderer.fillRoundedRect(cx - d / 2, cy - d / 2, d, d, d / 2, Color::Black);
+          filled = true;
+        } else {
+          renderer.drawRoundedRect(cx - d / 2, cy - d / 2, d, d, 1, d / 2, true);
+        }
+        break;
       }
-      renderer.drawText(UI_12_FONT_ID, cell.x + 18, textY, text.c_str(), !selected,
-                        selected ? EpdFontFamily::BOLD : EpdFontFamily::REGULAR);
-    } else {
-      renderer.fillRect(cell.x, cell.y, cell.width, selected ? 3 : 1, true);
-      renderer.drawText(UI_12_FONT_ID, cell.x + 2, textY + 2, text.c_str(), true,
-                        selected ? EpdFontFamily::BOLD : EpdFontFamily::REGULAR);
+      case DockStyle::Tile:
+        if (selected) {
+          renderer.fillRoundedRect(cell.x, cell.y, cell.width, cell.height, 14, Color::Black);
+          filled = true;
+        } else {
+          renderer.drawRoundedRect(cell.x, cell.y, cell.width, cell.height, 1, 14, true);
+        }
+        break;
+      case DockStyle::Underline:
+        if (selected) renderer.fillRect(cx - 18, cell.y + cell.height - 4, 36, 4, true);
+        break;
+    }
+
+    const UIIcon icon = rowIcon != nullptr ? rowIcon(i) : UIIcon::File;
+    const int iconY = cy - iconSize / 2 - (style == DockStyle::Underline ? 3 : 0);
+    if (icon == UIIcon::BookmarkIcon) {
+      // Saved items have no Lucide asset; draw the reader's bookmark ribbon.
+      constexpr int ribbonW = 16;
+      constexpr int ribbonH = 22;
+      constexpr int notch = 6;
+      const int rx = cx - ribbonW / 2;
+      const int ry = cy - ribbonH / 2;
+      const int polyX[5] = {rx, rx + ribbonW, rx + ribbonW, cx, rx};
+      const int polyY[5] = {ry, ry, ry + ribbonH, ry + ribbonH - notch, ry + ribbonH};
+      renderer.fillPolygon(polyX, polyY, 5, !filled);
+    } else if (const freeink::Icon* bitmap = iconForName(icon, iconSize)) {
+      drawLucideIcon(renderer, *bitmap, cx - iconSize / 2, iconY, !filled);
+    }
+  }
+
+  // Icons alone stay short in every language; the caption names the focused one.
+  const int captionH = renderer.getLineHeight(UI_10_FONT_ID);
+  if (selectedIndex >= 0 && selectedIndex < buttonCount && buttonLabel != nullptr && dockY - captionH - 6 >= rect.y) {
+    const char* label = buttonLabel(selectedIndex);
+    if (label != nullptr) {
+      const auto text = renderer.truncatedText(UI_10_FONT_ID, label, rect.width - 2 * pad, EpdFontFamily::BOLD);
+      drawCentered(renderer, UI_10_FONT_ID, rect.x + rect.width / 2, dockY - captionH - 6, text.c_str(), true,
+                   EpdFontFamily::BOLD);
     }
   }
 }
@@ -354,8 +389,8 @@ void FluiDezFluxoTheme::drawRecentBookCover(GfxRenderer& renderer, const Rect re
 void FluiDezFluxoTheme::drawButtonMenu(GfxRenderer& renderer, const Rect rect, const int buttonCount,
                                        const int selectedIndex,
                                        const std::function<const char*(int index)>& buttonLabel,
-                                       const std::function<UIIcon(int index)>& /*rowIcon*/) const {
-  drawTextGridMenu(renderer, rect, buttonCount, selectedIndex, buttonLabel, false);
+                                       const std::function<UIIcon(int index)>& rowIcon) const {
+  drawIconDock(renderer, rect, buttonCount, selectedIndex, buttonLabel, rowIcon, DockStyle::Underline);
 }
 
 // ---------------------------------------------------------------------------
@@ -392,7 +427,10 @@ void FluiDezCardsTheme::drawRecentBookCover(GfxRenderer& renderer, const Rect re
       std::min(static_cast<int>(recentBooks.size()), FluiDezMetrics::cards.homeRecentBooksCount) - 1;
   constexpr int recentSlots = 3;
   const int slotW = (w - (recentSlots - 1) * gap) / recentSlots;
-  const int recentH = 126;
+  // Recents grow into the room left above the dock, keeping a caption line.
+  const int recentH =
+      std::clamp(rect.y + rect.height - recentsY - renderer.getLineHeight(UI_10_FONT_ID) - 16, 110, 170);
+  const int recentCoverW = recentH * 2 / 3;
   auto recentRect = [&](const int slot) { return Rect{x + slot * (slotW + gap), recentsY, slotW, recentH}; };
 
   // Static artwork goes into the snapshot; everything that follows the
@@ -404,7 +442,7 @@ void FluiDezCardsTheme::drawRecentBookCover(GfxRenderer& renderer, const Rect re
     for (int slot = 0; slot < recentCount; ++slot) {
       const RecentBook& book = recentBooks[slot + 1];
       const Rect slotRect = recentRect(slot);
-      const Rect coverSlot{slotRect.x + (slotRect.width - 84) / 2, slotRect.y, 84, slotRect.height};
+      const Rect coverSlot{slotRect.x + (slotRect.width - recentCoverW) / 2, slotRect.y, recentCoverW, slotRect.height};
       if (!drawCoverFitted(renderer, book, coverSlot, thumbH, 6)) drawCoverPlaceholder(renderer, book, coverSlot, 6);
     }
     coverBufferStored = storeCoverBuffer();
@@ -477,7 +515,8 @@ void FluiDezCardsTheme::drawRecentBookCover(GfxRenderer& renderer, const Rect re
       const Rect slotRect = recentRect(slot);
       TouchRegistry::getInstance().add(slotRect, slot + 1, TouchRegistry::Cover);
       if (selectorIndex == slot + 1) {
-        const Rect frame{slotRect.x + (slotRect.width - 84) / 2 - 5, slotRect.y - 5, 94, slotRect.height + 10};
+        const Rect frame{slotRect.x + (slotRect.width - recentCoverW) / 2 - 5, slotRect.y - 5, recentCoverW + 10,
+                         slotRect.height + 10};
         renderer.drawRoundedRect(frame.x, frame.y, frame.width, frame.height, 3, 10, true);
       }
     }
@@ -500,41 +539,7 @@ void FluiDezCardsTheme::drawButtonMenu(GfxRenderer& renderer, const Rect rect, c
                                        const int selectedIndex,
                                        const std::function<const char*(int index)>& buttonLabel,
                                        const std::function<UIIcon(int index)>& rowIcon) const {
-  if (buttonCount <= 0 || rect.height <= 0) return;
-  constexpr int pad = 18;
-  constexpr int gap = 10;
-  constexpr int columns = 4;
-  const int rows = (buttonCount + columns - 1) / columns;
-  const int tileW = (rect.width - pad * 2 - (columns - 1) * gap) / columns;
-  const int tileH = std::min(92, (rect.height - (rows - 1) * gap) / rows);
-  const int smallH = renderer.getLineHeight(SMALL_FONT_ID);
-
-  for (int i = 0; i < buttonCount; ++i) {
-    const Rect tile{rect.x + pad + (i % columns) * (tileW + gap), rect.y + (i / columns) * (tileH + gap), tileW, tileH};
-    TouchRegistry::getInstance().add(tile, i, TouchRegistry::Item);
-    const bool selected = i == selectedIndex;
-    if (selected) {
-      renderer.fillRoundedRect(tile.x, tile.y, tile.width, tile.height, 14, Color::Black);
-    } else {
-      renderer.drawRoundedRect(tile.x, tile.y, tile.width, tile.height, 1, 14, true);
-    }
-
-    const freeink::Icon* icon = rowIcon != nullptr ? iconForName(rowIcon(i), 32) : nullptr;
-    const char* label = buttonLabel != nullptr ? buttonLabel(i) : "";
-    if (label == nullptr) label = "";
-    const auto lines = renderer.wrappedText(SMALL_FONT_ID, label, tile.width - 10, icon != nullptr ? 2 : 3);
-    const int iconH = icon != nullptr ? 32 + 4 : 0;
-    const int blockH = iconH + static_cast<int>(lines.size()) * smallH;
-    int y = tile.y + std::max(4, (tile.height - blockH) / 2);
-    if (icon != nullptr) {
-      drawLucideIcon(renderer, *icon, tile.x + (tile.width - 32) / 2, y, !selected);
-      y += iconH;
-    }
-    for (const auto& line : lines) {
-      drawCentered(renderer, SMALL_FONT_ID, tile.x + tile.width / 2, y, line.c_str(), !selected);
-      y += smallH;
-    }
-  }
+  drawIconDock(renderer, rect, buttonCount, selectedIndex, buttonLabel, rowIcon, DockStyle::Tile);
 }
 
 // ---------------------------------------------------------------------------
@@ -560,8 +565,8 @@ void FluiDezShelfTheme::drawRecentBookCover(GfxRenderer& renderer, const Rect re
   const float leadProgress = homeBookProgress(0);
   const Rect cover{x, rect.y + 10, thumbH * 2 / 3, thumbH};
   const int ringCx = cover.x + cover.width + (x + w - cover.x - cover.width) / 2;
-  const int ringCy = cover.y + 74;
-  constexpr int ringR = 64;
+  const int ringCy = cover.y + 64;
+  constexpr int ringR = 60;
 
   if (!coverRendered) {
     if (!drawCoverFitted(renderer, lead, cover, thumbH, 6)) drawCoverPlaceholder(renderer, lead, cover, 6);
@@ -576,7 +581,7 @@ void FluiDezShelfTheme::drawRecentBookCover(GfxRenderer& renderer, const Rect re
   const int lineH12 = renderer.getLineHeight(UI_12_FONT_ID);
   drawCentered(renderer, UI_12_FONT_ID, ringCx, ringCy - lineH12 / 2, percentLabel, true, EpdFontFamily::BOLD);
 
-  int infoY = ringCy + ringR + 10;
+  int infoY = ringCy + ringR + 8;
   uint32_t leftSeconds = 0;
   if (estimateTimeLeft(leadBookStats(), leadProgress, leftSeconds)) {
     char buf[24];
@@ -585,12 +590,12 @@ void FluiDezShelfTheme::drawRecentBookCover(GfxRenderer& renderer, const Rect re
     snprintf(meta, sizeof(meta), "%s %s", buf, tr(STR_FLUIDEZ_LEFT));
     drawCentered(renderer, SMALL_FONT_ID, ringCx, infoY, meta);
   }
-  infoY += renderer.getLineHeight(SMALL_FONT_ID) + 8;
+  infoY += renderer.getLineHeight(SMALL_FONT_ID) + 12;
 
   // "Continue" pill doubles as the lead book's selection state.
   const char* continueLabel = tr(STR_FLUIDEZ_CONTINUE);
   const int pillW = renderer.getTextWidth(UI_10_FONT_ID, continueLabel, EpdFontFamily::BOLD) + 36;
-  const int pillH = renderer.getLineHeight(UI_10_FONT_ID) + 16;
+  const int pillH = renderer.getLineHeight(UI_10_FONT_ID) + 20;
   const int pillX = ringCx - pillW / 2;
   const bool leadSelected = selectorIndex == 0;
   if (leadSelected) {
@@ -598,7 +603,7 @@ void FluiDezShelfTheme::drawRecentBookCover(GfxRenderer& renderer, const Rect re
   } else {
     renderer.drawRoundedRect(pillX, infoY, pillW, pillH, 2, pillH / 2, true);
   }
-  drawCentered(renderer, UI_10_FONT_ID, ringCx, infoY + 8, continueLabel, !leadSelected, EpdFontFamily::BOLD);
+  drawCentered(renderer, UI_10_FONT_ID, ringCx, infoY + 10, continueLabel, !leadSelected, EpdFontFamily::BOLD);
 
   // Title block under the cover.
   int y = cover.y + cover.height + 12;
@@ -616,10 +621,10 @@ void FluiDezShelfTheme::drawRecentBookCover(GfxRenderer& renderer, const Rect re
   // Shelf of spines, sitting on a black board at the bottom of the tile.
   const int captionH = renderer.getLineHeight(UI_10_FONT_ID) + 8;
   const int boardY = rect.y + rect.height - captionH - 5;
-  const int labelY = std::max(y + 12, boardY - 172);
+  const int labelY = y + 18;
   drawSectionLabel(renderer, x, labelY, tr(STR_FLUIDEZ_YOUR_SHELF));
   const int shelfTop = labelY + renderer.getLineHeight(SMALL_FONT_ID) + 6;
-  const int maxSpineH = std::max(60, boardY - shelfTop - 12);
+  const int maxSpineH = std::clamp(boardY - shelfTop - 12, 60, 220);
   renderer.fillRect(x, boardY, w, 5, true);
 
   const int visible = std::min(static_cast<int>(recentBooks.size()), FluiDezMetrics::shelf.homeRecentBooksCount);
@@ -628,7 +633,7 @@ void FluiDezShelfTheme::drawRecentBookCover(GfxRenderer& renderer, const Rect re
   int sx = x + 6;
   for (int i = 0; i < visible; ++i) {
     const uint32_t hash = titleHash(recentBooks[i].title.empty() ? recentBooks[i].path : recentBooks[i].title);
-    const int spineW = 36 + static_cast<int>(hash % 3) * 6;
+    const int spineW = 40 + static_cast<int>(hash % 3) * 6;
     const int spineH = std::min(maxSpineH, maxSpineH - 40 + static_cast<int>((hash >> 4) % 5) * 10);
     if (sx + spineW > x + w) break;
     const bool selected = selectorIndex == i;
@@ -674,6 +679,6 @@ void FluiDezShelfTheme::drawRecentBookCover(GfxRenderer& renderer, const Rect re
 void FluiDezShelfTheme::drawButtonMenu(GfxRenderer& renderer, const Rect rect, const int buttonCount,
                                        const int selectedIndex,
                                        const std::function<const char*(int index)>& buttonLabel,
-                                       const std::function<UIIcon(int index)>& /*rowIcon*/) const {
-  drawTextGridMenu(renderer, rect, buttonCount, selectedIndex, buttonLabel, true);
+                                       const std::function<UIIcon(int index)>& rowIcon) const {
+  drawIconDock(renderer, rect, buttonCount, selectedIndex, buttonLabel, rowIcon, DockStyle::Circle);
 }

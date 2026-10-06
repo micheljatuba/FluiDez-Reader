@@ -28,8 +28,8 @@ constexpr ThemeMetrics makeBase() {
 constexpr ThemeMetrics makeFluxo() {
   ThemeMetrics v = makeBase();
   v.homeCoverHeight = LyraMetrics::values.homeCoverHeight;  // unused: Fluxo reads no covers
-  v.homeCoverTileHeight = 446;
-  v.homeRecentBooksCount = 4;
+  v.homeCoverTileHeight = 600;
+  v.homeRecentBooksCount = 6;
   return v;
 }
 
@@ -37,7 +37,7 @@ constexpr ThemeMetrics makeCards() {
   ThemeMetrics v = makeBase();
   // Thumbnail height generated for the hero card; recents downscale it.
   v.homeCoverHeight = 186;
-  v.homeCoverTileHeight = 476;
+  v.homeCoverTileHeight = 560;
   v.homeRecentBooksCount = 4;
   return v;
 }
@@ -45,7 +45,7 @@ constexpr ThemeMetrics makeCards() {
 constexpr ThemeMetrics makeShelf() {
   ThemeMetrics v = makeBase();
   v.homeCoverHeight = 196;
-  v.homeCoverTileHeight = 524;
+  v.homeCoverTileHeight = 600;
   v.homeRecentBooksCount = 6;
   return v;
 }
@@ -82,9 +82,12 @@ class FluiDezTheme : public LyraTheme {
   static void formatShortDuration(uint32_t seconds, char* buf, size_t len);
   static const char* bookTitle(const RecentBook& book);
 
-  // Two-column text navigation shared by Fluxo and Estante.
-  void drawTextGridMenu(const GfxRenderer& renderer, Rect rect, int buttonCount, int selectedIndex,
-                        const std::function<const char*(int index)>& buttonLabel, bool pillSelection) const;
+  enum class DockStyle : uint8_t { Underline, Circle, Tile };
+  // Bottom row of icon buttons shared by the three layouts; the focused item's
+  // full label is drawn above it so long translations are never cut.
+  void drawIconDock(const GfxRenderer& renderer, Rect rect, int buttonCount, int selectedIndex,
+                    const std::function<const char*(int index)>& buttonLabel,
+                    const std::function<UIIcon(int index)>& rowIcon, DockStyle style) const;
 };
 
 class FluiDezFluxoTheme : public FluiDezTheme {

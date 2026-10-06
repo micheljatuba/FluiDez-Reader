@@ -242,8 +242,10 @@ conforme o modelo do aparelho e a compilação.
 
 - **Tema da interface**: define qual tema da interface usar:
   - "FluiDez Estante" (padrão) - o tema próprio do FluiDez: a capa do livro atual com o progresso num anel, o botão **Continuar** e uma estante com as lombadas dos livros recentes; o livro selecionado sobe na estante e o nome dele aparece embaixo
-  - "FluiDez Cartões" - o tema próprio do FluiDez em cartões: um cartão grande com a capa e o progresso do livro atual, três cartões com tempo de leitura, dias seguidos e livros concluídos, as capas recentes e um menu de botões com ícones
+  - "FluiDez Cartões" - o tema próprio do FluiDez em cartões: um cartão grande com a capa e o progresso do livro atual, três cartões com tempo de leitura, dias seguidos e livros concluídos, e as capas recentes
   - "FluiDez Fluxo" - o tema próprio do FluiDez só com texto: título grande, autor, progresso e a lista **A seguir**. Não lê nenhuma capa do cartão, por isso é a tela Início mais rápida
+
+  Nos três temas FluiDez, o menu fica numa barra de ícones no rodapé. O nome do item selecionado aparece logo acima da barra.
   - "Clássico" - o tema original
   - "Minimal" - um tema minimalista com capa grande do livro
   - "Painel" - layout de início no estilo painel, com estatísticas de leitura ao lado da capa; os rótulos encolhem ou quebram linha para que o texto nunca cubra o livro
