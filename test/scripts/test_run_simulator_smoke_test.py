@@ -27,6 +27,7 @@ class SimulatorSmokeRunnerTest(unittest.TestCase):
             page_turns=2, theme="classic", headless=True, timeout=120,
             font_dir=None, font_family=None, frontlight_sync=False,
             frontlight_layout=False, frontlight_captures=None, home_themes=False,
+            fluidez_captures=None,
         )
 
     def run_smoke(self, *, output="", returncode=0, error=None):

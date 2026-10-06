@@ -221,6 +221,9 @@ bool ButtonRemapActivity::usesLyraValueBadge() const {
     case CrossPointSettings::UI_THEME::LYRA_CAROUSEL:
     case CrossPointSettings::UI_THEME::LYRA_GRID:
     case CrossPointSettings::UI_THEME::MINIMAL:
+    case CrossPointSettings::UI_THEME::FLUIDEZ_FLUXO:
+    case CrossPointSettings::UI_THEME::FLUIDEZ_CARDS:
+    case CrossPointSettings::UI_THEME::FLUIDEZ_SHELF:
       return true;
     default:
       return false;

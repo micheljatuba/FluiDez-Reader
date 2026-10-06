@@ -362,7 +362,11 @@ class CrossPointSettings : public PersistableStore<CrossPointSettings> {
     // Upstream CrossPoint numbers Cover Grid 7; FluiDez keeps 7 for Lyra Grid so
     // existing installs keep their theme after updating.
     COVER_GRID = 8,
-    UI_THEME_COUNT = 9
+    // FluiDez native themes share one visual identity with three Home layouts.
+    FLUIDEZ_FLUXO = 9,
+    FLUIDEZ_CARDS = 10,
+    FLUIDEZ_SHELF = 11,
+    UI_THEME_COUNT = 12
   };
   enum RECENT_BOOKS_VIEW { RECENT_BOOKS_LIST = 0, RECENT_BOOKS_GRID = 1, RECENT_BOOKS_VIEW_COUNT };
 
@@ -601,9 +605,10 @@ class CrossPointSettings : public PersistableStore<CrossPointSettings> {
   // Long-press page turn button behavior
   uint8_t longPressButtonBehavior = OFF;
   // UI Theme
-  uint8_t uiTheme = LYRA;
+  uint8_t uiTheme = FLUIDEZ_SHELF;
   uint8_t swapLibraryFileBrowser = 0;
   bool supportsLibraryFileBrowserSwap() const { return uiTheme == MINIMAL || uiTheme == DASHBOARD; }
+  bool isFluiDezTheme() const { return uiTheme >= FLUIDEZ_FLUXO && uiTheme <= FLUIDEZ_SHELF; }
   bool isLibraryFileBrowserSwapped() const { return supportsLibraryFileBrowserSwap() && swapLibraryFileBrowser; }
   // Recently Opened layout in Library; keep the original raw values for older settings.
   uint8_t recentBooksView = RECENT_BOOKS_LIST;

@@ -40,6 +40,12 @@ THEMES = {
     "grid": 7,
     "cover-grid": 8,
     "cover_grid": 8,
+    "fluidez-fluxo": 9,
+    "fluxo": 9,
+    "fluidez-cards": 10,
+    "cartoes": 10,
+    "fluidez-shelf": 11,
+    "estante": 11,
 }
 
 
@@ -102,6 +108,10 @@ def run_smoke(args: argparse.Namespace) -> int:
             env["CROSSINK_SIMULATOR_SMOKE_FRONTLIGHT_CAPTURES"] = str(capture_dir)
         if args.home_themes:
             env["CROSSINK_SIMULATOR_SMOKE_HOME_THEMES"] = "1"
+        if args.fluidez_captures:
+            capture_dir = Path(args.fluidez_captures).resolve()
+            capture_dir.mkdir(parents=True, exist_ok=True)
+            env["CROSSINK_SIMULATOR_SMOKE_FLUIDEZ_CAPTURES"] = str(capture_dir)
         if args.theme:
             env["CROSSINK_SIMULATOR_SMOKE_THEME"] = str(THEMES[args.theme])
         if args.headless:
@@ -166,6 +176,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--frontlight-sync", action="store_true", help="Check frontlight sync outside the reader with stats enabled and disabled (X4 Pro)")
     parser.add_argument("--frontlight-layout", action="store_true", help="Check frontlight drawer bounds and handle taps across scales, orientations and themes (X4 Pro)")
     parser.add_argument("--frontlight-captures", help="Directory for frontlight layout framebuffer captures (PGM)")
+    parser.add_argument("--fluidez-captures", help="Directory for FluiDez theme Home captures (PGM, X4 Pro)")
     parser.add_argument("--home-themes", action="store_true", help="Compare drawer theme changes with fresh Home renders (X4 Pro)")
     parser.add_argument("--no-build", dest="build", action="store_false", help="Run the existing simulator binary")
     parser.add_argument("--window", dest="headless", action="store_false", help="Show the SDL window instead of using dummy video")

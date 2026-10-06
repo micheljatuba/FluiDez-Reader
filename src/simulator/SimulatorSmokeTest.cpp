@@ -97,6 +97,7 @@ enum class SmokeStep : uint8_t {
   ThemeFresh,
   StatusBarEditor,
   StatusBarPicker,
+  FluiDezCapture,
   Done,
 };
 
@@ -185,6 +186,7 @@ class SimulatorSmokeTest {
   uint64_t carouselScreenHash = 0;
   unsigned frontlightLayoutPass = 0;
   unsigned homeThemePass = 0;
+  unsigned fluidezCapturePass = 0;
   uint64_t homeThemeScreenHash = 0;
   std::string homeThemeBookPath;
 
@@ -1223,6 +1225,27 @@ class SimulatorSmokeTest {
     switch (step) {
       case SmokeStep::Start:
         LOG_INF("SMOKE", "Starting simulator smoke test");
+        if (std::getenv("CROSSINK_SIMULATOR_SMOKE_FLUIDEZ_CAPTURES")) {
+          // Recent books in reverse order: the last one added leads Home.
+          static constexpr const char* books[][3] = {
+              {"/books/fz-6.txt", "Lucíola", "José de Alencar"},
+              {"/books/fz-5.txt", "Senhora", "José de Alencar"},
+              {"/books/fz-4.txt", "Iracema", "José de Alencar"},
+              {"/books/fz-3.txt", "Memórias Póstumas de Brás Cubas", "Machado de Assis"},
+              {"/books/fz-2.txt", "O Cortiço", "Aluísio Azevedo"},
+              {"/books/fz-1.txt", "Dom Casmurro", "Machado de Assis"},
+          };
+          for (const auto& book : books) {
+            if (!Storage.writeFile(book[0], "FluiDez theme fixture")) fail("Cannot create FluiDez fixture");
+            RECENT_BOOKS.addOrUpdateBook(book[0], book[1], book[2], {}, RecentBook::CoverState::Missing);
+          }
+          SETTINGS.trackReadingStats = 1;
+          SETTINGS.uiTheme = CrossPointSettings::FLUIDEZ_FLUXO;
+          UITheme::getInstance().reload();
+          activityManager.replaceActivity(std::make_unique<HomeActivity>(renderer, mappedInputManager));
+          queueStep("FluiDez Home capture", SmokeStep::FluiDezCapture, 8);
+          break;
+        }
         if (std::getenv("CROSSINK_SIMULATOR_SMOKE_STATUS_BARS")) {
           verifyStatusBarSettings();
           SETTINGS.clockDateHasBeenSynced = true;
@@ -2054,6 +2077,42 @@ class SimulatorSmokeTest {
           std::_Exit(0);
         }
         step = SmokeStep::ThemeHome;
+        break;
+      }
+
+      case SmokeStep::FluiDezCapture: {
+        // Passes 0-2 show each FluiDez layout with the lead book selected,
+        // passes 3-5 with the Settings entry of the menu selected.
+        static constexpr uint8_t themes[] = {CrossPointSettings::FLUIDEZ_FLUXO, CrossPointSettings::FLUIDEZ_CARDS,
+                                             CrossPointSettings::FLUIDEZ_SHELF};
+        static constexpr const char* names[] = {"fluxo", "cartoes", "estante"};
+        const char* outputDir = std::getenv("CROSSINK_SIMULATOR_SMOKE_FLUIDEZ_CAPTURES");
+        {
+          RenderLock lock;
+          const auto path = std::filesystem::path(outputDir) / (std::string(names[fluidezCapturePass % 3]) +
+                                                                (fluidezCapturePass >= 3 ? "-menu" : "") + ".pgm");
+          FILE* image = std::fopen(path.c_str(), "wb");
+          if (!image) fail("Cannot create FluiDez capture");
+          const int width = renderer.getScreenWidth();
+          const int height = renderer.getScreenHeight();
+          std::fprintf(image, "P5\n%d %d\n255\n", width, height);
+          for (int y = 0; y < height; ++y) {
+            for (int x = 0; x < width; ++x) std::fputc(renderer.isPixelBlack(x, y) ? 0 : 255, image);
+          }
+          std::fclose(image);
+        }
+        if (++fluidezCapturePass == 6) {
+          LOG_INF("SMOKE", "Simulator smoke test passed: FluiDez captures");
+          std::_Exit(0);
+        }
+        {
+          RenderLock lock;
+          SETTINGS.uiTheme = themes[fluidezCapturePass % 3];
+          UITheme::getInstance().reload();
+        }
+        activityManager.replaceActivity(std::make_unique<HomeActivity>(
+            renderer, mappedInputManager, fluidezCapturePass >= 3 ? HomeMenuItem::SETTINGS_MENU : HomeMenuItem::NONE));
+        queueStep("FluiDez Home capture", SmokeStep::FluiDezCapture, 8);
         break;
       }
 

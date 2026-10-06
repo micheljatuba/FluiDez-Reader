@@ -19,6 +19,7 @@
 #include "RecentBooksStore.h"
 #include "components/themes/BaseTheme.h"
 #include "components/themes/dashboard/DashboardTheme.h"
+#include "components/themes/fluidez/FluiDezTheme.h"
 #include "components/themes/lyra/Lyra3CoversTheme.h"
 #include "components/themes/lyra/LyraCarouselTheme.h"
 #include "components/themes/lyra/LyraGridTheme.h"
@@ -130,6 +131,21 @@ void UITheme::setTheme(CrossPointSettings::UI_THEME type) {
       LOG_DBG("UI", "Using Dashboard theme");
       currentTheme = std::make_unique<DashboardTheme>();
       currentMetrics = &DashboardMetrics::values;
+      break;
+    case CrossPointSettings::UI_THEME::FLUIDEZ_FLUXO:
+      LOG_DBG("UI", "Using FluiDez Fluxo theme");
+      currentTheme = std::make_unique<FluiDezFluxoTheme>();
+      currentMetrics = &FluiDezMetrics::fluxo;
+      break;
+    case CrossPointSettings::UI_THEME::FLUIDEZ_CARDS:
+      LOG_DBG("UI", "Using FluiDez Cards theme");
+      currentTheme = std::make_unique<FluiDezCardsTheme>();
+      currentMetrics = &FluiDezMetrics::cards;
+      break;
+    case CrossPointSettings::UI_THEME::FLUIDEZ_SHELF:
+      LOG_DBG("UI", "Using FluiDez Shelf theme");
+      currentTheme = std::make_unique<FluiDezShelfTheme>();
+      currentMetrics = &FluiDezMetrics::shelf;
       break;
     default:
       LOG_ERR("UI", "Unknown theme %d, falling back to Classic", static_cast<int>(type));

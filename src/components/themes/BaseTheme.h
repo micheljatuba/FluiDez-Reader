@@ -324,6 +324,9 @@ class BaseTheme {
   virtual bool showsFileIcons() const { return false; }
   virtual bool usesCompactFileBrowserRows() const { return false; }
   virtual int compactFileBrowserRowHeight(const GfxRenderer&) const { return BaseMetrics::values.listRowHeight; }
+  // How many leading Home books need a cover thumbnail; negative means all.
+  // Typographic layouts return less so Home skips SD image work entirely.
+  virtual int homeCoverBookLimit() const { return -1; }
   virtual void drawCarouselBorder(GfxRenderer& renderer, Rect coverRect, const std::vector<RecentBook>& recentBooks,
                                   int centerIdx, bool inCarouselRow) const {}
 

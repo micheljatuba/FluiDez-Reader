@@ -42,6 +42,7 @@
 #include "components/TouchRegistry.h"
 #include "components/UITheme.h"
 #include "components/themes/dashboard/DashboardTheme.h"
+#include "components/themes/fluidez/FluiDezTheme.h"
 #include "components/themes/lyra/LyraCarouselTheme.h"
 #include "components/themes/lyra/LyraGridTheme.h"
 #include "components/themes/minimal/MinimalTheme.h"
@@ -684,8 +685,13 @@ void HomeActivity::loadRecentCovers(int coverHeight) {
   std::array<char, kMaxCachedBooks> bookUpdated{};
   const int progressIncrement = 90 / static_cast<int>(std::max<size_t>(1, recentBookCount));
 
+  // Typographic layouts show fewer covers than books; skip thumbnail work for the rest.
+  const int coverBookLimit = GUI.homeCoverBookLimit();
+  const size_t coverBookCount =
+      coverBookLimit < 0 ? recentBooks.size() : std::min(recentBooks.size(), static_cast<size_t>(coverBookLimit));
+
   int progress = 0;
-  for (size_t bookIdx = 0; bookIdx < recentBooks.size(); ++bookIdx) {
+  for (size_t bookIdx = 0; bookIdx < coverBookCount; ++bookIdx) {
     RecentBook& book = recentBooks[bookIdx];
     if (!Storage.exists(book.path.c_str())) {
       progress++;
@@ -980,6 +986,17 @@ void HomeActivity::showNextRecentBookOnHome() {
 
 void HomeActivity::loadGridTileProgress() {
   LyraGridTheme::clearTileProgress();
+  FluiDezTheme::clearHomeData();
+  if (SETTINGS.isFluiDezTheme()) {
+    // FluiDez layouts paint every visible book's progress; load it once here so
+    // render never touches the SD card for text.
+    const int count = std::min(static_cast<int>(recentBooks.size()), FluiDezTheme::kMaxHomeBooks);
+    for (int i = 0; i < count; ++i) {
+      FluiDezTheme::setHomeBookProgress(i, loadRecentBookProgress(recentBooks[i]));
+    }
+    if (!recentBooks.empty()) FluiDezTheme::setLeadBookStats(loadRecentBookStats(recentBooks.front()));
+    return;
+  }
   if (static_cast<CrossPointSettings::UI_THEME>(SETTINGS.uiTheme) != CrossPointSettings::UI_THEME::LYRA_GRID) {
     return;
   }
@@ -1340,14 +1357,16 @@ bool HomeActivity::allocateCarouselFrameSlots(int targetFrameCount) {
 
 void HomeActivity::renderCarouselFrameToCurrentBuffer(int bookIdx) {
   const auto& metrics = UITheme::getInstance().getMetrics();
-  bool coverRendered = false, coverBufferStored = false, bufferRestored = false;
+  // Frame-local flags: the snapshot must not touch Home's own cover cache state.
+  bool frameCoverRendered = false, frameCoverStored = false, frameBufferRestored = false;
   LyraCarouselTheme::setPreRenderIndex(bookIdx);
   renderer.clearScreen();
   // Snapshot the expensive artwork only. Fresh progress/stats and controls are
   // added after restoring it, without rereading or repainting the covers.
-  GUI.drawRecentBookCover(
-      renderer, Rect{0, metrics.homeTopPadding, renderer.getScreenWidth(), metrics.homeCoverTileHeight}, recentBooks,
-      static_cast<int>(recentBooks.size()), coverRendered, coverBufferStored, bufferRestored, []() { return true; });
+  GUI.drawRecentBookCover(renderer,
+                          Rect{0, metrics.homeTopPadding, renderer.getScreenWidth(), metrics.homeCoverTileHeight},
+                          recentBooks, static_cast<int>(recentBooks.size()), frameCoverRendered, frameCoverStored,
+                          frameBufferRestored, []() { return true; });
 }
 
 bool HomeActivity::saveCarouselFrameToDisk(uint64_t cacheKeyHash, int bookCount, int bookIdx, int slotIdx) {
@@ -2391,7 +2410,8 @@ void HomeActivity::render(RenderLock&&) {
   GUI.drawRecentBookCover(renderer, Rect{0, metrics.homeTopPadding, pageWidth, homeCoverTileHeight}, recentBooks,
                           selectorIndex, coverRendered, coverBufferStored, bufferRestored,
                           std::bind(&HomeActivity::storeCoverBuffer, this),
-                          hasAnyBookStats(currentBookStats) ? &currentBookStats : nullptr, currentBookProgressPercent);
+                          hasAnyBookStats(currentBookStats) ? &currentBookStats : nullptr, currentBookProgressPercent,
+                          SETTINGS.isFluiDezTheme() ? &globalStats : nullptr);
 
   const int menuStartY = metrics.homeTopPadding + homeCoverTileHeight + metrics.homeMenuTopOffset;
   const int menuEndY = pageHeight - metrics.buttonHintsHeight;
