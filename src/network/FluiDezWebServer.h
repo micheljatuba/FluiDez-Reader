@@ -93,7 +93,7 @@ class FluiDezWebServer {
   UploadCancelCheck uploadCancelCheck = nullptr;
   void* uploadCancelContext = nullptr;
   bool dropUploadIfCancelled() const;
-  void abortUpload(UploadState& state) const;
+  void abortUpload(UploadState& state, const char* error = "Upload aborted") const;
   void abortFontUpload();
 
   // Transfer feedback shown on the device while the server runs.

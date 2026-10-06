@@ -479,7 +479,7 @@ bool FluiDezWebServer::dropUploadIfCancelled() const {
   return true;
 }
 
-void FluiDezWebServer::abortUpload(UploadState& state) const {
+void FluiDezWebServer::abortUpload(UploadState& state, const char* error) const {
   state.success = false;
   state.bufferPos = 0;
   if (state.file) {
@@ -487,10 +487,12 @@ void FluiDezWebServer::abortUpload(UploadState& state) const {
     String filePath = state.path;
     if (!filePath.endsWith("/")) filePath += "/";
     filePath += state.fileName;
-    Storage.remove(filePath.c_str());
+    if (!Storage.remove(filePath.c_str())) {
+      LOG_ERR("WEB", "Could not remove incomplete upload: %s", filePath.c_str());
+    }
   }
-  state.error = "Upload aborted";
-  LOG_DBG("WEB", "Upload aborted");
+  state.error = error;
+  LOG_DBG("WEB", "%s", error);
 }
 
 void FluiDezWebServer::abortFontUpload() {
@@ -1065,8 +1067,8 @@ void FluiDezWebServer::handleUpload(UploadState& state) const {
         // Flush buffer when full
         if (state.bufferPos >= UploadState::UPLOAD_BUFFER_SIZE) {
           if (!flushUploadBuffer(state)) {
-            state.error = "Failed to write to SD card - disk may be full";
-            state.file.close();
+            LOG_ERR("WEB", "Failed to flush upload buffer");
+            abortUpload(state, "Failed to write to SD card - disk may be full");
             return;
           }
         }
@@ -1082,10 +1084,22 @@ void FluiDezWebServer::handleUpload(UploadState& state) const {
     }
     if (state.file) {
       // Flush any remaining buffered data
-      if (!flushUploadBuffer(state)) {
-        state.error = "Failed to write final data to SD card";
+      if (!flushUploadBuffer(state) || !state.file.sync()) {
+        LOG_ERR("WEB", "Failed to finish upload");
+        abortUpload(state, "Failed to write final data to SD card");
+        return;
       }
-      state.file.close();
+      if (!state.file.close()) {
+        state.error = "Failed to close file on SD card";
+        String filePath = state.path;
+        if (!filePath.endsWith("/")) filePath += "/";
+        filePath += state.fileName;
+        if (!Storage.remove(filePath.c_str())) {
+          LOG_ERR("WEB", "Could not remove incomplete upload: %s", filePath.c_str());
+        }
+        LOG_ERR("WEB", "%s", state.error.c_str());
+        return;
+      }
 
       if (state.error.isEmpty()) {
         state.success = true;
@@ -1760,6 +1774,7 @@ void FluiDezWebServer::handlePostSettings() {
   int applied = 0;
   uint8_t FluiDezSettings::* twoFingerSwipeEdited = nullptr;
 
+  std::unique_lock<std::mutex> settingsLock(SETTINGS.getMutex());
   for (const auto& s : settings) {
     if (!s.key || !isWebSettingAvailable(s)) continue;
     if (!doc[s.key].is<JsonVariant>()) continue;
@@ -1830,7 +1845,13 @@ void FluiDezWebServer::handlePostSettings() {
   if (twoFingerSwipeEdited != nullptr) {
     FluiDezSettings::normalizeTwoFingerSwipeActions(SETTINGS, twoFingerSwipeEdited);
   }
-  SETTINGS.saveToFile();
+  settingsLock.unlock();  // saveToFile acquires the settings mutex itself.
+  if (!SETTINGS.saveToFile()) {
+    LOG_ERR("WEB", "Failed to save settings");
+    server->send(500, "text/plain", "Failed to save settings");
+    sdFontSystem.releaseRegistry();
+    return;
+  }
 
   LOG_DBG("WEB", "Applied %d setting(s)", applied);
   server->send(200, "text/plain", String("Applied ") + String(applied) + " setting(s)");
