@@ -81,6 +81,7 @@ class OpdsBookBrowserActivity final : public Activity {
   static void onCancelEvent(const freeink::ui::ActionEvent& event, void* user);
   void screenHeader(UiApp::ScreenType& screen, bool withSearch);
   void buildBrowsingScreen(UiApp::ScreenType& screen);
+  static void provideRow(void* user, uint16_t index, freeink::ui::ListItem& item);
   void buildDownloadScreen(UiApp::ScreenType& screen);
   void buildStatusScreen(UiApp::ScreenType& screen);
   void activateSelected();
