@@ -6,6 +6,15 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ## [Unreleased]
 
+### Fixed
+
+- The Sleep Screen page's empty gallery message spans the whole row instead of wrapping in one grid column.
+- cppcheck no longer fails the default and Sticky builds on code from the CrossInk sync (frontlight panel, keyboard feedback, Library filter, OPDS download cancel).
+
+### Changed
+
+- The README opens with the FluiDez themes and the custom sleep screen, with new screenshots. The simulator's `--fluidez-demo` option produces them: Portuguese UI, covers, progress and reading stats on the FluiDez Home captures.
+
 ## [v1.6-fluidez14] - 2026-10-06
 
 ### Added

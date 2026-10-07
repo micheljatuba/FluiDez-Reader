@@ -15,6 +15,7 @@ Simulator smoke test:
 - The script builds `env:simulator`, creates a temporary `fs_`, copies a test EPUB into it, opens common screens, renders them, drives reader page/menu input, and fails on crashes or missing success output.
 - Use `--book path/to/book.epub` to choose a specific EPUB and `--page-turns 10` to change how far the reader flow navigates.
 - Use `--theme lyra-carousel` to run the flow with a specific UI theme. Supported names include `classic`, `lyra`, `lyra-extended`, `roundedraff`, `lyra-carousel`, `dashboard`, `lyra-grid`, `fluidez-fluxo`, `fluidez-cards`, and `fluidez-shelf`.
+- Use `--fluidez-captures <dir>` to save each FluiDez Home layout as a PGM instead of running the flow (X4 Pro). Add `--fluidez-demo <dir>` with `cover-N-WxH.bmp` files (N = 1-6; 124x186 and 131x196) to capture them in Portuguese with covers, progress and reading stats, as in the README.
 - Use `--no-build` to reuse the existing simulator binary or `--window` to show the SDL window instead of running headless.
 
 Expected coverage:

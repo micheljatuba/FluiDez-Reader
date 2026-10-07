@@ -7,7 +7,7 @@
 
 <p align="center">
   <strong>A leitura flui.</strong><br>
-  Firmware de leitura para e-readers Xteink, com foco em leitura fluida, economia de bateria e atualização pelo próprio aparelho.
+  Firmware de leitura para e-readers Xteink: rápido, econômico na bateria, com temas próprios e a sua imagem na tela de repouso.
 </p>
 
 <p align="center">
@@ -27,9 +27,42 @@ O **FluiDez Reader** é um firmware de código aberto para leitores de tinta ele
 
 O nome junta *flui* (a leitura flui) e *dez* (nota dez). A identidade visual, os recursos e as correções descritos abaixo são do FluiDez Reader. A visão e o escopo do projeto estão em [SCOPE.md](SCOPE.md).
 
-## Capturas de tela
+## Destaques da versão 1.6-fluidez14
 
-Imagens do simulador do X4 Pro, com a interface em português. Os livros de exemplo são clássicos brasileiros em domínio público.
+### Uma tela Início com a cara do FluiDez
+
+Três temas próprios, feitos para a tela de tinta eletrônica: contraste alto, texto que não corta e um menu de ícones no rodapé. Eles mostram o progresso, o tempo restante e as estatísticas sem ler nada do cartão enquanto desenham, por isso o *Início* abre na hora.
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/images/fluidez/home-estante.png" alt="Tema FluiDez Estante: capa de Dom Casmurro, anel de progresso em 38%, botão Continuar e uma estante com as lombadas de seis livros" width="240"><br><sub><b>Estante</b> (padrão)</sub></td>
+    <td align="center"><img src="docs/images/fluidez/home-cartoes.png" alt="Tema FluiDez Cartões: cartão com o livro atual, cartões com 12 h de leitura, 9 dias seguidos e 7 livros concluídos, e capas recentes" width="240"><br><sub><b>Cartões</b></sub></td>
+    <td align="center"><img src="docs/images/fluidez/home-fluxo.png" alt="Tema FluiDez Fluxo: título do livro atual, barra de progresso, tempo restante e a lista A seguir com cinco livros" width="240"><br><sub><b>Fluxo</b></sub></td>
+  </tr>
+</table>
+
+- **Estante:** a capa do livro atual, o progresso num anel e uma estante com as lombadas dos recentes. Escolha uma lombada e ela sobe, com o nome e o progresso logo abaixo.
+- **Cartões:** o livro atual, o tempo de leitura, os dias seguidos e os livros concluídos, cada um no seu cartão, mais as capas recentes.
+- **Fluxo:** só texto, sem ler nenhuma capa. É o *Início* mais rápido de todos.
+
+Troque em **Configurações > Tela > Tema da interface**. Quem já usa outro tema continua com ele depois de atualizar.
+
+### Qualquer imagem na tela de repouso
+
+Seu personagem favorito, a foto do seu cachorro, aquele desenho que você ama: abra `http://fluidez.local/sleep` no celular ou no computador, escolha a imagem, ajuste o enquadramento, o zoom, o brilho e o contraste e veja na hora como ela vai ficar em tons de cinza. Toque em **Salvar e usar no aparelho** e pronto: na próxima vez que você bloquear o leitor, é ela que aparece.
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/images/fluidez/sleep-web.png" alt="Página Sleep Screen do portal web, em português, com a imagem de um pôr do sol, os controles de encaixe, zoom, brilho e contraste e a prévia do e-ink" width="520"><br><sub>Editor no portal web</sub></td>
+    <td align="center"><img src="docs/images/fluidez/sleep-custom.png" alt="Tela de repouso com a imagem de um pôr do sol sobre montanhas e um lago, com a frase Boa leitura, em quatro tons de cinza" width="200"><br><sub>No leitor</sub></td>
+  </tr>
+</table>
+
+A conversão acontece no navegador, no tamanho exato da tela, e o leitor só exibe o arquivo pronto: nenhum processamento a mais no aparelho. Fotos JPG e PNG copiadas direto para a pasta `sleep` do cartão também funcionam; o leitor converte cada uma uma vez e depois ela abre tão rápido quanto um BMP.
+
+## Mais telas
+
+Imagens do simulador do X4 Pro, com a interface em português. Os livros de exemplo são clássicos brasileiros em domínio público, com capas criadas para estas imagens.
 
 <table>
   <tr>
@@ -48,8 +81,7 @@ Imagens do simulador do X4 Pro, com a interface em português. Os livros de exem
 
 ### Início e biblioteca
 
-- **Temas FluiDez:** três layouts próprios para a tela *Início*, com a identidade do FluiDez. *Estante* (o padrão) mostra a capa do livro atual com o progresso num anel e uma estante com as lombadas dos recentes; *Cartões* reúne o livro atual, tempo de leitura, dias seguidos e livros concluídos em cartões; *Fluxo* é só texto e não lê nenhuma capa, a *Início* mais rápida.
-- **Sua imagem na tela de repouso:** em `http://fluidez.local/sleep`, escolha qualquer foto ou desenho, ajuste o enquadramento com prévia em tons de cinza e salve. O navegador converte a imagem no tamanho exato da tela e o leitor passa a mostrá-la ao bloquear. Fotos JPG e PNG copiadas para a pasta `sleep` do cartão também funcionam.
+- **Temas FluiDez e imagem de repouso própria:** veja os [destaques](#destaques-da-versão-16-fluidez14).
 - **Livros fixados:** fixe até seis livros no topo de *Livros recentes*. Eles ficam na ordem em que foram fixados, logo depois de *Continuar lendo*, e continuam na lista quando livros mais antigos ou concluídos saem dela.
 - **Menu do livro no Início:** segure a capa de um livro para *Fixar no topo* ou *Desafixar*, *Marcar como concluído* ou *Remover dos Livros recentes*, sem sair do *Início*. Em leitores sem toque, segure *Confirmar* sobre o livro selecionado.
 - **Tema Lyra Grade:** grade 3x2 com seis livros (o atual, os fixados e os recentes), cada um com barra de progresso e uma fita nos fixados.
@@ -160,7 +192,7 @@ O FluiDez Reader existe graças a:
 - [CrossPoint Reader](https://github.com/crosspoint-reader/crosspoint-reader), de Dave Allie e colaboradores, o projeto original;
 - [plugins do CrossPoint Reader para o Calibre](https://github.com/crosspoint-reader/calibre-plugins), a base do plugin FluiDez Reader para Calibre.
 
-O histórico completo do código herdado está nesses repositórios. Aqui, o histórico começa na importação da base do CrossInk.
+O histórico do CrossInk faz parte deste repositório desde a sincronização de outubro de 2026, e as mudanças trazidas de lá estão no [CHANGELOG](CHANGELOG.md).
 
 ## Licença
 

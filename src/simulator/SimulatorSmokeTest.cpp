@@ -41,9 +41,11 @@
 #include "activities/library/LibraryActivity.h"
 #include "activities/reader/BookReadingStats.h"
 #include "activities/reader/EpubReaderDrawerActivity.h"
+#include "activities/reader/GlobalReadingStats.h"
 #include "activities/reader/ReaderFontLoading.h"
 #include "activities/reader/ReaderOptionsActivity.h"
 #include "activities/reader/ReaderUtils.h"
+#include "activities/reader/ReadingStatsUtils.h"
 #include "activities/reader/SideButtonShortcuts.h"
 #include "activities/settings/QuickActionsActivity.h"
 #include "activities/settings/SettingsActivity.h"
@@ -187,6 +189,8 @@ class SimulatorSmokeTest {
   unsigned frontlightLayoutPass = 0;
   unsigned homeThemePass = 0;
   unsigned fluidezCapturePass = 0;
+  // Recent-book paths of the FluiDez capture fixture, lead book first.
+  std::vector<std::string> fluidezBookPaths;
   uint64_t homeThemeScreenHash = 0;
   std::string homeThemeBookPath;
 
@@ -1210,6 +1214,88 @@ class SimulatorSmokeTest {
   }
 #endif
 
+  // Books for the FluiDez Home captures. With /fluidez-demo on the card (see
+  // scripts/run_simulator_smoke_test.py --fluidez-demo) they get covers,
+  // progress and reading stats and the UI switches to Portuguese, which is how
+  // the README screenshots are made; otherwise plain text fixtures are used.
+  void prepareFluiDezCaptureFixture() {
+    struct FixtureBook {
+      const char* title;
+      const char* author;
+      float progress;
+      uint32_t readMinutes;
+      uint32_t leftMinutes;
+    };
+    // Lead book first.
+    static constexpr FixtureBook books[] = {
+        {"Dom Casmurro", "Machado de Assis", 38.0f, 250, 130},
+        {"O Cortiço", "Aluísio Azevedo", 12.0f, 50, 0},
+        {"Memórias Póstumas de Brás Cubas", "Machado de Assis", 71.0f, 300, 0},
+        {"Iracema", "José de Alencar", 0.0f, 0, 0},
+        {"Senhora", "José de Alencar", 54.0f, 180, 0},
+        {"Lucíola", "José de Alencar", 0.0f, 0, 0},
+    };
+    constexpr int bookCount = sizeof(books) / sizeof(books[0]);
+    const bool demo = Storage.exists("/fluidez-demo");
+    if (demo) {
+      SETTINGS.language = static_cast<uint8_t>(Language::PT);
+      I18N.setLanguage(Language::PT);
+    }
+
+    fluidezBookPaths.assign(bookCount, {});
+    // Added in reverse: the last book added leads Home.
+    for (int i = bookCount - 1; i >= 0; --i) {
+      const FixtureBook& book = books[i];
+      std::string path = std::string("/books/fz-") + std::to_string(i + 1) + (demo ? ".epub" : ".txt");
+      if (!Storage.writeFile(path.c_str(), "FluiDez theme fixture")) fail("Cannot create FluiDez fixture");
+      fluidezBookPaths[i] = path;
+      if (!demo) {
+        RECENT_BOOKS.addOrUpdateBook(path, book.title, book.author, {}, RecentBook::CoverState::Missing);
+        continue;
+      }
+
+      // Home reads only these cached files, so the EPUB itself is never parsed.
+      const std::string cachePath = Epub::cachePathForFilePath(path, "/.crosspoint");
+      if (!Storage.ensureDirectoryExists(cachePath.c_str())) fail("Cannot create FluiDez fixture cache");
+      const std::string thumbTemplate = Epub(path, "/.crosspoint").getThumbBmpPath();
+      for (const int height : {186, 196}) {
+        const int width = (height * 2 + 1) / 3;
+        const std::string source = "/fluidez-demo/cover-" + std::to_string(i + 1) + "-" + std::to_string(width) + "x" +
+                                   std::to_string(height) + ".bmp";
+        if (!Storage.rename(source.c_str(), UITheme::getCoverThumbPath(thumbTemplate, height).c_str())) {
+          fail("Missing FluiDez demo cover %s", source.c_str());
+        }
+      }
+      if (book.progress > 0.0f) RecentBookProgress::saveCachedEpubPercent(cachePath, book.progress);
+      if (book.readMinutes > 0) {
+        BookReadingStats stats;
+        stats.sessionCount = static_cast<uint16_t>(book.readMinutes / 25 + 1);
+        stats.totalReadingSeconds = book.readMinutes * 60;
+        stats.estimatedTimeLeftSeconds = book.leftMinutes * 60;
+        if (!stats.save(cachePath)) fail("Cannot save FluiDez fixture stats");
+      }
+      RECENT_BOOKS.addOrUpdateBook(path, book.title, book.author, thumbTemplate, RecentBook::CoverState::Unknown);
+    }
+
+    if (demo) {
+      GlobalReadingStats global;
+      global.totalReadingSeconds = (12 * 60 + 40) * 60;
+      global.totalSessions = 48;
+      global.completedBooks = 7;
+      // Nine consecutive reading days ending today (or on the newest history
+      // day when the simulator has no clock).
+      ReadingStatsDateTime today;
+      global.readingHistoryAnchorDay =
+          getCurrentLocalReadingStatsDateTime(today) ? readingStatsDayIndex(today.date) : 1;
+      global.readingHistoryBits[0] = 0xFF;
+      global.readingHistoryBits[1] = 0x01;
+      global.save();
+    }
+    SETTINGS.trackReadingStats = 1;
+    SETTINGS.uiTheme = CrossPointSettings::FLUIDEZ_FLUXO;
+    UITheme::getInstance().reload();
+  }
+
   void tickImpl() {
     mappedInputManager.simulatorClearInputFrame();
 
@@ -1226,22 +1312,7 @@ class SimulatorSmokeTest {
       case SmokeStep::Start:
         LOG_INF("SMOKE", "Starting simulator smoke test");
         if (std::getenv("CROSSINK_SIMULATOR_SMOKE_FLUIDEZ_CAPTURES")) {
-          // Recent books in reverse order: the last one added leads Home.
-          static constexpr const char* books[][3] = {
-              {"/books/fz-6.txt", "Lucíola", "José de Alencar"},
-              {"/books/fz-5.txt", "Senhora", "José de Alencar"},
-              {"/books/fz-4.txt", "Iracema", "José de Alencar"},
-              {"/books/fz-3.txt", "Memórias Póstumas de Brás Cubas", "Machado de Assis"},
-              {"/books/fz-2.txt", "O Cortiço", "Aluísio Azevedo"},
-              {"/books/fz-1.txt", "Dom Casmurro", "Machado de Assis"},
-          };
-          for (const auto& book : books) {
-            if (!Storage.writeFile(book[0], "FluiDez theme fixture")) fail("Cannot create FluiDez fixture");
-            RECENT_BOOKS.addOrUpdateBook(book[0], book[1], book[2], {}, RecentBook::CoverState::Missing);
-          }
-          SETTINGS.trackReadingStats = 1;
-          SETTINGS.uiTheme = CrossPointSettings::FLUIDEZ_FLUXO;
-          UITheme::getInstance().reload();
+          prepareFluiDezCaptureFixture();
           activityManager.replaceActivity(std::make_unique<HomeActivity>(renderer, mappedInputManager));
           queueStep("FluiDez Home capture", SmokeStep::FluiDezCapture, 8);
           break;
@@ -2081,16 +2152,27 @@ class SimulatorSmokeTest {
       }
 
       case SmokeStep::FluiDezCapture: {
-        // Passes 0-2 show each FluiDez layout with the lead book selected,
-        // passes 3-5 with the Settings entry of the menu selected.
-        static constexpr uint8_t themes[] = {CrossPointSettings::FLUIDEZ_FLUXO, CrossPointSettings::FLUIDEZ_CARDS,
-                                             CrossPointSettings::FLUIDEZ_SHELF};
-        static constexpr const char* names[] = {"fluxo", "cartoes", "estante"};
+        struct CapturePass {
+          uint8_t theme;
+          const char* name;
+          HomeMenuItem menuItem;
+          int bookIndex;  // book selected on entry; -1 keeps the lead book
+        };
+        static constexpr CapturePass passes[] = {
+            {CrossPointSettings::FLUIDEZ_FLUXO, "fluxo", HomeMenuItem::NONE, -1},
+            {CrossPointSettings::FLUIDEZ_CARDS, "cartoes", HomeMenuItem::NONE, -1},
+            {CrossPointSettings::FLUIDEZ_SHELF, "estante", HomeMenuItem::NONE, -1},
+            {CrossPointSettings::FLUIDEZ_FLUXO, "fluxo-menu", HomeMenuItem::SETTINGS_MENU, -1},
+            {CrossPointSettings::FLUIDEZ_CARDS, "cartoes-menu", HomeMenuItem::SETTINGS_MENU, -1},
+            {CrossPointSettings::FLUIDEZ_SHELF, "estante-menu", HomeMenuItem::SETTINGS_MENU, -1},
+            {CrossPointSettings::FLUIDEZ_SHELF, "estante-livro", HomeMenuItem::NONE, 2},
+            {CrossPointSettings::FLUIDEZ_CARDS, "cartoes-livro", HomeMenuItem::NONE, 1},
+        };
+        constexpr unsigned passCount = sizeof(passes) / sizeof(passes[0]);
         const char* outputDir = std::getenv("CROSSINK_SIMULATOR_SMOKE_FLUIDEZ_CAPTURES");
         {
           RenderLock lock;
-          const auto path = std::filesystem::path(outputDir) / (std::string(names[fluidezCapturePass % 3]) +
-                                                                (fluidezCapturePass >= 3 ? "-menu" : "") + ".pgm");
+          const auto path = std::filesystem::path(outputDir) / (std::string(passes[fluidezCapturePass].name) + ".pgm");
           FILE* image = std::fopen(path.c_str(), "wb");
           if (!image) fail("Cannot create FluiDez capture");
           const int width = renderer.getScreenWidth();
@@ -2101,17 +2183,22 @@ class SimulatorSmokeTest {
           }
           std::fclose(image);
         }
-        if (++fluidezCapturePass == 6) {
+        if (++fluidezCapturePass == passCount) {
           LOG_INF("SMOKE", "Simulator smoke test passed: FluiDez captures");
           std::_Exit(0);
         }
+        const CapturePass& next = passes[fluidezCapturePass];
         {
           RenderLock lock;
-          SETTINGS.uiTheme = themes[fluidezCapturePass % 3];
+          SETTINGS.uiTheme = next.theme;
           UITheme::getInstance().reload();
         }
-        activityManager.replaceActivity(std::make_unique<HomeActivity>(
-            renderer, mappedInputManager, fluidezCapturePass >= 3 ? HomeMenuItem::SETTINGS_MENU : HomeMenuItem::NONE));
+        const std::string initialBook =
+            next.bookIndex >= 0 && next.bookIndex < static_cast<int>(fluidezBookPaths.size())
+                ? fluidezBookPaths[next.bookIndex]
+                : std::string{};
+        activityManager.replaceActivity(std::make_unique<HomeActivity>(renderer, mappedInputManager, next.menuItem,
+                                                                       HalDisplay::FAST_REFRESH, initialBook));
         queueStep("FluiDez Home capture", SmokeStep::FluiDezCapture, 8);
         break;
       }
