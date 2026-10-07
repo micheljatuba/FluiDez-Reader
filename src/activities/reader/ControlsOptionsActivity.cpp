@@ -197,7 +197,8 @@ void ControlsOptionsActivity::moveSelection(bool forward) {
 }
 
 bool ControlsOptionsActivity::currentSettingUsesOptionMenu(const SettingInfo& setting) const {
-  return setting.type == SettingType::ENUM && setting.valuePtr != nullptr && settingEnumOptionCount(setting) > 2;
+  return setting.type == SettingType::ENUM && setting.valuePtr != nullptr &&
+         (settingEnumOptionCount(setting) > 2 || setting.valuePtr == &FluiDezSettings::menuNavigation);
 }
 
 void ControlsOptionsActivity::openEnumOptionPicker(const SettingInfo& setting) {
@@ -234,6 +235,9 @@ void ControlsOptionsActivity::openEnumOptionPicker(const SettingInfo& setting) {
         }
       },
       note);
+  if (setting.valuePtr == &FluiDezSettings::menuNavigation) {
+    menuNavigationNote.apply(optionPopup);
+  }
   requestUpdate();
 }
 
