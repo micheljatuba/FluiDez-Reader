@@ -2165,6 +2165,7 @@ class SimulatorSmokeTest {
         if (context.activeReaderBook) {
           context.bookTitle = "Layout fixture";
           context.bookDetails.title = context.bookTitle;
+          context.bookDetails.chapter = "Chapter Three: The Storm That Swallowed the Northern Coastline";
           context.bookDetails.chapterPage = 1;
           context.bookDetails.chapterPageCount = 10;
         }
@@ -2184,6 +2185,11 @@ class SimulatorSmokeTest {
             handle.right() > renderer.getScreenWidth() - right || handle.height <= 0 ||
             panel->simulatorContentBottom > panel->simulatorActionBarTop) {
           fail("Frontlight controls overflow in layout matrix case %u", frontlightLayoutPass);
+        }
+        const bool portrait = !(renderer.getOrientation() == GfxRenderer::Orientation::LandscapeClockwise ||
+                                renderer.getOrientation() == GfxRenderer::Orientation::LandscapeCounterClockwise);
+        if (frontlightLayoutPass % 2 && portrait && !panel->simulatorShowsChapterLine()) {
+          fail("Frontlight chapter line dropped in portrait layout matrix case %u", frontlightLayoutPass);
         }
         if (const char* outputDir = std::getenv("FLUIDEZ_SIMULATOR_SMOKE_FRONTLIGHT_CAPTURES")) {
           const auto path = std::filesystem::path(outputDir) / (std::to_string(frontlightLayoutPass) + ".pgm");

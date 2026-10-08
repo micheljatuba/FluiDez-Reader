@@ -61,6 +61,16 @@ Rect headerRect(const GfxRenderer& renderer, const MappedInputManager& input) {
   return Rect{0, metrics.topPadding, renderer.getScreenWidth(), height(metrics, input)};
 }
 
+Rect headerRect(const GfxRenderer&, const MappedInputManager& input, const Rect& area) {
+  const auto& metrics = UITheme::getInstance().getMetrics();
+  return Rect{area.x, area.y + metrics.topPadding, area.width, height(metrics, input)};
+}
+
+int contentTop(const GfxRenderer&, const MappedInputManager& input, const int areaTop) {
+  const auto& metrics = UITheme::getInstance().getMetrics();
+  return areaTop + metrics.topPadding + height(metrics, input);
+}
+
 Rect compactHeaderRect(const GfxRenderer& renderer) {
   const auto& metrics = UITheme::getInstance().getMetrics();
   return Rect{0, metrics.topPadding, renderer.getScreenWidth(),

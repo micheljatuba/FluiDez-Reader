@@ -21,8 +21,12 @@ struct Layout {
 Layout layout(const Rect& header);
 int height(const ThemeMetrics& metrics, const MappedInputManager& input);
 Rect headerRect(const GfxRenderer& renderer, const MappedInputManager& input);
+// Header placed at the top of area (for example a screen safe area).
+Rect headerRect(const GfxRenderer& renderer, const MappedInputManager& input, const Rect& area);
 Rect standardHeaderRect(const GfxRenderer& renderer);
 Rect compactHeaderRect(const GfxRenderer& renderer);
+// First y below the header for content that starts at areaTop.
+int contentTop(const GfxRenderer& renderer, const MappedInputManager& input, int areaTop = 0);
 bool wasTapped(const MappedInputManager& input, const Rect& header);
 bool wasTapped(const MappedInputManager& input, const GfxRenderer& renderer);
 void draw(GfxRenderer& renderer, const Rect& header, const char* title, bool readerContext, int rightReserve = 0,

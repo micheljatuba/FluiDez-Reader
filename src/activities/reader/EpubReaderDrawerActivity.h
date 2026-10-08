@@ -48,6 +48,9 @@ class EpubReaderDrawerActivity final : public Activity {
       ReaderDrawerState initialState = initialReaderDrawerState(FLUIDEZ_APP_CAP_TOUCH),
       std::unique_ptr<EpubReaderPreviewModel> ownedPreviewModel = nullptr);
 
+  // Button menu only: shown under the book title. Set before the activity starts.
+  void setChapterTitle(std::string title) { chapterTitle = std::move(title); }
+
 #ifdef SIMULATOR
   const ReaderDrawerState& simulatorState() const { return state; }
   bool simulatorFocusedRowVisible() const {
@@ -115,6 +118,7 @@ class EpubReaderDrawerActivity final : public Activity {
   const uint32_t chapterPageCount = 0;
   const bool chapterPageCountEstimated = false;
   const uint32_t stablePageSeed = 0;
+  std::string chapterTitle;
   // Touch uses the Percent keypad directly. Button devices start on the slider
   // and can open this keypad by holding Confirm, as in the old selector.
   char entryText[8] = {0};
