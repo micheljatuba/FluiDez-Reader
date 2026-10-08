@@ -15,7 +15,7 @@
 #include <memory>
 #include <string>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "activities/boot_sleep/ImageFolderIndex.h"
 #include "util/BookCacheUtils.h"
 

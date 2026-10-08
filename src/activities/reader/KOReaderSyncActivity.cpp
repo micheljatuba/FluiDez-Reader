@@ -13,10 +13,10 @@
 #include <cassert>
 #include <cmath>
 
-#include "CrossPointSettings.h"
-#include "CrossPointState.h"
 #include "Epub/Section.h"
 #include "EpubReaderUtils.h"
+#include "FluiDezSettings.h"
+#include "FluiDezState.h"
 #include "HalClock.h"
 #include "KOReaderCredentialStore.h"
 #include "KOReaderDocumentId.h"
@@ -662,7 +662,7 @@ void KOReaderSyncActivity::onEnter() {
   // The reader uses this activity as a tiny handoff so ActivityManager can run
   // reader onExit() before rebooting. Network boot uses the other constructor.
   if (restartBeforeNetwork) {
-    const bool hasReaderOrientation = readerOrientation < CrossPointSettings::ORIENTATION_COUNT;
+    const bool hasReaderOrientation = readerOrientation < FluiDezSettings::ORIENTATION_COUNT;
     if (hasReaderOrientation) ReaderUtils::applyOrientation(renderer, readerOrientation);
     // Zero means no reader override; valid orientations are encoded one-based.
     const uint32_t orientationPayload = hasReaderOrientation ? static_cast<uint32_t>(readerOrientation) + 1 : 0;
@@ -673,10 +673,10 @@ void KOReaderSyncActivity::onEnter() {
   LOG_INF("KOSync", "network entry free=%u maxAlloc=%u stack=%u", ESP.getFreeHeap(), ESP.getMaxAllocHeap(),
           static_cast<unsigned>(uxTaskGetStackHighWaterMark(nullptr)));
   uint8_t syncOrientation =
-      readerOrientation < CrossPointSettings::ORIENTATION_COUNT ? readerOrientation : SETTINGS.orientation;
+      readerOrientation < FluiDezSettings::ORIENTATION_COUNT ? readerOrientation : SETTINGS.orientation;
   const PendingOverlayResume& resume = APP_STATE.pendingOverlayResume;
   if (resume.origin == PendingOverlayOrigin::Reader && resume.overlay == PendingOverlayType::FrontlightDrawer &&
-      resume.preserveReaderOrientation && resume.readerOrientation < CrossPointSettings::ORIENTATION_COUNT) {
+      resume.preserveReaderOrientation && resume.readerOrientation < FluiDezSettings::ORIENTATION_COUNT) {
     syncOrientation = resume.readerOrientation;
   }
   ReaderUtils::applyOrientation(renderer, syncOrientation);

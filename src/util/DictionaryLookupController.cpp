@@ -11,8 +11,8 @@
 
 #include "../activities/Activity.h"
 #include "../activities/reader/DictionarySuggestionsActivity.h"
-#include "CrossPointSettings.h"
 #include "DictionaryLookupWorker.h"
+#include "FluiDezSettings.h"
 #include "MappedInputManager.h"
 #include "Memory.h"
 #include "MemoryBudget.h"

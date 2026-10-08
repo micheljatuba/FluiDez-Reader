@@ -14,8 +14,8 @@
 
 #include "BookmarkStore.h"
 #include "ClippingStore.h"
-#include "CrossPointSettings.h"
-#include "CrossPointState.h"
+#include "FluiDezSettings.h"
+#include "FluiDezState.h"
 #include "RecentBookProgress.h"
 #include "RecentBooksStore.h"
 #include "activities/reader/BookReadingStats.h"

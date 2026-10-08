@@ -9,10 +9,10 @@
 
 #include "PendingOverlayResume.h"
 
-class CrossPointState : public PersistableStore<CrossPointState> {
+class FluiDezState : public PersistableStore<FluiDezState> {
   mutable std::mutex _mutex;
-  CrossPointState() = default;
-  friend class PersistableStore<CrossPointState>;
+  FluiDezState() = default;
+  friend class PersistableStore<FluiDezState>;
 
  public:
   // Access the state mutex for protecting multi-field reads/writes from other cores.
@@ -53,7 +53,7 @@ class CrossPointState : public PersistableStore<CrossPointState> {
   void clearRecentSleepHistory();
 
   void pushRecentBoot(uint16_t idx);
-  ~CrossPointState() = default;
+  ~FluiDezState() = default;
 
   bool saveToFile() const;
 
@@ -81,4 +81,4 @@ class CrossPointState : public PersistableStore<CrossPointState> {
 };
 
 // Helper macro to access settings
-#define APP_STATE CrossPointState::getInstance()
+#define APP_STATE FluiDezState::getInstance()

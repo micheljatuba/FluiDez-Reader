@@ -18,9 +18,9 @@
 
 #include "../settings/DictionarySelectActivity.h"
 #include "ClipSelectionPaging.h"
-#include "CrossPointSettings.h"
 #include "DictionaryDefinitionActivity.h"
 #include "DictionaryWordParts.h"
+#include "FluiDezSettings.h"
 #include "MappedInputManager.h"
 #include "Memory.h"
 #include "PageWordGeometry.h"

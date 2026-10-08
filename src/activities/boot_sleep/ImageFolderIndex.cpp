@@ -15,7 +15,7 @@
 #include <memory>
 #include <string_view>
 
-#include "CrossPointState.h"
+#include "FluiDezState.h"
 
 namespace ImageFolderIndex {
 namespace {

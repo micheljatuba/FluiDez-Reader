@@ -4,8 +4,8 @@
 
 #include "../../src/activities/reader/BookStatsTracking.h"
 #include "../../src/util/BookCacheUtils.h"
-#include "CrossPointSettings.h"
 #include "Epub.h"
+#include "FluiDezSettings.h"
 #include "HalStorage.h"
 
 namespace {

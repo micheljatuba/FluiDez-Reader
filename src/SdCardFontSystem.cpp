@@ -12,7 +12,7 @@
 #include <cstdio>
 #include <cstring>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #if CROSSINK_SCALABLE_FONTS
 #include "TtfRenderProfileStore.h"
 #endif
@@ -109,7 +109,7 @@ bool findInstalledFontFile(const char* familyName, const uint8_t targetPointSize
 
 void SdCardFontSystem::begin(GfxRenderer& renderer) {
   // Register this system as the SD font ID resolver in settings.
-  // Uses a static trampoline since CrossPointSettings stores a plain function pointer.
+  // Uses a static trampoline since FluiDezSettings stores a plain function pointer.
   SETTINGS.sdFontIdResolver = [](void* ctx, const char* familyName, uint8_t pointSize) -> int {
     return static_cast<SdCardFontSystem*>(ctx)->resolveFontId(familyName, pointSize);
   };
@@ -131,7 +131,7 @@ void SdCardFontSystem::begin(GfxRenderer& renderer) {
 
 int SdCardFontSystem::ensureBuiltInReaderFont(GfxRenderer& renderer) {
 #if CROSSINK_SCALABLE_FONTS
-  ensureScalableBuiltinFamily(renderer, SETTINGS.fontFamily == CrossPointSettings::BITTER ? 1 : 0);
+  ensureScalableBuiltinFamily(renderer, SETTINGS.fontFamily == FluiDezSettings::BITTER ? 1 : 0);
 #else
   (void)renderer;
 #endif
@@ -436,7 +436,7 @@ uint8_t SdCardFontSystem::resolveLegacySizeStep(const char* familyName, const ui
     const auto sizes = family->availableSizes();
     if (!sizes.empty()) return sizes[std::min<uint8_t>(sizeStep, sizes.size() - 1)];
   }
-  return CrossPointSettings::getSdFontRangePointSize(SETTINGS.sdFontSizeRange, sizeStep);
+  return FluiDezSettings::getSdFontRangePointSize(SETTINGS.sdFontSizeRange, sizeStep);
 }
 
 DictionaryFontActivation SdCardFontSystem::activateDictionaryFont(GfxRenderer& renderer, const char* familyName,

@@ -11,8 +11,8 @@
 #include <cstdio>
 #include <utility>
 
-#include "CrossPointSettings.h"
 #include "DeviceCapabilities.h"
+#include "FluiDezSettings.h"
 #include "SdCardFontSystem.h"
 #include "components/SliderValue.h"
 #include "components/TouchActionButtons.h"
@@ -376,7 +376,7 @@ void IntervalSelectionActivity::renderReaderPreview(const Rect& area) {
 
   const int fontId = SETTINGS.getReaderFontId();
   const uint8_t lineHeight = readerPreviewSetting == ReaderPreviewSetting::LineSpacing
-                                 ? CrossPointSettings::clampedLineHeightPercent(static_cast<uint8_t>(value))
+                                 ? FluiDezSettings::clampedLineHeightPercent(static_cast<uint8_t>(value))
                                  : SETTINGS.lineHeightPercent;
   const uint8_t wordSpacing =
       readerPreviewSetting == ReaderPreviewSetting::WordSpacing ? static_cast<uint8_t>(value) : SETTINGS.wordSpacing;

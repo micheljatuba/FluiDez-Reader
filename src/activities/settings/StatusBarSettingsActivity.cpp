@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "MappedInputManager.h"
 #include "components/TouchHeaderBackButton.h"
 #include "components/UITheme.h"
@@ -73,11 +73,11 @@ std::string itemLabel(const ReaderStatusBarItem item) {
 
 const char* xtcModeLabel(const uint8_t mode) {
   switch (mode) {
-    case CrossPointSettings::XTC_STATUS_BAR_BOTTOM:
+    case FluiDezSettings::XTC_STATUS_BAR_BOTTOM:
       return tr(STR_BOTTOM);
-    case CrossPointSettings::XTC_STATUS_BAR_TOP:
+    case FluiDezSettings::XTC_STATUS_BAR_TOP:
       return tr(STR_TOP);
-    case CrossPointSettings::XTC_STATUS_BAR_BOTH:
+    case FluiDezSettings::XTC_STATUS_BAR_BOTH:
       return tr(STR_STATUS_BAR_BOTH);
     default:
       return tr(STR_HIDE);
@@ -86,9 +86,9 @@ const char* xtcModeLabel(const uint8_t mode) {
 
 const char* progressModeLabel(const uint8_t mode) {
   switch (mode) {
-    case CrossPointSettings::BOOK_PROGRESS:
+    case FluiDezSettings::BOOK_PROGRESS:
       return tr(STR_BOOK);
-    case CrossPointSettings::CHAPTER_PROGRESS:
+    case FluiDezSettings::CHAPTER_PROGRESS:
       return tr(STR_CHAPTER);
     default:
       return tr(STR_HIDE);
@@ -97,9 +97,9 @@ const char* progressModeLabel(const uint8_t mode) {
 
 const char* thicknessLabel(const uint8_t thickness) {
   switch (thickness) {
-    case CrossPointSettings::PROGRESS_BAR_THIN:
+    case FluiDezSettings::PROGRESS_BAR_THIN:
       return tr(STR_PROGRESS_BAR_THIN);
-    case CrossPointSettings::PROGRESS_BAR_THICK:
+    case FluiDezSettings::PROGRESS_BAR_THICK:
       return tr(STR_PROGRESS_BAR_THICK);
     default:
       return tr(STR_PROGRESS_BAR_MEDIUM);
@@ -283,7 +283,7 @@ void StatusBarSettingsActivity::openOptionPicker() {
     }
   } else if (item == PERCENTAGE_FORMAT) {
     titleId = StrId::STR_PERCENTAGE_FORMAT;
-    for (uint8_t i = 0; i < CrossPointSettings::BOOK_PERCENTAGE_FORMAT_COUNT; ++i) {
+    for (uint8_t i = 0; i < FluiDezSettings::BOOK_PERCENTAGE_FORMAT_COUNT; ++i) {
       options.emplace_back(I18N.get(percentageFormatNames[i]));
       rawValues.push_back(i);
     }
@@ -291,8 +291,7 @@ void StatusBarSettingsActivity::openOptionPicker() {
   } else if (item == PROGRESS_BAR) {
     titleId = StrId::STR_PROGRESS_BAR;
     options = {tr(STR_HIDE), tr(STR_BOOK), tr(STR_CHAPTER)};
-    rawValues = {CrossPointSettings::HIDE_PROGRESS, CrossPointSettings::BOOK_PROGRESS,
-                 CrossPointSettings::CHAPTER_PROGRESS};
+    rawValues = {FluiDezSettings::HIDE_PROGRESS, FluiDezSettings::BOOK_PROGRESS, FluiDezSettings::CHAPTER_PROGRESS};
     for (unsigned i = 0; i < rawValues.size(); ++i) {
       if (rawValues[i] == config.progressBar) currentIndex = static_cast<int>(i);
     }

@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "GfxRenderer.h"
 #include "MappedInputManager.h"
 #include "util/QuickLockTrigger.h"
@@ -189,7 +189,7 @@ class ActivityManager {
 #endif
   bool canSnapshotForSleepOverlay() const;
   bool requestManualReaderRefresh();
-  bool handleShortcutAction(CrossPointSettings::SHORT_PWRBTN action);
+  bool handleShortcutAction(FluiDezSettings::SHORT_PWRBTN action);
   bool handleQuickLockUnlock(QuickLockTrigger trigger);
   void persistGlobalSettings();
   bool beginGlobalSettingsEdit();

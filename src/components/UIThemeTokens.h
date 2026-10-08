@@ -11,7 +11,7 @@
 #include <string>
 
 #include "AppCapabilities.h"
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "UITheme.h"
 
 namespace UiThemeTokensDetail {
@@ -19,10 +19,10 @@ inline int16_t scaledListMetric(const int metric) {
   constexpr int baseFontSize = 10;
   int scaleFontSize = baseFontSize;
   switch (SETTINGS.uiScale) {
-    case CrossPointSettings::UI_SCALE_LARGE:
+    case FluiDezSettings::UI_SCALE_LARGE:
       scaleFontSize = 12;
       break;
-    case CrossPointSettings::UI_SCALE_SMALL:
+    case FluiDezSettings::UI_SCALE_SMALL:
     default:
       break;
   }
@@ -66,7 +66,7 @@ inline uint16_t configureUiList(freeink::ui::ListProps& props, const freeink::ui
 }
 
 inline void configureUiListSectionHeaders(freeink::ui::ListProps& props, const freeink::ui::ThemeTokens& tokens) {
-  if (SETTINGS.uiTheme != CrossPointSettings::UI_THEME::ROUNDEDRAFF) return;
+  if (SETTINGS.uiTheme != FluiDezSettings::UI_THEME::ROUNDEDRAFF) return;
 
   props.headerText = tokens.titleText;
   props.headerText.bold = true;
@@ -74,7 +74,7 @@ inline void configureUiListSectionHeaders(freeink::ui::ListProps& props, const f
 }
 
 inline const char* uiListSectionHeaderLabel(std::string& storage, const char* label) {
-  if (SETTINGS.uiTheme != CrossPointSettings::UI_THEME::ROUNDEDRAFF) return label;
+  if (SETTINGS.uiTheme != FluiDezSettings::UI_THEME::ROUNDEDRAFF) return label;
 
   storage = label != nullptr ? label : "";
   std::transform(storage.begin(), storage.end(), storage.begin(),

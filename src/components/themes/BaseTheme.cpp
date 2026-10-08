@@ -15,8 +15,8 @@
 #include <cstdio>
 #include <string>
 
-#include "CrossPointSettings.h"
 #include "DeviceCapabilities.h"
+#include "FluiDezSettings.h"
 #include "I18n.h"
 #include "RecentBooksStore.h"
 #include "activities/reader/BookReadingStats.h"
@@ -786,7 +786,7 @@ void BaseTheme::drawReaderStatusBar(const GfxRenderer& renderer, const ReaderSta
   const bool foregroundBlack = !content.darkMode;
   const bool clockAvailable = halClock.isAvailable() || content.previewClock != nullptr;
   const bool hasText = config.hasTextItems(clockAvailable) || (!top && content.autoTurnLabel != nullptr);
-  const int progressHeight = config.progressBar != CrossPointSettings::HIDE_PROGRESS
+  const int progressHeight = config.progressBar != FluiDezSettings::HIDE_PROGRESS
                                  ? static_cast<int>((config.progressBarThickness + 1) * 2)
                                  : 0;
   const int progressSpace = progressHeight > 0 ? progressHeight + metrics.progressBarMarginTop : 0;
@@ -808,7 +808,7 @@ void BaseTheme::drawReaderStatusBar(const GfxRenderer& renderer, const ReaderSta
 
   if (progressHeight > 0 && content.showProgress) {
     const float percent =
-        config.progressBar == CrossPointSettings::BOOK_PROGRESS
+        config.progressBar == FluiDezSettings::BOOK_PROGRESS
             ? content.bookProgress
             : (content.chapterProgress >= 0
                    ? content.chapterProgress
@@ -835,8 +835,8 @@ void BaseTheme::drawReaderStatusBar(const GfxRenderer& renderer, const ReaderSta
   }
   if (!hasText) return;
 
-  const bool batteryPercent = content.outsideReader ? SETTINGS.hideBatteryPercentage != CrossPointSettings::HIDE_ALWAYS
-                                                    : SETTINGS.hideBatteryPercentage == CrossPointSettings::HIDE_NEVER;
+  const bool batteryPercent = content.outsideReader ? SETTINGS.hideBatteryPercentage != FluiDezSettings::HIDE_ALWAYS
+                                                    : SETTINGS.hideBatteryPercentage == FluiDezSettings::HIDE_NEVER;
   const auto itemText = [&](const ReaderStatusBarItem item, char* scratch, const size_t len) -> const char* {
     switch (item) {
       case ReaderStatusBarItem::Date:

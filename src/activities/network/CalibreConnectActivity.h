@@ -6,7 +6,7 @@
 
 #include "activities/Activity.h"
 #include "activities/ScreenTransitionRefresh.h"
-#include "network/CrossPointWebServer.h"
+#include "network/FluiDezWebServer.h"
 
 enum class CalibreConnectState { WIFI_SELECTION, SERVER_STARTING, SERVER_RUNNING, ERROR };
 
@@ -20,7 +20,7 @@ class CalibreConnectActivity final : public Activity {
   CalibreConnectState state = CalibreConnectState::WIFI_SELECTION;
   ScreenTransitionRefresh screenTransitionRefresh;
 
-  std::unique_ptr<CrossPointWebServer> webServer;
+  std::unique_ptr<FluiDezWebServer> webServer;
   std::string connectedIP;
   std::string connectedSSID;
   unsigned long lastHandleClientTime = 0;

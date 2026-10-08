@@ -65,7 +65,7 @@ UITheme::UITheme() : currentMetrics(&LyraMetrics::values), currentTheme(std::mak
 }
 
 void UITheme::reload() {
-  auto themeType = static_cast<CrossPointSettings::UI_THEME>(SETTINGS.uiTheme);
+  auto themeType = static_cast<FluiDezSettings::UI_THEME>(SETTINGS.uiTheme);
   setTheme(themeType);
 }
 
@@ -83,66 +83,66 @@ bool UITheme::supportsCoverGrid() {
 }
 
 bool UITheme::hasCoverGridHome() {
-  return SETTINGS.uiTheme == CrossPointSettings::UI_THEME::COVER_GRID && supportsCoverGrid();
+  return SETTINGS.uiTheme == FluiDezSettings::UI_THEME::COVER_GRID && supportsCoverGrid();
 }
 
-void UITheme::setTheme(CrossPointSettings::UI_THEME type) {
-  if (type == CrossPointSettings::UI_THEME::COVER_GRID && !supportsCoverGrid()) {
-    type = CrossPointSettings::UI_THEME::LYRA;
+void UITheme::setTheme(FluiDezSettings::UI_THEME type) {
+  if (type == FluiDezSettings::UI_THEME::COVER_GRID && !supportsCoverGrid()) {
+    type = FluiDezSettings::UI_THEME::LYRA;
   }
   switch (type) {
-    case CrossPointSettings::UI_THEME::CLASSIC:
+    case FluiDezSettings::UI_THEME::CLASSIC:
       LOG_DBG("UI", "Using Classic theme");
       currentTheme = std::make_unique<BaseTheme>();
       currentMetrics = &BaseMetrics::values;
       break;
-    case CrossPointSettings::UI_THEME::COVER_GRID:
-    case CrossPointSettings::UI_THEME::LYRA:
+    case FluiDezSettings::UI_THEME::COVER_GRID:
+    case FluiDezSettings::UI_THEME::LYRA:
       LOG_DBG("UI", "Using Lyra theme");
       currentTheme = std::make_unique<LyraTheme>();
       currentMetrics = &LyraMetrics::values;
       break;
-    case CrossPointSettings::UI_THEME::ROUNDEDRAFF:
+    case FluiDezSettings::UI_THEME::ROUNDEDRAFF:
       LOG_DBG("UI", "Using RoundedRaff theme");
       currentTheme = std::make_unique<RoundedRaffTheme>();
       currentMetrics = &RoundedRaffMetrics::values;
       break;
-    case CrossPointSettings::UI_THEME::LYRA_3_COVERS:
+    case FluiDezSettings::UI_THEME::LYRA_3_COVERS:
       LOG_DBG("UI", "Using Lyra 3 Covers theme");
       currentTheme = std::make_unique<Lyra3CoversTheme>();
       currentMetrics = &Lyra3CoversMetrics::values;
       break;
-    case CrossPointSettings::UI_THEME::LYRA_CAROUSEL:
+    case FluiDezSettings::UI_THEME::LYRA_CAROUSEL:
       LOG_DBG("UI", "Using Lyra Carousel theme");
       currentTheme = std::make_unique<LyraCarouselTheme>();
       currentMetrics = &LyraCarouselMetrics::values;
       break;
-    case CrossPointSettings::UI_THEME::LYRA_GRID:
+    case FluiDezSettings::UI_THEME::LYRA_GRID:
       LOG_DBG("UI", "Using Lyra Grid theme");
       currentTheme = std::make_unique<LyraGridTheme>();
       currentMetrics = &LyraGridMetrics::values;
       break;
-    case CrossPointSettings::UI_THEME::MINIMAL:
+    case FluiDezSettings::UI_THEME::MINIMAL:
       LOG_DBG("UI", "Using Minimal theme");
       currentTheme = std::make_unique<MinimalTheme>();
       currentMetrics = &MinimalMetrics::values;
       break;
-    case CrossPointSettings::UI_THEME::DASHBOARD:
+    case FluiDezSettings::UI_THEME::DASHBOARD:
       LOG_DBG("UI", "Using Dashboard theme");
       currentTheme = std::make_unique<DashboardTheme>();
       currentMetrics = &DashboardMetrics::values;
       break;
-    case CrossPointSettings::UI_THEME::FLUIDEZ_FLUXO:
+    case FluiDezSettings::UI_THEME::FLUIDEZ_FLUXO:
       LOG_DBG("UI", "Using FluiDez Fluxo theme");
       currentTheme = std::make_unique<FluiDezFluxoTheme>();
       currentMetrics = &FluiDezMetrics::fluxo;
       break;
-    case CrossPointSettings::UI_THEME::FLUIDEZ_CARDS:
+    case FluiDezSettings::UI_THEME::FLUIDEZ_CARDS:
       LOG_DBG("UI", "Using FluiDez Cards theme");
       currentTheme = std::make_unique<FluiDezCardsTheme>();
       currentMetrics = &FluiDezMetrics::cards;
       break;
-    case CrossPointSettings::UI_THEME::FLUIDEZ_SHELF:
+    case FluiDezSettings::UI_THEME::FLUIDEZ_SHELF:
       LOG_DBG("UI", "Using FluiDez Shelf theme");
       currentTheme = std::make_unique<FluiDezShelfTheme>();
       currentMetrics = &FluiDezMetrics::shelf;
@@ -306,7 +306,7 @@ int UITheme::getReaderStatusBarHeight(const ReaderStatusBarPosition position) {
   const ThemeMetrics& metrics = UITheme::getInstance().getMetrics();
   const auto config = SETTINGS.readerStatusBar(position);
   const bool hasText = config.hasTextItems(halClock.isAvailable());
-  const int progressSpace = config.progressBar != CrossPointSettings::HIDE_PROGRESS
+  const int progressSpace = config.progressBar != FluiDezSettings::HIDE_PROGRESS
                                 ? static_cast<int>((config.progressBarThickness + 1) * 2) + metrics.progressBarMarginTop
                                 : 0;
   return readerStatusBarTotalHeight(position, hasText, progressSpace, metrics.statusBarVerticalMargin);
@@ -317,7 +317,7 @@ int UITheme::getProgressBarHeight() { return getReaderProgressBarHeight(ReaderSt
 int UITheme::getReaderProgressBarHeight(const ReaderStatusBarPosition position) {
   const ThemeMetrics& metrics = UITheme::getInstance().getMetrics();
   const auto config = SETTINGS.readerStatusBar(position);
-  return config.progressBar != CrossPointSettings::HIDE_PROGRESS
+  return config.progressBar != FluiDezSettings::HIDE_PROGRESS
              ? static_cast<int>((config.progressBarThickness + 1) * 2) + metrics.progressBarMarginTop
              : 0;
 }

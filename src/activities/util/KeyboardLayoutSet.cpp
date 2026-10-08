@@ -1,6 +1,6 @@
 #include "KeyboardLayoutSet.h"
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 
 namespace keyboard_layouts {
 namespace {

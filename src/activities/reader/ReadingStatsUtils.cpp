@@ -2,17 +2,17 @@
 
 #include <HalClock.h>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "util/MonthNames.h"
 
 namespace {
 // Short stats dates follow the day/month order of the user's date format.
 bool isDayFirstDateFormat() {
   switch (SETTINGS.dateFormat) {
-    case CrossPointSettings::DATE_FORMAT_DAY_MONTH_YEAR_LONG:
-    case CrossPointSettings::DATE_FORMAT_DAY_MONTH_YEAR_NUMERIC:
-    case CrossPointSettings::DATE_FORMAT_DAY_MONTH_NUMERIC:
-    case CrossPointSettings::DATE_FORMAT_DAY_MONTH_LONG:
+    case FluiDezSettings::DATE_FORMAT_DAY_MONTH_YEAR_LONG:
+    case FluiDezSettings::DATE_FORMAT_DAY_MONTH_YEAR_NUMERIC:
+    case FluiDezSettings::DATE_FORMAT_DAY_MONTH_NUMERIC:
+    case FluiDezSettings::DATE_FORMAT_DAY_MONTH_LONG:
       return true;
     default:
       return false;

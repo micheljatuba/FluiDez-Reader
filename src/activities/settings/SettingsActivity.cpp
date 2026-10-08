@@ -20,8 +20,8 @@
 #include "ClearCacheActivity.h"
 #include "ClockOffsetActivity.h"
 #include "ClockSyncActivity.h"
-#include "CrossPointSettings.h"
 #include "DeviceCapabilities.h"
+#include "FluiDezSettings.h"
 #include "FontSelectionActivity.h"
 #if CROSSINK_SCALABLE_FONTS
 #include "TtfRenderOptionsActivity.h"
@@ -189,8 +189,8 @@ void drawSystemVersionFooter(const GfxRenderer& renderer, const int pageWidth, c
 }
 
 std::string formatSettingValue(const SettingInfo& setting) {
-  if (setting.value16Ptr == &CrossPointSettings::frontlightScheduleStart ||
-      setting.value16Ptr == &CrossPointSettings::frontlightScheduleEnd) {
+  if (setting.value16Ptr == &FluiDezSettings::frontlightScheduleStart ||
+      setting.value16Ptr == &FluiDezSettings::frontlightScheduleEnd) {
     const uint16_t timeOfDay = SETTINGS.*(setting.value16Ptr);
     if (SETTINGS.frontlightScheduleEnabled == 0 || !FrontlightSchedule::isTimeOfDayValid(timeOfDay)) return "--";
     char valueBuffer[16];
@@ -198,7 +198,7 @@ std::string formatSettingValue(const SettingInfo& setting) {
     return valueBuffer;
   }
   if (setting.nameId == StrId::STR_TIME_TO_SLEEP) {
-    if (SETTINGS.sleepTimeoutMinutes >= CrossPointSettings::SLEEP_TIMEOUT_NEVER_MINUTES) {
+    if (SETTINGS.sleepTimeoutMinutes >= FluiDezSettings::SLEEP_TIMEOUT_NEVER_MINUTES) {
       return tr(STR_SLEEP_NEVER);
     }
     char valueBuffer[32];
@@ -206,13 +206,13 @@ std::string formatSettingValue(const SettingInfo& setting) {
              static_cast<unsigned int>(SETTINGS.*(setting.valuePtr)));
     return valueBuffer;
   }
-  if (setting.valuePtr == &CrossPointSettings::lineHeightPercent) {
+  if (setting.valuePtr == &FluiDezSettings::lineHeightPercent) {
     return std::to_string(SETTINGS.*(setting.valuePtr)) + "%";
   }
-  if (setting.valuePtr == &CrossPointSettings::readingIdleTimeThresholdUnits) {
+  if (setting.valuePtr == &FluiDezSettings::readingIdleTimeThresholdUnits) {
     return formatCompactDuration(SETTINGS.getReadingIdleTimeThresholdSeconds());
   }
-  if (setting.valuePtr == &CrossPointSettings::clockUtcOffsetQ) {
+  if (setting.valuePtr == &FluiDezSettings::clockUtcOffsetQ) {
     return formatUtcOffset(SETTINGS.*(setting.valuePtr));
   }
   return std::to_string(SETTINGS.*(setting.valuePtr));
@@ -240,18 +240,18 @@ fui::BitmapRef swipeActionIcon(const StrId nameId) {
 }
 
 fui::BitmapRef frontlightScheduleEndpointIcon(const SettingInfo& setting) {
-  if (setting.value16Ptr == &CrossPointSettings::frontlightScheduleStart) {
+  if (setting.value16Ptr == &FluiDezSettings::frontlightScheduleStart) {
     return fui::bitmapFromIcon(icon_lightbulb_28);
   }
-  if (setting.value16Ptr == &CrossPointSettings::frontlightScheduleEnd) {
+  if (setting.value16Ptr == &FluiDezSettings::frontlightScheduleEnd) {
     return fui::bitmapFromIcon(icon_lightbulb_off_28);
   }
   return {};
 }
 
-bool isTwoFingerSwipeSetting(const uint8_t CrossPointSettings::* const valuePtr) {
-  return valuePtr == &CrossPointSettings::twoFingerSwipeUp || valuePtr == &CrossPointSettings::twoFingerSwipeDown ||
-         valuePtr == &CrossPointSettings::twoFingerSwipeLeft || valuePtr == &CrossPointSettings::twoFingerSwipeRight;
+bool isTwoFingerSwipeSetting(const uint8_t FluiDezSettings::* const valuePtr) {
+  return valuePtr == &FluiDezSettings::twoFingerSwipeUp || valuePtr == &FluiDezSettings::twoFingerSwipeDown ||
+         valuePtr == &FluiDezSettings::twoFingerSwipeLeft || valuePtr == &FluiDezSettings::twoFingerSwipeRight;
 }
 
 std::string trimAsciiSpaces(const std::string& value) {
@@ -318,7 +318,7 @@ void SettingsActivity::rebuildSettingsLists() {
   if (BoardConfig::isX4Pro() || CROSSINK_APP_DEVICE_X4CLASSIC) {
     displaySettings.erase(
         std::remove_if(displaySettings.begin(), displaySettings.end(),
-                       [](const SettingInfo& setting) { return setting.valuePtr == &CrossPointSettings::fadingFix; }),
+                       [](const SettingInfo& setting) { return setting.valuePtr == &FluiDezSettings::fadingFix; }),
         displaySettings.end());
   }
 #endif
@@ -581,7 +581,7 @@ void SettingsActivity::openEnumOptionPicker(const SettingInfo& setting) {
   if (currentIndex >= optionCount) currentIndex = 0;
 
   const SettingInfo selectedSetting = setting;
-  const auto note = setting.valuePtr == &CrossPointSettings::sideButtonChordAction && mappedInput.hasTouchHardware()
+  const auto note = setting.valuePtr == &FluiDezSettings::sideButtonChordAction && mappedInput.hasTouchHardware()
                         ? OptionPopup::Note{tr(STR_NOTE), tr(STR_TOUCHSCREEN_ESCAPE_HATCH_NOTE)}
                         : OptionPopup::Note{};
   optionPopup.show(
@@ -591,15 +591,15 @@ void SettingsActivity::openEnumOptionPicker(const SettingInfo& setting) {
           SETTINGS.*(selectedSetting.valuePtr) =
               enumRawValueForDisplayIndex(selectedSetting, static_cast<uint8_t>(selectedIndex));
           if (isTwoFingerSwipeSetting(selectedSetting.valuePtr)) {
-            CrossPointSettings::normalizeTwoFingerSwipeActions(SETTINGS, selectedSetting.valuePtr);
+            FluiDezSettings::normalizeTwoFingerSwipeActions(SETTINGS, selectedSetting.valuePtr);
           }
           QuickActions::settingChanged(SETTINGS, selectedSetting.valuePtr);
         } else if (selectedSetting.valueSetter) {
           selectedSetting.valueSetter(static_cast<uint8_t>(selectedIndex));
         }
 
-        const bool sleepScreenChanged = selectedSetting.valuePtr == &CrossPointSettings::sleepScreen;
-        const bool quickResumeTimeoutChanged = selectedSetting.valuePtr == &CrossPointSettings::quickResumeSleepScreen;
+        const bool sleepScreenChanged = selectedSetting.valuePtr == &FluiDezSettings::sleepScreen;
+        const bool quickResumeTimeoutChanged = selectedSetting.valuePtr == &FluiDezSettings::quickResumeSleepScreen;
         syncQuickResumeTimeoutForSleepScreen(sleepScreenChanged, quickResumeTimeoutChanged);
         SETTINGS.saveToFile();
         rebuildSettingsLists();
@@ -616,20 +616,20 @@ void SettingsActivity::openScreenMarginPicker(const SettingInfo& setting) {
   startActivityForResult(
       std::make_unique<IntervalSelectionActivity>(
           renderer, mappedInput, "ScreenMarginInterval", selectedSetting.nameId, SETTINGS.*(selectedSetting.valuePtr),
-          CrossPointSettings::MIN_SCREEN_MARGIN, CrossPointSettings::MAX_SCREEN_MARGIN,
-          CrossPointSettings::SCREEN_MARGIN_SMALL_STEP, CrossPointSettings::SCREEN_MARGIN_LARGE_STEP,
-          StrId::STR_NONE_OPT, /*readerActivity=*/false,
+          FluiDezSettings::MIN_SCREEN_MARGIN, FluiDezSettings::MAX_SCREEN_MARGIN,
+          FluiDezSettings::SCREEN_MARGIN_SMALL_STEP, FluiDezSettings::SCREEN_MARGIN_LARGE_STEP, StrId::STR_NONE_OPT,
+          /*readerActivity=*/false,
           /*allowPowerAsConfirm=*/false, /*ignoreInitialConfirmRelease=*/false, /*showPercentValue=*/false,
           StrId::STR_NONE_OPT, /*overrideDisabledReaderTouchscreen=*/false, /*showTouchHeaderBackButton=*/true,
           /*valueFormatter=*/nullptr, /*tapStep=*/5, /*useReaderSlider=*/true,
-          selectedSetting.valuePtr == &CrossPointSettings::screenMarginVertical
+          selectedSetting.valuePtr == &FluiDezSettings::screenMarginVertical
               ? IntervalSelectionActivity::ReaderPreviewSetting::VerticalMargin
               : IntervalSelectionActivity::ReaderPreviewSetting::HorizontalMargin),
       [this, selectedSetting](const ActivityResult& result) {
         if (!result.isCancelled) {
           SETTINGS.*(selectedSetting.valuePtr) = static_cast<uint8_t>(std::clamp(
-              std::get<IntervalResult>(result.data).value, static_cast<uint32_t>(CrossPointSettings::MIN_SCREEN_MARGIN),
-              static_cast<uint32_t>(CrossPointSettings::MAX_SCREEN_MARGIN)));
+              std::get<IntervalResult>(result.data).value, static_cast<uint32_t>(FluiDezSettings::MIN_SCREEN_MARGIN),
+              static_cast<uint32_t>(FluiDezSettings::MAX_SCREEN_MARGIN)));
           SETTINGS.saveToFile();
         }
         requestUpdate();
@@ -640,7 +640,7 @@ void SettingsActivity::openWordSpacingPicker() {
   startActivityForResult(
       std::make_unique<IntervalSelectionActivity>(
           renderer, mappedInput, "WordSpacingInterval", StrId::STR_WORD_SPACING, SETTINGS.wordSpacing, 0,
-          CrossPointSettings::MAX_WORD_SPACING, 1, 1, StrId::STR_NONE_OPT,
+          FluiDezSettings::MAX_WORD_SPACING, 1, 1, StrId::STR_NONE_OPT,
           /*readerActivity=*/false, /*allowPowerAsConfirm=*/false, /*ignoreInitialConfirmRelease=*/false,
           /*showPercentValue=*/false, StrId::STR_NONE_OPT, /*overrideDisabledReaderTouchscreen=*/false,
           /*showTouchHeaderBackButton=*/true, /*valueFormatter=*/nullptr, /*tapStep=*/1,
@@ -649,7 +649,7 @@ void SettingsActivity::openWordSpacingPicker() {
         if (!result.isCancelled) {
           SETTINGS.wordSpacing =
               static_cast<uint8_t>(std::clamp(std::get<IntervalResult>(result.data).value, static_cast<uint32_t>(0),
-                                              static_cast<uint32_t>(CrossPointSettings::MAX_WORD_SPACING)));
+                                              static_cast<uint32_t>(FluiDezSettings::MAX_WORD_SPACING)));
           SETTINGS.saveToFile();
         }
         requestUpdate();
@@ -703,7 +703,7 @@ void SettingsActivity::openStringEditor(const SettingInfo& setting) {
   }
 
   const size_t maxLength = setting.stringMaxLen > 0 ? setting.stringMaxLen - 1 : 0;
-  const size_t minLength = setting.nameId == StrId::STR_DEVICE_NAME ? CrossPointSettings::MIN_DEVICE_NAME_LENGTH : 0;
+  const size_t minLength = setting.nameId == StrId::STR_DEVICE_NAME ? FluiDezSettings::MIN_DEVICE_NAME_LENGTH : 0;
   const SettingInfo selectedSetting = setting;
   startActivityForResult(std::make_unique<KeyboardEntryActivity>(renderer, mappedInput, I18N.get(setting.nameId),
                                                                  initialText, maxLength, InputType::Text, minLength),
@@ -721,8 +721,8 @@ void SettingsActivity::openStringEditor(const SettingInfo& setting) {
 
                            const std::string value = trimAsciiSpaces(kb->text);
                            if (selectedSetting.nameId == StrId::STR_DEVICE_NAME &&
-                               (value.length() < CrossPointSettings::MIN_DEVICE_NAME_LENGTH ||
-                                value.length() > CrossPointSettings::MAX_DEVICE_NAME_LENGTH)) {
+                               (value.length() < FluiDezSettings::MIN_DEVICE_NAME_LENGTH ||
+                                value.length() > FluiDezSettings::MAX_DEVICE_NAME_LENGTH)) {
                              requestUpdate();
                              return;
                            }
@@ -759,7 +759,7 @@ void SettingsActivity::onEnter() {
   parentSubmenu = SettingAction::None;
   if (!isFileBrowserView()) {
     preserveQuickResumeTimeoutOn =
-        SETTINGS.quickResumeSleepScreen == CrossPointSettings::QUICK_RESUME_SLEEP_SCREEN::QUICK_RESUME_AFTER_TIMEOUT;
+        SETTINGS.quickResumeSleepScreen == FluiDezSettings::QUICK_RESUME_SLEEP_SCREEN::QUICK_RESUME_AFTER_TIMEOUT;
     quickResumeTimeoutAutoEnabled = false;
     syncQuickResumeTimeoutForSleepScreen(/*sleepScreenChanged=*/true, /*quickResumeTimeoutChanged=*/false);
   }
@@ -830,12 +830,12 @@ void SettingsActivity::finishToParent() {
   finish();
 }
 
-void SettingsActivity::applyUiSettingChange(uint8_t CrossPointSettings::* valuePtr) {
+void SettingsActivity::applyUiSettingChange(uint8_t FluiDezSettings::* valuePtr) {
   // Theme and UI-scale changes take effect immediately, on this screen —
   // reload the theme and re-derive the app's fonts and tokens so the very
   // next repaint is in the new look.
-  const bool themeChanged = valuePtr == &CrossPointSettings::uiTheme;
-  const bool scaleChanged = valuePtr == &CrossPointSettings::uiScale;
+  const bool themeChanged = valuePtr == &FluiDezSettings::uiTheme;
+  const bool scaleChanged = valuePtr == &FluiDezSettings::uiScale;
   if (!themeChanged && !scaleChanged) {
     return;
   }
@@ -1035,36 +1035,36 @@ void SettingsActivity::toggleCurrentSetting() {
   }
 
   const auto& setting = (*currentSettings)[selectedSetting];
-  const bool sleepScreenChanged = setting.valuePtr == &CrossPointSettings::sleepScreen;
-  const bool quickResumeTimeoutChanged = setting.valuePtr == &CrossPointSettings::quickResumeSleepScreen;
+  const bool sleepScreenChanged = setting.valuePtr == &FluiDezSettings::sleepScreen;
+  const bool quickResumeTimeoutChanged = setting.valuePtr == &FluiDezSettings::quickResumeSleepScreen;
 
   if (setting.nameId == StrId::STR_TIME_TO_SLEEP) {
     openSleepTimeoutPicker();
     return;
   }
-  if (setting.value16Ptr == &CrossPointSettings::frontlightScheduleStart ||
-      setting.value16Ptr == &CrossPointSettings::frontlightScheduleEnd) {
+  if (setting.value16Ptr == &FluiDezSettings::frontlightScheduleStart ||
+      setting.value16Ptr == &FluiDezSettings::frontlightScheduleEnd) {
     openFrontlightScheduleTimePicker(setting.value16Ptr, setting.nameId);
     return;
   }
-  if (setting.valuePtr == &CrossPointSettings::lineHeightPercent) {
+  if (setting.valuePtr == &FluiDezSettings::lineHeightPercent) {
     openLineHeightPicker();
     return;
   }
-  if (setting.valuePtr == &CrossPointSettings::wordSpacing) {
+  if (setting.valuePtr == &FluiDezSettings::wordSpacing) {
     openWordSpacingPicker();
     return;
   }
-  if (setting.valuePtr == &CrossPointSettings::screenMarginVertical ||
-      setting.valuePtr == &CrossPointSettings::screenMarginHorizontal) {
+  if (setting.valuePtr == &FluiDezSettings::screenMarginVertical ||
+      setting.valuePtr == &FluiDezSettings::screenMarginHorizontal) {
     openScreenMarginPicker(setting);
     return;
   }
-  if (setting.valuePtr == &CrossPointSettings::readingIdleTimeThresholdUnits) {
+  if (setting.valuePtr == &FluiDezSettings::readingIdleTimeThresholdUnits) {
     openIdleTimeThresholdPicker();
     return;
   }
-  if (setting.valuePtr == &CrossPointSettings::clockUtcOffsetQ) {
+  if (setting.valuePtr == &FluiDezSettings::clockUtcOffsetQ) {
     startActivityForResult(std::make_unique<ClockOffsetActivity>(renderer, mappedInput), [this](const ActivityResult&) {
       SETTINGS.saveToFile();
       requestUpdate();
@@ -1245,7 +1245,7 @@ void SettingsActivity::toggleCurrentSetting() {
 
   syncQuickResumeTimeoutForSleepScreen(sleepScreenChanged, quickResumeTimeoutChanged);
   if (isTwoFingerSwipeSetting(setting.valuePtr)) {
-    CrossPointSettings::normalizeTwoFingerSwipeActions(SETTINGS, setting.valuePtr);
+    FluiDezSettings::normalizeTwoFingerSwipeActions(SETTINGS, setting.valuePtr);
   }
   QuickActions::settingChanged(SETTINGS, setting.valuePtr);
   SETTINGS.saveToFile();
@@ -1259,13 +1259,13 @@ void SettingsActivity::toggleCurrentSetting() {
 void SettingsActivity::syncQuickResumeTimeoutForSleepScreen(bool sleepScreenChanged, bool quickResumeTimeoutChanged) {
   if (quickResumeTimeoutChanged) {
     preserveQuickResumeTimeoutOn =
-        SETTINGS.quickResumeSleepScreen == CrossPointSettings::QUICK_RESUME_SLEEP_SCREEN::QUICK_RESUME_AFTER_TIMEOUT;
+        SETTINGS.quickResumeSleepScreen == FluiDezSettings::QUICK_RESUME_SLEEP_SCREEN::QUICK_RESUME_AFTER_TIMEOUT;
     quickResumeTimeoutAutoEnabled = false;
   }
 
-  if (SETTINGS.sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::QUICK_RESUME) {
-    if (SETTINGS.quickResumeSleepScreen != CrossPointSettings::QUICK_RESUME_SLEEP_SCREEN::QUICK_RESUME_AFTER_TIMEOUT) {
-      SETTINGS.quickResumeSleepScreen = CrossPointSettings::QUICK_RESUME_SLEEP_SCREEN::QUICK_RESUME_AFTER_TIMEOUT;
+  if (SETTINGS.sleepScreen == FluiDezSettings::SLEEP_SCREEN_MODE::QUICK_RESUME) {
+    if (SETTINGS.quickResumeSleepScreen != FluiDezSettings::QUICK_RESUME_SLEEP_SCREEN::QUICK_RESUME_AFTER_TIMEOUT) {
+      SETTINGS.quickResumeSleepScreen = FluiDezSettings::QUICK_RESUME_SLEEP_SCREEN::QUICK_RESUME_AFTER_TIMEOUT;
       quickResumeTimeoutAutoEnabled = !preserveQuickResumeTimeoutOn;
     } else if (sleepScreenChanged && !preserveQuickResumeTimeoutOn) {
       quickResumeTimeoutAutoEnabled = true;
@@ -1274,7 +1274,7 @@ void SettingsActivity::syncQuickResumeTimeoutForSleepScreen(bool sleepScreenChan
   }
 
   if (sleepScreenChanged && quickResumeTimeoutAutoEnabled && !preserveQuickResumeTimeoutOn) {
-    SETTINGS.quickResumeSleepScreen = CrossPointSettings::QUICK_RESUME_SLEEP_SCREEN::QUICK_RESUME_NEVER;
+    SETTINGS.quickResumeSleepScreen = FluiDezSettings::QUICK_RESUME_SLEEP_SCREEN::QUICK_RESUME_NEVER;
     quickResumeTimeoutAutoEnabled = false;
   }
 }
@@ -1283,7 +1283,7 @@ void SettingsActivity::openSleepTimeoutPicker() {
   startActivityForResult(
       std::make_unique<IntervalSelectionActivity>(
           renderer, mappedInput, "SleepTimeoutInterval", StrId::STR_TIME_TO_SLEEP, SETTINGS.sleepTimeoutMinutes,
-          CrossPointSettings::MIN_SLEEP_TIMEOUT_MINUTES, CrossPointSettings::MAX_SLEEP_TIMEOUT_MINUTES, 1, 5,
+          FluiDezSettings::MIN_SLEEP_TIMEOUT_MINUTES, FluiDezSettings::MAX_SLEEP_TIMEOUT_MINUTES, 1, 5,
           StrId::STR_SLEEP_TIMER_VALUE_FORMAT,
           /*readerActivity=*/false, /*allowPowerAsConfirm=*/false, /*ignoreInitialConfirmRelease=*/true,
           /*showPercentValue=*/false, StrId::STR_SLEEP_NEVER, /*overrideDisabledReaderTouchscreen=*/false,
@@ -1302,15 +1302,15 @@ void SettingsActivity::openLineHeightPicker() {
   startActivityForResult(
       std::make_unique<IntervalSelectionActivity>(
           renderer, mappedInput, "LineHeightInterval", StrId::STR_LINE_SPACING, SETTINGS.lineHeightPercent,
-          CrossPointSettings::MIN_LINE_HEIGHT_PERCENT, CrossPointSettings::MAX_LINE_HEIGHT_PERCENT, 1, 5,
-          StrId::STR_NONE_OPT, /*readerActivity=*/false,
+          FluiDezSettings::MIN_LINE_HEIGHT_PERCENT, FluiDezSettings::MAX_LINE_HEIGHT_PERCENT, 1, 5, StrId::STR_NONE_OPT,
+          /*readerActivity=*/false,
           /*allowPowerAsConfirm=*/false, /*ignoreInitialConfirmRelease=*/false, /*showPercentValue=*/true,
           StrId::STR_NONE_OPT, /*overrideDisabledReaderTouchscreen=*/false, /*showTouchHeaderBackButton=*/true,
           /*valueFormatter=*/nullptr, /*tapStep=*/5, /*useReaderSlider=*/true,
           IntervalSelectionActivity::ReaderPreviewSetting::LineSpacing),
       [this](const ActivityResult& result) {
         if (!result.isCancelled) {
-          SETTINGS.lineHeightPercent = CrossPointSettings::clampedLineHeightPercent(
+          SETTINGS.lineHeightPercent = FluiDezSettings::clampedLineHeightPercent(
               static_cast<uint8_t>(std::get<IntervalResult>(result.data).value));
           SETTINGS.saveToFile();
         }
@@ -1318,7 +1318,7 @@ void SettingsActivity::openLineHeightPicker() {
       });
 }
 
-void SettingsActivity::openFrontlightScheduleTimePicker(uint16_t CrossPointSettings::* const valuePtr,
+void SettingsActivity::openFrontlightScheduleTimePicker(uint16_t FluiDezSettings::* const valuePtr,
                                                         const StrId titleId) {
   const uint16_t storedValue = SETTINGS.*valuePtr;
   startActivityForResult(std::make_unique<FrontlightTimePickerActivity>(renderer, mappedInput, titleId, storedValue),
@@ -1335,15 +1335,15 @@ void SettingsActivity::openIdleTimeThresholdPicker() {
   startActivityForResult(
       std::make_unique<IntervalSelectionActivity>(
           renderer, mappedInput, "IdleTimeThresholdInterval", StrId::STR_IDLE_TIME_THRESHOLD,
-          SETTINGS.getReadingIdleTimeThresholdSeconds(), CrossPointSettings::MIN_READING_IDLE_TIME_THRESHOLD_SECONDS,
-          CrossPointSettings::MAX_READING_IDLE_TIME_THRESHOLD_SECONDS,
-          CrossPointSettings::READING_IDLE_TIME_THRESHOLD_UNIT_SECONDS, 60, StrId::STR_SECONDS_VALUE_FORMAT,
+          SETTINGS.getReadingIdleTimeThresholdSeconds(), FluiDezSettings::MIN_READING_IDLE_TIME_THRESHOLD_SECONDS,
+          FluiDezSettings::MAX_READING_IDLE_TIME_THRESHOLD_SECONDS,
+          FluiDezSettings::READING_IDLE_TIME_THRESHOLD_UNIT_SECONDS, 60, StrId::STR_SECONDS_VALUE_FORMAT,
           /*readerActivity=*/false, /*allowPowerAsConfirm=*/false, /*ignoreInitialConfirmRelease=*/false,
           /*showPercentValue=*/false, StrId::STR_NONE_OPT, /*overrideDisabledReaderTouchscreen=*/false,
           /*showTouchHeaderBackButton=*/true),
       [this](const ActivityResult& result) {
         if (!result.isCancelled) {
-          SETTINGS.readingIdleTimeThresholdUnits = CrossPointSettings::readingIdleTimeThresholdUnitsForSeconds(
+          SETTINGS.readingIdleTimeThresholdUnits = FluiDezSettings::readingIdleTimeThresholdUnitsForSeconds(
               static_cast<uint16_t>(std::get<IntervalResult>(result.data).value));
           SETTINGS.saveToFile();
         }
@@ -1458,7 +1458,7 @@ void SettingsActivity::buildSettingsScreen(UiApp::ScreenType& screen) {
   // with an underline. The 1px rule under the band is always there.
   const bool tabsFocused = selectedSettingIndex == 0;
   const bool borderedTabs = metrics.tabBarAppearance == ThemeTabBarAppearance::BorderedText;
-  const bool roundedRaffTabs = SETTINGS.uiTheme == CrossPointSettings::UI_THEME::ROUNDEDRAFF;
+  const bool roundedRaffTabs = SETTINGS.uiTheme == FluiDezSettings::UI_THEME::ROUNDEDRAFF;
   tabProps.divider = true;
   fui::StyleSet tabStyles;
   if (roundedRaffTabs) {
@@ -1629,17 +1629,16 @@ void SettingsActivity::render(RenderLock&&) {
                       (*currentSettings)[selectedSettingIndex - 1].nameId == StrId::STR_FONT_FAMILY ||
                       (*currentSettings)[selectedSettingIndex - 1].nameId == StrId::STR_TIME_TO_SLEEP ||
                       (*currentSettings)[selectedSettingIndex - 1].type == SettingType::STRING ||
-                      (*currentSettings)[selectedSettingIndex - 1].valuePtr == &CrossPointSettings::lineHeightPercent ||
+                      (*currentSettings)[selectedSettingIndex - 1].valuePtr == &FluiDezSettings::lineHeightPercent ||
                       (*currentSettings)[selectedSettingIndex - 1].valuePtr ==
-                          &CrossPointSettings::readingIdleTimeThresholdUnits ||
+                          &FluiDezSettings::readingIdleTimeThresholdUnits ||
+                      (*currentSettings)[selectedSettingIndex - 1].valuePtr == &FluiDezSettings::screenMarginVertical ||
                       (*currentSettings)[selectedSettingIndex - 1].valuePtr ==
-                          &CrossPointSettings::screenMarginVertical ||
-                      (*currentSettings)[selectedSettingIndex - 1].valuePtr ==
-                          &CrossPointSettings::screenMarginHorizontal ||
+                          &FluiDezSettings::screenMarginHorizontal ||
                       (*currentSettings)[selectedSettingIndex - 1].value16Ptr ==
-                          &CrossPointSettings::frontlightScheduleStart ||
+                          &FluiDezSettings::frontlightScheduleStart ||
                       (*currentSettings)[selectedSettingIndex - 1].value16Ptr ==
-                          &CrossPointSettings::frontlightScheduleEnd)
+                          &FluiDezSettings::frontlightScheduleEnd)
                  ? tr(STR_SELECT)
                  : tr(STR_TOGGLE));
 

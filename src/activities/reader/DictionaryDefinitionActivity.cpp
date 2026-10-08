@@ -18,7 +18,7 @@
 #include <optional>
 
 #include "../settings/DictionarySelectActivity.h"
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "MappedInputManager.h"
 #include "Memory.h"
 #include "SdCardFontSystem.h"

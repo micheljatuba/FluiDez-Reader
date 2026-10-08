@@ -11,8 +11,8 @@
 
 #include <algorithm>
 
-#include "CrossPointSettings.h"
-#include "CrossPointState.h"
+#include "FluiDezSettings.h"
+#include "FluiDezState.h"
 #include "GlobalActions.h"
 #include "MappedInputManager.h"
 #include "QuickActions.h"
@@ -228,14 +228,14 @@ void TxtReaderActivity::loop() {
     return;
   }
 
-  if (SETTINGS.longPressMenuAction == CrossPointSettings::LONG_MENU_CHANGE_FONT &&
+  if (SETTINGS.longPressMenuAction == FluiDezSettings::LONG_MENU_CHANGE_FONT &&
       mappedInput.isPressed(MappedInputManager::Button::Confirm) && mappedInput.getHeldTime() >= LONG_PRESS_MENU_MS) {
     longPressMenuHandled = true;
     cycleReaderFont();
     return;
   }
 
-  if (SETTINGS.longPressMenuAction == CrossPointSettings::LONG_MENU_LIBRARY &&
+  if (SETTINGS.longPressMenuAction == FluiDezSettings::LONG_MENU_LIBRARY &&
       mappedInput.getHeldTime() >= LONG_PRESS_MENU_MS &&
       (mappedInput.isPressed(MappedInputManager::Button::Confirm) ||
        mappedInput.wasReleased(MappedInputManager::Button::Confirm))) {
@@ -280,31 +280,31 @@ void TxtReaderActivity::loop() {
         mappedInput.suppressNextSideRelease(side.up ? MappedInputManager::Button::Up
                                                     : MappedInputManager::Button::Down);
       switch (side.action) {
-        case CrossPointSettings::PAGE_TURN:
+        case FluiDezSettings::PAGE_TURN:
           if (currentPage < totalPages - 1) {
             currentPage++;
             requestUpdate();
           }
           break;
-        case CrossPointSettings::SIDE_INCREASE_FONT:
-        case CrossPointSettings::SIDE_DECREASE_FONT:
-          changeReaderFontSize(side.action == CrossPointSettings::SIDE_INCREASE_FONT);
+        case FluiDezSettings::SIDE_INCREASE_FONT:
+        case FluiDezSettings::SIDE_DECREASE_FONT:
+          changeReaderFontSize(side.action == FluiDezSettings::SIDE_INCREASE_FONT);
           break;
-        case CrossPointSettings::SIDE_ROTATE_COUNTERCLOCKWISE:
-        case CrossPointSettings::SIDE_ROTATE_CLOCKWISE:
-          handleTwoFingerRotation(side.action == CrossPointSettings::SIDE_ROTATE_CLOCKWISE);
+        case FluiDezSettings::SIDE_ROTATE_COUNTERCLOCKWISE:
+        case FluiDezSettings::SIDE_ROTATE_CLOCKWISE:
+          handleTwoFingerRotation(side.action == FluiDezSettings::SIDE_ROTATE_CLOCKWISE);
           break;
-        case CrossPointSettings::SIDE_ROTATE_FLIP:
+        case FluiDezSettings::SIDE_ROTATE_FLIP:
           applyReaderOrientation(ReaderUtils::flippedOrientation(SETTINGS.orientation));
           break;
-        case CrossPointSettings::SIDE_PREVIOUS_CHAPTER:
-        case CrossPointSettings::SIDE_NEXT_CHAPTER:
-        case CrossPointSettings::IGNORE:
+        case FluiDezSettings::SIDE_PREVIOUS_CHAPTER:
+        case FluiDezSettings::SIDE_NEXT_CHAPTER:
+        case FluiDezSettings::IGNORE:
           // Plain text has no chapter model.
           break;
         default: {
-          const auto action = static_cast<CrossPointSettings::SHORT_PWRBTN>(side.action);
-          if (action == CrossPointSettings::QUICK_LOCK)
+          const auto action = static_cast<FluiDezSettings::SHORT_PWRBTN>(side.action);
+          if (action == FluiDezSettings::QUICK_LOCK)
             handleGlobalPowerButtonAction(action, SideButtonShortcuts::quickLockTrigger(side));
           else if (!handleShortcutAction(action))
             handleGlobalPowerButtonAction(action);
@@ -315,8 +315,8 @@ void TxtReaderActivity::loop() {
     return;
   }
 
-  const bool frontLongPressChangesFont = SETTINGS.longPressButtonBehavior == CrossPointSettings::FONT_SIZE_CHANGE;
-  if (SETTINGS.longPressButtonBehavior == CrossPointSettings::ORIENTATION_CHANGE || frontLongPressChangesFont) {
+  const bool frontLongPressChangesFont = SETTINGS.longPressButtonBehavior == FluiDezSettings::FONT_SIZE_CHANGE;
+  if (SETTINGS.longPressButtonBehavior == FluiDezSettings::ORIENTATION_CHANGE || frontLongPressChangesFont) {
     const bool leftReleased = mappedInput.wasReleased(MappedInputManager::Button::Left);
     const bool rightReleased = mappedInput.wasReleased(MappedInputManager::Button::Right);
     if (frontButtonLongPressHandled && (leftReleased || rightReleased)) {
@@ -375,10 +375,10 @@ bool TxtReaderActivity::changeReaderFontSize(const bool larger, const FontSizeSt
 }
 
 void TxtReaderActivity::cycleReaderFont() {
-  const CrossPointSettings::FONT_SIZE effectiveSize = SETTINGS.getEffectiveReaderFontSize();
-  SETTINGS.fontFamily = (SETTINGS.fontFamily + 1) % CrossPointSettings::FONT_FAMILY_COUNT;
+  const FluiDezSettings::FONT_SIZE effectiveSize = SETTINGS.getEffectiveReaderFontSize();
+  SETTINGS.fontFamily = (SETTINGS.fontFamily + 1) % FluiDezSettings::FONT_FAMILY_COUNT;
   SETTINGS.sdFontFamilyName[0] = '\0';
-  SETTINGS.readerFontPointSize = CrossPointSettings::getReaderFontPointSize(effectiveSize);
+  SETTINGS.readerFontPointSize = FluiDezSettings::getReaderFontPointSize(effectiveSize);
   rebuildTextLayout();
 }
 
@@ -423,15 +423,15 @@ bool TxtReaderActivity::handlePinchFontResize() {
 void TxtReaderActivity::resetPinchFontGesture() { pinchFontGesture.reset(); }
 #endif
 
-bool TxtReaderActivity::handleTwoFingerSwipeAction(const CrossPointSettings::TWO_FINGER_SWIPE_ACTION action) {
-  if (action != CrossPointSettings::TWO_FINGER_SWIPE_INCREASE_FONT_SIZE &&
-      action != CrossPointSettings::TWO_FINGER_SWIPE_DECREASE_FONT_SIZE) {
+bool TxtReaderActivity::handleTwoFingerSwipeAction(const FluiDezSettings::TWO_FINGER_SWIPE_ACTION action) {
+  if (action != FluiDezSettings::TWO_FINGER_SWIPE_INCREASE_FONT_SIZE &&
+      action != FluiDezSettings::TWO_FINGER_SWIPE_DECREASE_FONT_SIZE) {
     // TXT has no chapter model; ActivityManager still consumes configured
     // chapter swipes so they cannot fall through as one-finger navigation.
     return true;
   }
 
-  changeReaderFontSize(action == CrossPointSettings::TWO_FINGER_SWIPE_INCREASE_FONT_SIZE, FontSizeStepMode::Clamp);
+  changeReaderFontSize(action == FluiDezSettings::TWO_FINGER_SWIPE_INCREASE_FONT_SIZE, FontSizeStepMode::Clamp);
   return true;
 }
 
@@ -483,68 +483,68 @@ bool TxtReaderActivity::consumeLongPowerButtonHold() {
   return true;
 }
 
-bool TxtReaderActivity::supportsQuickAction(const CrossPointSettings::SHORT_PWRBTN action) {
+bool TxtReaderActivity::supportsQuickAction(const FluiDezSettings::SHORT_PWRBTN action) {
   switch (action) {
-    case CrossPointSettings::SHORT_PWRBTN::PREVIOUS_PAGE:
-    case CrossPointSettings::SHORT_PWRBTN::SLEEP:
-    case CrossPointSettings::SHORT_PWRBTN::FORCE_REFRESH:
-    case CrossPointSettings::SHORT_PWRBTN::FILE_TRANSFER:
-    case CrossPointSettings::SHORT_PWRBTN::CALIBRE_WIRELESS:
-    case CrossPointSettings::SHORT_PWRBTN::JOIN_NETWORK:
-    case CrossPointSettings::SHORT_PWRBTN::CREATE_HOTSPOT:
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_DARK_MODE:
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_FONT:
-    case CrossPointSettings::SHORT_PWRBTN::FILE_BROWSER:
-    case CrossPointSettings::SHORT_PWRBTN::LIBRARY:
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_FRONTLIGHT:
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_TOUCHSCREEN:
-    case CrossPointSettings::SHORT_PWRBTN::HOME_READER:
+    case FluiDezSettings::SHORT_PWRBTN::PREVIOUS_PAGE:
+    case FluiDezSettings::SHORT_PWRBTN::SLEEP:
+    case FluiDezSettings::SHORT_PWRBTN::FORCE_REFRESH:
+    case FluiDezSettings::SHORT_PWRBTN::FILE_TRANSFER:
+    case FluiDezSettings::SHORT_PWRBTN::CALIBRE_WIRELESS:
+    case FluiDezSettings::SHORT_PWRBTN::JOIN_NETWORK:
+    case FluiDezSettings::SHORT_PWRBTN::CREATE_HOTSPOT:
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_DARK_MODE:
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_FONT:
+    case FluiDezSettings::SHORT_PWRBTN::FILE_BROWSER:
+    case FluiDezSettings::SHORT_PWRBTN::LIBRARY:
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_FRONTLIGHT:
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_TOUCHSCREEN:
+    case FluiDezSettings::SHORT_PWRBTN::HOME_READER:
       return true;
     default:
       return false;
   }
 }
 
-bool TxtReaderActivity::executeReaderShortcutAction(const CrossPointSettings::SHORT_PWRBTN action) {
+bool TxtReaderActivity::executeReaderShortcutAction(const FluiDezSettings::SHORT_PWRBTN action) {
   switch (action) {
-    case CrossPointSettings::SHORT_PWRBTN::PREVIOUS_PAGE:
+    case FluiDezSettings::SHORT_PWRBTN::PREVIOUS_PAGE:
       if (currentPage > 0) {
         currentPage--;
         requestUpdate();
       }
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_FONT:
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_FONT:
       cycleReaderFont();
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::FILE_TRANSFER:
+    case FluiDezSettings::SHORT_PWRBTN::FILE_TRANSFER:
       activityManager.goToFileTransfer(txt ? txt->getPath() : "");
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::CALIBRE_WIRELESS:
+    case FluiDezSettings::SHORT_PWRBTN::CALIBRE_WIRELESS:
       saveProgressBeforeRestart();
       activityManager.goToCalibreWireless(txt ? txt->getPath() : "");
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::JOIN_NETWORK:
+    case FluiDezSettings::SHORT_PWRBTN::JOIN_NETWORK:
       saveProgressBeforeRestart();
       activityManager.goToJoinNetworkFileTransfer(txt ? txt->getPath() : "");
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::CREATE_HOTSPOT:
+    case FluiDezSettings::SHORT_PWRBTN::CREATE_HOTSPOT:
       saveProgressBeforeRestart();
       activityManager.goToHotspotFileTransfer(txt ? txt->getPath() : "");
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_DARK_MODE:
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_DARK_MODE:
       toggleDarkMode();
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::FILE_BROWSER:
+    case FluiDezSettings::SHORT_PWRBTN::FILE_BROWSER:
       activityManager.goToFileBrowser(txt ? txt->getPath() : "");
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::LIBRARY:
+    case FluiDezSettings::SHORT_PWRBTN::LIBRARY:
       activityManager.goToLibrary();
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_HOME_BUTTON_IN_READER:
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_HOME_BUTTON_IN_READER:
       toggleHomeButtonInReader();
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_FRONTLIGHT:
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_TOUCHSCREEN:
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_FRONTLIGHT:
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_TOUCHSCREEN:
       return handleGlobalPowerButtonAction(action);
     default:
       return false;
@@ -554,11 +554,11 @@ bool TxtReaderActivity::executeReaderShortcutAction(const CrossPointSettings::SH
 bool TxtReaderActivity::executePowerButtonAction() {
   if (mappedInput.wasReleased(MappedInputManager::Button::Power) &&
       mappedInput.getHeldTime() < SETTINGS.getPowerButtonLongPressDuration()) {
-    return executeReaderShortcutAction(static_cast<CrossPointSettings::SHORT_PWRBTN>(SETTINGS.shortPwrBtn));
+    return executeReaderShortcutAction(static_cast<FluiDezSettings::SHORT_PWRBTN>(SETTINGS.shortPwrBtn));
   }
 
-  const auto longPowerAction = static_cast<CrossPointSettings::SHORT_PWRBTN>(SETTINGS.longPwrBtn);
-  if (longPowerAction == CrossPointSettings::SHORT_PWRBTN::PAGE_TURN || !consumeLongPowerButtonHold()) {
+  const auto longPowerAction = static_cast<FluiDezSettings::SHORT_PWRBTN>(SETTINGS.longPwrBtn);
+  if (longPowerAction == FluiDezSettings::SHORT_PWRBTN::PAGE_TURN || !consumeLongPowerButtonHold()) {
     return false;
   }
 
@@ -585,42 +585,42 @@ void TxtReaderActivity::toggleHomeButtonInReader() {
 }
 
 bool TxtReaderActivity::executeLongPressBackAction() {
-  switch (static_cast<CrossPointSettings::LONG_PRESS_MENU_ACTION>(SETTINGS.longPressBackAction)) {
-    case CrossPointSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_SLEEP:
+  switch (static_cast<FluiDezSettings::LONG_PRESS_MENU_ACTION>(SETTINGS.longPressBackAction)) {
+    case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_SLEEP:
       enterDeepSleep();
       return true;
-    case CrossPointSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_CHANGE_FONT:
+    case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_CHANGE_FONT:
       cycleReaderFont();
       return true;
-    case CrossPointSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_REFRESH_SCREEN:
+    case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_REFRESH_SCREEN:
       prepareManualRefresh();
       requestUpdate();
       return true;
-    case CrossPointSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_FILE_TRANSFER:
+    case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_FILE_TRANSFER:
       activityManager.goToFileTransfer(txt ? txt->getPath() : "");
       return true;
-    case CrossPointSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_CALIBRE_WIRELESS:
+    case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_CALIBRE_WIRELESS:
       saveProgressBeforeRestart();
       activityManager.goToCalibreWireless(txt ? txt->getPath() : "");
       return true;
-    case CrossPointSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_JOIN_NETWORK:
+    case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_JOIN_NETWORK:
       saveProgressBeforeRestart();
       activityManager.goToJoinNetworkFileTransfer(txt ? txt->getPath() : "");
       return true;
-    case CrossPointSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_CREATE_HOTSPOT:
+    case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_CREATE_HOTSPOT:
       saveProgressBeforeRestart();
       activityManager.goToHotspotFileTransfer(txt ? txt->getPath() : "");
       return true;
-    case CrossPointSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_TOGGLE_DARK_MODE:
+    case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_TOGGLE_DARK_MODE:
       toggleDarkMode();
       return true;
-    case CrossPointSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_FILE_BROWSER:
+    case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_FILE_BROWSER:
       activityManager.goToFileBrowser(txt ? txt->getPath() : "");
       return true;
-    case CrossPointSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_LIBRARY:
+    case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_LIBRARY:
       activityManager.goToLibrary();
       return true;
-    case CrossPointSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_CREATE_CLIPPING:
+    case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_CREATE_CLIPPING:
       return false;
     default:
       return false;
@@ -628,12 +628,12 @@ bool TxtReaderActivity::executeLongPressBackAction() {
 }
 
 bool TxtReaderActivity::handleShortcutAction(const uint8_t action) {
-  return executeReaderShortcutAction(static_cast<CrossPointSettings::SHORT_PWRBTN>(action));
+  return executeReaderShortcutAction(static_cast<FluiDezSettings::SHORT_PWRBTN>(action));
 }
 
-bool TxtReaderActivity::handleShortcutAction(const CrossPointSettings::SHORT_PWRBTN action) {
-  if (action == CrossPointSettings::SHORT_PWRBTN::HOME_READER) return dispatchShortcutAction(action);
-  if (action == CrossPointSettings::SHORT_PWRBTN::QUICK_ACTIONS) {
+bool TxtReaderActivity::handleShortcutAction(const FluiDezSettings::SHORT_PWRBTN action) {
+  if (action == FluiDezSettings::SHORT_PWRBTN::HOME_READER) return dispatchShortcutAction(action);
+  if (action == FluiDezSettings::SHORT_PWRBTN::QUICK_ACTIONS) {
     QuickActions::showConfiguredPopup(
         quickActionsPopup, [this] { requestUpdate(); },
         [this](const auto quickAction) {
@@ -844,27 +844,27 @@ void TxtReaderActivity::renderPage() {
         int x = cachedOrientedMarginLeft;
         const bool lineIsRtl = BidiUtils::startsWithRtl(line.c_str(), BidiUtils::RTL_PARAGRAPH_PROBE_DEPTH);
         uint8_t effectiveAlignment = cachedParagraphAlignment;
-        if (lineIsRtl && (effectiveAlignment == CrossPointSettings::LEFT_ALIGN ||
-                          effectiveAlignment == CrossPointSettings::JUSTIFIED)) {
-          effectiveAlignment = CrossPointSettings::RIGHT_ALIGN;
+        if (lineIsRtl &&
+            (effectiveAlignment == FluiDezSettings::LEFT_ALIGN || effectiveAlignment == FluiDezSettings::JUSTIFIED)) {
+          effectiveAlignment = FluiDezSettings::RIGHT_ALIGN;
         }
         const int textWidth = renderer.getTextAdvanceX(cachedFontId, line.c_str(), EpdFontFamily::REGULAR);
 
         // Apply text alignment
         switch (effectiveAlignment) {
-          case CrossPointSettings::LEFT_ALIGN:
+          case FluiDezSettings::LEFT_ALIGN:
           default:
             // x already set to left margin
             break;
-          case CrossPointSettings::CENTER_ALIGN: {
+          case FluiDezSettings::CENTER_ALIGN: {
             x = cachedOrientedMarginLeft + (contentWidth - textWidth) / 2;
             break;
           }
-          case CrossPointSettings::RIGHT_ALIGN: {
+          case FluiDezSettings::RIGHT_ALIGN: {
             x = cachedOrientedMarginLeft + contentWidth - textWidth;
             break;
           }
-          case CrossPointSettings::JUSTIFIED:
+          case FluiDezSettings::JUSTIFIED:
             // For plain text, justified is treated as left-aligned
             // (true justification would require word spacing adjustments)
             break;
@@ -1130,16 +1130,16 @@ bool TxtReaderActivity::drawCurrentPageToBuffer(const std::string& filePath, Gfx
 
   // Apply the reader orientation so margins match what the reader would produce
   switch (SETTINGS.orientation) {
-    case CrossPointSettings::ORIENTATION::PORTRAIT:
+    case FluiDezSettings::ORIENTATION::PORTRAIT:
       renderer.setOrientation(GfxRenderer::Orientation::Portrait);
       break;
-    case CrossPointSettings::ORIENTATION::LANDSCAPE_CW:
+    case FluiDezSettings::ORIENTATION::LANDSCAPE_CW:
       renderer.setOrientation(GfxRenderer::Orientation::LandscapeClockwise);
       break;
-    case CrossPointSettings::ORIENTATION::INVERTED:
+    case FluiDezSettings::ORIENTATION::INVERTED:
       renderer.setOrientation(GfxRenderer::Orientation::PortraitInverted);
       break;
-    case CrossPointSettings::ORIENTATION::LANDSCAPE_CCW:
+    case FluiDezSettings::ORIENTATION::LANDSCAPE_CCW:
       renderer.setOrientation(GfxRenderer::Orientation::LandscapeCounterClockwise);
       break;
     default:
@@ -1282,10 +1282,10 @@ bool TxtReaderActivity::drawCurrentPageToBuffer(const std::string& filePath, Gfx
     if (!line.empty()) {
       int x = marginLeft;
       switch (paragraphAlignment) {
-        case CrossPointSettings::CENTER_ALIGN:
+        case FluiDezSettings::CENTER_ALIGN:
           x = marginLeft + (vw - renderer.getTextWidth(fontId, line.c_str())) / 2;
           break;
-        case CrossPointSettings::RIGHT_ALIGN:
+        case FluiDezSettings::RIGHT_ALIGN:
           x = marginLeft + vw - renderer.getTextWidth(fontId, line.c_str());
           break;
         default:

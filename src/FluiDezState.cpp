@@ -1,4 +1,4 @@
-#include "CrossPointState.h"
+#include "FluiDezState.h"
 
 #include <HalStorage.h>
 #include <Logging.h>
@@ -27,7 +27,7 @@ class StateCrcWriter {
 };
 }  // namespace
 
-bool CrossPointState::isRecentSleep(uint16_t idx, uint8_t checkCount) const {
+bool FluiDezState::isRecentSleep(uint16_t idx, uint8_t checkCount) const {
   const uint8_t effectiveCount = std::min(checkCount, recentSleepFill);
   for (uint8_t i = 0; i < effectiveCount; i++) {
     const uint8_t slot = (recentSleepPos + SLEEP_RECENT_COUNT - 1 - i) % SLEEP_RECENT_COUNT;
@@ -36,36 +36,36 @@ bool CrossPointState::isRecentSleep(uint16_t idx, uint8_t checkCount) const {
   return false;
 }
 
-void CrossPointState::pushRecentSleep(uint16_t idx) {
+void FluiDezState::pushRecentSleep(uint16_t idx) {
   recentSleepImages[recentSleepPos] = idx;
   recentSleepPos = (recentSleepPos + 1) % SLEEP_RECENT_COUNT;
   if (recentSleepFill < SLEEP_RECENT_COUNT) recentSleepFill++;
 }
 
-void CrossPointState::clearRecentSleepHistory() {
+void FluiDezState::clearRecentSleepHistory() {
   std::fill_n(recentSleepImages, SLEEP_RECENT_COUNT, static_cast<uint16_t>(0));
   recentSleepPos = 0;
   recentSleepFill = 0;
 }
 
-void CrossPointState::setPendingOverlayResume(PendingOverlayResume value) {
+void FluiDezState::setPendingOverlayResume(PendingOverlayResume value) {
   pendingOverlayResume = std::move(value);
   saveToFile();
 }
 
-bool CrossPointState::consumePendingOverlayResume(PendingOverlayResume& value) {
+bool FluiDezState::consumePendingOverlayResume(PendingOverlayResume& value) {
   if (!consumePendingOverlayResumeOnce(pendingOverlayResume, value)) return false;
   saveToFile();
   return true;
 }
 
-void CrossPointState::pushRecentBoot(uint16_t idx) {
+void FluiDezState::pushRecentBoot(uint16_t idx) {
   recentBootImages[recentBootPos] = idx;
   recentBootPos = (recentBootPos + 1) % BOOT_RECENT_COUNT;
   if (recentBootFill < BOOT_RECENT_COUNT) recentBootFill++;
 }
 
-bool CrossPointState::saveToFile() const {
+bool FluiDezState::saveToFile() const {
   std::lock_guard<std::mutex> storeLock(storeMutex);
   std::lock_guard<std::mutex> stateLock(_mutex);
   JsonDocument doc;
@@ -83,7 +83,7 @@ bool CrossPointState::saveToFile() const {
   return true;
 }
 
-bool CrossPointState::loadFromFile() {
+bool FluiDezState::loadFromFile() {
   {
     std::lock_guard<std::mutex> storeLock(storeMutex);
     lastSavedCrcValid = false;
@@ -114,7 +114,7 @@ bool CrossPointState::loadFromFile() {
   return false;
 }
 
-void CrossPointState::toJson(JsonDocument& doc) const {
+void FluiDezState::toJson(JsonDocument& doc) const {
   doc["openEpubPath"] = openEpubPath;
   doc["favoriteSleepImagePath"] = favoriteSleepImagePath;
   doc["preferredSleepFolderPath"] = preferredSleepFolderPath;
@@ -148,7 +148,7 @@ void CrossPointState::toJson(JsonDocument& doc) const {
   doc["pendingOverlayPreserveReaderOrientation"] = pendingOverlayResume.preserveReaderOrientation;
 }
 
-bool CrossPointState::fromJson(JsonVariantConst doc) {
+bool FluiDezState::fromJson(JsonVariantConst doc) {
   openEpubPath = doc["openEpubPath"] | "";
   favoriteSleepImagePath = doc["favoriteSleepImagePath"] | "";
   preferredSleepFolderPath = doc["preferredSleepFolderPath"] | "";
@@ -203,7 +203,7 @@ bool CrossPointState::fromJson(JsonVariantConst doc) {
   return true;
 }
 
-bool CrossPointState::loadFromBinaryFile() {
+bool FluiDezState::loadFromBinaryFile() {
   HalFile inputFile;
   if (!Storage.openFileForRead("CPS", STATE_FILE_BIN, inputFile)) {
     return false;

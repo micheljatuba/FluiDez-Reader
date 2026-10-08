@@ -8,7 +8,7 @@
 
 #include <cstdio>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "MappedInputManager.h"
 #include "SdCardFontSystem.h"
 #include "activities/network/WifiSelectionActivity.h"

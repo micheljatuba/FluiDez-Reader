@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <iterator>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "MappedInputManager.h"
 #include "SdCardFontSystem.h"
 #include "SettingsList.h"
@@ -49,7 +49,7 @@ uint8_t enumRawValueForDisplayIndex(const SettingInfo& setting, uint8_t displayI
 }
 
 std::string formatSettingValue(const SettingInfo& setting) {
-  if (setting.valuePtr == &CrossPointSettings::lineHeightPercent) {
+  if (setting.valuePtr == &FluiDezSettings::lineHeightPercent) {
     return std::to_string(SETTINGS.*(setting.valuePtr)) + "%";
   }
   return std::to_string(SETTINGS.*(setting.valuePtr));
@@ -57,7 +57,7 @@ std::string formatSettingValue(const SettingInfo& setting) {
 
 SettingInfo buildReaderRenderModeSetting() {
   return SettingInfo::Enum(
-             StrId::STR_EPUB_RENDER_MODE, &CrossPointSettings::epubRenderMode,
+             StrId::STR_EPUB_RENDER_MODE, &FluiDezSettings::epubRenderMode,
              {StrId::STR_RENDER_MODE_CROSSINK_DEFAULT, StrId::STR_RENDER_MODE_BALANCED, StrId::STR_RENDER_MODE_LIGHT})
       .withEnumRawValues({static_cast<uint8_t>(EpubRenderMode::CrossInkDefault),
                           static_cast<uint8_t>(EpubRenderMode::Balanced), static_cast<uint8_t>(EpubRenderMode::Light)});
@@ -312,7 +312,7 @@ void ReaderOptionsActivity::openEnumOptionPicker(const SettingInfo& setting) {
   if (currentIndex >= optionCount) currentIndex = 0;
 
   const SettingInfo selectedSetting = setting;
-  const auto note = setting.valuePtr == &CrossPointSettings::sideButtonChordAction && mappedInput.hasTouchHardware()
+  const auto note = setting.valuePtr == &FluiDezSettings::sideButtonChordAction && mappedInput.hasTouchHardware()
                         ? OptionPopup::Note{tr(STR_NOTE), tr(STR_TOUCHSCREEN_ESCAPE_HATCH_NOTE)}
                         : OptionPopup::Note{};
   optionPopup.show(
@@ -427,17 +427,17 @@ void ReaderOptionsActivity::openScreenMarginPicker(const SettingInfo& setting) {
   startActivityForResult(
       std::make_unique<IntervalSelectionActivity>(
           renderer, mappedInput, "ReaderOptionsScreenMarginInterval", selectedSetting.nameId,
-          SETTINGS.*(selectedSetting.valuePtr), CrossPointSettings::MIN_SCREEN_MARGIN,
-          CrossPointSettings::MAX_SCREEN_MARGIN, CrossPointSettings::SCREEN_MARGIN_SMALL_STEP,
-          CrossPointSettings::SCREEN_MARGIN_LARGE_STEP, StrId::STR_NONE_OPT, /*readerActivity=*/true,
+          SETTINGS.*(selectedSetting.valuePtr), FluiDezSettings::MIN_SCREEN_MARGIN, FluiDezSettings::MAX_SCREEN_MARGIN,
+          FluiDezSettings::SCREEN_MARGIN_SMALL_STEP, FluiDezSettings::SCREEN_MARGIN_LARGE_STEP, StrId::STR_NONE_OPT,
+          /*readerActivity=*/true,
           /*allowPowerAsConfirm=*/true, /*ignoreInitialConfirmRelease=*/false, /*showPercentValue=*/false,
           StrId::STR_NONE_OPT, /*overrideDisabledReaderTouchscreen=*/false, /*showTouchHeaderBackButton=*/true,
           /*valueFormatter=*/nullptr, /*tapStep=*/5, /*useReaderSlider=*/true),
       [this, selectedSetting](const ActivityResult& result) {
         if (!result.isCancelled) {
           SETTINGS.*(selectedSetting.valuePtr) = static_cast<uint8_t>(std::clamp(
-              std::get<IntervalResult>(result.data).value, static_cast<uint32_t>(CrossPointSettings::MIN_SCREEN_MARGIN),
-              static_cast<uint32_t>(CrossPointSettings::MAX_SCREEN_MARGIN)));
+              std::get<IntervalResult>(result.data).value, static_cast<uint32_t>(FluiDezSettings::MIN_SCREEN_MARGIN),
+              static_cast<uint32_t>(FluiDezSettings::MAX_SCREEN_MARGIN)));
           persistReaderSettings();
         }
         requestUpdate();
@@ -448,7 +448,7 @@ void ReaderOptionsActivity::openWordSpacingPicker() {
   startActivityForResult(
       std::make_unique<IntervalSelectionActivity>(
           renderer, mappedInput, "ReaderOptionsWordSpacingInterval", StrId::STR_WORD_SPACING, SETTINGS.wordSpacing, 0,
-          CrossPointSettings::MAX_WORD_SPACING, 1, 1, StrId::STR_NONE_OPT, /*readerActivity=*/true,
+          FluiDezSettings::MAX_WORD_SPACING, 1, 1, StrId::STR_NONE_OPT, /*readerActivity=*/true,
           /*allowPowerAsConfirm=*/true, /*ignoreInitialConfirmRelease=*/false, /*showPercentValue=*/false,
           StrId::STR_NONE_OPT, /*overrideDisabledReaderTouchscreen=*/false, /*showTouchHeaderBackButton=*/true,
           /*valueFormatter=*/nullptr, /*tapStep=*/1, /*useReaderSlider=*/true),
@@ -456,7 +456,7 @@ void ReaderOptionsActivity::openWordSpacingPicker() {
         if (!result.isCancelled) {
           SETTINGS.wordSpacing =
               static_cast<uint8_t>(std::clamp(std::get<IntervalResult>(result.data).value, static_cast<uint32_t>(0),
-                                              static_cast<uint32_t>(CrossPointSettings::MAX_WORD_SPACING)));
+                                              static_cast<uint32_t>(FluiDezSettings::MAX_WORD_SPACING)));
           persistReaderSettings();
         }
         requestUpdate();
@@ -518,16 +518,16 @@ void ReaderOptionsActivity::toggleCurrentSetting() {
     setting.valueSetter((cur + 1) % totalValues);
     settingsDirty = true;
   } else if (setting.type == SettingType::VALUE && setting.valuePtr != nullptr) {
-    if (setting.valuePtr == &CrossPointSettings::lineHeightPercent) {
+    if (setting.valuePtr == &FluiDezSettings::lineHeightPercent) {
       openLineHeightPicker();
       return;
     }
-    if (setting.valuePtr == &CrossPointSettings::wordSpacing) {
+    if (setting.valuePtr == &FluiDezSettings::wordSpacing) {
       openWordSpacingPicker();
       return;
     }
-    if (setting.valuePtr == &CrossPointSettings::screenMarginVertical ||
-        setting.valuePtr == &CrossPointSettings::screenMarginHorizontal) {
+    if (setting.valuePtr == &FluiDezSettings::screenMarginVertical ||
+        setting.valuePtr == &FluiDezSettings::screenMarginHorizontal) {
       openScreenMarginPicker(setting);
       return;
     }
@@ -589,14 +589,14 @@ void ReaderOptionsActivity::openLineHeightPicker() {
   startActivityForResult(
       std::make_unique<IntervalSelectionActivity>(
           renderer, mappedInput, "ReaderOptionsLineHeightInterval", StrId::STR_LINE_SPACING, SETTINGS.lineHeightPercent,
-          CrossPointSettings::MIN_LINE_HEIGHT_PERCENT, CrossPointSettings::MAX_LINE_HEIGHT_PERCENT, 1, 5,
-          StrId::STR_NONE_OPT, /*readerActivity=*/true,
+          FluiDezSettings::MIN_LINE_HEIGHT_PERCENT, FluiDezSettings::MAX_LINE_HEIGHT_PERCENT, 1, 5, StrId::STR_NONE_OPT,
+          /*readerActivity=*/true,
           /*allowPowerAsConfirm=*/true, /*ignoreInitialConfirmRelease=*/false, /*showPercentValue=*/true,
           StrId::STR_NONE_OPT, /*overrideDisabledReaderTouchscreen=*/false, /*showTouchHeaderBackButton=*/true,
           /*valueFormatter=*/nullptr, /*tapStep=*/5, /*useReaderSlider=*/true),
       [this](const ActivityResult& result) {
         if (!result.isCancelled) {
-          SETTINGS.lineHeightPercent = CrossPointSettings::clampedLineHeightPercent(
+          SETTINGS.lineHeightPercent = FluiDezSettings::clampedLineHeightPercent(
               static_cast<uint8_t>(std::get<IntervalResult>(result.data).value));
           persistReaderSettings();
         }
@@ -838,11 +838,11 @@ void ReaderOptionsActivity::render(RenderLock&&) {
                                 (*currentSettings)[selectedIndex].nameId == StrId::STR_DICTIONARY_FONT_SIZE ||
                                 currentSettingUsesOptionMenu((*currentSettings)[selectedIndex]));
   const bool selectedLineHeight = selectedIndex >= 0 && selectedIndex < settingsCount &&
-                                  (*currentSettings)[selectedIndex].valuePtr == &CrossPointSettings::lineHeightPercent;
+                                  (*currentSettings)[selectedIndex].valuePtr == &FluiDezSettings::lineHeightPercent;
   const bool selectedScreenMargin =
       selectedIndex >= 0 && selectedIndex < settingsCount &&
-      ((*currentSettings)[selectedIndex].valuePtr == &CrossPointSettings::screenMarginVertical ||
-       (*currentSettings)[selectedIndex].valuePtr == &CrossPointSettings::screenMarginHorizontal);
+      ((*currentSettings)[selectedIndex].valuePtr == &FluiDezSettings::screenMarginVertical ||
+       (*currentSettings)[selectedIndex].valuePtr == &FluiDezSettings::screenMarginHorizontal);
   const auto labels = mappedInput.mapLabels(
       mappedInput.withBackArrow(tr(STR_BACK)),
       (currentIsAction || selectedLineHeight || selectedScreenMargin) ? tr(STR_SELECT) : tr(STR_TOGGLE), tr(STR_DIR_UP),

@@ -1,4 +1,4 @@
-#include <CrossPointState.h>
+#include <FluiDezState.h>
 #include <HalStorage.h>
 #include <gtest/gtest.h>
 
@@ -6,7 +6,7 @@ namespace {
 constexpr char STATE_PATH[] = "/.crosspoint/state.json";
 }
 
-class CrossPointStateTest : public testing::Test {
+class FluiDezStateTest : public testing::Test {
  protected:
   void SetUp() override {
     Storage.reset();
@@ -16,14 +16,14 @@ class CrossPointStateTest : public testing::Test {
   }
 };
 
-TEST_F(CrossPointStateTest, SkipsRepeatedSuccessfulSnapshot) {
+TEST_F(FluiDezStateTest, SkipsRepeatedSuccessfulSnapshot) {
   APP_STATE.openEpubPath = "/book.epub";
   ASSERT_TRUE(APP_STATE.saveToFile());
   ASSERT_TRUE(APP_STATE.saveToFile());
   EXPECT_EQ(Storage.writeAttempts, 1U);
 }
 
-TEST_F(CrossPointStateTest, PersistsReaderExitAndWallpaperChanges) {
+TEST_F(FluiDezStateTest, PersistsReaderExitAndWallpaperChanges) {
   APP_STATE.readerActivityLoadCount = 1;
   ASSERT_TRUE(APP_STATE.saveToFile());
   APP_STATE.readerActivityLoadCount = 0;
@@ -36,7 +36,7 @@ TEST_F(CrossPointStateTest, PersistsReaderExitAndWallpaperChanges) {
   EXPECT_TRUE(APP_STATE.isRecentSleep(9, 1));
 }
 
-TEST_F(CrossPointStateTest, RecreatesDeletedStateFile) {
+TEST_F(FluiDezStateTest, RecreatesDeletedStateFile) {
   ASSERT_TRUE(APP_STATE.saveToFile());
   ASSERT_TRUE(Storage.remove(STATE_PATH));
   ASSERT_TRUE(APP_STATE.saveToFile());
@@ -44,14 +44,14 @@ TEST_F(CrossPointStateTest, RecreatesDeletedStateFile) {
   EXPECT_EQ(Storage.writeAttempts, 2U);
 }
 
-TEST_F(CrossPointStateTest, RetriesFailedFirstSave) {
+TEST_F(FluiDezStateTest, RetriesFailedFirstSave) {
   Storage.failNextWrite();
   EXPECT_FALSE(APP_STATE.saveToFile());
   EXPECT_TRUE(APP_STATE.saveToFile());
   EXPECT_EQ(Storage.writeAttempts, 2U);
 }
 
-TEST_F(CrossPointStateTest, FailedRewriteInvalidatesPreviousSnapshot) {
+TEST_F(FluiDezStateTest, FailedRewriteInvalidatesPreviousSnapshot) {
   APP_STATE.openEpubPath = "/old.epub";
   ASSERT_TRUE(APP_STATE.saveToFile());
   APP_STATE.openEpubPath = "/new.epub";
@@ -64,7 +64,7 @@ TEST_F(CrossPointStateTest, FailedRewriteInvalidatesPreviousSnapshot) {
   EXPECT_EQ(APP_STATE.openEpubPath, "/old.epub");
 }
 
-TEST_F(CrossPointStateTest, ReloadInvalidatesPreviousSnapshot) {
+TEST_F(FluiDezStateTest, ReloadInvalidatesPreviousSnapshot) {
   APP_STATE.openEpubPath = "/old.epub";
   ASSERT_TRUE(APP_STATE.saveToFile());
   Storage.put(STATE_PATH, R"({"openEpubPath":"/new.epub"})");

@@ -5,7 +5,7 @@
 
 #include <cstdio>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "MappedInputManager.h"
 #include "components/TouchHeaderBackButton.h"
 #include "components/UITheme.h"
@@ -70,15 +70,15 @@ void ButtonRemapActivity::loop() {
     // Persist default mapping immediately so the user can recover quickly.
     if (readerMode) {
       SETTINGS.readerFrontButtonsEnabled = 0;  // Revert to system mapping
-      SETTINGS.readerFrontButtonBack = CrossPointSettings::FRONT_HW_BACK;
-      SETTINGS.readerFrontButtonConfirm = CrossPointSettings::FRONT_HW_CONFIRM;
-      SETTINGS.readerFrontButtonLeft = CrossPointSettings::FRONT_HW_LEFT;
-      SETTINGS.readerFrontButtonRight = CrossPointSettings::FRONT_HW_RIGHT;
+      SETTINGS.readerFrontButtonBack = FluiDezSettings::FRONT_HW_BACK;
+      SETTINGS.readerFrontButtonConfirm = FluiDezSettings::FRONT_HW_CONFIRM;
+      SETTINGS.readerFrontButtonLeft = FluiDezSettings::FRONT_HW_LEFT;
+      SETTINGS.readerFrontButtonRight = FluiDezSettings::FRONT_HW_RIGHT;
     } else {
-      SETTINGS.frontButtonBack = CrossPointSettings::FRONT_HW_BACK;
-      SETTINGS.frontButtonConfirm = CrossPointSettings::FRONT_HW_CONFIRM;
-      SETTINGS.frontButtonLeft = CrossPointSettings::FRONT_HW_LEFT;
-      SETTINGS.frontButtonRight = CrossPointSettings::FRONT_HW_RIGHT;
+      SETTINGS.frontButtonBack = FluiDezSettings::FRONT_HW_BACK;
+      SETTINGS.frontButtonConfirm = FluiDezSettings::FRONT_HW_CONFIRM;
+      SETTINGS.frontButtonLeft = FluiDezSettings::FRONT_HW_LEFT;
+      SETTINGS.frontButtonRight = FluiDezSettings::FRONT_HW_RIGHT;
     }
     SETTINGS.saveToFile();
     finish();
@@ -172,10 +172,9 @@ void ButtonRemapActivity::render(RenderLock&&) {
 
   // Live preview of logical labels under front buttons.
   // This mirrors the on-device front button order: Back, Confirm, Left, Right.
-  GUI.drawButtonHints(renderer, labelForHardware(CrossPointSettings::FRONT_HW_BACK),
-                      labelForHardware(CrossPointSettings::FRONT_HW_CONFIRM),
-                      labelForHardware(CrossPointSettings::FRONT_HW_LEFT),
-                      labelForHardware(CrossPointSettings::FRONT_HW_RIGHT));
+  GUI.drawButtonHints(
+      renderer, labelForHardware(FluiDezSettings::FRONT_HW_BACK), labelForHardware(FluiDezSettings::FRONT_HW_CONFIRM),
+      labelForHardware(FluiDezSettings::FRONT_HW_LEFT), labelForHardware(FluiDezSettings::FRONT_HW_RIGHT));
   renderer.displayBuffer();
 }
 
@@ -215,15 +214,15 @@ void ButtonRemapActivity::refreshListItems() {
 }
 
 bool ButtonRemapActivity::usesLyraValueBadge() const {
-  switch (static_cast<CrossPointSettings::UI_THEME>(SETTINGS.uiTheme)) {
-    case CrossPointSettings::UI_THEME::LYRA:
-    case CrossPointSettings::UI_THEME::LYRA_3_COVERS:
-    case CrossPointSettings::UI_THEME::LYRA_CAROUSEL:
-    case CrossPointSettings::UI_THEME::LYRA_GRID:
-    case CrossPointSettings::UI_THEME::MINIMAL:
-    case CrossPointSettings::UI_THEME::FLUIDEZ_FLUXO:
-    case CrossPointSettings::UI_THEME::FLUIDEZ_CARDS:
-    case CrossPointSettings::UI_THEME::FLUIDEZ_SHELF:
+  switch (static_cast<FluiDezSettings::UI_THEME>(SETTINGS.uiTheme)) {
+    case FluiDezSettings::UI_THEME::LYRA:
+    case FluiDezSettings::UI_THEME::LYRA_3_COVERS:
+    case FluiDezSettings::UI_THEME::LYRA_CAROUSEL:
+    case FluiDezSettings::UI_THEME::LYRA_GRID:
+    case FluiDezSettings::UI_THEME::MINIMAL:
+    case FluiDezSettings::UI_THEME::FLUIDEZ_FLUXO:
+    case FluiDezSettings::UI_THEME::FLUIDEZ_CARDS:
+    case FluiDezSettings::UI_THEME::FLUIDEZ_SHELF:
       return true;
     default:
       return false;
@@ -308,13 +307,13 @@ const char* ButtonRemapActivity::getRoleName(const uint8_t roleIndex) const {
 
 const char* ButtonRemapActivity::getHardwareName(const uint8_t buttonIndex) const {
   switch (buttonIndex) {
-    case CrossPointSettings::FRONT_HW_BACK:
+    case FluiDezSettings::FRONT_HW_BACK:
       return tr(STR_HW_BACK_LABEL);
-    case CrossPointSettings::FRONT_HW_CONFIRM:
+    case FluiDezSettings::FRONT_HW_CONFIRM:
       return tr(STR_HW_CONFIRM_LABEL);
-    case CrossPointSettings::FRONT_HW_LEFT:
+    case FluiDezSettings::FRONT_HW_LEFT:
       return tr(STR_HW_LEFT_LABEL);
-    case CrossPointSettings::FRONT_HW_RIGHT:
+    case FluiDezSettings::FRONT_HW_RIGHT:
       return tr(STR_HW_RIGHT_LABEL);
     default:
       return "Unknown";

@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "RecentBooksStore.h"
 #include "activities/reader/GlobalReadingStats.h"
 #include "activities/reader/ReadingStatsUtils.h"

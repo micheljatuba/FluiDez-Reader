@@ -9,7 +9,7 @@
 
 #include "ActivityManager.h"  // for using the ActivityManager singleton
 #include "ActivityResult.h"
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "GfxRenderer.h"
 #include "MappedInputManager.h"
 #include "RenderLock.h"
@@ -101,7 +101,7 @@ class Activity {
   virtual bool canSnapshotForSleepOverlay() const { return false; }
   // Activity-specific swipe actions (chapter and font commands). Global
   // frontlight commands are handled by ActivityManager before this callback.
-  virtual bool handleTwoFingerSwipeAction(CrossPointSettings::TWO_FINGER_SWIPE_ACTION) { return false; }
+  virtual bool handleTwoFingerSwipeAction(FluiDezSettings::TWO_FINGER_SWIPE_ACTION) { return false; }
   // An overlay may cache the live frontlight value for its controls.
   virtual void onExternalFrontlightChange() {}
   // Completed two-finger rotations are routed only to activities that can
@@ -109,7 +109,7 @@ class Activity {
   virtual bool handleTwoFingerRotation(bool clockwise) { return false; }
   virtual bool openReaderSettingsMenu() { return false; }
   virtual bool handleShortcutAction(uint8_t) { return false; }
-  virtual bool handleShortcutAction(CrossPointSettings::SHORT_PWRBTN) { return false; }
+  virtual bool handleShortcutAction(FluiDezSettings::SHORT_PWRBTN) { return false; }
   virtual std::string getCurrentBookPath() const { return {}; }
   virtual std::string getCurrentBookTitle() const { return {}; }
   virtual bool getFrontlightPanelBookDetails(FrontlightPanelBookDetails&) { return false; }

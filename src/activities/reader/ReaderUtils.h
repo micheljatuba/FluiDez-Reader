@@ -1,6 +1,6 @@
 #pragma once
 
-#include <CrossPointSettings.h>
+#include <FluiDezSettings.h>
 #include <GfxRenderer.h>
 #include <HalClock.h>
 #include <HalTiltSensor.h>
@@ -36,13 +36,13 @@ inline bool isRtlBookLanguage(std::string_view tag) {
 
 inline GfxRenderer::Orientation toRendererOrientation(const uint8_t orientation) {
   switch (orientation) {
-    case CrossPointSettings::ORIENTATION::PORTRAIT:
+    case FluiDezSettings::ORIENTATION::PORTRAIT:
       return GfxRenderer::Orientation::Portrait;
-    case CrossPointSettings::ORIENTATION::LANDSCAPE_CW:
+    case FluiDezSettings::ORIENTATION::LANDSCAPE_CW:
       return GfxRenderer::Orientation::LandscapeClockwise;
-    case CrossPointSettings::ORIENTATION::INVERTED:
+    case FluiDezSettings::ORIENTATION::INVERTED:
       return GfxRenderer::Orientation::PortraitInverted;
-    case CrossPointSettings::ORIENTATION::LANDSCAPE_CCW:
+    case FluiDezSettings::ORIENTATION::LANDSCAPE_CCW:
       return GfxRenderer::Orientation::LandscapeCounterClockwise;
     default:
       return GfxRenderer::Orientation::Portrait;
@@ -98,12 +98,12 @@ inline int getReaderFooterReservedHeight(const bool automaticPageTurnActive) {
 }
 
 inline uint8_t rotatedOrientation(const uint8_t orientation, const bool clockwise) {
-  return clockwise ? (orientation + 1) % CrossPointSettings::ORIENTATION_COUNT
-                   : (orientation + CrossPointSettings::ORIENTATION_COUNT - 1) % CrossPointSettings::ORIENTATION_COUNT;
+  return clockwise ? (orientation + 1) % FluiDezSettings::ORIENTATION_COUNT
+                   : (orientation + FluiDezSettings::ORIENTATION_COUNT - 1) % FluiDezSettings::ORIENTATION_COUNT;
 }
 
 inline uint8_t flippedOrientation(const uint8_t orientation) {
-  return (orientation + 2) % CrossPointSettings::ORIENTATION_COUNT;
+  return (orientation + 2) % FluiDezSettings::ORIENTATION_COUNT;
 }
 
 struct PageTurnResult {
@@ -141,11 +141,11 @@ inline TouchPageTurn detectTouchPageTurn(const GfxRenderer& renderer, const Mapp
   }
 
   const auto allowsSwipe = [](const uint8_t gesture) {
-    return gesture == CrossPointSettings::TAP_AND_SWIPE || gesture == CrossPointSettings::SWIPE_ONLY;
+    return gesture == FluiDezSettings::TAP_AND_SWIPE || gesture == FluiDezSettings::SWIPE_ONLY;
   };
   const auto allowsTap = [](const uint8_t gesture) {
-    return gesture == CrossPointSettings::TAP_AND_SWIPE || gesture == CrossPointSettings::TAP_ONLY ||
-           gesture == CrossPointSettings::INVERTED_TAP;
+    return gesture == FluiDezSettings::TAP_AND_SWIPE || gesture == FluiDezSettings::TAP_ONLY ||
+           gesture == FluiDezSettings::INVERTED_TAP;
   };
 
   const auto swipe = input.wasSwipe();
@@ -176,8 +176,8 @@ inline TouchPageTurn detectTouchPageTurn(const GfxRenderer& renderer, const Mapp
   // both accept taps, RTL books and Inverted Tap each swap their shared zones.
   const bool nextTaps = allowsTap(SETTINGS.pageTurnGesture);
   const bool previousTaps = allowsTap(SETTINGS.previousPageGesture);
-  const bool invertedTaps = (SETTINGS.pageTurnGesture == CrossPointSettings::INVERTED_TAP ||
-                             SETTINGS.previousPageGesture == CrossPointSettings::INVERTED_TAP) != rtlBook;
+  const bool invertedTaps = (SETTINGS.pageTurnGesture == FluiDezSettings::INVERTED_TAP ||
+                             SETTINGS.previousPageGesture == FluiDezSettings::INVERTED_TAP) != rtlBook;
   const bool nextZone = invertedTaps ? x < (width * 2) / 3 : x >= width / 3;
   result.next = nextTaps && (!previousTaps || nextZone);
   result.prev = previousTaps && (!nextTaps || !nextZone);
@@ -219,9 +219,9 @@ inline PageTurnResult detectPageTurn(const MappedInputManager& input) {
 
   const bool frontPrev = input.wasReleased(MappedInputManager::Button::Left);
   const bool powerReleased = input.wasReleased(MappedInputManager::Button::Power);
-  const bool shortPowerTurn = SETTINGS.shortPwrBtn == CrossPointSettings::SHORT_PWRBTN::PAGE_TURN && powerReleased &&
+  const bool shortPowerTurn = SETTINGS.shortPwrBtn == FluiDezSettings::SHORT_PWRBTN::PAGE_TURN && powerReleased &&
                               input.getHeldTime() < SETTINGS.getPowerButtonLongPressDuration();
-  const bool longPowerTurn = SETTINGS.longPwrBtn == CrossPointSettings::SHORT_PWRBTN::PAGE_TURN && powerReleased &&
+  const bool longPowerTurn = SETTINGS.longPwrBtn == FluiDezSettings::SHORT_PWRBTN::PAGE_TURN && powerReleased &&
                              input.getHeldTime() >= SETTINGS.getPowerButtonLongPressDuration();
   const bool powerTurn = shortPowerTurn || longPowerTurn;
   const bool frontNext = input.wasReleased(MappedInputManager::Button::Right) || powerTurn;

@@ -11,7 +11,7 @@
 #include <cctype>
 #include <cstring>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 
 FontInstaller::FontInstaller(SdCardFontRegistry& registry) : registry_(registry) {}
 

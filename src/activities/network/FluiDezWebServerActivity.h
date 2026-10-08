@@ -8,7 +8,7 @@
 #include "NetworkModeSelectionActivity.h"
 #include "activities/Activity.h"
 #include "activities/ScreenTransitionRefresh.h"
-#include "network/CrossPointWebServer.h"
+#include "network/FluiDezWebServer.h"
 
 // Web server activity states
 enum class WebServerActivityState {
@@ -20,16 +20,16 @@ enum class WebServerActivityState {
 };
 
 /**
- * CrossPointWebServerActivity is the entry point for file transfer functionality.
+ * FluiDezWebServerActivity is the entry point for file transfer functionality.
  * It:
  * - First presents a choice between "Join a Network" (STA), "Connect to Calibre", and "Create Hotspot" (AP)
  * - For STA mode: Launches WifiSelectionActivity to connect to an existing network
  * - For AP mode: Creates an Access Point that clients can connect to
- * - Starts the CrossPointWebServer when connected
+ * - Starts the FluiDezWebServer when connected
  * - Handles client requests in its loop() function
  * - Cleans up the server and shuts down WiFi on exit
  */
-class CrossPointWebServerActivity final : public Activity {
+class FluiDezWebServerActivity final : public Activity {
   WebServerActivityState state = WebServerActivityState::MODE_SELECTION;
   std::string returnBookPath;
   bool hasInitialNetworkMode = false;
@@ -41,7 +41,7 @@ class CrossPointWebServerActivity final : public Activity {
   bool isApMode = false;
 
   // Web server - owned by this activity
-  std::unique_ptr<CrossPointWebServer> webServer;
+  std::unique_ptr<FluiDezWebServer> webServer;
 
   // Server status
   std::string connectedIP;
@@ -74,12 +74,12 @@ class CrossPointWebServerActivity final : public Activity {
   void exitToOrigin();
 
  public:
-  explicit CrossPointWebServerActivity(GfxRenderer& renderer, MappedInputManager& mappedInput,
-                                       std::string returnBookPath = {})
-      : Activity("CrossPointWebServer", renderer, mappedInput), returnBookPath(std::move(returnBookPath)) {}
-  CrossPointWebServerActivity(GfxRenderer& renderer, MappedInputManager& mappedInput, NetworkMode initialNetworkMode,
-                              std::string returnBookPath = {}, bool networkBootReady = false)
-      : Activity("CrossPointWebServer", renderer, mappedInput),
+  explicit FluiDezWebServerActivity(GfxRenderer& renderer, MappedInputManager& mappedInput,
+                                    std::string returnBookPath = {})
+      : Activity("FluiDezWebServer", renderer, mappedInput), returnBookPath(std::move(returnBookPath)) {}
+  FluiDezWebServerActivity(GfxRenderer& renderer, MappedInputManager& mappedInput, NetworkMode initialNetworkMode,
+                           std::string returnBookPath = {}, bool networkBootReady = false)
+      : Activity("FluiDezWebServer", renderer, mappedInput),
         returnBookPath(std::move(returnBookPath)),
         hasInitialNetworkMode(true),
         initialNetworkMode(initialNetworkMode),

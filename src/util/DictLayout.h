@@ -11,7 +11,7 @@
 
 // Pure, renderer-independent layout of dictionary HTML spans into wrapped
 // display lines. Width measurement is injected via Measurer, so this module has
-// no dependency on GfxRenderer / CrossPointSettings / font IDs. That decoupling
+// no dependency on GfxRenderer / FluiDezSettings / font IDs. That decoupling
 // is what lets the wrap/pagination logic be unit-tested host-side with a
 // deterministic fake measurer (Tier-A litmus), while the device supplies a
 // real font-metric-backed measurer.

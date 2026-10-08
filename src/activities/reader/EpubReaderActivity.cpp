@@ -31,8 +31,6 @@
 #include "BookStatsTracking.h"
 #include "ClipSelectionActivity.h"
 #include "ClippingStore.h"
-#include "CrossPointSettings.h"
-#include "CrossPointState.h"
 #include "DictionaryWordSelectActivity.h"
 #include "EpubGrayscale.h"
 #include "EpubReaderBookmarkListActivity.h"
@@ -43,6 +41,8 @@
 #include "EpubReaderFootnotesActivity.h"
 #include "EpubReaderPercentSelectionActivity.h"
 #include "EpubReaderUtils.h"
+#include "FluiDezSettings.h"
+#include "FluiDezState.h"
 #include "FocusReadingText.h"
 #include "GlobalActions.h"
 #include "KOReaderCredentialStore.h"
@@ -1130,43 +1130,43 @@ void captureReaderSettings(EpubReaderActivity::ReaderSettingsSnapshot& out) {
 }
 
 void applyReaderSettings(const EpubReaderActivity::ReaderSettingsSnapshot& in) {
-  SETTINGS.fontFamily = in.fontFamily < CrossPointSettings::BUILTIN_FONT_COUNT ? in.fontFamily : SETTINGS.fontFamily;
+  SETTINGS.fontFamily = in.fontFamily < FluiDezSettings::BUILTIN_FONT_COUNT ? in.fontFamily : SETTINGS.fontFamily;
   std::strncpy(SETTINGS.sdFontFamilyName, in.sdFontFamilyName, sizeof(SETTINGS.sdFontFamilyName) - 1);
   SETTINGS.sdFontFamilyName[sizeof(SETTINGS.sdFontFamilyName) - 1] = '\0';
-  if (in.readerFontPointSize < CrossPointSettings::MIN_READER_FONT_POINT_SIZE) {
+  if (in.readerFontPointSize < FluiDezSettings::MIN_READER_FONT_POINT_SIZE) {
     if (in.sdFontFamilyName[0] != '\0') {
       SETTINGS.readerFontPointSize = sdFontSystem.resolveLegacySizeStep(in.sdFontFamilyName, in.readerFontPointSize);
     } else {
-      SETTINGS.readerFontPointSize = CrossPointSettings::getReaderFontPointSize(
-          static_cast<CrossPointSettings::FONT_SIZE>(in.readerFontPointSize));
+      SETTINGS.readerFontPointSize =
+          FluiDezSettings::getReaderFontPointSize(static_cast<FluiDezSettings::FONT_SIZE>(in.readerFontPointSize));
     }
   } else {
     SETTINGS.readerFontPointSize = in.readerFontPointSize;
   }
-  SETTINGS.lineHeightPercent = CrossPointSettings::clampedLineHeightPercent(in.lineHeightPercent);
-  SETTINGS.wordSpacing = std::min<uint8_t>(in.wordSpacing, CrossPointSettings::MAX_WORD_SPACING);
-  SETTINGS.orientation = in.orientation < CrossPointSettings::ORIENTATION_COUNT ? in.orientation : SETTINGS.orientation;
-  SETTINGS.screenMarginVertical = std::clamp<uint8_t>(in.screenMarginVertical, CrossPointSettings::MIN_SCREEN_MARGIN,
-                                                      CrossPointSettings::MAX_SCREEN_MARGIN);
-  SETTINGS.screenMarginHorizontal = std::clamp<uint8_t>(
-      in.screenMarginHorizontal, CrossPointSettings::MIN_SCREEN_MARGIN, CrossPointSettings::MAX_SCREEN_MARGIN);
+  SETTINGS.lineHeightPercent = FluiDezSettings::clampedLineHeightPercent(in.lineHeightPercent);
+  SETTINGS.wordSpacing = std::min<uint8_t>(in.wordSpacing, FluiDezSettings::MAX_WORD_SPACING);
+  SETTINGS.orientation = in.orientation < FluiDezSettings::ORIENTATION_COUNT ? in.orientation : SETTINGS.orientation;
+  SETTINGS.screenMarginVertical = std::clamp<uint8_t>(in.screenMarginVertical, FluiDezSettings::MIN_SCREEN_MARGIN,
+                                                      FluiDezSettings::MAX_SCREEN_MARGIN);
+  SETTINGS.screenMarginHorizontal = std::clamp<uint8_t>(in.screenMarginHorizontal, FluiDezSettings::MIN_SCREEN_MARGIN,
+                                                        FluiDezSettings::MAX_SCREEN_MARGIN);
   SETTINGS.publisherPageNumbers = in.publisherPageNumbers ? 1 : 0;
-  SETTINGS.paragraphAlignment = in.paragraphAlignment < CrossPointSettings::PARAGRAPH_ALIGNMENT_COUNT
+  SETTINGS.paragraphAlignment = in.paragraphAlignment < FluiDezSettings::PARAGRAPH_ALIGNMENT_COUNT
                                     ? in.paragraphAlignment
                                     : SETTINGS.paragraphAlignment;
   SETTINGS.embeddedStyle = in.embeddedStyle ? 1 : 0;
   SETTINGS.hyphenationEnabled = in.hyphenationEnabled ? 1 : 0;
   SETTINGS.textAntiAliasing = in.textAntiAliasing ? 1 : 0;
   SETTINGS.imageRendering =
-      in.imageRendering < CrossPointSettings::IMAGE_RENDERING_COUNT ? in.imageRendering : SETTINGS.imageRendering;
+      in.imageRendering < FluiDezSettings::IMAGE_RENDERING_COUNT ? in.imageRendering : SETTINGS.imageRendering;
   SETTINGS.extraParagraphSpacing = in.extraParagraphSpacing ? 1 : 0;
   SETTINGS.forceParagraphIndents = in.forceParagraphIndents ? 1 : 0;
   SETTINGS.focusReadingEnabled = in.focusReadingEnabled ? 1 : 0;
   SETTINGS.guideReadingEnabled = in.guideReadingEnabled ? 1 : 0;
   SETTINGS.epubRenderMode = normalizeRenderModeRaw(in.epubRenderMode);
-  SETTINGS.indexingMethod = in.indexingMethod < CrossPointSettings::INDEXING_METHOD_COUNT
+  SETTINGS.indexingMethod = in.indexingMethod < FluiDezSettings::INDEXING_METHOD_COUNT
                                 ? in.indexingMethod
-                                : CrossPointSettings::INDEXING_FULL_SECTION;
+                                : FluiDezSettings::INDEXING_FULL_SECTION;
 }
 
 using ReaderSettingsSnapshot = EpubReaderActivity::ReaderSettingsSnapshot;
@@ -1230,7 +1230,7 @@ bool readReaderSettingsSnapshot(FsFile& file, EpubReaderActivity::ReaderSettings
     return false;
   }
 
-  uint8_t legacyScreenMargin = CrossPointSettings::MIN_SCREEN_MARGIN;
+  uint8_t legacyScreenMargin = FluiDezSettings::MIN_SCREEN_MARGIN;
   const bool marginsRead = includesSplitScreenMargins
                                ? readU8(file, out.screenMarginVertical) && readU8(file, out.screenMarginHorizontal)
                                : readU8(file, legacyScreenMargin);
@@ -1262,7 +1262,7 @@ bool readReaderSettingsSnapshot(FsFile& file, EpubReaderActivity::ReaderSettings
 
 bool writeReaderSettingsSnapshot(FsFile& file, const EpubReaderActivity::ReaderSettingsSnapshot& in) {
   return writeU8(file, in.fontFamily) && writeU8(file, in.readerFontPointSize) && writeU8(file, in.lineHeightPercent) &&
-         writeU8(file, std::min<uint8_t>(in.wordSpacing, CrossPointSettings::MAX_WORD_SPACING)) &&
+         writeU8(file, std::min<uint8_t>(in.wordSpacing, FluiDezSettings::MAX_WORD_SPACING)) &&
          writeU8(file, in.orientation) && writeU8(file, in.screenMarginVertical) &&
          writeU8(file, in.screenMarginHorizontal) && writeU8(file, in.publisherPageNumbers) &&
          writeU8(file, in.paragraphAlignment) && writeU8(file, in.embeddedStyle) &&
@@ -1270,9 +1270,9 @@ bool writeReaderSettingsSnapshot(FsFile& file, const EpubReaderActivity::ReaderS
          writeU8(file, in.imageRendering) && writeU8(file, in.extraParagraphSpacing) &&
          writeU8(file, in.forceParagraphIndents) && writeU8(file, in.focusReadingEnabled) &&
          writeU8(file, in.guideReadingEnabled) && writeU8(file, normalizeRenderModeRaw(in.epubRenderMode)) &&
-         writeU8(file, in.indexingMethod < CrossPointSettings::INDEXING_METHOD_COUNT
+         writeU8(file, in.indexingMethod < FluiDezSettings::INDEXING_METHOD_COUNT
                            ? in.indexingMethod
-                           : CrossPointSettings::INDEXING_FULL_SECTION) &&
+                           : FluiDezSettings::INDEXING_FULL_SECTION) &&
          writeExact(file, in.sdFontFamilyName, sizeof(in.sdFontFamilyName));
 }
 
@@ -1571,10 +1571,10 @@ bool EpubReaderActivity::handleQuickLockUnlock(const QuickLockTrigger trigger) {
       }
       return true;
     }
-    if (SETTINGS.longPressMenuAction == CrossPointSettings::LONG_MENU_QUICK_LOCK &&
+    if (SETTINGS.longPressMenuAction == FluiDezSettings::LONG_MENU_QUICK_LOCK &&
         mappedInput.isPressed(MappedInputManager::Button::Confirm) && mappedInput.getHeldTime() >= longPressMenuMs) {
       longPressMenuHandled = true;
-      handleGlobalPowerButtonAction(CrossPointSettings::SHORT_PWRBTN::QUICK_LOCK, QuickLockTrigger::LongMenu);
+      handleGlobalPowerButtonAction(FluiDezSettings::SHORT_PWRBTN::QUICK_LOCK, QuickLockTrigger::LongMenu);
       return true;
     }
     return false;
@@ -1588,12 +1588,12 @@ bool EpubReaderActivity::handleQuickLockUnlock(const QuickLockTrigger trigger) {
       }
       return true;
     }
-    if (SETTINGS.longPressBackAction == CrossPointSettings::LONG_MENU_QUICK_LOCK &&
+    if (SETTINGS.longPressBackAction == FluiDezSettings::LONG_MENU_QUICK_LOCK &&
         mappedInput.isPressed(MappedInputManager::Button::Back) &&
         mappedInput.getHeldTime() >= ReaderUtils::GO_HOME_MS) {
       longPressBackHandled = true;
       mappedInput.suppressNextBackRelease();
-      handleGlobalPowerButtonAction(CrossPointSettings::SHORT_PWRBTN::QUICK_LOCK, QuickLockTrigger::LongBack);
+      handleGlobalPowerButtonAction(FluiDezSettings::SHORT_PWRBTN::QUICK_LOCK, QuickLockTrigger::LongBack);
       return true;
     }
     return false;
@@ -3129,20 +3129,20 @@ void EpubReaderActivity::loop() {
   }
 
   if (!endOfBookMenuOpen && confirmReleased) {
-    if (SETTINGS.longPressMenuAction != CrossPointSettings::LONG_MENU_OFF &&
+    if (SETTINGS.longPressMenuAction != FluiDezSettings::LONG_MENU_OFF &&
         mappedInput.getHeldTime() >= longPressMenuMs) {
-      const auto action = static_cast<CrossPointSettings::LONG_PRESS_MENU_ACTION>(SETTINGS.longPressMenuAction);
-      if (action == CrossPointSettings::LONG_MENU_LIBRARY) mappedInput.suppressNextConfirmRelease();
+      const auto action = static_cast<FluiDezSettings::LONG_PRESS_MENU_ACTION>(SETTINGS.longPressMenuAction);
+      if (action == FluiDezSettings::LONG_MENU_LIBRARY) mappedInput.suppressNextConfirmRelease();
       executeReaderQuickAction(action);
       return;
     }
   }
 
-  if (!endOfBookMenuOpen && SETTINGS.longPressMenuAction != CrossPointSettings::LONG_MENU_OFF &&
+  if (!endOfBookMenuOpen && SETTINGS.longPressMenuAction != FluiDezSettings::LONG_MENU_OFF &&
       mappedInput.isPressed(MappedInputManager::Button::Confirm) && mappedInput.getHeldTime() >= longPressMenuMs) {
     longPressMenuHandled = true;
-    const auto action = static_cast<CrossPointSettings::LONG_PRESS_MENU_ACTION>(SETTINGS.longPressMenuAction);
-    if (action == CrossPointSettings::LONG_MENU_LIBRARY) mappedInput.suppressNextConfirmRelease();
+    const auto action = static_cast<FluiDezSettings::LONG_PRESS_MENU_ACTION>(SETTINGS.longPressMenuAction);
+    if (action == FluiDezSettings::LONG_MENU_LIBRARY) mappedInput.suppressNextConfirmRelease();
     executeReaderQuickAction(action);
     return;
   }
@@ -3167,8 +3167,8 @@ void EpubReaderActivity::loop() {
   if (!longPressBackHandled && mappedInput.isPressed(MappedInputManager::Button::Back) &&
       mappedInput.getHeldTime() >= ReaderUtils::GO_HOME_MS) {
     longPressBackHandled = true;
-    const auto action = static_cast<CrossPointSettings::LONG_PRESS_MENU_ACTION>(SETTINGS.longPressBackAction);
-    if (action == CrossPointSettings::LONG_MENU_CREATE_CLIPPING) {
+    const auto action = static_cast<FluiDezSettings::LONG_PRESS_MENU_ACTION>(SETTINGS.longPressBackAction);
+    if (action == FluiDezSettings::LONG_MENU_CREATE_CLIPPING) {
       startClipSelection(nullptr, /*ignoreInitialBackRelease=*/true);
     } else {
       mappedInput.suppressNextBackRelease();
@@ -3196,9 +3196,9 @@ void EpubReaderActivity::loop() {
         mappedInput.suppressNextSideRelease(side.up ? MappedInputManager::Button::Up
                                                     : MappedInputManager::Button::Down);
       switch (side.action) {
-        case CrossPointSettings::SIDE_PREVIOUS_CHAPTER:
-        case CrossPointSettings::SIDE_NEXT_CHAPTER: {
-          const bool next = side.action == CrossPointSettings::SIDE_NEXT_CHAPTER;
+        case FluiDezSettings::SIDE_PREVIOUS_CHAPTER:
+        case FluiDezSettings::SIDE_NEXT_CHAPTER: {
+          const bool next = side.action == FluiDezSettings::SIDE_NEXT_CHAPTER;
           clearPendingManualPageTurns();
           if (!next && isAtBookStart()) break;
           if (!next && section && section->currentPage > 0) {
@@ -3215,27 +3215,27 @@ void EpubReaderActivity::loop() {
           requestUpdate();
           break;
         }
-        case CrossPointSettings::SIDE_INCREASE_FONT:
-        case CrossPointSettings::SIDE_DECREASE_FONT:
+        case FluiDezSettings::SIDE_INCREASE_FONT:
+        case FluiDezSettings::SIDE_DECREASE_FONT:
           if (ReaderUtils::changeReaderFontSizeWithFeedback(renderer,
-                                                            side.action == CrossPointSettings::SIDE_INCREASE_FONT))
+                                                            side.action == FluiDezSettings::SIDE_INCREASE_FONT))
             reindexCurrentSection();
           break;
-        case CrossPointSettings::SIDE_ROTATE_COUNTERCLOCKWISE:
-        case CrossPointSettings::SIDE_ROTATE_CLOCKWISE:
+        case FluiDezSettings::SIDE_ROTATE_COUNTERCLOCKWISE:
+        case FluiDezSettings::SIDE_ROTATE_CLOCKWISE:
           applyOrientation(ReaderUtils::rotatedOrientation(SETTINGS.orientation,
-                                                           side.action == CrossPointSettings::SIDE_ROTATE_CLOCKWISE));
+                                                           side.action == FluiDezSettings::SIDE_ROTATE_CLOCKWISE));
           requestUpdate();
           break;
-        case CrossPointSettings::SIDE_ROTATE_FLIP:
+        case FluiDezSettings::SIDE_ROTATE_FLIP:
           applyOrientation(ReaderUtils::flippedOrientation(SETTINGS.orientation));
           requestUpdate();
           break;
-        case CrossPointSettings::IGNORE:
+        case FluiDezSettings::IGNORE:
           break;
         default: {
-          const auto action = static_cast<CrossPointSettings::SHORT_PWRBTN>(side.action);
-          if (action == CrossPointSettings::QUICK_LOCK)
+          const auto action = static_cast<FluiDezSettings::SHORT_PWRBTN>(side.action);
+          if (action == FluiDezSettings::QUICK_LOCK)
             handleGlobalPowerButtonAction(action, SideButtonShortcuts::quickLockTrigger(side));
           else if (!handleShortcutAction(action))
             handleGlobalPowerButtonAction(action);
@@ -3260,9 +3260,9 @@ void EpubReaderActivity::loop() {
     return;
   }
 
-  const bool frontLongPressChangesFont = SETTINGS.longPressButtonBehavior == CrossPointSettings::FONT_SIZE_CHANGE;
-  const bool frontLongPressAction = SETTINGS.longPressButtonBehavior == CrossPointSettings::CHAPTER_SKIP ||
-                                    SETTINGS.longPressButtonBehavior == CrossPointSettings::ORIENTATION_CHANGE ||
+  const bool frontLongPressChangesFont = SETTINGS.longPressButtonBehavior == FluiDezSettings::FONT_SIZE_CHANGE;
+  const bool frontLongPressAction = SETTINGS.longPressButtonBehavior == FluiDezSettings::CHAPTER_SKIP ||
+                                    SETTINGS.longPressButtonBehavior == FluiDezSettings::ORIENTATION_CHANGE ||
                                     frontLongPressChangesFont;
   if (frontLongPressAction) {
     const bool leftReleased = mappedInput.wasReleased(MappedInputManager::Button::Left);
@@ -3277,7 +3277,7 @@ void EpubReaderActivity::loop() {
     const bool nextLongPressed = longPressReady && mappedInput.isPressed(MappedInputManager::Button::Right);
     if (!frontButtonLongPressHandled && (prevLongPressed || nextLongPressed)) {
       frontButtonLongPressHandled = true;
-      if (SETTINGS.longPressButtonBehavior == CrossPointSettings::CHAPTER_SKIP) {
+      if (SETTINGS.longPressButtonBehavior == FluiDezSettings::CHAPTER_SKIP) {
         clearPendingManualPageTurns();
         if (!nextLongPressed && currentSpineIndex <= 0) {
           bool changed = false;
@@ -3333,25 +3333,24 @@ void EpubReaderActivity::loop() {
   prevTriggered = prevTriggered || touch.prev;
   nextTriggered = nextTriggered || touch.next;
   const bool powerReleased = mappedInput.wasReleased(MappedInputManager::Button::Power);
-  const bool shortPowerTurn = SETTINGS.shortPwrBtn == CrossPointSettings::SHORT_PWRBTN::PAGE_TURN && powerReleased &&
+  const bool shortPowerTurn = SETTINGS.shortPwrBtn == FluiDezSettings::SHORT_PWRBTN::PAGE_TURN && powerReleased &&
                               mappedInput.getHeldTime() < SETTINGS.getPowerButtonLongPressDuration();
-  const bool shortPowerPrevious = SETTINGS.shortPwrBtn == CrossPointSettings::SHORT_PWRBTN::PREVIOUS_PAGE &&
+  const bool shortPowerPrevious = SETTINGS.shortPwrBtn == FluiDezSettings::SHORT_PWRBTN::PREVIOUS_PAGE &&
                                   powerReleased &&
                                   mappedInput.getHeldTime() < SETTINGS.getPowerButtonLongPressDuration();
-  const bool releasedLongPowerTurn = SETTINGS.longPwrBtn == CrossPointSettings::SHORT_PWRBTN::PAGE_TURN &&
-                                     powerReleased &&
+  const bool releasedLongPowerTurn = SETTINGS.longPwrBtn == FluiDezSettings::SHORT_PWRBTN::PAGE_TURN && powerReleased &&
                                      mappedInput.getHeldTime() >= SETTINGS.getPowerButtonLongPressDuration();
-  const bool releasedLongPowerPrevious = SETTINGS.longPwrBtn == CrossPointSettings::SHORT_PWRBTN::PREVIOUS_PAGE &&
+  const bool releasedLongPowerPrevious = SETTINGS.longPwrBtn == FluiDezSettings::SHORT_PWRBTN::PREVIOUS_PAGE &&
                                          powerReleased &&
                                          mappedInput.getHeldTime() >= SETTINGS.getPowerButtonLongPressDuration();
   bool heldLongPowerTurn = false;
-  if (SETTINGS.longPwrBtn == CrossPointSettings::SHORT_PWRBTN::PAGE_TURN && consumeLongPowerButtonHold()) {
+  if (SETTINGS.longPwrBtn == FluiDezSettings::SHORT_PWRBTN::PAGE_TURN && consumeLongPowerButtonHold()) {
     nextTriggered = true;
     fromSideBtn = false;
     fromTilt = false;
     heldLongPowerTurn = true;
   }
-  if (SETTINGS.longPwrBtn == CrossPointSettings::SHORT_PWRBTN::PREVIOUS_PAGE && consumeLongPowerButtonHold()) {
+  if (SETTINGS.longPwrBtn == FluiDezSettings::SHORT_PWRBTN::PREVIOUS_PAGE && consumeLongPowerButtonHold()) {
     prevTriggered = true;
     fromSideBtn = false;
     fromTilt = false;
@@ -3398,7 +3397,7 @@ void EpubReaderActivity::loop() {
   const unsigned long heldMs = fromTouch ? touch.heldMs : mappedInput.getHeldTime();
   const bool longPress = !fromTilt && heldMs > ReaderUtils::SKIP_HOLD_MS;
   const bool skipChapter =
-      !chordPageTurn && !fromTouch && longPress && SETTINGS.longPressButtonBehavior == CrossPointSettings::CHAPTER_SKIP;
+      !chordPageTurn && !fromTouch && longPress && SETTINGS.longPressButtonBehavior == FluiDezSettings::CHAPTER_SKIP;
 
   // Don't skip chapter after screenshot
   if (gpio.wasReleased(HalGPIO::BTN_POWER) && gpio.wasReleased(HalGPIO::BTN_DOWN)) {
@@ -3430,7 +3429,7 @@ void EpubReaderActivity::loop() {
   }
 
   if (!chordPageTurn && !fromTouch && longPress && !fromSideBtn &&
-      SETTINGS.longPressButtonBehavior == CrossPointSettings::ORIENTATION_CHANGE) {
+      SETTINGS.longPressButtonBehavior == FluiDezSettings::ORIENTATION_CHANGE) {
     const uint8_t newOrientation =
         nextTriggered ? (SETTINGS.orientation - 1 + SETTINGS.ORIENTATION_COUNT) % SETTINGS.ORIENTATION_COUNT
                       : (SETTINGS.orientation + 1) % SETTINGS.ORIENTATION_COUNT;
@@ -3453,21 +3452,21 @@ void EpubReaderActivity::loop() {
   requestManualPageTurn(!prevTriggered, pageTurnSource);
 }
 
-bool EpubReaderActivity::handleTwoFingerSwipeAction(const CrossPointSettings::TWO_FINGER_SWIPE_ACTION action) {
+bool EpubReaderActivity::handleTwoFingerSwipeAction(const FluiDezSettings::TWO_FINGER_SWIPE_ACTION action) {
   if (!epub) return false;
 
   switch (action) {
-    case CrossPointSettings::TWO_FINGER_SWIPE_INCREASE_FONT_SIZE:
+    case FluiDezSettings::TWO_FINGER_SWIPE_INCREASE_FONT_SIZE:
       if (ReaderUtils::changeReaderFontSizeWithFeedback(renderer, /*larger=*/true, FontSizeStepMode::Clamp))
         reindexCurrentSection();
       return true;
-    case CrossPointSettings::TWO_FINGER_SWIPE_DECREASE_FONT_SIZE:
+    case FluiDezSettings::TWO_FINGER_SWIPE_DECREASE_FONT_SIZE:
       if (ReaderUtils::changeReaderFontSizeWithFeedback(renderer, /*larger=*/false, FontSizeStepMode::Clamp))
         reindexCurrentSection();
       return true;
-    case CrossPointSettings::TWO_FINGER_SWIPE_NEXT_CHAPTER:
-    case CrossPointSettings::TWO_FINGER_SWIPE_PREVIOUS_CHAPTER: {
-      const int direction = action == CrossPointSettings::TWO_FINGER_SWIPE_NEXT_CHAPTER ? 1 : -1;
+    case FluiDezSettings::TWO_FINGER_SWIPE_NEXT_CHAPTER:
+    case FluiDezSettings::TWO_FINGER_SWIPE_PREVIOUS_CHAPTER: {
+      const int direction = action == FluiDezSettings::TWO_FINGER_SWIPE_NEXT_CHAPTER ? 1 : -1;
       int firstSpineIndex = currentSpineIndex;
       int lastSpineIndex = currentSpineIndex;
       epub->resolveChapterGroupRange(currentSpineIndex, firstSpineIndex, lastSpineIndex);
@@ -4993,82 +4992,82 @@ void EpubReaderActivity::resetCurrentBookStatsAfterDelete() {
   initializeCompletionPromptTrigger();
 }
 
-void EpubReaderActivity::executeReaderQuickAction(CrossPointSettings::LONG_PRESS_MENU_ACTION action,
+void EpubReaderActivity::executeReaderQuickAction(FluiDezSettings::LONG_PRESS_MENU_ACTION action,
                                                   const bool dictionaryLookupFramebufferContainsPage,
                                                   const QuickLockTrigger quickLockTrigger) {
   clearPendingManualPageTurns();
   switch (action) {
-    case CrossPointSettings::LONG_MENU_SLEEP:
+    case FluiDezSettings::LONG_MENU_SLEEP:
       enterDeepSleep();
       break;
-    case CrossPointSettings::LONG_MENU_CHANGE_FONT: {
+    case FluiDezSettings::LONG_MENU_CHANGE_FONT: {
       const uint8_t pointSize = closestBuiltinReaderPointSize(SETTINGS.readerFontPointSize);
-      SETTINGS.fontFamily = (SETTINGS.fontFamily + 1) % CrossPointSettings::FONT_FAMILY_COUNT;
+      SETTINGS.fontFamily = (SETTINGS.fontFamily + 1) % FluiDezSettings::FONT_FAMILY_COUNT;
       SETTINGS.sdFontFamilyName[0] = '\0';
       SETTINGS.readerFontPointSize = pointSize;
       reindexCurrentSection();
       break;
     }
-    case CrossPointSettings::LONG_MENU_TOGGLE_GUIDE_DOTS:
+    case FluiDezSettings::LONG_MENU_TOGGLE_GUIDE_DOTS:
       SETTINGS.guideReadingEnabled = !SETTINGS.guideReadingEnabled;
       reindexCurrentSection();
       break;
-    case CrossPointSettings::LONG_MENU_TOGGLE_FOCUS:
+    case FluiDezSettings::LONG_MENU_TOGGLE_FOCUS:
       SETTINGS.focusReadingEnabled = !SETTINGS.focusReadingEnabled;
       reindexCurrentSection();
       break;
-    case CrossPointSettings::LONG_MENU_TOGGLE_BOOKMARK:
+    case FluiDezSettings::LONG_MENU_TOGGLE_BOOKMARK:
       onReaderMenuConfirm(EpubReaderMenuAction::BOOKMARK_TOGGLE);
       break;
-    case CrossPointSettings::LONG_MENU_REFRESH_SCREEN:
+    case FluiDezSettings::LONG_MENU_REFRESH_SCREEN:
       prepareManualRefresh();
       requestUpdate();
       break;
-    case CrossPointSettings::LONG_MENU_SYNC_PROGRESS:
+    case FluiDezSettings::LONG_MENU_SYNC_PROGRESS:
       onReaderMenuConfirm(EpubReaderMenuAction::SYNC);
       break;
-    case CrossPointSettings::LONG_MENU_MARK_FINISHED: {
+    case FluiDezSettings::LONG_MENU_MARK_FINISHED: {
       const bool newCompleted = !stats.isCompleted;
       setBookCompleted(newCompleted);
       showCompletedFeedback(newCompleted);
     }
       requestUpdate();
       break;
-    case CrossPointSettings::LONG_MENU_READING_STATS:
+    case FluiDezSettings::LONG_MENU_READING_STATS:
       onReaderMenuConfirm(EpubReaderMenuAction::READING_STATS);
       break;
-    case CrossPointSettings::LONG_MENU_SCREENSHOT:
+    case FluiDezSettings::LONG_MENU_SCREENSHOT:
       onReaderMenuConfirm(EpubReaderMenuAction::SCREENSHOT);
       break;
-    case CrossPointSettings::LONG_MENU_CYCLE_PAGE_TURN:
+    case FluiDezSettings::LONG_MENU_CYCLE_PAGE_TURN:
       openAutoPageTurnIntervalPicker(mappedInput.isPressed(MappedInputManager::Button::Confirm));
       break;
-    case CrossPointSettings::LONG_MENU_FILE_TRANSFER:
+    case FluiDezSettings::LONG_MENU_FILE_TRANSFER:
       openFileTransfer();
       break;
-    case CrossPointSettings::LONG_MENU_CALIBRE_WIRELESS:
+    case FluiDezSettings::LONG_MENU_CALIBRE_WIRELESS:
       saveProgressBeforeRestart();
       activityManager.goToCalibreWireless(epub ? epub->getPath() : "");
       break;
-    case CrossPointSettings::LONG_MENU_JOIN_NETWORK:
+    case FluiDezSettings::LONG_MENU_JOIN_NETWORK:
       saveProgressBeforeRestart();
       activityManager.goToJoinNetworkFileTransfer(epub ? epub->getPath() : "");
       break;
-    case CrossPointSettings::LONG_MENU_CREATE_HOTSPOT:
+    case FluiDezSettings::LONG_MENU_CREATE_HOTSPOT:
       saveProgressBeforeRestart();
       activityManager.goToHotspotFileTransfer(epub ? epub->getPath() : "");
       break;
-    case CrossPointSettings::LONG_MENU_TOGGLE_TILT_PAGE_TURN:
+    case FluiDezSettings::LONG_MENU_TOGGLE_TILT_PAGE_TURN:
       if (halTiltSensor.isAvailable()) {
-        SETTINGS.tiltPageTurn = SETTINGS.tiltPageTurn == CrossPointSettings::TILT_OFF ? CrossPointSettings::TILT_ON
-                                                                                      : CrossPointSettings::TILT_OFF;
+        SETTINGS.tiltPageTurn =
+            SETTINGS.tiltPageTurn == FluiDezSettings::TILT_OFF ? FluiDezSettings::TILT_ON : FluiDezSettings::TILT_OFF;
         saveGlobalSettingsPreservingBookOverrides();
         halTiltSensor.clearPendingEvents();
-        showTiltPageTurnFeedback(SETTINGS.tiltPageTurn != CrossPointSettings::TILT_OFF);
+        showTiltPageTurnFeedback(SETTINGS.tiltPageTurn != FluiDezSettings::TILT_OFF);
         requestUpdate();
       }
       break;
-    case CrossPointSettings::LONG_MENU_TOGGLE_DARK_MODE: {
+    case FluiDezSettings::LONG_MENU_TOGGLE_DARK_MODE: {
       {
         RenderLock lock(*this);
         SETTINGS.screenInverted = !SETTINGS.screenInverted;
@@ -5077,19 +5076,19 @@ void EpubReaderActivity::executeReaderQuickAction(CrossPointSettings::LONG_PRESS
       requestUpdate();
       break;
     }
-    case CrossPointSettings::LONG_MENU_FOOTNOTES:
+    case FluiDezSettings::LONG_MENU_FOOTNOTES:
       executeFootnoteQuickAction();
       break;
-    case CrossPointSettings::LONG_MENU_FILE_BROWSER:
+    case FluiDezSettings::LONG_MENU_FILE_BROWSER:
       activityManager.goToFileBrowser(epub ? epub->getPath() : "");
       break;
-    case CrossPointSettings::LONG_MENU_LIBRARY:
+    case FluiDezSettings::LONG_MENU_LIBRARY:
       activityManager.goToLibrary();
       break;
-    case CrossPointSettings::LONG_MENU_CREATE_CLIPPING:
+    case FluiDezSettings::LONG_MENU_CREATE_CLIPPING:
       startClipSelection();
       break;
-    case CrossPointSettings::LONG_MENU_LOOKUP_WORD:
+    case FluiDezSettings::LONG_MENU_LOOKUP_WORD:
       if (epub && Dictionary::exists(epub->getCachePath().c_str())) {
         openWordSelect(dictionaryLookupFramebufferContainsPage);
       } else {
@@ -5098,192 +5097,192 @@ void EpubReaderActivity::executeReaderQuickAction(CrossPointSettings::LONG_PRESS
         requestUpdate();
       }
       break;
-    case CrossPointSettings::LONG_MENU_QUICK_ACTIONS:
+    case FluiDezSettings::LONG_MENU_QUICK_ACTIONS:
       openQuickActionsPopup();
       break;
-    case CrossPointSettings::LONG_MENU_QUICK_LOCK:
-      handleGlobalPowerButtonAction(CrossPointSettings::SHORT_PWRBTN::QUICK_LOCK, quickLockTrigger);
+    case FluiDezSettings::LONG_MENU_QUICK_LOCK:
+      handleGlobalPowerButtonAction(FluiDezSettings::SHORT_PWRBTN::QUICK_LOCK, quickLockTrigger);
       break;
-    case CrossPointSettings::LONG_MENU_OFF:
+    case FluiDezSettings::LONG_MENU_OFF:
     default:
       break;
   }
 }
 
 bool EpubReaderActivity::handleShortcutAction(const uint8_t rawAction) {
-  const auto action = static_cast<CrossPointSettings::SHORT_PWRBTN>(rawAction);
+  const auto action = static_cast<FluiDezSettings::SHORT_PWRBTN>(rawAction);
   switch (action) {
-    case CrossPointSettings::SHORT_PWRBTN::IGNORE:
+    case FluiDezSettings::SHORT_PWRBTN::IGNORE:
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::PAGE_TURN:
+    case FluiDezSettings::SHORT_PWRBTN::PAGE_TURN:
       requestManualPageTurn(true, "home_button");
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::PREVIOUS_PAGE:
+    case FluiDezSettings::SHORT_PWRBTN::PREVIOUS_PAGE:
       requestManualPageTurn(false, "home_button");
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::NEARBY_POSITION_SYNC:
+    case FluiDezSettings::SHORT_PWRBTN::NEARBY_POSITION_SYNC:
       onReaderMenuConfirm(EpubReaderMenuAction::NEARBY_POSITION_SYNC);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_FONT:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_CHANGE_FONT);
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_FONT:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_CHANGE_FONT);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_GUIDE_DOTS:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_TOGGLE_GUIDE_DOTS);
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_GUIDE_DOTS:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_TOGGLE_GUIDE_DOTS);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_FOCUS_READING:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_TOGGLE_FOCUS);
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_FOCUS_READING:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_TOGGLE_FOCUS);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_BOOKMARK:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_TOGGLE_BOOKMARK);
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_BOOKMARK:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_TOGGLE_BOOKMARK);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::SYNC_PROGRESS:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_SYNC_PROGRESS);
+    case FluiDezSettings::SHORT_PWRBTN::SYNC_PROGRESS:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_SYNC_PROGRESS);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::MARK_FINISHED:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_MARK_FINISHED);
+    case FluiDezSettings::SHORT_PWRBTN::MARK_FINISHED:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_MARK_FINISHED);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::READING_STATS:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_READING_STATS);
+    case FluiDezSettings::SHORT_PWRBTN::READING_STATS:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_READING_STATS);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::SCREENSHOT:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_SCREENSHOT);
+    case FluiDezSettings::SHORT_PWRBTN::SCREENSHOT:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_SCREENSHOT);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::CYCLE_PAGE_TURN:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_CYCLE_PAGE_TURN);
+    case FluiDezSettings::SHORT_PWRBTN::CYCLE_PAGE_TURN:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_CYCLE_PAGE_TURN);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::FILE_TRANSFER:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_FILE_TRANSFER);
+    case FluiDezSettings::SHORT_PWRBTN::FILE_TRANSFER:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_FILE_TRANSFER);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::CALIBRE_WIRELESS:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_CALIBRE_WIRELESS);
+    case FluiDezSettings::SHORT_PWRBTN::CALIBRE_WIRELESS:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_CALIBRE_WIRELESS);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::JOIN_NETWORK:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_JOIN_NETWORK);
+    case FluiDezSettings::SHORT_PWRBTN::JOIN_NETWORK:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_JOIN_NETWORK);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::CREATE_HOTSPOT:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_CREATE_HOTSPOT);
+    case FluiDezSettings::SHORT_PWRBTN::CREATE_HOTSPOT:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_CREATE_HOTSPOT);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_TILT_PAGE_TURN:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_TOGGLE_TILT_PAGE_TURN);
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_TILT_PAGE_TURN:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_TOGGLE_TILT_PAGE_TURN);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_DARK_MODE:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_TOGGLE_DARK_MODE);
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_DARK_MODE:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_TOGGLE_DARK_MODE);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::FOOTNOTES:
+    case FluiDezSettings::SHORT_PWRBTN::FOOTNOTES:
       executeFootnoteQuickAction();
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::FILE_BROWSER:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_FILE_BROWSER);
+    case FluiDezSettings::SHORT_PWRBTN::FILE_BROWSER:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_FILE_BROWSER);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::CREATE_CLIPPING:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_CREATE_CLIPPING);
+    case FluiDezSettings::SHORT_PWRBTN::CREATE_CLIPPING:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_CREATE_CLIPPING);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::LOOKUP_WORD:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_LOOKUP_WORD);
+    case FluiDezSettings::SHORT_PWRBTN::LOOKUP_WORD:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_LOOKUP_WORD);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_HOME_BUTTON_IN_READER:
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_HOME_BUTTON_IN_READER:
       toggleHomeButtonInReader();
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::QUICK_ACTIONS:
+    case FluiDezSettings::SHORT_PWRBTN::QUICK_ACTIONS:
       openQuickActionsPopup();
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::HOME_READER:
+    case FluiDezSettings::SHORT_PWRBTN::HOME_READER:
       return dispatchShortcutAction(action);
-    case CrossPointSettings::SHORT_PWRBTN::LIBRARY:
+    case FluiDezSettings::SHORT_PWRBTN::LIBRARY:
       return handleGlobalPowerButtonAction(action);
-    case CrossPointSettings::SHORT_PWRBTN::QUICK_LOCK:
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_FRONTLIGHT:
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_TOUCHSCREEN:
+    case FluiDezSettings::SHORT_PWRBTN::QUICK_LOCK:
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_FRONTLIGHT:
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_TOUCHSCREEN:
       return handleGlobalPowerButtonAction(action);
-    case CrossPointSettings::SHORT_PWRBTN::SLEEP:
-    case CrossPointSettings::SHORT_PWRBTN::SLEEP_ONLY:
-    case CrossPointSettings::SHORT_PWRBTN::WAKE_ONLY:
-    case CrossPointSettings::SHORT_PWRBTN::FORCE_REFRESH:
-    case CrossPointSettings::SHORT_PWRBTN::SHORT_PWRBTN_COUNT:
+    case FluiDezSettings::SHORT_PWRBTN::SLEEP:
+    case FluiDezSettings::SHORT_PWRBTN::SLEEP_ONLY:
+    case FluiDezSettings::SHORT_PWRBTN::WAKE_ONLY:
+    case FluiDezSettings::SHORT_PWRBTN::FORCE_REFRESH:
+    case FluiDezSettings::SHORT_PWRBTN::SHORT_PWRBTN_COUNT:
       return false;
   }
   return false;
 }
 
-bool EpubReaderActivity::handleShortcutAction(const CrossPointSettings::SHORT_PWRBTN action) {
-  if (action == CrossPointSettings::SHORT_PWRBTN::HOME_READER) return dispatchShortcutAction(action);
+bool EpubReaderActivity::handleShortcutAction(const FluiDezSettings::SHORT_PWRBTN action) {
+  if (action == FluiDezSettings::SHORT_PWRBTN::HOME_READER) return dispatchShortcutAction(action);
   switch (action) {
-    case CrossPointSettings::SHORT_PWRBTN::PAGE_TURN:
+    case FluiDezSettings::SHORT_PWRBTN::PAGE_TURN:
       requestManualPageTurn(true, "shortcut");
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::PREVIOUS_PAGE:
+    case FluiDezSettings::SHORT_PWRBTN::PREVIOUS_PAGE:
       requestManualPageTurn(false, "shortcut");
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::NEARBY_POSITION_SYNC:
+    case FluiDezSettings::SHORT_PWRBTN::NEARBY_POSITION_SYNC:
       onReaderMenuConfirm(EpubReaderMenuAction::NEARBY_POSITION_SYNC);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_FONT:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_CHANGE_FONT);
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_FONT:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_CHANGE_FONT);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_GUIDE_DOTS:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_TOGGLE_GUIDE_DOTS);
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_GUIDE_DOTS:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_TOGGLE_GUIDE_DOTS);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_FOCUS_READING:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_TOGGLE_FOCUS);
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_FOCUS_READING:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_TOGGLE_FOCUS);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_BOOKMARK:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_TOGGLE_BOOKMARK);
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_BOOKMARK:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_TOGGLE_BOOKMARK);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::SYNC_PROGRESS:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_SYNC_PROGRESS);
+    case FluiDezSettings::SHORT_PWRBTN::SYNC_PROGRESS:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_SYNC_PROGRESS);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::MARK_FINISHED:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_MARK_FINISHED);
+    case FluiDezSettings::SHORT_PWRBTN::MARK_FINISHED:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_MARK_FINISHED);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::READING_STATS:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_READING_STATS);
+    case FluiDezSettings::SHORT_PWRBTN::READING_STATS:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_READING_STATS);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::SCREENSHOT:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_SCREENSHOT);
+    case FluiDezSettings::SHORT_PWRBTN::SCREENSHOT:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_SCREENSHOT);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::CYCLE_PAGE_TURN:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_CYCLE_PAGE_TURN);
+    case FluiDezSettings::SHORT_PWRBTN::CYCLE_PAGE_TURN:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_CYCLE_PAGE_TURN);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::FILE_TRANSFER:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_FILE_TRANSFER);
+    case FluiDezSettings::SHORT_PWRBTN::FILE_TRANSFER:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_FILE_TRANSFER);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_TILT_PAGE_TURN:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_TOGGLE_TILT_PAGE_TURN);
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_TILT_PAGE_TURN:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_TOGGLE_TILT_PAGE_TURN);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_DARK_MODE:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_TOGGLE_DARK_MODE);
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_DARK_MODE:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_TOGGLE_DARK_MODE);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::FILE_BROWSER:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_FILE_BROWSER);
+    case FluiDezSettings::SHORT_PWRBTN::FILE_BROWSER:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_FILE_BROWSER);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::CALIBRE_WIRELESS:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_CALIBRE_WIRELESS);
+    case FluiDezSettings::SHORT_PWRBTN::CALIBRE_WIRELESS:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_CALIBRE_WIRELESS);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::JOIN_NETWORK:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_JOIN_NETWORK);
+    case FluiDezSettings::SHORT_PWRBTN::JOIN_NETWORK:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_JOIN_NETWORK);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::CREATE_HOTSPOT:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_CREATE_HOTSPOT);
+    case FluiDezSettings::SHORT_PWRBTN::CREATE_HOTSPOT:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_CREATE_HOTSPOT);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::CREATE_CLIPPING:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_CREATE_CLIPPING);
+    case FluiDezSettings::SHORT_PWRBTN::CREATE_CLIPPING:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_CREATE_CLIPPING);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::LOOKUP_WORD:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_LOOKUP_WORD);
+    case FluiDezSettings::SHORT_PWRBTN::LOOKUP_WORD:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_LOOKUP_WORD);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::FOOTNOTES:
+    case FluiDezSettings::SHORT_PWRBTN::FOOTNOTES:
       executeFootnoteQuickAction();
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_HOME_BUTTON_IN_READER:
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_HOME_BUTTON_IN_READER:
       toggleHomeButtonInReader();
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::QUICK_ACTIONS:
+    case FluiDezSettings::SHORT_PWRBTN::QUICK_ACTIONS:
       openQuickActionsPopup();
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::LIBRARY:
+    case FluiDezSettings::SHORT_PWRBTN::LIBRARY:
       return handleGlobalPowerButtonAction(action);
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_FRONTLIGHT:
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_TOUCHSCREEN:
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_FRONTLIGHT:
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_TOUCHSCREEN:
       return handleGlobalPowerButtonAction(action);
     default:
       return false;
@@ -5296,21 +5295,21 @@ void EpubReaderActivity::openQuickActionsPopup() {
       quickActionsPopup, [this] { requestUpdate(); },
       [this](const auto action) {
         mappedInput.setReaderTouchscreenOverride(false);
-        if (action == CrossPointSettings::SHORT_PWRBTN::LOOKUP_WORD) {
+        if (action == FluiDezSettings::SHORT_PWRBTN::LOOKUP_WORD) {
           // The popup was the most recent render, so word selection must redraw
           // the reader page instead of reusing the popup framebuffer.
-          executeReaderQuickAction(CrossPointSettings::LONG_MENU_LOOKUP_WORD,
+          executeReaderQuickAction(FluiDezSettings::LONG_MENU_LOOKUP_WORD,
                                    /*dictionaryLookupFramebufferContainsPage=*/false);
           return;
         }
-        if (action == CrossPointSettings::SHORT_PWRBTN::SYNC_PROGRESS) {
+        if (action == FluiDezSettings::SHORT_PWRBTN::SYNC_PROGRESS) {
           onReaderMenuConfirm(EpubReaderMenuAction::SYNC);
           return;
         }
         dispatchShortcutAction(action);
       },
       [this](const auto action) {
-        return action != CrossPointSettings::SHORT_PWRBTN::READING_STATS || statsTrackingActive;
+        return action != FluiDezSettings::SHORT_PWRBTN::READING_STATS || statsTrackingActive;
       });
   if (quickActionsPopup.isActive()) {
     mappedInput.setReaderTouchscreenOverride(true);
@@ -5415,81 +5414,81 @@ bool EpubReaderActivity::executeShortPowerButtonAction() {
   }
 
   switch (SETTINGS.shortPwrBtn) {
-    case CrossPointSettings::SHORT_PWRBTN::NEARBY_POSITION_SYNC:
+    case FluiDezSettings::SHORT_PWRBTN::NEARBY_POSITION_SYNC:
       onReaderMenuConfirm(EpubReaderMenuAction::NEARBY_POSITION_SYNC);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_FONT:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_CHANGE_FONT);
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_FONT:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_CHANGE_FONT);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_GUIDE_DOTS:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_TOGGLE_GUIDE_DOTS);
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_GUIDE_DOTS:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_TOGGLE_GUIDE_DOTS);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_FOCUS_READING:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_TOGGLE_FOCUS);
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_FOCUS_READING:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_TOGGLE_FOCUS);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_BOOKMARK:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_TOGGLE_BOOKMARK);
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_BOOKMARK:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_TOGGLE_BOOKMARK);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::SYNC_PROGRESS:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_SYNC_PROGRESS);
+    case FluiDezSettings::SHORT_PWRBTN::SYNC_PROGRESS:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_SYNC_PROGRESS);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::MARK_FINISHED:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_MARK_FINISHED);
+    case FluiDezSettings::SHORT_PWRBTN::MARK_FINISHED:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_MARK_FINISHED);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::READING_STATS:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_READING_STATS);
+    case FluiDezSettings::SHORT_PWRBTN::READING_STATS:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_READING_STATS);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::SCREENSHOT:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_SCREENSHOT);
+    case FluiDezSettings::SHORT_PWRBTN::SCREENSHOT:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_SCREENSHOT);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::CYCLE_PAGE_TURN:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_CYCLE_PAGE_TURN);
+    case FluiDezSettings::SHORT_PWRBTN::CYCLE_PAGE_TURN:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_CYCLE_PAGE_TURN);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::FILE_TRANSFER:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_FILE_TRANSFER);
+    case FluiDezSettings::SHORT_PWRBTN::FILE_TRANSFER:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_FILE_TRANSFER);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::CALIBRE_WIRELESS:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_CALIBRE_WIRELESS);
+    case FluiDezSettings::SHORT_PWRBTN::CALIBRE_WIRELESS:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_CALIBRE_WIRELESS);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::JOIN_NETWORK:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_JOIN_NETWORK);
+    case FluiDezSettings::SHORT_PWRBTN::JOIN_NETWORK:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_JOIN_NETWORK);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::CREATE_HOTSPOT:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_CREATE_HOTSPOT);
+    case FluiDezSettings::SHORT_PWRBTN::CREATE_HOTSPOT:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_CREATE_HOTSPOT);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_TILT_PAGE_TURN:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_TOGGLE_TILT_PAGE_TURN);
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_TILT_PAGE_TURN:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_TOGGLE_TILT_PAGE_TURN);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_DARK_MODE:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_TOGGLE_DARK_MODE);
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_DARK_MODE:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_TOGGLE_DARK_MODE);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::FOOTNOTES:
+    case FluiDezSettings::SHORT_PWRBTN::FOOTNOTES:
       executeFootnoteQuickAction();
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::FILE_BROWSER:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_FILE_BROWSER);
+    case FluiDezSettings::SHORT_PWRBTN::FILE_BROWSER:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_FILE_BROWSER);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::CREATE_CLIPPING:
+    case FluiDezSettings::SHORT_PWRBTN::CREATE_CLIPPING:
       mappedInput.suppressNextPowerConfirmRelease();
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_CREATE_CLIPPING);
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_CREATE_CLIPPING);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::LOOKUP_WORD:
+    case FluiDezSettings::SHORT_PWRBTN::LOOKUP_WORD:
       mappedInput.suppressNextPowerConfirmRelease();
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_LOOKUP_WORD);
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_LOOKUP_WORD);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_HOME_BUTTON_IN_READER:
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_HOME_BUTTON_IN_READER:
       toggleHomeButtonInReader();
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::QUICK_ACTIONS:
+    case FluiDezSettings::SHORT_PWRBTN::QUICK_ACTIONS:
       openQuickActionsPopup();
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::LIBRARY:
-      return handleGlobalPowerButtonAction(static_cast<CrossPointSettings::SHORT_PWRBTN>(SETTINGS.shortPwrBtn));
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_FRONTLIGHT:
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_TOUCHSCREEN:
+    case FluiDezSettings::SHORT_PWRBTN::LIBRARY:
+      return handleGlobalPowerButtonAction(static_cast<FluiDezSettings::SHORT_PWRBTN>(SETTINGS.shortPwrBtn));
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_FRONTLIGHT:
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_TOUCHSCREEN:
       // The global dispatcher pauses briefly after wake, so retain the reader
       // fallback for that first release and use the configured short action.
-      return handleGlobalPowerButtonAction(static_cast<CrossPointSettings::SHORT_PWRBTN>(SETTINGS.shortPwrBtn));
+      return handleGlobalPowerButtonAction(static_cast<FluiDezSettings::SHORT_PWRBTN>(SETTINGS.shortPwrBtn));
     default:
       return false;
   }
@@ -5520,87 +5519,87 @@ bool EpubReaderActivity::consumeLongPowerButtonHold() {
 }
 
 bool EpubReaderActivity::executeLongPowerButtonAction() {
-  if ((SETTINGS.longPwrBtn == CrossPointSettings::SHORT_PWRBTN::PAGE_TURN ||
-       SETTINGS.longPwrBtn == CrossPointSettings::SHORT_PWRBTN::PREVIOUS_PAGE) ||
+  if ((SETTINGS.longPwrBtn == FluiDezSettings::SHORT_PWRBTN::PAGE_TURN ||
+       SETTINGS.longPwrBtn == FluiDezSettings::SHORT_PWRBTN::PREVIOUS_PAGE) ||
       !consumeLongPowerButtonHold()) {
     return false;
   }
 
   switch (SETTINGS.longPwrBtn) {
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_FONT:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_CHANGE_FONT);
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_FONT:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_CHANGE_FONT);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_GUIDE_DOTS:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_TOGGLE_GUIDE_DOTS);
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_GUIDE_DOTS:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_TOGGLE_GUIDE_DOTS);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_FOCUS_READING:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_TOGGLE_FOCUS);
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_FOCUS_READING:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_TOGGLE_FOCUS);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_BOOKMARK:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_TOGGLE_BOOKMARK);
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_BOOKMARK:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_TOGGLE_BOOKMARK);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::SYNC_PROGRESS:
+    case FluiDezSettings::SHORT_PWRBTN::SYNC_PROGRESS:
       mappedInput.suppressNextPowerConfirmRelease();
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_SYNC_PROGRESS);
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_SYNC_PROGRESS);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::NEARBY_POSITION_SYNC:
+    case FluiDezSettings::SHORT_PWRBTN::NEARBY_POSITION_SYNC:
       mappedInput.suppressNextPowerConfirmRelease();
       onReaderMenuConfirm(EpubReaderMenuAction::NEARBY_POSITION_SYNC);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::MARK_FINISHED:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_MARK_FINISHED);
+    case FluiDezSettings::SHORT_PWRBTN::MARK_FINISHED:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_MARK_FINISHED);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::READING_STATS:
+    case FluiDezSettings::SHORT_PWRBTN::READING_STATS:
       mappedInput.suppressNextPowerConfirmRelease();
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_READING_STATS);
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_READING_STATS);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::SCREENSHOT:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_SCREENSHOT);
+    case FluiDezSettings::SHORT_PWRBTN::SCREENSHOT:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_SCREENSHOT);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::CYCLE_PAGE_TURN:
+    case FluiDezSettings::SHORT_PWRBTN::CYCLE_PAGE_TURN:
       mappedInput.suppressNextPowerConfirmRelease();
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_CYCLE_PAGE_TURN);
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_CYCLE_PAGE_TURN);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::FILE_TRANSFER:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_FILE_TRANSFER);
+    case FluiDezSettings::SHORT_PWRBTN::FILE_TRANSFER:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_FILE_TRANSFER);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::CALIBRE_WIRELESS:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_CALIBRE_WIRELESS);
+    case FluiDezSettings::SHORT_PWRBTN::CALIBRE_WIRELESS:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_CALIBRE_WIRELESS);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::JOIN_NETWORK:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_JOIN_NETWORK);
+    case FluiDezSettings::SHORT_PWRBTN::JOIN_NETWORK:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_JOIN_NETWORK);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::CREATE_HOTSPOT:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_CREATE_HOTSPOT);
+    case FluiDezSettings::SHORT_PWRBTN::CREATE_HOTSPOT:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_CREATE_HOTSPOT);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_TILT_PAGE_TURN:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_TOGGLE_TILT_PAGE_TURN);
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_TILT_PAGE_TURN:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_TOGGLE_TILT_PAGE_TURN);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_DARK_MODE:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_TOGGLE_DARK_MODE);
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_DARK_MODE:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_TOGGLE_DARK_MODE);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::FOOTNOTES:
+    case FluiDezSettings::SHORT_PWRBTN::FOOTNOTES:
       executeFootnoteQuickAction(/*suppressInitialPowerRelease=*/true);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::FILE_BROWSER:
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_FILE_BROWSER);
+    case FluiDezSettings::SHORT_PWRBTN::FILE_BROWSER:
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_FILE_BROWSER);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::CREATE_CLIPPING:
+    case FluiDezSettings::SHORT_PWRBTN::CREATE_CLIPPING:
       mappedInput.suppressNextPowerConfirmRelease();
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_CREATE_CLIPPING);
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_CREATE_CLIPPING);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::LOOKUP_WORD:
+    case FluiDezSettings::SHORT_PWRBTN::LOOKUP_WORD:
       mappedInput.suppressNextPowerConfirmRelease();
-      executeReaderQuickAction(CrossPointSettings::LONG_MENU_LOOKUP_WORD);
+      executeReaderQuickAction(FluiDezSettings::LONG_MENU_LOOKUP_WORD);
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_HOME_BUTTON_IN_READER:
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_HOME_BUTTON_IN_READER:
       toggleHomeButtonInReader();
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::QUICK_ACTIONS:
+    case FluiDezSettings::SHORT_PWRBTN::QUICK_ACTIONS:
       openQuickActionsPopup();
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::LIBRARY:
-      return handleGlobalPowerButtonAction(static_cast<CrossPointSettings::SHORT_PWRBTN>(SETTINGS.longPwrBtn));
+    case FluiDezSettings::SHORT_PWRBTN::LIBRARY:
+      return handleGlobalPowerButtonAction(static_cast<FluiDezSettings::SHORT_PWRBTN>(SETTINGS.longPwrBtn));
     default:
       return false;
   }
@@ -6106,7 +6105,7 @@ void EpubReaderActivity::render(RenderLock&& lock) {
             ESP.getFreeHeap(), ESP.getMaxAllocHeap());
     const int readerFontId = SETTINGS.getReaderFontId();
     const EpubRenderMode selectedRenderMode = normalizeRenderMode(SETTINGS.epubRenderMode);
-    const bool fullSectionIndexing = SETTINGS.indexingMethod == CrossPointSettings::INDEXING_FULL_SECTION;
+    const bool fullSectionIndexing = SETTINGS.indexingMethod == FluiDezSettings::INDEXING_FULL_SECTION;
     EpubRenderMode usedRenderMode = selectedRenderMode;
     const bool buildingFootnotePreview = !pendingFootnotePreviewAnchor.empty();
     bool loadedSection = false;
@@ -6775,8 +6774,8 @@ void EpubReaderActivity::render(RenderLock&& lock) {
 }
 
 void EpubReaderActivity::silentIndexNextChapterIfNeeded(const uint16_t viewportWidth, const uint16_t viewportHeight) {
-  if (SETTINGS.indexingMethod != CrossPointSettings::INDEXING_FULL_SECTION || activeFootnotePreview || !epub ||
-      !section || section->isBuilding() || section->isPartial() || section->pageCount == 0) {
+  if (SETTINGS.indexingMethod != FluiDezSettings::INDEXING_FULL_SECTION || activeFootnotePreview || !epub || !section ||
+      section->isBuilding() || section->isPartial() || section->pageCount == 0) {
     return;
   }
 

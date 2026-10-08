@@ -7,8 +7,8 @@
 #include <iterator>
 
 #include "AppCapabilities.h"
-#include "CrossPointSettings.h"
 #include "DeviceCapabilities.h"
+#include "FluiDezSettings.h"
 #include "QuickActions.h"
 
 namespace {

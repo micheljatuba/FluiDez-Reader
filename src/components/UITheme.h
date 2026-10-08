@@ -5,7 +5,7 @@
 #include <functional>
 #include <memory>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "components/themes/BaseTheme.h"
 
 class UITheme {
@@ -31,7 +31,7 @@ class UITheme {
                                              const char* text, int maxLines, bool black = true,
                                              EpdFontFamily::Style style = EpdFontFamily::REGULAR, int lineSpacing = 0);
   void reload();
-  void setTheme(CrossPointSettings::UI_THEME type);
+  void setTheme(FluiDezSettings::UI_THEME type);
   static bool supportsCoverGrid();
   static bool hasCoverGridHome();
   static int getNumberOfItemsPerPage(const GfxRenderer& renderer, bool hasHeader, bool hasTabBar, bool hasButtonHints,

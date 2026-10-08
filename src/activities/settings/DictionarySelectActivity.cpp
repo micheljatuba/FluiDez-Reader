@@ -9,7 +9,7 @@
 #include <cstring>
 #include <memory>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "I18nKeys.h"
 #include "MappedInputManager.h"
 #include "components/TouchHeaderBackButton.h"

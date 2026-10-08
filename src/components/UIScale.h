@@ -1,5 +1,5 @@
 #pragma once
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "fontIds.h"
 
 // Maps the uiScale setting to the FreeInkUI font slots. Small and body use the
@@ -15,11 +15,11 @@ struct UIScaleSpec {
 inline UIScaleSpec uiScaleSpec() {
   UIScaleSpec spec{};
   switch (SETTINGS.uiScale) {
-    case CrossPointSettings::UI_SCALE_SMALL:
+    case FluiDezSettings::UI_SCALE_SMALL:
       spec.bodyFontId = UI_10_FONT_ID;
       spec.titleFontId = UI_12_FONT_ID;
       break;
-    case CrossPointSettings::UI_SCALE_LARGE:
+    case FluiDezSettings::UI_SCALE_LARGE:
       spec.bodyFontId = UI_12_FONT_ID;
       spec.titleFontId = UI_12_FONT_ID;
       break;

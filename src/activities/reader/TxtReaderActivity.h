@@ -4,7 +4,7 @@
 
 #include <vector>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "ReaderProgressSaveDebouncer.h"
 #include "SideButtonShortcuts.h"
 #include "activities/Activity.h"
@@ -44,7 +44,7 @@ class TxtReaderActivity final : public Activity {
   int cachedFontId = 0;
   uint8_t cachedVerticalMargin = 0;
   uint8_t cachedHorizontalMargin = 0;
-  uint8_t cachedParagraphAlignment = CrossPointSettings::LEFT_ALIGN;
+  uint8_t cachedParagraphAlignment = FluiDezSettings::LEFT_ALIGN;
   int cachedTopStatusBarHeight = 0;
   int cachedBottomStatusBarHeight = 0;
   int cachedOrientedMarginTop = 0;
@@ -69,8 +69,8 @@ class TxtReaderActivity final : public Activity {
   void toggleHomeButtonInReader();
   bool consumeLongPowerButtonRelease();
   bool consumeLongPowerButtonHold();
-  static bool supportsQuickAction(CrossPointSettings::SHORT_PWRBTN action);
-  bool executeReaderShortcutAction(CrossPointSettings::SHORT_PWRBTN action);
+  static bool supportsQuickAction(FluiDezSettings::SHORT_PWRBTN action);
+  bool executeReaderShortcutAction(FluiDezSettings::SHORT_PWRBTN action);
   bool executePowerButtonAction();
   bool executeLongPressBackAction();
   bool changeReaderFontSize(bool larger, FontSizeStepMode mode = FontSizeStepMode::Wrap);
@@ -94,7 +94,7 @@ class TxtReaderActivity final : public Activity {
   void onExit() override;
   void loop() override;
   void render(RenderLock&&) override;
-  bool handleTwoFingerSwipeAction(CrossPointSettings::TWO_FINGER_SWIPE_ACTION action) override;
+  bool handleTwoFingerSwipeAction(FluiDezSettings::TWO_FINGER_SWIPE_ACTION action) override;
   bool handleTwoFingerRotation(bool clockwise) override;
   bool prepareManualRefresh() override {
     pagesUntilFullRefresh = -1;
@@ -113,7 +113,7 @@ class TxtReaderActivity final : public Activity {
   bool allowPowerAsConfirmInReaderMode() const override { return quickActionsPopup.isActive(); }
   bool blocksGlobalInput() const override { return quickActionsPopup.isActive(); }
   bool handleShortcutAction(uint8_t action) override;
-  bool handleShortcutAction(CrossPointSettings::SHORT_PWRBTN action) override;
+  bool handleShortcutAction(FluiDezSettings::SHORT_PWRBTN action) override;
   std::string getCurrentBookPath() const override { return txt ? txt->getPath() : std::string{}; }
   std::string getCurrentBookTitle() const override { return txt ? txt->getTitle() : std::string{}; }
   bool getFrontlightPanelBookDetails(FrontlightPanelBookDetails& details) override;

@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "activities/Activity.h"
 #include "components/OptionPopup.h"
 #include "util/ButtonNavigator.h"
@@ -58,8 +58,8 @@ enum class SettingAction {
 struct SettingInfo {
   StrId nameId;
   SettingType type;
-  uint8_t CrossPointSettings::* valuePtr = nullptr;
-  uint16_t CrossPointSettings::* value16Ptr = nullptr;
+  uint8_t FluiDezSettings::* valuePtr = nullptr;
+  uint16_t FluiDezSettings::* value16Ptr = nullptr;
   std::vector<StrId> enumValues;
   std::vector<uint8_t> enumRawValues;
   std::vector<std::string> enumStringValues;  // runtime alternative to StrId enumValues (for SD card fonts etc.)
@@ -76,11 +76,11 @@ struct SettingInfo {
   StrId category = StrId::STR_NONE_OPT;  // Category for web UI grouping
   bool obfuscated = false;               // Save/load via base64 obfuscation (passwords)
 
-  // Direct char[] string fields (for settings stored in CrossPointSettings)
+  // Direct char[] string fields (for settings stored in FluiDezSettings)
   size_t stringOffset = 0;
   size_t stringMaxLen = 0;
 
-  // Dynamic accessors (for settings stored outside CrossPointSettings, e.g. KOReaderCredentialStore)
+  // Dynamic accessors (for settings stored outside FluiDezSettings, e.g. KOReaderCredentialStore)
   std::function<uint8_t()> valueGetter;
   std::function<void(uint8_t)> valueSetter;
   std::function<std::string()> stringGetter;
@@ -91,7 +91,7 @@ struct SettingInfo {
     return *this;
   }
 
-  static SettingInfo Toggle(StrId nameId, uint8_t CrossPointSettings::* ptr, const char* key = nullptr,
+  static SettingInfo Toggle(StrId nameId, uint8_t FluiDezSettings::* ptr, const char* key = nullptr,
                             StrId category = StrId::STR_NONE_OPT) {
     SettingInfo s;
     s.nameId = nameId;
@@ -102,7 +102,7 @@ struct SettingInfo {
     return s;
   }
 
-  static SettingInfo Enum(StrId nameId, uint8_t CrossPointSettings::* ptr, std::vector<StrId> values,
+  static SettingInfo Enum(StrId nameId, uint8_t FluiDezSettings::* ptr, std::vector<StrId> values,
                           const char* key = nullptr, StrId category = StrId::STR_NONE_OPT) {
     SettingInfo s;
     s.nameId = nameId;
@@ -142,7 +142,7 @@ struct SettingInfo {
     return s;
   }
 
-  static SettingInfo Value(StrId nameId, uint8_t CrossPointSettings::* ptr, const ValueRange valueRange,
+  static SettingInfo Value(StrId nameId, uint8_t FluiDezSettings::* ptr, const ValueRange valueRange,
                            const char* key = nullptr, StrId category = StrId::STR_NONE_OPT) {
     SettingInfo s;
     s.nameId = nameId;
@@ -154,7 +154,7 @@ struct SettingInfo {
     return s;
   }
 
-  static SettingInfo Value16(StrId nameId, uint16_t CrossPointSettings::* ptr, const ValueRange valueRange,
+  static SettingInfo Value16(StrId nameId, uint16_t FluiDezSettings::* ptr, const ValueRange valueRange,
                              const char* key = nullptr, StrId category = StrId::STR_NONE_OPT) {
     SettingInfo s;
     s.nameId = nameId;
@@ -297,7 +297,7 @@ class SettingsActivity final : public Activity {
   static void onTabEvent(const freeink::ui::ActionEvent& event, void* user);
   static std::string settingValueText(const SettingInfo& setting);
   void buildSettingsScreen(UiApp::ScreenType& screen);
-  void applyUiSettingChange(uint8_t CrossPointSettings::* valuePtr);
+  void applyUiSettingChange(uint8_t FluiDezSettings::* valuePtr);
 
   void enterCategory(int categoryIndex);
   void setCurrentSettingsForCategory();
@@ -313,7 +313,7 @@ class SettingsActivity final : public Activity {
   void toggleCurrentSetting();
   void openSleepTimeoutPicker();
   void openLineHeightPicker();
-  void openFrontlightScheduleTimePicker(uint16_t CrossPointSettings::* valuePtr, StrId titleId);
+  void openFrontlightScheduleTimePicker(uint16_t FluiDezSettings::* valuePtr, StrId titleId);
   void openStringEditor(const SettingInfo& setting);
   void rebuildSettingsLists();
   void syncQuickResumeTimeoutForSleepScreen(bool sleepScreenChanged, bool quickResumeTimeoutChanged);

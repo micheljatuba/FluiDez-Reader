@@ -16,8 +16,8 @@
 
 #include <algorithm>
 
-#include "CrossPointSettings.h"
-#include "CrossPointState.h"
+#include "FluiDezSettings.h"
+#include "FluiDezState.h"
 #include "OpdsServerStore.h"
 #include "RecentBooksStore.h"
 #include "SilentRestart.h"
@@ -31,7 +31,7 @@
 #include "home/HomeActivity.h"
 #include "home/RecentBookProgress.h"
 #include "library/LibraryActivity.h"
-#include "network/CrossPointWebServerActivity.h"
+#include "network/FluiDezWebServerActivity.h"
 #include "network/NearbyBookTransferActivity.h"
 #include "network/NearbyStatsSyncActivity.h"
 #include "network/UsbDriveActivity.h"
@@ -169,13 +169,13 @@ bool openFrontlightPanel(Activity& activity, GfxRenderer& renderer, MappedInputM
 
 bool applyConfiguredSwipeAction(Activity& activity, ActivityManager& activityManager, const uint8_t action,
                                 const int lightAmount = 5, const bool persist = true) {
-  switch (static_cast<CrossPointSettings::TWO_FINGER_SWIPE_ACTION>(action)) {
-    case CrossPointSettings::TWO_FINGER_SWIPE_INCREASE_BRIGHTNESS:
-    case CrossPointSettings::TWO_FINGER_SWIPE_DECREASE_BRIGHTNESS: {
+  switch (static_cast<FluiDezSettings::TWO_FINGER_SWIPE_ACTION>(action)) {
+    case FluiDezSettings::TWO_FINGER_SWIPE_INCREASE_BRIGHTNESS:
+    case FluiDezSettings::TWO_FINGER_SWIPE_DECREASE_BRIGHTNESS: {
       if (!Frontlight.present()) return true;
       const uint8_t previousBrightness = Frontlight.brightness();
       const bool previousOn = Frontlight.isOn();
-      const int delta = action == CrossPointSettings::TWO_FINGER_SWIPE_INCREASE_BRIGHTNESS ? lightAmount : -lightAmount;
+      const int delta = action == FluiDezSettings::TWO_FINGER_SWIPE_INCREASE_BRIGHTNESS ? lightAmount : -lightAmount;
       const uint8_t brightness =
           static_cast<uint8_t>(std::clamp(static_cast<int>(Frontlight.brightness()) + delta, 0, 100));
       Frontlight.setBrightness(brightness);
@@ -186,12 +186,12 @@ bool applyConfiguredSwipeAction(Activity& activity, ActivityManager& activityMan
       if (persist && (brightness != previousBrightness || !previousOn)) activityManager.persistGlobalSettings();
       return true;
     }
-    case CrossPointSettings::TWO_FINGER_SWIPE_INCREASE_WARMTH:
-    case CrossPointSettings::TWO_FINGER_SWIPE_DECREASE_WARMTH: {
+    case FluiDezSettings::TWO_FINGER_SWIPE_INCREASE_WARMTH:
+    case FluiDezSettings::TWO_FINGER_SWIPE_DECREASE_WARMTH: {
       if (!Frontlight.present() || !Frontlight.hasColorTemperature()) return true;
       const uint8_t previousWarmth = Frontlight.warmth();
       const bool previousOn = Frontlight.isOn();
-      const int delta = action == CrossPointSettings::TWO_FINGER_SWIPE_INCREASE_WARMTH ? lightAmount : -lightAmount;
+      const int delta = action == FluiDezSettings::TWO_FINGER_SWIPE_INCREASE_WARMTH ? lightAmount : -lightAmount;
       const uint8_t warmth = static_cast<uint8_t>(std::clamp(static_cast<int>(Frontlight.warmth()) + delta, 0, 100));
       Frontlight.setWarmth(warmth);
       SETTINGS.frontlightWarmth = warmth;
@@ -201,24 +201,24 @@ bool applyConfiguredSwipeAction(Activity& activity, ActivityManager& activityMan
         activityManager.persistGlobalSettings();
       return true;
     }
-    case CrossPointSettings::TWO_FINGER_SWIPE_NEXT_CHAPTER:
-    case CrossPointSettings::TWO_FINGER_SWIPE_PREVIOUS_CHAPTER:
-    case CrossPointSettings::TWO_FINGER_SWIPE_INCREASE_FONT_SIZE:
-    case CrossPointSettings::TWO_FINGER_SWIPE_DECREASE_FONT_SIZE:
-      activity.handleTwoFingerSwipeAction(static_cast<CrossPointSettings::TWO_FINGER_SWIPE_ACTION>(action));
+    case FluiDezSettings::TWO_FINGER_SWIPE_NEXT_CHAPTER:
+    case FluiDezSettings::TWO_FINGER_SWIPE_PREVIOUS_CHAPTER:
+    case FluiDezSettings::TWO_FINGER_SWIPE_INCREASE_FONT_SIZE:
+    case FluiDezSettings::TWO_FINGER_SWIPE_DECREASE_FONT_SIZE:
+      activity.handleTwoFingerSwipeAction(static_cast<FluiDezSettings::TWO_FINGER_SWIPE_ACTION>(action));
       return true;
-    case CrossPointSettings::TWO_FINGER_SWIPE_NOT_SET:
-    case CrossPointSettings::TWO_FINGER_SWIPE_ACTION_COUNT:
+    case FluiDezSettings::TWO_FINGER_SWIPE_NOT_SET:
+    case FluiDezSettings::TWO_FINGER_SWIPE_ACTION_COUNT:
       return false;
   }
   return true;
 }
 
 bool isLightSwipeAction(const uint8_t action) {
-  return action == CrossPointSettings::TWO_FINGER_SWIPE_INCREASE_BRIGHTNESS ||
-         action == CrossPointSettings::TWO_FINGER_SWIPE_DECREASE_BRIGHTNESS ||
-         action == CrossPointSettings::TWO_FINGER_SWIPE_INCREASE_WARMTH ||
-         action == CrossPointSettings::TWO_FINGER_SWIPE_DECREASE_WARMTH;
+  return action == FluiDezSettings::TWO_FINGER_SWIPE_INCREASE_BRIGHTNESS ||
+         action == FluiDezSettings::TWO_FINGER_SWIPE_DECREASE_BRIGHTNESS ||
+         action == FluiDezSettings::TWO_FINGER_SWIPE_INCREASE_WARMTH ||
+         action == FluiDezSettings::TWO_FINGER_SWIPE_DECREASE_WARMTH;
 }
 
 #if CROSSINK_APP_CAP_TOUCH
@@ -229,10 +229,10 @@ void finishLiveLightSwipe(LiveLightSwipeState& state, ActivityManager& activityM
 
 void updateLiveLightSwipe(Activity& activity, ActivityManager& activityManager, LiveLightSwipeState& state,
                           const int amount) {
-  const bool brightness = state.action == CrossPointSettings::TWO_FINGER_SWIPE_INCREASE_BRIGHTNESS ||
-                          state.action == CrossPointSettings::TWO_FINGER_SWIPE_DECREASE_BRIGHTNESS;
-  const int sign = state.action == CrossPointSettings::TWO_FINGER_SWIPE_INCREASE_BRIGHTNESS ||
-                           state.action == CrossPointSettings::TWO_FINGER_SWIPE_INCREASE_WARMTH
+  const bool brightness = state.action == FluiDezSettings::TWO_FINGER_SWIPE_INCREASE_BRIGHTNESS ||
+                          state.action == FluiDezSettings::TWO_FINGER_SWIPE_DECREASE_BRIGHTNESS;
+  const int sign = state.action == FluiDezSettings::TWO_FINGER_SWIPE_INCREASE_BRIGHTNESS ||
+                           state.action == FluiDezSettings::TWO_FINGER_SWIPE_INCREASE_WARMTH
                        ? 1
                        : -1;
   const int target = SwipeAdjustment::targetValue(state.initialValue, sign > 0, amount);
@@ -273,9 +273,9 @@ uint8_t actionForTwoFingerDirection(const TwoFingerSwipe::Direction direction) {
     case TwoFingerSwipe::Direction::Right:
       return SETTINGS.twoFingerSwipeRight;
     case TwoFingerSwipe::Direction::None:
-      return CrossPointSettings::TWO_FINGER_SWIPE_NOT_SET;
+      return FluiDezSettings::TWO_FINGER_SWIPE_NOT_SET;
   }
-  return CrossPointSettings::TWO_FINGER_SWIPE_NOT_SET;
+  return FluiDezSettings::TWO_FINGER_SWIPE_NOT_SET;
 }
 
 #if CROSSINK_APP_CAP_TOUCH
@@ -346,8 +346,8 @@ bool applyLiveTwoFingerLightSwipe(Activity& activity, MappedInputManager& mapped
     state.movementSign =
         direction == TwoFingerSwipe::Direction::Up || direction == TwoFingerSwipe::Direction::Left ? -1 : 1;
     state.initialOn = Frontlight.isOn();
-    state.initialValue = action == CrossPointSettings::TWO_FINGER_SWIPE_INCREASE_BRIGHTNESS ||
-                                 action == CrossPointSettings::TWO_FINGER_SWIPE_DECREASE_BRIGHTNESS
+    state.initialValue = action == FluiDezSettings::TWO_FINGER_SWIPE_INCREASE_BRIGHTNESS ||
+                                 action == FluiDezSettings::TWO_FINGER_SWIPE_DECREASE_BRIGHTNESS
                              ? Frontlight.brightness()
                              : Frontlight.warmth();
   }
@@ -368,7 +368,7 @@ bool applyTwoFingerSwipeAction(Activity& activity, MappedInputManager& mappedInp
                                                 completed.endX,         completed.endY,   completed.durationMs};
   const auto direction = TwoFingerSwipe::directionFor(swipe, renderer.getScreenWidth(), renderer.getScreenHeight());
   const uint8_t action = actionForTwoFingerDirection(direction);
-  if (action == CrossPointSettings::TWO_FINGER_SWIPE_NOT_SET) return false;
+  if (action == FluiDezSettings::TWO_FINGER_SWIPE_NOT_SET) return false;
   const bool vertical = direction == TwoFingerSwipe::Direction::Up || direction == TwoFingerSwipe::Direction::Down;
   const int distance =
       vertical ? std::abs(completed.endY - completed.startY) : std::abs(completed.endX - completed.startX);
@@ -381,7 +381,7 @@ bool applyEdgeSlideAction(Activity& activity, MappedInputManager& mappedInput, A
                           LiveLightSwipeState& state) {
   MappedInputManager::EdgeSlideProgress progress;
   if (!mappedInput.getEdgeSlideProgress(progress)) return false;
-  uint8_t action = CrossPointSettings::TWO_FINGER_SWIPE_NOT_SET;
+  uint8_t action = FluiDezSettings::TWO_FINGER_SWIPE_NOT_SET;
   switch (progress.direction) {
     case MappedInputManager::EdgeSlide::LeftUp:
       action = SETTINGS.leftEdgeUp;
@@ -412,7 +412,7 @@ bool applyEdgeSlideAction(Activity& activity, MappedInputManager& mappedInput, A
     }
     return true;
   }
-  if (action == CrossPointSettings::TWO_FINGER_SWIPE_NOT_SET) return false;
+  if (action == FluiDezSettings::TWO_FINGER_SWIPE_NOT_SET) return false;
   if (isLightSwipeAction(action)) {
     state = {};
     state.owner = &activity;
@@ -420,8 +420,8 @@ bool applyEdgeSlideAction(Activity& activity, MappedInputManager& mappedInput, A
     state.action = action;
     state.direction = static_cast<int>(progress.direction);
     state.initialOn = Frontlight.isOn();
-    state.initialValue = action == CrossPointSettings::TWO_FINGER_SWIPE_INCREASE_BRIGHTNESS ||
-                                 action == CrossPointSettings::TWO_FINGER_SWIPE_DECREASE_BRIGHTNESS
+    state.initialValue = action == FluiDezSettings::TWO_FINGER_SWIPE_INCREASE_BRIGHTNESS ||
+                                 action == FluiDezSettings::TWO_FINGER_SWIPE_DECREASE_BRIGHTNESS
                              ? Frontlight.brightness()
                              : Frontlight.warmth();
     updateLiveLightSwipe(activity, activityManager, state,
@@ -851,7 +851,7 @@ void ActivityManager::replaceActivity(std::unique_ptr<Activity>&& newActivity) {
 }
 
 void ActivityManager::goToFileTransfer(std::string returnBookPath) {
-  replaceActivity(std::make_unique<CrossPointWebServerActivity>(renderer, mappedInput, std::move(returnBookPath)));
+  replaceActivity(std::make_unique<FluiDezWebServerActivity>(renderer, mappedInput, std::move(returnBookPath)));
 }
 
 bool ActivityManager::goToNearbyBookSend(std::string path, const bool returnToReader) {
@@ -918,8 +918,8 @@ bool ActivityManager::resumeFileTransferFromNetworkBoot(const uint32_t payload) 
 
   // The activity must outlive this boot function, so allocate its small control object on the heap; web buffers
   // remain owned and released by the activity lifecycle.
-  auto activity = makeUniqueNoThrow<CrossPointWebServerActivity>(
-      renderer, mappedInput, static_cast<NetworkMode>(rawMode), std::move(returnBookPath), true);
+  auto activity = makeUniqueNoThrow<FluiDezWebServerActivity>(renderer, mappedInput, static_cast<NetworkMode>(rawMode),
+                                                              std::move(returnBookPath), true);
   if (!activity) {
     LOG_ERR("ACT", "OOM: file transfer after minimal boot (free=%u maxAlloc=%u)", ESP.getFreeHeap(),
             ESP.getMaxAllocHeap());
@@ -1067,7 +1067,7 @@ void ActivityManager::goHome(HomeMenuItem initialMenuItem, const HalDisplay::Ref
       initialMenuItem = HomeMenuItem::LIBRARY;
     } else if (activityName == "OpdsBookBrowser") {
       initialMenuItem = HomeMenuItem::OPDS_BROWSER;
-    } else if (activityName == "CrossPointWebServer") {
+    } else if (activityName == "FluiDezWebServer") {
       initialMenuItem = HomeMenuItem::FILE_TRANSFER;
     } else if (activityName == "NearbyStatsSync") {
       initialMenuItem = HomeMenuItem::FILE_TRANSFER;
@@ -1214,8 +1214,8 @@ bool ActivityManager::continueHomeReaderUnwind() {
   return true;
 }
 
-bool ActivityManager::handleShortcutAction(const CrossPointSettings::SHORT_PWRBTN action) {
-  if (action == CrossPointSettings::SHORT_PWRBTN::HOME_READER) return handleHomeReaderShortcut();
+bool ActivityManager::handleShortcutAction(const FluiDezSettings::SHORT_PWRBTN action) {
+  if (action == FluiDezSettings::SHORT_PWRBTN::HOME_READER) return handleHomeReaderShortcut();
   return currentActivity && (currentActivity->isReaderActivity() || currentActivity->isHomeActivity()) &&
          currentActivity->handleShortcutAction(action);
 }

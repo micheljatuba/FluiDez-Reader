@@ -9,9 +9,9 @@
 
 #include <algorithm>
 
-#include "CrossPointSettings.h"
-#include "CrossPointState.h"
 #include "Epub/converters/PngToFramebufferConverter.h"
+#include "FluiDezSettings.h"
+#include "FluiDezState.h"
 #include "activities/boot_sleep/ImageFolderIndex.h"
 #include "activities/home/BookActions.h"
 #include "activities/home/FileBrowserActionActivity.h"
@@ -278,9 +278,8 @@ void BmpViewerActivity::doSetSleepCover() {
 
     // PNG covers only render in Page Overlay sleep mode; other modes silently skip them (see
     // selectPinnedSleepImage() in SleepActivity.cpp), so switch the setting for the user.
-    if (FsHelpers::hasPngExtension(filePath) &&
-        SETTINGS.sleepScreen != CrossPointSettings::SLEEP_SCREEN_MODE::OVERLAY) {
-      SETTINGS.sleepScreen = CrossPointSettings::SLEEP_SCREEN_MODE::OVERLAY;
+    if (FsHelpers::hasPngExtension(filePath) && SETTINGS.sleepScreen != FluiDezSettings::SLEEP_SCREEN_MODE::OVERLAY) {
+      SETTINGS.sleepScreen = FluiDezSettings::SLEEP_SCREEN_MODE::OVERLAY;
       if (SETTINGS.saveToFile()) {
         LOG_INF("BmpViewer", "Switched sleep wallpaper mode to Page Overlay for PNG cover");
       } else {
@@ -309,8 +308,8 @@ void BmpViewerActivity::pinSleepFavorite() {
 
   // Keep the context-menu action consistent with Confirm: PNG sleep images
   // only render in Page Overlay mode.
-  if (FsHelpers::hasPngExtension(filePath) && SETTINGS.sleepScreen != CrossPointSettings::SLEEP_SCREEN_MODE::OVERLAY) {
-    SETTINGS.sleepScreen = CrossPointSettings::SLEEP_SCREEN_MODE::OVERLAY;
+  if (FsHelpers::hasPngExtension(filePath) && SETTINGS.sleepScreen != FluiDezSettings::SLEEP_SCREEN_MODE::OVERLAY) {
+    SETTINGS.sleepScreen = FluiDezSettings::SLEEP_SCREEN_MODE::OVERLAY;
     if (!SETTINGS.saveToFile()) {
       LOG_ERR("BmpViewer", "Failed to save Page Overlay mode for PNG sleep image");
     }

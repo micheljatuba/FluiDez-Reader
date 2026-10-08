@@ -77,7 +77,7 @@ void NearbyStatsSyncActivity::setState(const State state) {
 #include <cstring>
 #include <string>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "MappedInputManager.h"
 #include "SdCardFontSystem.h"
 #include "activities/reader/GlobalReadingStats.h"
@@ -96,7 +96,7 @@ constexpr uint8_t PROTOCOL_VERSION = 1;
 constexpr uint8_t MIN_STATS_BYTES = static_cast<uint8_t>(GlobalReadingStats::MIN_SUPPORTED_FILE_SIZE);
 constexpr uint8_t MAX_STATS_BYTES = static_cast<uint8_t>(GlobalReadingStats::CURRENT_FILE_SIZE);
 constexpr uint8_t PACKET_HEADER_BYTES = 14;
-constexpr uint8_t MAX_DEVICE_NAME_BYTES = static_cast<uint8_t>(CrossPointSettings::MAX_DEVICE_NAME_LENGTH);
+constexpr uint8_t MAX_DEVICE_NAME_BYTES = static_cast<uint8_t>(FluiDezSettings::MAX_DEVICE_NAME_LENGTH);
 constexpr uint32_t HELLO_INTERVAL_MS = 750;
 constexpr uint32_t STATS_RETRY_INTERVAL_MS = 750;
 constexpr uint32_t SYNC_TIMEOUT_MS = 12000;
@@ -381,7 +381,7 @@ void NearbyStatsSyncActivity::enqueueEspNowPacket(const uint8_t* sourceMac, cons
       std::copy(data + PACKET_HEADER_BYTES, data + PACKET_HEADER_BYTES + event.statsSize, event.stats.begin());
     }
   } else if (packetType == PacketType::NAME) {
-    if (event.statsSize < CrossPointSettings::MIN_DEVICE_NAME_LENGTH || event.statsSize > MAX_DEVICE_NAME_BYTES ||
+    if (event.statsSize < FluiDezSettings::MIN_DEVICE_NAME_LENGTH || event.statsSize > MAX_DEVICE_NAME_BYTES ||
         payloadLength != event.statsSize) {
       return;
     }
@@ -551,7 +551,7 @@ bool NearbyStatsSyncActivity::sendPacket(const PacketType type, const uint8_t* p
   } else if (type == PacketType::NAME) {
     const char* name = SETTINGS.getEffectiveDeviceName();
     const size_t nameLength = std::min(std::strlen(name), static_cast<size_t>(MAX_DEVICE_NAME_BYTES));
-    if (nameLength < CrossPointSettings::MIN_DEVICE_NAME_LENGTH) return false;
+    if (nameLength < FluiDezSettings::MIN_DEVICE_NAME_LENGTH) return false;
     packet[6] = static_cast<uint8_t>(nameLength);
     memcpy(packet.data() + PACKET_HEADER_BYTES, name, nameLength);
     length += nameLength;

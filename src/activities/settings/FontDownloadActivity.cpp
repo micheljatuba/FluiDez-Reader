@@ -13,7 +13,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "MappedInputManager.h"
 #include "Memory.h"
 #include "SdCardFontSystem.h"
@@ -375,7 +375,7 @@ bool FontDownloadActivity::fetchAndParseManifest() {
           errorMessage_ = "Invalid font manifest";
           return false;
         }
-        if (CrossPointSettings::isSdFontPointSizeAllowedForRange(pointSize, SETTINGS.sdFontSizeRange)) {
+        if (FluiDezSettings::isSdFontPointSizeAllowedForRange(pointSize, SETTINGS.sdFontSizeRange)) {
           stringBytes += strlen(fileName) + 1;
           ++retainedFileCount;
           hasAllowedFile = true;
@@ -443,7 +443,7 @@ bool FontDownloadActivity::fetchAndParseManifest() {
           return false;
         }
 
-        if (!CrossPointSettings::isSdFontPointSizeAllowedForRange(file.pointSize, SETTINGS.sdFontSizeRange)) {
+        if (!FluiDezSettings::isSdFontPointSizeAllowedForRange(file.pointSize, SETTINGS.sdFontSizeRange)) {
           continue;
         }
 

@@ -1,4 +1,4 @@
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 
 #include <BoardConfig.h>
 #include <CrossInkHalFrontlight.h>
@@ -50,46 +50,46 @@ constexpr uint8_t TILT_DIRECTION_SCHEMA_CURRENT = 2;
 // factory/default year while preserving dates written by released firmware.
 constexpr uint16_t MIN_TRUSTED_MIGRATED_RTC_YEAR = 2025;
 constexpr uint8_t SLEEP_SCREEN_STORAGE_ORDER[] = {
-    static_cast<uint8_t>(CrossPointSettings::DARK),
-    static_cast<uint8_t>(CrossPointSettings::LIGHT),
-    static_cast<uint8_t>(CrossPointSettings::CUSTOM),
-    static_cast<uint8_t>(CrossPointSettings::COVER),
-    static_cast<uint8_t>(CrossPointSettings::BLANK),
-    static_cast<uint8_t>(CrossPointSettings::COVER_CUSTOM),
-    static_cast<uint8_t>(CrossPointSettings::OVERLAY),
-    static_cast<uint8_t>(CrossPointSettings::READING_STATS_SLEEP),
-    static_cast<uint8_t>(CrossPointSettings::MINIMAL_SLEEP),
-    static_cast<uint8_t>(CrossPointSettings::QUICK_RESUME),
-    static_cast<uint8_t>(CrossPointSettings::MINIMAL_STATS_SLEEP),
-    static_cast<uint8_t>(CrossPointSettings::DASHBOARD_SLEEP),
+    static_cast<uint8_t>(FluiDezSettings::DARK),
+    static_cast<uint8_t>(FluiDezSettings::LIGHT),
+    static_cast<uint8_t>(FluiDezSettings::CUSTOM),
+    static_cast<uint8_t>(FluiDezSettings::COVER),
+    static_cast<uint8_t>(FluiDezSettings::BLANK),
+    static_cast<uint8_t>(FluiDezSettings::COVER_CUSTOM),
+    static_cast<uint8_t>(FluiDezSettings::OVERLAY),
+    static_cast<uint8_t>(FluiDezSettings::READING_STATS_SLEEP),
+    static_cast<uint8_t>(FluiDezSettings::MINIMAL_SLEEP),
+    static_cast<uint8_t>(FluiDezSettings::QUICK_RESUME),
+    static_cast<uint8_t>(FluiDezSettings::MINIMAL_STATS_SLEEP),
+    static_cast<uint8_t>(FluiDezSettings::DASHBOARD_SLEEP),
 };
 constexpr uint8_t SLEEP_SCREEN_STORAGE_ORDER_COUNT =
     sizeof(SLEEP_SCREEN_STORAGE_ORDER) / sizeof(SLEEP_SCREEN_STORAGE_ORDER[0]);
-static_assert(SLEEP_SCREEN_STORAGE_ORDER_COUNT == CrossPointSettings::SLEEP_SCREEN_MODE_COUNT,
+static_assert(SLEEP_SCREEN_STORAGE_ORDER_COUNT == FluiDezSettings::SLEEP_SCREEN_MODE_COUNT,
               "Update sleep screen persisted-value mapping when adding modes");
-constexpr CrossPointSettings::FONT_SIZE READER_FONT_SIZE_STORAGE_ORDER[] = {
-    CrossPointSettings::TINY,
-    CrossPointSettings::SMALL,
-    CrossPointSettings::MEDIUM,
-    CrossPointSettings::LARGE,
+constexpr FluiDezSettings::FONT_SIZE READER_FONT_SIZE_STORAGE_ORDER[] = {
+    FluiDezSettings::TINY,
+    FluiDezSettings::SMALL,
+    FluiDezSettings::MEDIUM,
+    FluiDezSettings::LARGE,
 };
-constexpr uint8_t SD_FONT_RANGE_POINT_SIZES[CrossPointSettings::SD_FONT_SIZE_RANGE_COUNT]
-                                           [CrossPointSettings::SD_FONT_MAX_SIZE_STEPS] = {
+constexpr uint8_t SD_FONT_RANGE_POINT_SIZES[FluiDezSettings::SD_FONT_SIZE_RANGE_COUNT]
+                                           [FluiDezSettings::SD_FONT_MAX_SIZE_STEPS] = {
                                                {8, 9, 10, 12},
                                                {10, 12, 14, 16},
                                                {14, 16, 18, 20},
                                                {8, 9, 10, 12, 14, 16, 18, 20},
                                                {8, 9, 10, 12, 14, 16, 18, 20},
 };
-constexpr uint8_t SD_FONT_RANGE_STEP_COUNTS[CrossPointSettings::SD_FONT_SIZE_RANGE_COUNT] = {4, 4, 4, 8, 8};
+constexpr uint8_t SD_FONT_RANGE_STEP_COUNTS[FluiDezSettings::SD_FONT_SIZE_RANGE_COUNT] = {4, 4, 4, 8, 8};
 
 bool isValidDeviceName(const char* name) {
   if (!name) return false;
   const size_t len = std::strlen(name);
-  return len >= CrossPointSettings::MIN_DEVICE_NAME_LENGTH && len <= CrossPointSettings::MAX_DEVICE_NAME_LENGTH;
+  return len >= FluiDezSettings::MIN_DEVICE_NAME_LENGTH && len <= FluiDezSettings::MAX_DEVICE_NAME_LENGTH;
 }
 
-bool restoreLegacyRtcDateSyncState(CrossPointSettings& settings) {
+bool restoreLegacyRtcDateSyncState(FluiDezSettings& settings) {
   if (!settings.clockHasBeenSynced || settings.clockDateHasBeenSynced || !halClock.isAvailable()) return false;
 
   uint16_t year = 0;
@@ -106,29 +106,28 @@ bool restoreLegacyRtcDateSyncState(CrossPointSettings& settings) {
 }
 
 uint8_t normalizedSdFontRange(uint8_t range) {
-  if (range == CrossPointSettings::SD_FONT_RANGE_NO_EMOJI_LEGACY) {
-    return CrossPointSettings::SD_FONT_RANGE_ALL;
+  if (range == FluiDezSettings::SD_FONT_RANGE_NO_EMOJI_LEGACY) {
+    return FluiDezSettings::SD_FONT_RANGE_ALL;
   }
-  return range < CrossPointSettings::SD_FONT_SIZE_RANGE_COUNT ? range : CrossPointSettings::SD_FONT_RANGE_TINY;
+  return range < FluiDezSettings::SD_FONT_SIZE_RANGE_COUNT ? range : FluiDezSettings::SD_FONT_RANGE_TINY;
 }
 
-bool isReaderFontSizeAvailable(const CrossPointSettings::FONT_SIZE size) {
-  return size < CrossPointSettings::FONT_SIZE_COUNT;
+bool isReaderFontSizeAvailable(const FluiDezSettings::FONT_SIZE size) {
+  return size < FluiDezSettings::FONT_SIZE_COUNT;
 }
 
-CrossPointSettings::FONT_SIZE firstAvailableReaderFontSize() {
-  const auto it =
-      std::find_if(std::begin(READER_FONT_SIZE_STORAGE_ORDER), std::end(READER_FONT_SIZE_STORAGE_ORDER),
-                   [](const CrossPointSettings::FONT_SIZE size) { return isReaderFontSizeAvailable(size); });
-  return (it != std::end(READER_FONT_SIZE_STORAGE_ORDER)) ? *it : CrossPointSettings::TINY;
+FluiDezSettings::FONT_SIZE firstAvailableReaderFontSize() {
+  const auto it = std::find_if(std::begin(READER_FONT_SIZE_STORAGE_ORDER), std::end(READER_FONT_SIZE_STORAGE_ORDER),
+                               [](const FluiDezSettings::FONT_SIZE size) { return isReaderFontSizeAvailable(size); });
+  return (it != std::end(READER_FONT_SIZE_STORAGE_ORDER)) ? *it : FluiDezSettings::TINY;
 }
 
 #if !CROSSINK_SCALABLE_FONTS
-int getFallbackReaderFontIdForFamily(const CrossPointSettings::FONT_FAMILY family) {
+int getFallbackReaderFontIdForFamily(const FluiDezSettings::FONT_FAMILY family) {
   switch (family) {
-    case CrossPointSettings::BITTER:
+    case FluiDezSettings::BITTER:
       return BITTER_10_FONT_ID;
-    case CrossPointSettings::LEXENDDECA:
+    case FluiDezSettings::LEXENDDECA:
     default:
       return LEXENDDECA_10_FONT_ID;
   }
@@ -137,79 +136,79 @@ int getFallbackReaderFontIdForFamily(const CrossPointSettings::FONT_FAMILY famil
 #endif
 
 // Convert legacy front button layout into explicit logical->hardware mapping.
-void applyLegacyFrontButtonLayout(CrossPointSettings& settings) {
-  switch (static_cast<CrossPointSettings::FRONT_BUTTON_LAYOUT>(settings.frontButtonLayout)) {
-    case CrossPointSettings::LEFT_RIGHT_BACK_CONFIRM:
-      settings.frontButtonBack = CrossPointSettings::FRONT_HW_LEFT;
-      settings.frontButtonConfirm = CrossPointSettings::FRONT_HW_RIGHT;
-      settings.frontButtonLeft = CrossPointSettings::FRONT_HW_BACK;
-      settings.frontButtonRight = CrossPointSettings::FRONT_HW_CONFIRM;
+void applyLegacyFrontButtonLayout(FluiDezSettings& settings) {
+  switch (static_cast<FluiDezSettings::FRONT_BUTTON_LAYOUT>(settings.frontButtonLayout)) {
+    case FluiDezSettings::LEFT_RIGHT_BACK_CONFIRM:
+      settings.frontButtonBack = FluiDezSettings::FRONT_HW_LEFT;
+      settings.frontButtonConfirm = FluiDezSettings::FRONT_HW_RIGHT;
+      settings.frontButtonLeft = FluiDezSettings::FRONT_HW_BACK;
+      settings.frontButtonRight = FluiDezSettings::FRONT_HW_CONFIRM;
       break;
-    case CrossPointSettings::LEFT_BACK_CONFIRM_RIGHT:
-      settings.frontButtonBack = CrossPointSettings::FRONT_HW_CONFIRM;
-      settings.frontButtonConfirm = CrossPointSettings::FRONT_HW_LEFT;
-      settings.frontButtonLeft = CrossPointSettings::FRONT_HW_BACK;
-      settings.frontButtonRight = CrossPointSettings::FRONT_HW_RIGHT;
+    case FluiDezSettings::LEFT_BACK_CONFIRM_RIGHT:
+      settings.frontButtonBack = FluiDezSettings::FRONT_HW_CONFIRM;
+      settings.frontButtonConfirm = FluiDezSettings::FRONT_HW_LEFT;
+      settings.frontButtonLeft = FluiDezSettings::FRONT_HW_BACK;
+      settings.frontButtonRight = FluiDezSettings::FRONT_HW_RIGHT;
       break;
-    case CrossPointSettings::BACK_CONFIRM_RIGHT_LEFT:
-      settings.frontButtonBack = CrossPointSettings::FRONT_HW_BACK;
-      settings.frontButtonConfirm = CrossPointSettings::FRONT_HW_CONFIRM;
-      settings.frontButtonLeft = CrossPointSettings::FRONT_HW_RIGHT;
-      settings.frontButtonRight = CrossPointSettings::FRONT_HW_LEFT;
+    case FluiDezSettings::BACK_CONFIRM_RIGHT_LEFT:
+      settings.frontButtonBack = FluiDezSettings::FRONT_HW_BACK;
+      settings.frontButtonConfirm = FluiDezSettings::FRONT_HW_CONFIRM;
+      settings.frontButtonLeft = FluiDezSettings::FRONT_HW_RIGHT;
+      settings.frontButtonRight = FluiDezSettings::FRONT_HW_LEFT;
       break;
-    case CrossPointSettings::BACK_CONFIRM_LEFT_RIGHT:
+    case FluiDezSettings::BACK_CONFIRM_LEFT_RIGHT:
     default:
-      settings.frontButtonBack = CrossPointSettings::FRONT_HW_BACK;
-      settings.frontButtonConfirm = CrossPointSettings::FRONT_HW_CONFIRM;
-      settings.frontButtonLeft = CrossPointSettings::FRONT_HW_LEFT;
-      settings.frontButtonRight = CrossPointSettings::FRONT_HW_RIGHT;
+      settings.frontButtonBack = FluiDezSettings::FRONT_HW_BACK;
+      settings.frontButtonConfirm = FluiDezSettings::FRONT_HW_CONFIRM;
+      settings.frontButtonLeft = FluiDezSettings::FRONT_HW_LEFT;
+      settings.frontButtonRight = FluiDezSettings::FRONT_HW_RIGHT;
       break;
   }
 }
 
-void applyLegacyStatusBarSettings(CrossPointSettings& settings) {
-  switch (static_cast<CrossPointSettings::STATUS_BAR_MODE>(settings.statusBar)) {
-    case CrossPointSettings::NONE:
+void applyLegacyStatusBarSettings(FluiDezSettings& settings) {
+  switch (static_cast<FluiDezSettings::STATUS_BAR_MODE>(settings.statusBar)) {
+    case FluiDezSettings::NONE:
       settings.statusBarChapterPageCount = 0;
       settings.statusBarBookProgressPercentage = 0;
-      settings.statusBarProgressBar = CrossPointSettings::HIDE_PROGRESS;
-      settings.statusBarTitle = CrossPointSettings::HIDE_TITLE;
+      settings.statusBarProgressBar = FluiDezSettings::HIDE_PROGRESS;
+      settings.statusBarTitle = FluiDezSettings::HIDE_TITLE;
       settings.statusBarBattery = 0;
       break;
-    case CrossPointSettings::NO_PROGRESS:
+    case FluiDezSettings::NO_PROGRESS:
       settings.statusBarChapterPageCount = 0;
       settings.statusBarBookProgressPercentage = 0;
-      settings.statusBarProgressBar = CrossPointSettings::HIDE_PROGRESS;
-      settings.statusBarTitle = CrossPointSettings::CHAPTER_TITLE;
+      settings.statusBarProgressBar = FluiDezSettings::HIDE_PROGRESS;
+      settings.statusBarTitle = FluiDezSettings::CHAPTER_TITLE;
       settings.statusBarBattery = 1;
       break;
-    case CrossPointSettings::BOOK_PROGRESS_BAR:
+    case FluiDezSettings::BOOK_PROGRESS_BAR:
       settings.statusBarChapterPageCount = 1;
       settings.statusBarBookProgressPercentage = 0;
-      settings.statusBarProgressBar = CrossPointSettings::BOOK_PROGRESS;
-      settings.statusBarTitle = CrossPointSettings::CHAPTER_TITLE;
+      settings.statusBarProgressBar = FluiDezSettings::BOOK_PROGRESS;
+      settings.statusBarTitle = FluiDezSettings::CHAPTER_TITLE;
       settings.statusBarBattery = 1;
       break;
-    case CrossPointSettings::ONLY_BOOK_PROGRESS_BAR:
+    case FluiDezSettings::ONLY_BOOK_PROGRESS_BAR:
       settings.statusBarChapterPageCount = 1;
       settings.statusBarBookProgressPercentage = 0;
-      settings.statusBarProgressBar = CrossPointSettings::BOOK_PROGRESS;
-      settings.statusBarTitle = CrossPointSettings::HIDE_TITLE;
+      settings.statusBarProgressBar = FluiDezSettings::BOOK_PROGRESS;
+      settings.statusBarTitle = FluiDezSettings::HIDE_TITLE;
       settings.statusBarBattery = 0;
       break;
-    case CrossPointSettings::CHAPTER_PROGRESS_BAR:
+    case FluiDezSettings::CHAPTER_PROGRESS_BAR:
       settings.statusBarChapterPageCount = 0;
       settings.statusBarBookProgressPercentage = 1;
-      settings.statusBarProgressBar = CrossPointSettings::CHAPTER_PROGRESS;
-      settings.statusBarTitle = CrossPointSettings::CHAPTER_TITLE;
+      settings.statusBarProgressBar = FluiDezSettings::CHAPTER_PROGRESS;
+      settings.statusBarTitle = FluiDezSettings::CHAPTER_TITLE;
       settings.statusBarBattery = 1;
       break;
-    case CrossPointSettings::FULL:
+    case FluiDezSettings::FULL:
     default:
       settings.statusBarChapterPageCount = 1;
       settings.statusBarBookProgressPercentage = 1;
-      settings.statusBarProgressBar = CrossPointSettings::HIDE_PROGRESS;
-      settings.statusBarTitle = CrossPointSettings::CHAPTER_TITLE;
+      settings.statusBarProgressBar = FluiDezSettings::HIDE_PROGRESS;
+      settings.statusBarTitle = FluiDezSettings::CHAPTER_TITLE;
       settings.statusBarBattery = 1;
       break;
   }
@@ -228,22 +227,21 @@ uint8_t defaultEnumRawValue(const SettingInfo& info, const uint8_t fieldDefault)
 bool isSleepScreenSetting(const SettingInfo& info) { return info.key && strcmp(info.key, "sleepScreen") == 0; }
 
 bool isValidQuickActionSlot(const uint8_t action) {
-  return action < CrossPointSettings::QUICK_ACTION_SLOT_ACTION_COUNT ||
-         action == CrossPointSettings::TOGGLE_HOME_BUTTON_IN_READER ||
-         action == CrossPointSettings::TOGGLE_FRONTLIGHT || action == CrossPointSettings::TOGGLE_TOUCHSCREEN ||
-         action == CrossPointSettings::PREVIOUS_PAGE || action == CrossPointSettings::NEARBY_POSITION_SYNC ||
-         action == CrossPointSettings::LIBRARY;
+  return action < FluiDezSettings::QUICK_ACTION_SLOT_ACTION_COUNT ||
+         action == FluiDezSettings::TOGGLE_HOME_BUTTON_IN_READER || action == FluiDezSettings::TOGGLE_FRONTLIGHT ||
+         action == FluiDezSettings::TOGGLE_TOUCHSCREEN || action == FluiDezSettings::PREVIOUS_PAGE ||
+         action == FluiDezSettings::NEARBY_POSITION_SYNC || action == FluiDezSettings::LIBRARY;
 }
 
 uint8_t migrateTiltDirectionValue(const uint8_t direction) {
-  if (direction == CrossPointSettings::TILT_LEFT_RIGHT) return CrossPointSettings::TILT_LEFT_RIGHT_INVERTED;
-  if (direction == CrossPointSettings::TILT_LEFT_RIGHT_INVERTED) return CrossPointSettings::TILT_LEFT_RIGHT;
+  if (direction == FluiDezSettings::TILT_LEFT_RIGHT) return FluiDezSettings::TILT_LEFT_RIGHT_INVERTED;
+  if (direction == FluiDezSettings::TILT_LEFT_RIGHT_INVERTED) return FluiDezSettings::TILT_LEFT_RIGHT;
   return direction;
 }
 
 }  // namespace
 
-const char* CrossPointSettings::getDefaultDeviceName() {
+const char* FluiDezSettings::getDefaultDeviceName() {
 #if (defined(FREEINK_DEVICE_X4CLASSIC) && FREEINK_DEVICE_X4CLASSIC) || defined(SIMULATOR_DEVICE_X4_CLASSIC)
   return "X4 Classic";
 #endif
@@ -254,11 +252,11 @@ const char* CrossPointSettings::getDefaultDeviceName() {
   return "FluiDez Reader";
 }
 
-const char* CrossPointSettings::getEffectiveDeviceName() const {
+const char* FluiDezSettings::getEffectiveDeviceName() const {
   return isValidDeviceName(deviceName) ? deviceName : getDefaultDeviceName();
 }
 
-void CrossPointSettings::validateFrontButtonMapping(CrossPointSettings& settings) {
+void FluiDezSettings::validateFrontButtonMapping(FluiDezSettings& settings) {
   const uint8_t mapping[] = {settings.frontButtonBack, settings.frontButtonConfirm, settings.frontButtonLeft,
                              settings.frontButtonRight};
   for (size_t i = 0; i < 4; i++) {
@@ -274,8 +272,8 @@ void CrossPointSettings::validateFrontButtonMapping(CrossPointSettings& settings
   }
 }
 
-bool CrossPointSettings::isTwoFingerSwipeActionAvailable(const uint8_t action, const bool frontlightPresent,
-                                                         const bool hasColorTemperature) {
+bool FluiDezSettings::isTwoFingerSwipeActionAvailable(const uint8_t action, const bool frontlightPresent,
+                                                      const bool hasColorTemperature) {
   switch (static_cast<TWO_FINGER_SWIPE_ACTION>(action)) {
     case TWO_FINGER_SWIPE_NOT_SET:
     case TWO_FINGER_SWIPE_NEXT_CHAPTER:
@@ -295,11 +293,11 @@ bool CrossPointSettings::isTwoFingerSwipeActionAvailable(const uint8_t action, c
   return false;
 }
 
-bool CrossPointSettings::normalizeTwoFingerSwipeActions(CrossPointSettings& settings,
-                                                        uint8_t CrossPointSettings::* const editedField) {
-  uint8_t CrossPointSettings::* const fields[] = {
-      &CrossPointSettings::twoFingerSwipeUp, &CrossPointSettings::twoFingerSwipeDown,
-      &CrossPointSettings::twoFingerSwipeLeft, &CrossPointSettings::twoFingerSwipeRight};
+bool FluiDezSettings::normalizeTwoFingerSwipeActions(FluiDezSettings& settings,
+                                                     uint8_t FluiDezSettings::* const editedField) {
+  uint8_t FluiDezSettings::* const fields[] = {&FluiDezSettings::twoFingerSwipeUp, &FluiDezSettings::twoFingerSwipeDown,
+                                               &FluiDezSettings::twoFingerSwipeLeft,
+                                               &FluiDezSettings::twoFingerSwipeRight};
   bool changed = false;
   const bool frontlightPresent = Frontlight.present();
   const bool hasColorTemperature = Frontlight.hasColorTemperature();
@@ -326,7 +324,7 @@ bool CrossPointSettings::normalizeTwoFingerSwipeActions(CrossPointSettings& sett
   return changed;
 }
 
-void CrossPointSettings::validateReaderFrontButtonMapping(CrossPointSettings& settings) {
+void FluiDezSettings::validateReaderFrontButtonMapping(FluiDezSettings& settings) {
   const uint8_t mapping[] = {settings.readerFrontButtonBack, settings.readerFrontButtonConfirm,
                              settings.readerFrontButtonLeft, settings.readerFrontButtonRight};
   for (size_t i = 0; i < 4; i++) {
@@ -342,9 +340,9 @@ void CrossPointSettings::validateReaderFrontButtonMapping(CrossPointSettings& se
   }
 }
 
-uint8_t CrossPointSettings::defaultUiScale() { return UI_SCALE_SMALL; }
+uint8_t FluiDezSettings::defaultUiScale() { return UI_SCALE_SMALL; }
 
-uint8_t CrossPointSettings::sleepTimeoutEnumToMinutes(const uint8_t legacyValue) {
+uint8_t FluiDezSettings::sleepTimeoutEnumToMinutes(const uint8_t legacyValue) {
   switch (legacyValue) {
     case SLEEP_1_MIN:
       return 1;
@@ -360,14 +358,14 @@ uint8_t CrossPointSettings::sleepTimeoutEnumToMinutes(const uint8_t legacyValue)
   }
 }
 
-uint8_t CrossPointSettings::sleepScreenStorageToMode(const uint8_t storedValue) {
+uint8_t FluiDezSettings::sleepScreenStorageToMode(const uint8_t storedValue) {
   if (storedValue < SLEEP_SCREEN_STORAGE_ORDER_COUNT) {
     return SLEEP_SCREEN_STORAGE_ORDER[storedValue];
   }
   return DARK;
 }
 
-uint8_t CrossPointSettings::sleepScreenModeToStorage(const uint8_t mode) {
+uint8_t FluiDezSettings::sleepScreenModeToStorage(const uint8_t mode) {
   for (uint8_t storedValue = 0; storedValue < SLEEP_SCREEN_STORAGE_ORDER_COUNT; storedValue++) {
     if (SLEEP_SCREEN_STORAGE_ORDER[storedValue] == mode) {
       return storedValue;
@@ -376,8 +374,8 @@ uint8_t CrossPointSettings::sleepScreenModeToStorage(const uint8_t mode) {
   return 0;
 }
 
-uint8_t CrossPointSettings::legacyLineSpacingToPercent(const uint8_t legacyValue, const uint8_t fontFamily,
-                                                       const bool sdFontSelected) {
+uint8_t FluiDezSettings::legacyLineSpacingToPercent(const uint8_t legacyValue, const uint8_t fontFamily,
+                                                    const bool sdFontSelected) {
   if (sdFontSelected) {
     switch (legacyValue) {
       case TIGHT:
@@ -415,30 +413,30 @@ uint8_t CrossPointSettings::legacyLineSpacingToPercent(const uint8_t legacyValue
   }
 }
 
-uint8_t CrossPointSettings::clampedLineHeightPercent(const uint8_t value) {
+uint8_t FluiDezSettings::clampedLineHeightPercent(const uint8_t value) {
   if (value < MIN_LINE_HEIGHT_PERCENT) return MIN_LINE_HEIGHT_PERCENT;
   if (value > MAX_LINE_HEIGHT_PERCENT) return MAX_LINE_HEIGHT_PERCENT;
   return value;
 }
 
-uint8_t CrossPointSettings::readingIdleTimeThresholdUnitsForSeconds(const uint16_t seconds) {
+uint8_t FluiDezSettings::readingIdleTimeThresholdUnitsForSeconds(const uint16_t seconds) {
   const uint16_t clampedSeconds =
       std::clamp(seconds, MIN_READING_IDLE_TIME_THRESHOLD_SECONDS, MAX_READING_IDLE_TIME_THRESHOLD_SECONDS);
   return static_cast<uint8_t>((clampedSeconds + READING_IDLE_TIME_THRESHOLD_UNIT_SECONDS - 1) /
                               READING_IDLE_TIME_THRESHOLD_UNIT_SECONDS);
 }
 
-uint16_t CrossPointSettings::readingIdleTimeThresholdSecondsForUnits(const uint8_t units) {
+uint16_t FluiDezSettings::readingIdleTimeThresholdSecondsForUnits(const uint8_t units) {
   const uint8_t clampedUnits =
       std::clamp(units, MIN_READING_IDLE_TIME_THRESHOLD_UNITS, MAX_READING_IDLE_TIME_THRESHOLD_UNITS);
   return static_cast<uint16_t>(clampedUnits) * READING_IDLE_TIME_THRESHOLD_UNIT_SECONDS;
 }
 
-uint16_t CrossPointSettings::getReadingIdleTimeThresholdSeconds() const {
+uint16_t FluiDezSettings::getReadingIdleTimeThresholdSeconds() const {
   return readingIdleTimeThresholdSecondsForUnits(readingIdleTimeThresholdUnits);
 }
 
-void CrossPointSettings::toJson(JsonDocument& doc) const {
+void FluiDezSettings::toJson(JsonDocument& doc) const {
   std::lock_guard<std::mutex> lock(_mutex);
   for (const auto& info : getBaseSettingsList()) {
     if (!info.key || (!info.valuePtr && !info.value16Ptr && !info.stringOffset)) continue;
@@ -508,7 +506,7 @@ void CrossPointSettings::toJson(JsonDocument& doc) const {
   doc["screenInverted"] = screenInverted;
 }
 
-bool CrossPointSettings::fromJson(JsonVariantConst doc, bool importingCrossPoint) {
+bool FluiDezSettings::fromJson(JsonVariantConst doc, bool importingCrossPoint) {
   std::lock_guard<std::mutex> lock(_mutex);
   bool needsResave = false;
   auto clamp = [](const uint8_t value, const uint8_t maxValue, const uint8_t fallback) {
@@ -720,8 +718,8 @@ bool CrossPointSettings::fromJson(JsonVariantConst doc, bool importingCrossPoint
   normalizeFrontlightScheduleTime(frontlightScheduleEnd);
 
   if (normalizeTwoFingerSwipeActions(*this)) needsResave = true;
-  for (const auto field : {&CrossPointSettings::leftEdgeUp, &CrossPointSettings::leftEdgeDown,
-                           &CrossPointSettings::rightEdgeUp, &CrossPointSettings::rightEdgeDown}) {
+  for (const auto field : {&FluiDezSettings::leftEdgeUp, &FluiDezSettings::leftEdgeDown, &FluiDezSettings::rightEdgeUp,
+                           &FluiDezSettings::rightEdgeDown}) {
     if (!isTwoFingerSwipeActionAvailable(this->*field, Frontlight.present(), Frontlight.hasColorTemperature())) {
       this->*field = TWO_FINGER_SWIPE_NOT_SET;
       needsResave = true;
@@ -916,14 +914,14 @@ bool CrossPointSettings::fromJson(JsonVariantConst doc, bool importingCrossPoint
   return true;
 }
 
-bool CrossPointSettings::saveToFile() const {
+bool FluiDezSettings::saveToFile() const {
   std::lock_guard<std::mutex> lock(storeMutex);
   JsonDocument doc;
   toJson(doc);
   return PersistableStoreBase::writeDocToFileAtomically(SETTINGS_FILE_JSON, doc);
 }
 
-bool CrossPointSettings::loadFromFile() {
+bool FluiDezSettings::loadFromFile() {
   enum class JsonLoadStatus : uint8_t { MissingOrEmpty, Loaded, Failed };
 
   auto loadJsonSettings = [this](const char* path, bool migrateToCurrentPath) -> JsonLoadStatus {
@@ -995,7 +993,7 @@ bool CrossPointSettings::loadFromFile() {
   return migrateLanguageBinaryFile();
 }
 
-bool CrossPointSettings::migrateLanguageBinaryFile() {
+bool FluiDezSettings::migrateLanguageBinaryFile() {
   // V1_LANGUAGES / V1_LANGUAGE_COUNT are emitted by gen_i18n.py with the
   // frozen enum order from 2f969a9.
   if (!Storage.exists(LANG_FILE_BIN)) return false;
@@ -1018,7 +1016,7 @@ bool CrossPointSettings::migrateLanguageBinaryFile() {
   return true;
 }
 
-bool CrossPointSettings::loadFromBinaryFile() {
+bool FluiDezSettings::loadFromBinaryFile() {
   FsFile inputFile;
   if (!Storage.openFileForRead("CPS", SETTINGS_FILE_BIN, inputFile)) {
     return false;
@@ -1120,7 +1118,7 @@ bool CrossPointSettings::loadFromBinaryFile() {
   } while (false);
 
   if (frontButtonMappingRead) {
-    CrossPointSettings::validateFrontButtonMapping(*this);
+    FluiDezSettings::validateFrontButtonMapping(*this);
   } else {
     applyLegacyFrontButtonLayout(*this);
   }
@@ -1153,19 +1151,18 @@ bool CrossPointSettings::loadFromBinaryFile() {
   return true;
 }
 
-ReaderStatusBarConfig CrossPointSettings::readerStatusBar(const ReaderStatusBarPosition position) const {
+ReaderStatusBarConfig FluiDezSettings::readerStatusBar(const ReaderStatusBarPosition position) const {
   std::lock_guard<std::mutex> lock(_mutex);
   return position == ReaderStatusBarPosition::Top ? topReaderStatusBar : bottomReaderStatusBar;
 }
 
-bool CrossPointSettings::parseReaderStatusBars(JsonVariantConst json, ReaderStatusBarsPayload& config) {
+bool FluiDezSettings::parseReaderStatusBars(JsonVariantConst json, ReaderStatusBarsPayload& config) {
   return readReaderStatusBarsPayload(json, config, halClock.isAvailable(), BOOK_PERCENTAGE_FORMAT_COUNT,
                                      STATUS_BAR_PROGRESS_BAR_COUNT, STATUS_BAR_PROGRESS_BAR_THICKNESS_COUNT,
                                      XTC_STATUS_BAR_MODE_COUNT);
 }
 
-void CrossPointSettings::setReaderStatusBar(const ReaderStatusBarPosition position,
-                                            const ReaderStatusBarConfig& config) {
+void FluiDezSettings::setReaderStatusBar(const ReaderStatusBarPosition position, const ReaderStatusBarConfig& config) {
   std::lock_guard<std::mutex> lock(_mutex);
   if (position == ReaderStatusBarPosition::Top) {
     topReaderStatusBar = config;
@@ -1175,8 +1172,8 @@ void CrossPointSettings::setReaderStatusBar(const ReaderStatusBarPosition positi
   }
 }
 
-ReaderRenderSpec CrossPointSettings::readerRenderSpec(const uint16_t viewportWidth, const uint16_t viewportHeight,
-                                                      const EpubRenderMode renderMode) const {
+ReaderRenderSpec FluiDezSettings::readerRenderSpec(const uint16_t viewportWidth, const uint16_t viewportHeight,
+                                                   const EpubRenderMode renderMode) const {
   ReaderRenderSpec spec;
   spec.fontId = getReaderFontId();
   spec.lineCompression = getReaderLineCompression();
@@ -1195,11 +1192,11 @@ ReaderRenderSpec CrossPointSettings::readerRenderSpec(const uint16_t viewportWid
   return spec;
 }
 
-float CrossPointSettings::getReaderLineCompression() const {
+float FluiDezSettings::getReaderLineCompression() const {
   return static_cast<float>(clampedLineHeightPercent(lineHeightPercent)) / 100.0f;
 }
 
-unsigned long CrossPointSettings::getSleepTimeoutMs() const {
+unsigned long FluiDezSettings::getSleepTimeoutMs() const {
   if (sleepTimeoutMinutes >= SLEEP_TIMEOUT_NEVER_MINUTES) return 0UL;
   const uint8_t minutes =
       std::clamp(sleepTimeoutMinutes, MIN_SLEEP_TIMEOUT_MINUTES, static_cast<uint8_t>(SLEEP_TIMEOUT_NEVER_MINUTES - 1));
@@ -1207,8 +1204,8 @@ unsigned long CrossPointSettings::getSleepTimeoutMs() const {
 }
 
 #ifdef SIMULATOR
-bool CrossPointSettings::verifySleepTimeoutMigrationContract() {
-  CrossPointSettings& settings = getInstance();
+bool FluiDezSettings::verifySleepTimeoutMigrationContract() {
+  FluiDezSettings& settings = getInstance();
   const uint8_t originalMinutes = settings.sleepTimeoutMinutes;
 
   settings.sleepTimeoutMinutes = sleepTimeoutEnumToMinutes(SLEEP_5_MIN);
@@ -1221,7 +1218,7 @@ bool CrossPointSettings::verifySleepTimeoutMigrationContract() {
   return migratedValueDrivesTimeout && runtimeUsesMinutesOnly;
 }
 
-bool CrossPointSettings::verifySleepScreenMigrationContract() {
+bool FluiDezSettings::verifySleepScreenMigrationContract() {
   constexpr uint8_t legacyModeCountBeforeMinimal = 8;
   constexpr uint8_t minimalSleepStorageValue = 8;
   constexpr uint8_t quickResumeStorageValue = 9;
@@ -1245,7 +1242,7 @@ bool CrossPointSettings::verifySleepScreenMigrationContract() {
 }
 #endif
 
-int CrossPointSettings::getRefreshFrequency() const {
+int FluiDezSettings::getRefreshFrequency() const {
   switch (refreshFrequency) {
     case REFRESH_1:
       return 1;
@@ -1265,13 +1262,13 @@ int CrossPointSettings::getRefreshFrequency() const {
   }
 }
 
-uint8_t CrossPointSettings::getActiveReaderFontSizeCount() {
+uint8_t FluiDezSettings::getActiveReaderFontSizeCount() {
   return static_cast<uint8_t>(std::count_if(std::begin(READER_FONT_SIZE_STORAGE_ORDER),
                                             std::end(READER_FONT_SIZE_STORAGE_ORDER),
                                             [](const FONT_SIZE size) { return isReaderFontSizeAvailable(size); }));
 }
 
-uint8_t CrossPointSettings::getStoredReaderFontSize(const FONT_SIZE size) {
+uint8_t FluiDezSettings::getStoredReaderFontSize(const FONT_SIZE size) {
   uint8_t stored = 0;
   for (const FONT_SIZE activeSize : READER_FONT_SIZE_STORAGE_ORDER) {
     if (!isReaderFontSizeAvailable(activeSize)) continue;
@@ -1281,7 +1278,7 @@ uint8_t CrossPointSettings::getStoredReaderFontSize(const FONT_SIZE size) {
   return INVALID_READER_FONT_SIZE;
 }
 
-uint8_t CrossPointSettings::getReaderFontPointSize(const FONT_SIZE size) {
+uint8_t FluiDezSettings::getReaderFontPointSize(const FONT_SIZE size) {
   switch (size) {
     case TINY:
       return 10;
@@ -1295,14 +1292,14 @@ uint8_t CrossPointSettings::getReaderFontPointSize(const FONT_SIZE size) {
   }
 }
 
-uint8_t CrossPointSettings::getSdFontRangePointSize(uint8_t range, uint8_t step) {
+uint8_t FluiDezSettings::getSdFontRangePointSize(uint8_t range, uint8_t step) {
   range = normalizedSdFontRange(range);
   const uint8_t stepCount = SD_FONT_RANGE_STEP_COUNTS[range];
   if (step >= stepCount) step = stepCount - 1;
   return SD_FONT_RANGE_POINT_SIZES[range][step];
 }
 
-bool CrossPointSettings::isSdFontPointSizeAllowedForRange(const uint8_t pointSize, const uint8_t range) {
+bool FluiDezSettings::isSdFontPointSizeAllowedForRange(const uint8_t pointSize, const uint8_t range) {
   const uint8_t normalizedRange = normalizedSdFontRange(range);
   const uint8_t stepCount = SD_FONT_RANGE_STEP_COUNTS[normalizedRange];
   for (uint8_t i = 0; i < stepCount; i++) {
@@ -1311,7 +1308,7 @@ bool CrossPointSettings::isSdFontPointSizeAllowedForRange(const uint8_t pointSiz
   return false;
 }
 
-CrossPointSettings::FONT_SIZE CrossPointSettings::getEffectiveReaderFontSize() const {
+FluiDezSettings::FONT_SIZE FluiDezSettings::getEffectiveReaderFontSize() const {
   FONT_SIZE best = firstAvailableReaderFontSize();
   uint8_t bestDiff = UINT8_MAX;
   for (const FONT_SIZE size : READER_FONT_SIZE_STORAGE_ORDER) {
@@ -1327,14 +1324,14 @@ CrossPointSettings::FONT_SIZE CrossPointSettings::getEffectiveReaderFontSize() c
   return best;
 }
 
-uint8_t CrossPointSettings::getSdFontTargetPointSize() const { return readerFontPointSize; }
+uint8_t FluiDezSettings::getSdFontTargetPointSize() const { return readerFontPointSize; }
 
-bool CrossPointSettings::changeReaderFontSize(const bool larger, const FontSizeStepMode mode) {
+bool FluiDezSettings::changeReaderFontSize(const bool larger, const FontSizeStepMode mode) {
   return changeReaderFontSizeStep(BUILTIN_READER_FONT_SIZES, std::size(BUILTIN_READER_FONT_SIZES), readerFontPointSize,
                                   larger, mode);
 }
 
-int CrossPointSettings::getReaderFontId() const {
+int FluiDezSettings::getReaderFontId() const {
   // Check SD card font first
   if (sdFontFamilyName[0] != '\0' && sdFontIdResolver) {
     int id = sdFontIdResolver(sdFontResolverCtx, sdFontFamilyName, readerFontPointSize);
@@ -1345,7 +1342,7 @@ int CrossPointSettings::getReaderFontId() const {
   return getBuiltInReaderFontId();
 }
 
-int CrossPointSettings::getBuiltInReaderFontId() const {
+int FluiDezSettings::getBuiltInReaderFontId() const {
 #if CROSSINK_SCALABLE_FONTS
   return scalableBuiltinReaderFontId(fontFamily == BITTER ? 1 : 0, closestBuiltinReaderPointSize(readerFontPointSize));
 #else

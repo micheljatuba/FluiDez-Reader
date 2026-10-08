@@ -156,7 +156,7 @@ class HomeActivity final : public Activity {
   bool isHomeActivity() const override { return true; }
   bool allowPowerAsConfirmInReaderMode() const override { return quickActionsPopup.isActive(); }
   bool blocksGlobalInput() const override { return quickActionsPopup.isActive(); }
-  bool handleShortcutAction(CrossPointSettings::SHORT_PWRBTN action) override;
+  bool handleShortcutAction(FluiDezSettings::SHORT_PWRBTN action) override;
   std::string getCurrentBookPath() const override;
   std::string getCurrentBookTitle() const override;
   std::unique_ptr<Activity> createFrontlightReadingStatsActivity() override;

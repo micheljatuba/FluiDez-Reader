@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <iterator>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "ReaderUtils.h"
 #include "components/UITheme.h"
 #include "components/UIThemeTokens.h"
