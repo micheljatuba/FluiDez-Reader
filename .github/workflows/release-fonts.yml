@@ -1,0 +1,105 @@
+name: Build & Publish SD Card Fonts
+
+# Fonts change rarely: run this by hand when font sources or the conversion
+# pipeline change. It builds the .cpfont files and the fonts.json manifest and
+# publishes them to FluiDez's Azure Blob container, where readers download them
+# from Settings > System > Manage fonts.
+#
+# The container is served over plain HTTP on purpose: HTTPS stalls inside
+# esp_http_client on ESP32-C3 readers, and every .cpfont is still checked by
+# CRC before install. The storage account therefore has "secure transfer"
+# off and anonymous blob read access on; uploads below still use HTTPS.
+#
+# Requires a repository secret AZURE_FONTS_SAS: a SAS token for the fonts
+# container with read, add, create, write, delete and list permissions.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  AZURE_STORAGE_ACCOUNT: strfluidez001
+  AZURE_FONTS_CONTAINER: fonts
+  # Must match FONT_MANIFEST_URL in src/activities/settings/FontDownloadActivity.h.
+  FONT_BASE_URL: http://strfluidez001.blob.core.windows.net/fonts
+
+jobs:
+  build-fonts:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+
+      - name: Install font tools
+        run: pip install freetype-py fonttools pyyaml
+
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y libfreetype6-dev
+
+      - name: Read version constants
+        id: versions
+        run: |
+          cd lib/EpdFont/scripts
+          echo "binary=$(python3 -c 'from cpfont_version import CPFONT_VERSION; print(CPFONT_VERSION)')" >> "$GITHUB_OUTPUT"
+          echo "metadata=$(python3 -c 'from cpfont_version import FONTS_MANIFEST_VERSION; print(FONTS_MANIFEST_VERSION)')" >> "$GITHUB_OUTPUT"
+
+      - name: Build SD card fonts
+        run: python3 lib/EpdFont/scripts/build-sd-fonts.py --clean --verbose -j 1
+
+      - name: Collect font files
+        run: |
+          mkdir -p dist
+          find lib/EpdFont/scripts/output -name '*.cpfont' -exec cp {} dist/ \;
+          ls dist | wc -l
+
+      - name: Generate manifest
+        id: manifest
+        run: |
+          BASE="sd-fonts-m${{ steps.versions.outputs.metadata }}-b${{ steps.versions.outputs.binary }}"
+          echo "base=$BASE" >> "$GITHUB_OUTPUT"
+          python3 scripts/generate-font-manifest.py \
+            --input dist \
+            --base-url "${FONT_BASE_URL}/${BASE}/" \
+            --output dist/fonts.json \
+            --descriptions-from lib/EpdFont/scripts/sd-fonts.yaml
+
+      - name: Publish to Azure Blob Storage
+        env:
+          AZURE_FONTS_SAS: ${{ secrets.AZURE_FONTS_SAS }}
+          BASE: ${{ steps.manifest.outputs.base }}
+        run: |
+          if [ -z "$AZURE_FONTS_SAS" ]; then
+            echo "::error::Set the AZURE_FONTS_SAS repository secret first."
+            exit 1
+          fi
+          SAS="${AZURE_FONTS_SAS#\?}"
+          # Fonts first, manifest last: a reader that fetches the manifest
+          # mid-publish never sees an entry whose file is not there yet.
+          az storage blob upload-batch \
+            --account-name "$AZURE_STORAGE_ACCOUNT" --sas-token "$SAS" \
+            --destination "$AZURE_FONTS_CONTAINER" --destination-path "$BASE" \
+            --source dist --pattern '*.cpfont' \
+            --content-type application/octet-stream \
+            --overwrite --only-show-errors --output none
+          az storage blob upload \
+            --account-name "$AZURE_STORAGE_ACCOUNT" --sas-token "$SAS" \
+            --container-name "$AZURE_FONTS_CONTAINER" --name "$BASE/fonts.json" \
+            --file dist/fonts.json \
+            --content-type application/json --content-cache-control no-cache \
+            --overwrite --only-show-errors --output none
+
+      - name: Check the reader endpoint over HTTP
+        env:
+          BASE: ${{ steps.manifest.outputs.base }}
+        run: |
+          curl -fsS "${FONT_BASE_URL}/${BASE}/fonts.json" -o /tmp/fonts.json
+          FIRST=$(python3 -c 'import json; d=json.load(open("/tmp/fonts.json")); f=d["families"][0]["files"][0]; print(f["name"] if isinstance(f, dict) else f)')
+          curl -fsSI "${FONT_BASE_URL}/${BASE}/${FIRST}" | head -1
+          echo "Manifest: ${FONT_BASE_URL}/${BASE}/fonts.json"
