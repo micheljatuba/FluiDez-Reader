@@ -72,7 +72,7 @@ jobs:
           NOTES="$(python3 scripts/release_notes.py "$RELEASE_VERSION")"
           {
             echo "release_notes<<FLUIDEZ_RELEASE_NOTES_EOF"
-            printf '%s[fluidez]' "$NOTES"
+            printf '%s\n' "$NOTES"
             echo "FLUIDEZ_RELEASE_NOTES_EOF"
           } >> "$GITHUB_OUTPUT"
 
