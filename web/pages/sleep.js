@@ -83,7 +83,7 @@ const I18N = {
     badImage: "Não foi possível abrir este arquivo como imagem.",
   },
 };
-const LANG = (navigator.language || "en").toLowerCase().startsWith("pt") ? "pt" : "en";
+const LANG = window.FZ_LANG === "pt" ? "pt" : "en";
 const t = (key) => I18N[LANG][key] || I18N.en[key] || key;
 
 const SLEEP_FOLDER = "/sleep";

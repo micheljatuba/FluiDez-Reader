@@ -6,6 +6,10 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ## [Unreleased]
 
+### Added
+
+- The web portal speaks Portuguese: menus, File Manager, Settings, Fonts and the device page follow the browser language, with a Português/English switch in the footer. A shared `/i18n.js` (about 5 KB gzipped, cached) translates the English text as it appears, including messages the pages build later and `alert`/`confirm` prompts; file names and the technical conversion log stay untouched.
+
 ### Fixed
 
 - The Sleep Screen page's empty gallery message spans the whole row instead of wrapping in one grid column.

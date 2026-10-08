@@ -90,6 +90,7 @@ MOCK_API = {
 ASSETS = {
     "/style.css": (os.path.join(WEB, "assets", "style.css"), "text/css"),
     "/logo.png": (os.path.join(WEB, "assets", "logo.png"), "image/png"),
+    "/i18n.js": (os.path.join(WEB, "assets", "i18n.js"), "application/javascript"),
     "/js/jszip.min.js": (JSZIP, "application/javascript"),
 }
 

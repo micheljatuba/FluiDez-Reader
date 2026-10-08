@@ -119,6 +119,7 @@ class CrossPointWebServer {
   void handleRoot() const;
   void handleJszip() const;
   void handleStyleCss() const;
+  void handleI18nJs() const;
   void handleLogo() const;
   void handleNotFound() const;
   void handleStatus() const;

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{{ title }}</title>
   <link rel="stylesheet" href="/style.css?v={{ v }}" />
+  <script src="/i18n.js?v={{ v }}"></script>
 {{ head_extra }}
   <style>
 {{ styles }}
@@ -23,7 +24,7 @@
 
 {{ body }}
 
-  <p class="footer">FluiDez Reader &bull; Open Source</p>
+  <p class="footer"><span>FluiDez Reader &bull; Open Source</span> &bull; <a href="#" id="fz-lang"></a></p>
 
 {{ script }}
 </body>

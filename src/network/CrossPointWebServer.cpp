@@ -37,6 +37,7 @@
 #include "html/FilesPageHtml.generated.h"
 #include "html/FontsPageHtml.generated.h"
 #include "html/HomePageHtml.generated.h"
+#include "html/I18nJs.generated.h"
 #include "html/LogoPng.generated.h"
 #include "html/SettingsPageHtml.generated.h"
 #include "html/SleepPageHtml.generated.h"
@@ -378,6 +379,7 @@ void CrossPointWebServer::begin() {
   server->on("/files", HTTP_GET, [this] { handleFileList(); });
   server->on("/js/jszip.min.js", HTTP_GET, [this] { handleJszip(); });
   server->on("/style.css", HTTP_GET, [this] { handleStyleCss(); });
+  server->on("/i18n.js", HTTP_GET, [this] { handleI18nJs(); });
   server->on("/logo.png", HTTP_GET, [this] { handleLogo(); });
 
   server->on("/api/status", HTTP_GET, [this] { handleStatus(); });
@@ -649,6 +651,10 @@ void CrossPointWebServer::handleJszip() const {
 
 // Shared stylesheet and logo are referenced with a content-hashed ?v= query,
 // so they can be cached aggressively: a new build changes the URL.
+void CrossPointWebServer::handleI18nJs() const {
+  sendStaticContent(server.get(), I18nJs, I18nJsCompressedSize, I18nJsETag, "application/javascript");
+}
+
 void CrossPointWebServer::handleStyleCss() const {
   server->sendHeader("Content-Encoding", "gzip");
   server->sendHeader("Cache-Control", "public, max-age=31536000, immutable");
