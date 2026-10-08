@@ -1,6 +1,7 @@
 #pragma once
 #include <ArduinoJson.h>
 #include <Epub/ReaderRenderSpec.h>
+#include <Epub/WordSpacing.h>
 #include <HalStorage.h>
 #include <PersistableStore.h>
 
@@ -580,6 +581,7 @@ class FluiDezSettings : public PersistableStore<FluiDezSettings> {
   uint8_t lineSpacing = NORMAL;  // migration only; new saves use lineHeightPercent
   uint8_t lineHeightPercent = 100;
   uint8_t wordSpacing = 0;
+  uint8_t characterSpacing = 5;  // 0..10 represents -5..+5; each step is half a pixel.
   uint8_t paragraphAlignment = JUSTIFIED;
   // Auto-sleep timeout setting (default 10 minutes). Legacy sleepTimeout enum values are migration-only.
   uint8_t sleepTimeoutMinutes = 10;
@@ -719,7 +721,13 @@ class FluiDezSettings : public PersistableStore<FluiDezSettings> {
   static constexpr uint8_t MAX_SCREEN_MARGIN = 150;
   static constexpr uint8_t SCREEN_MARGIN_SMALL_STEP = 1;
   static constexpr uint8_t SCREEN_MARGIN_LARGE_STEP = 5;
-  static constexpr uint8_t MAX_WORD_SPACING = 4;
+  static constexpr uint8_t MAX_WORD_SPACING = WordSpacing::MAX_VALUE;
+  static void formatWordSpacingSlider(int value, char* buffer, size_t length);
+  static constexpr uint8_t MAX_CHARACTER_SPACING = 10;
+  static int8_t characterSpacingLevel(uint8_t value) {
+    return static_cast<int8_t>(std::min<uint8_t>(value, MAX_CHARACTER_SPACING)) - 5;
+  }
+  static void formatCharacterSpacing(int value, char* buffer, size_t length);
   static constexpr uint16_t DEFAULT_READING_IDLE_TIME_THRESHOLD_SECONDS = 5 * 60;
   static constexpr uint16_t MIN_READING_IDLE_TIME_THRESHOLD_SECONDS = 30;
   static constexpr uint16_t MAX_READING_IDLE_TIME_THRESHOLD_SECONDS = 10 * 60;

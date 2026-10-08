@@ -24,10 +24,10 @@
 #include <GfxRenderer.h>
 
 namespace {
-constexpr uint8_t kFullVersion = 87;
-constexpr uint8_t kPartialVersion = 0xC8;
-constexpr uint8_t kPreviousFullVersion = 84;
-constexpr uint8_t kPreviousPartialVersion = 0xC5;
+constexpr uint8_t kFullVersion = 88;
+constexpr uint8_t kPartialVersion = 0xC9;
+constexpr uint8_t kPreviousFullVersion = 87;
+constexpr uint8_t kPreviousPartialVersion = 0xC8;
 constexpr uint8_t kOlderFullVersion = 79;
 constexpr uint8_t kOlderPartialVersion = 0xF4;
 constexpr uint8_t kEarlierFullVersion = 78;
@@ -252,5 +252,21 @@ TEST_F(SectionPersistenceTest, SyncLookupsUseTheSelectedRenderModesCache) {
     Section section(epub, 0, renderer, sectionCacheSuffixForRenderMode(modes[i]));
     EXPECT_EQ(section.getCachedPageCount(), i + 2);
     EXPECT_EQ(section.getPageForParagraphIndex((i + 1) * 3), i + 1);
+  }
+}
+
+TEST_F(SectionPersistenceTest, CharacterSpacingInvalidatesCompleteAndPartialSections) {
+  for (const auto version : {kFullVersion, kPartialVersion}) {
+    Storage.reset();
+    SectionHarness harness;
+    harness.spec.characterSpacing = -5;
+    harness.begin();
+    harness.appendPages(1);
+    ASSERT_TRUE(harness.commit(version, version == kPartialVersion ? 100 : 0, 200));
+    harness.finishSuccessfulCommit();
+    Section reopened(harness.epub, 0, harness.renderer);
+    EXPECT_TRUE(reopened.loadSectionFile(harness.spec));
+    harness.spec.characterSpacing = 5;
+    EXPECT_FALSE(reopened.loadSectionFile(harness.spec));
   }
 }

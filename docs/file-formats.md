@@ -412,7 +412,7 @@ if (parsedSize != fileSize) {
 
 ## `reader_settings.bin`
 
-### Version 11
+### Version 12
 
 Each EPUB cache directory may contain `reader_settings.bin`. Missing files mean
 the book uses global Reader settings and the default auto-page-turn interval.
@@ -437,6 +437,8 @@ Version 11 appends the image-grayscale toggle after the mask and moves the SD-fo
 mask bit from 18 to 19. Older records retain their existing overrides and inherit
 the global image-grayscale setting. This drawing-only setting does not invalidate
 EPUB layout or image caches.
+Version 12 appends `u8 characterSpacing` (0–10 encodes -5–+5, default 5), with override bit 20. Existing field bits, including the SD font at bit 19, stay unchanged. Older records inherit global character spacing. Each displayed step adjusts inter-character gaps by half a pixel; spaces keep their word-spacing behavior.
+
 The file can preserve an auto-page-turn interval without forcing custom
 font/layout settings for the book. It also stores a per-book EPUB render mode override,
 which can be changed from book action menus before opening the book so a
@@ -447,7 +449,7 @@ fallback successfully opens a difficult book.
 
 ```c++
 struct ReaderSettingsBin {
-    u8 version; // 11
+    u8 version; // 12
     u8 flags;   // bit 0 = at least one custom reader field, bit 1 = custom auto-page-turn interval, bit 2 = render mode override, bit 3 = dictionary font override, bit 4 = Safe Mode override
     u16 autoPageTurnSeconds;
     u8 renderMode; // 0 = FluiDez Default, 1 = Balanced, 2 = Light
@@ -455,7 +457,7 @@ struct ReaderSettingsBin {
     u8 fontFamily;
     u8 readerFontPointSize; // physical point size; versions 2-5 stored a size slot
     u8 lineHeightPercent;
-    u8 wordSpacing; // 0 = natural font spacing; 1-4 widen each gap by ~75% per level
+    u8 wordSpacing; // 0 = natural; 1-4 add 10px per level; 5-8 encode -1..-4 (20% tighter per level)
     u8 orientation;
     u8 screenMarginVertical;
     u8 screenMarginHorizontal;
@@ -476,6 +478,7 @@ struct ReaderSettingsBin {
     u8 dictionaryFontPointSize; // 0 = follow reader size
     u32 readerSettingsOverrideMask; // bits 0-17 = snapshot fields excluding snapshotRenderMode; bit 18 = imageGrayscale; bit 19 = sdFontFamilyName
     u8 imageGrayscale; // 0 = BW only, 1 = grayscale (default)
+    u8 characterSpacing; // 0..10 encodes -5..+5; override bit 20
 };
 ```
 
@@ -586,6 +589,10 @@ Binary layout:
 - `[69-72]` `estimatedTimeLeftSeconds` (`uint32_t` LE, `0` means unavailable)
 
 ## `section.bin`
+
+### Version 88
+
+Complete caches use `88`; suspended partial caches use `0xC9`. Both rebuild older caches automatically. The section header adds signed `characterSpacing` (-5..5) immediately after `wordSpacing`. Each TextBlock adds the same signed byte immediately before `initialLetterBytes`, so cached drawing retains the exact spacing used for layout. No additional per-word allocation is needed.
 
 ### Version 87
 

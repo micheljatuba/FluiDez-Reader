@@ -586,7 +586,7 @@ inline SettingInfo buildSideButtonActionSetting(const StrId nameId, uint8_t Flui
 // can use it directly; mutable device UI lists use getSettingsList(), which
 // returns an owned copy and can add SD-card font and dictionary options.
 // Four edge gesture entries are compiled only for touch devices.
-inline constexpr size_t BASE_SETTINGS_CAPACITY = 105 + (FLUIDEZ_APP_CAP_TOUCH ? 4 : 0);
+inline constexpr size_t BASE_SETTINGS_CAPACITY = 106 + (FLUIDEZ_APP_CAP_TOUCH ? 4 : 0);
 
 const std::vector<SettingInfo>& getBaseSettingsList();
 
@@ -798,6 +798,7 @@ inline std::vector<SettingInfo> buildReaderFontSettingsList(const std::vector<Se
   addSettingByName(settings, allSettings, StrId::STR_DICTIONARY_FONT_SIZE);
   addSettingByName(settings, allSettings, StrId::STR_LINE_SPACING);
   addSettingByName(settings, allSettings, StrId::STR_WORD_SPACING);
+  addSettingByName(settings, allSettings, StrId::STR_CHARACTER_SPACING);
   addSettingByName(settings, allSettings, StrId::STR_TEXT_AA);
   settings.push_back(SettingInfo::Action(StrId::STR_DOWNLOAD_FONTS, SettingAction::DownloadFonts));
   addSettingByName(settings, allSettings, StrId::STR_SD_FONT_SIZE_RANGE);
