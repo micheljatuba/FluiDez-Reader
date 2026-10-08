@@ -1,6 +1,6 @@
 #include "BatteryDiagnosticLog.h"
 
-#if CROSSINK_BATTERY_DIAG_LOG
+#if FLUIDEZ_BATTERY_DIAG_LOG
 
 #include <Arduino.h>
 #include <HalStorage.h>
@@ -208,4 +208,4 @@ void record(const Event event, const char* const deviceName, const char* const w
 
 }  // namespace BatteryDiagnosticLog
 
-#endif  // CROSSINK_BATTERY_DIAG_LOG
+#endif  // FLUIDEZ_BATTERY_DIAG_LOG

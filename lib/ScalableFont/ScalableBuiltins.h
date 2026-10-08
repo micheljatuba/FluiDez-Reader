@@ -1,5 +1,5 @@
 #pragma once
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
 class GfxRenderer;
 void ensureScalableBuiltinFamily(GfxRenderer& renderer, unsigned family);
 int scalableBuiltinFontId(int legacyId);

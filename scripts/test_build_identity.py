@@ -6,6 +6,10 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 MODULE = runpy.run_path(str(ROOT / "scripts/git_branch.py"))
 
+class Node:
+    def __init__(self, path): self.path = path
+    def get_path(self): return self.path
+
 class Env(dict):
     def __init__(self, name="default"):
         super().__init__(PROJECT_DIR=str(ROOT), PIOENV=name)
@@ -16,7 +20,8 @@ class Env(dict):
         copy = Env(self["PIOENV"])
         copy.defines = list(self.defines)
         return copy
-    def Object(self, node): return (node, self.defines)
+    # The middleware hands its scoped defines to Object instead of a cloned env.
+    def Object(self, node, CPPDEFINES=None): return (node, CPPDEFINES)
     def AddBuildMiddleware(self, callback, pattern): self.middleware.append((callback, pattern))
 
 class BuildIdentityTest(unittest.TestCase):
@@ -34,12 +39,14 @@ class BuildIdentityTest(unittest.TestCase):
                 self.assertEqual(len(env.middleware), 1)
                 callback, pattern = env.middleware[0]
                 self.assertEqual(pattern, "*src/util/BuildInfo.cpp")
-                _, scoped = callback(env, "BuildInfo.cpp")
+                other = Node("src/main.cpp")
+                self.assertIs(callback(env, other), other)  # other sources compile unchanged
+                _, scoped = callback(env, Node("src/util/BuildInfo.cpp"))
                 names = [d[0] for d in env.defines if isinstance(d, tuple)]
-                self.assertNotIn("CROSSINK_GIT_SHA", names)
-                self.assertNotIn("CROSSINK_GIT_DIRTY", names)
-                self.assertNotIn("CROSSINK_VERSION", names)
-                self.assertIn("CROSSINK_GIT_SHA", dict(d for d in scoped if isinstance(d, tuple)))
+                self.assertNotIn("FLUIDEZ_GIT_SHA", names)
+                self.assertNotIn("FLUIDEZ_GIT_DIRTY", names)
+                self.assertNotIn("FLUIDEZ_VERSION", names)
+                self.assertIn("FLUIDEZ_GIT_SHA", dict(d for d in scoped if isinstance(d, tuple)))
                 captures.append((env.defines, scoped))
             self.assertEqual(captures[0][0], captures[1][0])
             self.assertNotEqual(captures[0][1], captures[1][1])

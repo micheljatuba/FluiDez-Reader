@@ -166,7 +166,7 @@ const std::vector<SettingInfo>& getBaseSettingsList() {
     add(SettingInfo::Enum(StrId::STR_TWO_FINGER_SWIPE_RIGHT, &FluiDezSettings::twoFingerSwipeRight,
                           twoFingerSwipeActions, "twoFingerSwipeRight", StrId::STR_CAT_CONTROLS)
             .withEnumRawValues(twoFingerSwipeActionValues));
-#if defined(CROSSINK_APP_CAP_TOUCH) && CROSSINK_APP_CAP_TOUCH
+#if defined(FLUIDEZ_APP_CAP_TOUCH) && FLUIDEZ_APP_CAP_TOUCH
     add(SettingInfo::Enum(StrId::STR_LEFT_EDGE_UP, &FluiDezSettings::leftEdgeUp, twoFingerSwipeActions, "leftEdgeUp",
                           StrId::STR_CAT_CONTROLS)
             .withEnumRawValues(twoFingerSwipeActionValues));
@@ -390,7 +390,7 @@ const std::vector<SettingInfo>& getBaseSettingsList() {
         v.insert(
             insertPos + 1,
             SettingInfo::Enum(StrId::STR_TILT_PAGE_TURN_DIRECTION, &FluiDezSettings::tiltPageTurnDirection,
-#if CROSSINK_APP_DEVICE_X4CLASSIC || defined(SIMULATOR_DEVICE_X4_CLASSIC)
+#if FLUIDEZ_APP_DEVICE_X4CLASSIC || defined(SIMULATOR_DEVICE_X4_CLASSIC)
                               // X4 Classic's X-axis has the opposite sign from the original X3 calibration.
                               // Keep the stored direction, but name its physical motion accurately.
                               {StrId::STR_TILT_DIRECTION_LEFT_RIGHT_INVERTED, StrId::STR_TILT_DIRECTION_LEFT_RIGHT,

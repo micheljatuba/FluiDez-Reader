@@ -70,7 +70,7 @@
 #include "clippings/ClippingTextMatcher.h"
 #include "clippings/ClippingsManager.h"
 #include "components/UITheme.h"
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
 #include "components/TouchHeaderBackButton.h"
 #endif
 #include "fontIds.h"
@@ -122,7 +122,7 @@ constexpr uint16_t MIN_STORED_PACE_FASTER_RECOVERY_SESSION_SAMPLES = 15;
 constexpr uint8_t STORED_PACE_FASTER_RECOVERY_PERCENT = 90;
 constexpr uint8_t BOOK_PROGRESS_ESTIMATE_FLOOR_PERCENT = 90;
 constexpr uint16_t FOOTNOTE_PREVIEW_MAX_PAGES = 3;
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
 constexpr int TOUCH_FOOTNOTE_TARGET_SIZE = 48;
 #endif
 constexpr uint8_t PUBLISHER_PAGE_NUMBER_LEFT_MARGIN_MIN = 15;
@@ -363,7 +363,7 @@ void ensureReaderSdFontLoaded(GfxRenderer& renderer) {
   // S3 scalable faces are already kept in PSRAM. Keep their small catalog while
   // reading too, so opening Font Size does not rescan the SD card. Bitmap/C3
   // paths retain the previous heap-headroom behavior.
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   if (sdFontSystem.hasResidentScalableFamily(SETTINGS.sdFontFamilyName)) return;
 #endif
   sdFontSystem.releaseRegistry();
@@ -976,7 +976,7 @@ ReaderViewportLayout computeReaderViewportLayout(GfxRenderer& renderer, const bo
     layout.marginTop += SETTINGS.screenMarginVertical;
   }
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   if (showFootnoteHeader) {
     const Rect header = TouchHeaderBackButton::compactHeaderRect(renderer);
     layout.marginTop =
@@ -2585,7 +2585,7 @@ void EpubReaderActivity::openReaderMenu() {
   pauseReadingPaceTimer("reader_menu");
   const BookReaderSettingsData bookSettings = loadBookReaderSettingsFile(epub->getCachePath());
   std::unique_ptr<EpubReaderPreviewModel> buttonPreviewModel;
-#if CROSSINK_APP_READER_SAMPLE_PREVIEW
+#if FLUIDEZ_APP_READER_SAMPLE_PREVIEW
   // Owned for the menu lifetime: too large for the task stack, but under 3 KiB
   // instead of a captured book page plus its larger preview model.
   buttonPreviewModel = makeUniqueNoThrow<EpubReaderPreviewModel>();
@@ -2596,7 +2596,7 @@ void EpubReaderActivity::openReaderMenu() {
 #endif
   auto menuActivity = makeUniqueNoThrow<EpubReaderDrawerActivity>(
       renderer, mappedInput, epub,
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
       touchReaderPreviewModel.get(),
 #else
       nullptr,
@@ -2623,7 +2623,7 @@ void EpubReaderActivity::openReaderMenu() {
     return;
   }
   startActivityForResult(std::move(menuActivity), [this](const ActivityResult& result) {
-#if !CROSSINK_APP_CAP_TOUCH
+#if !FLUIDEZ_APP_CAP_TOUCH
     const auto heapAfterMenu = MemoryBudget::snapshot();
     LOG_DBG("ERDM", "Button drawer returned: free=%u maxAlloc=%u", heapAfterMenu.freeHeap, heapAfterMenu.maxAllocHeap);
 #endif
@@ -2812,7 +2812,7 @@ bool EpubReaderActivity::transientFeedbackDismissed(const unsigned long showTime
 void EpubReaderActivity::loop() {
   syncStatsTrackingState();
   bool rawTouchInput = false;
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   int touchDownX = 0;
   int touchDownY = 0;
   rawTouchInput = mappedInput.wasScreenTouchDown(touchDownX, touchDownY) || mappedInput.wasScreenTouchReleased();
@@ -2831,7 +2831,7 @@ void EpubReaderActivity::loop() {
     return;
   }
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   if (handlePinchFontResize()) {
     // A live two-finger gesture is reader input, so background indexing yields
     // just as it does for a page turn or normal tap.
@@ -2883,7 +2883,7 @@ void EpubReaderActivity::loop() {
     return;
   }
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   if (activeFootnotePreview && touch.tapped && !RenderLock::peek() &&
       TouchHeaderBackButton::wasTapped(mappedInput, renderer)) {
     restoreSavedPosition();
@@ -3113,7 +3113,7 @@ void EpubReaderActivity::loop() {
     }
   }
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   if (!atEndOfBook && touch.tapped && handleTouchFootnoteLink(touch.x, touch.y)) {
     return;
   }
@@ -3621,7 +3621,7 @@ void EpubReaderActivity::handleClippingJump(const ClippingJumpResult& clipping) 
   pauseReadingPaceTimer("clipping_jump");
 }
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
 bool EpubReaderActivity::handlePinchFontResize() {
   if (!SETTINGS.pinchFontResizeEnabled || !SETTINGS.touchReaderControls || !mappedInput.supportsMultiTouch()) {
     resetPinchFontGesture();
@@ -4944,7 +4944,7 @@ void EpubReaderActivity::startClipSelection(const DictionaryClippingRequest* dic
     MemoryBudget::logHeapShape("clip.after_font_release");
     pendingHeapShapeReaderRedrawStages.fetch_or(HEAP_SHAPE_REDRAW_CLIP, std::memory_order_relaxed);
     if (clippingFeedback) {
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
       if (saved && mappedInput.hasTouchHardware() && requestUpdateAndWait() != RequestUpdateResult::Rendered) {
         LOG_ERR("CLIP", "Could not render saved highlight before clipping toast");
       }
@@ -6729,7 +6729,7 @@ void EpubReaderActivity::render(RenderLock&& lock) {
     if (!renderContents(std::move(p), renderFontId, layout.marginTop, layout.marginRight, layout.marginBottom,
                         layout.marginLeft, /*updatePanel=*/true)) {
       currentPageFootnotes.clear();
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
       currentPageFootnoteTouchTargets.fill({});
 #endif
       renderer.clearScreen(ReaderUtils::readerBackgroundColor());
@@ -7238,7 +7238,7 @@ void EpubReaderActivity::prepareCurrentSectionForRelayout() {
 bool EpubReaderActivity::renderContents(std::unique_ptr<Page> page, const int fontId, const int orientedMarginTop,
                                         const int orientedMarginRight, const int orientedMarginBottom,
                                         const int orientedMarginLeft, const bool updatePanel) {
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   if (mappedInput.hasTouchHardware()) {
     if (!touchReaderPreviewAllocationAttempted) {
       touchReaderPreviewAllocationAttempted = true;
@@ -7286,7 +7286,7 @@ bool EpubReaderActivity::renderContents(std::unique_ptr<Page> page, const int fo
     }
   }
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   buildFootnoteTouchTargets(*page, fontId, orientedMarginTop, orientedMarginLeft);
 #endif
 
@@ -7323,7 +7323,7 @@ bool EpubReaderActivity::renderContents(std::unique_ptr<Page> page, const int fo
   const auto finalizeBufferComposition = [&]() {
     drawClippingHighlights(*page, fontId, orientedMarginTop, orientedMarginLeft);
     drawPublisherPageMarkers(renderer, *page, orientedMarginTop, contentBottom, foregroundBlack);
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
     if (activeFootnotePreview) {
       TouchHeaderBackButton::draw(renderer, TouchHeaderBackButton::headerRect(renderer, mappedInput), tr(STR_FOOTNOTES),
                                   /*readerContext=*/true);
@@ -7529,7 +7529,7 @@ bool EpubReaderActivity::renderContents(std::unique_ptr<Page> page, const int fo
   return true;
 }
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
 void EpubReaderActivity::buildFootnoteTouchTargets(const Page& page, const int fontId, const int orientedMarginTop,
                                                    const int orientedMarginLeft) {
   currentPageFootnoteTouchTargets.fill({});
@@ -7783,7 +7783,7 @@ void EpubReaderActivity::renderStatusBar() const {
     chapterTitle = autoTurnLabel;
 
   }
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   else if (activeFootnotePreview) {
     // The touch header owns the preview title; keep the footer from repeating it.
   }
@@ -7822,7 +7822,7 @@ void EpubReaderActivity::renderStatusBar() const {
   content.stablePageCount = static_cast<int>(referencePageCount);
   const char* bookTitle = uses(ReaderStatusBarItem::TitleBook) ? epub->getTitle().c_str() : nullptr;
   if (activeFootnotePreview) {
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
     bookTitle = nullptr;
 #else
     bookTitle = tr(STR_FOOTNOTES);

@@ -2473,7 +2473,7 @@ void FluiDezWebServer::handleFontList() const {
     yield();
   }
 
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   json.append("],\"ttfSupported\":true,\"maxFamilies\":");
 #else
   json.append("],\"ttfSupported\":false,\"maxFamilies\":");
@@ -2546,7 +2546,7 @@ void FluiDezWebServer::handleFontUploadData() {
 
       // Validate the complete file after closing it; multipart chunks may
       // split the signature at any byte boundary.
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
       const auto& path = fontUpload.filePath;
       if (path.size() > 4 && strcasecmp(path.c_str() + path.size() - 4, ".ttf") == 0 &&
           fontUpload.bytesWritten + fontUpload.bufferPos + upload.currentSize > 2 * 1024 * 1024) {

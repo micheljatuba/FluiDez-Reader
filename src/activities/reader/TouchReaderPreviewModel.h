@@ -600,7 +600,7 @@ using SampleReaderPreviewModel = ReaderPreviewModel<sizeof(READER_PREVIEW_PARAGR
 static_assert(sizeof(SampleReaderPreviewModel) <= 3U * 1024U, "Sample preview exceeds its C3 budget");
 
 using TouchReaderPreviewModel = ReaderPreviewModel<8U * 1024U, 256, 128, true>;
-#if CROSSINK_APP_READER_SAMPLE_PREVIEW
+#if FLUIDEZ_APP_READER_SAMPLE_PREVIEW
 using EpubReaderPreviewModel = SampleReaderPreviewModel;
 #else
 using EpubReaderPreviewModel = TouchReaderPreviewModel;

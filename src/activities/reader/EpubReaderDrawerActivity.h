@@ -19,7 +19,7 @@
 #include "TouchReaderPreviewModel.h"
 #include "activities/Activity.h"
 #include "util/ButtonNavigator.h"
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
 #include "TtfRenderProfileStore.h"
 #endif
 
@@ -43,7 +43,7 @@ class EpubReaderDrawerActivity final : public Activity {
       uint8_t dictionaryFontPointSize = 0, bool hasDictionaryFontOverride = false,
       ReaderOptionsActivity::DictionaryFontChangedCallback dictionaryFontChangedCallback = nullptr,
       void* dictionaryFontChangedContext = nullptr,
-      ReaderDrawerState initialState = initialReaderDrawerState(CROSSINK_APP_CAP_TOUCH),
+      ReaderDrawerState initialState = initialReaderDrawerState(FLUIDEZ_APP_CAP_TOUCH),
       std::unique_ptr<EpubReaderPreviewModel> ownedPreviewModel = nullptr);
 
 #ifdef SIMULATOR
@@ -62,7 +62,7 @@ class EpubReaderDrawerActivity final : public Activity {
   // A dirty preview can rebuild the page area itself; after a TTF ID change,
   // an unavailable text snapshot is replaced with a safe blank background.
   bool requiresFreshBackdrop() const override {
-#if CROSSINK_APP_READER_SAMPLE_PREVIEW
+#if FLUIDEZ_APP_READER_SAMPLE_PREVIEW
     return false;  // The full-screen menu paints every pixel itself.
 #else
     return readerDrawerNeedsExternalBackdrop(previewDirty, previewModel && previewModel->valid(),
@@ -274,7 +274,7 @@ class EpubReaderDrawerActivity final : public Activity {
   void renderPreviewText(const ReaderSettingsDraft& previewSettings, int previewFontId);
   void discoverFonts();
   void refreshTtfRenderingRow();
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   TtfRenderProfile ttfRenderProfile{};
   TtfRenderProfile initialTtfRenderProfile{};
   bool ttfRenderingChanged = false;

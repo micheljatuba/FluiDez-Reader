@@ -157,7 +157,7 @@ void UITheme::setTheme(FluiDezSettings::UI_THEME type) {
 }
 
 const ThemeMetrics& UITheme::getMetrics() const {
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   // hasTouch() can flip once touch init completes after static construction, so the
   // cached copy is refreshed when the flag differs instead of copying the struct per call.
   const bool touch = gpio.hasTouch();

@@ -179,7 +179,7 @@ static void logBootHeap(const char* stage) {
 }
 
 // Fonts
-#if !CROSSINK_SCALABLE_FONTS
+#if !FLUIDEZ_SCALABLE_FONTS
 EpdFont lexenddeca10RegularFont(&lexenddeca_10_regular);
 EpdFont lexenddeca10BoldFont(&lexenddeca_10_bold);
 EpdFont lexenddeca10ItalicFont(&lexenddeca_10_italic);
@@ -1184,7 +1184,7 @@ void setupDisplayAndFonts(const bool seamless, const bool loadReaderResources, c
   fontCacheManager.setFontDecompressor(&fontDecompressor);
   renderer.setFontCacheManager(&fontCacheManager);
 
-#if !CROSSINK_SCALABLE_FONTS
+#if !FLUIDEZ_SCALABLE_FONTS
   renderer.insertFont(LEXENDDECA_10_FONT_ID, lexenddeca10FontFamily);
   renderer.insertFont(LEXENDDECA_12_FONT_ID, lexenddeca12FontFamily);
   renderer.insertFont(LEXENDDECA_14_FONT_ID, lexenddeca14FontFamily);
@@ -1292,7 +1292,7 @@ void setup() {
   // X4 Pro and X4 Classic both map Up to the GPIO0 boot strap. Use Down for
   // recovery so holding the recovery chord cannot strand either S3 board in a
   // boot-mode loop.
-  const auto recoveryButton = (BoardConfig::isX4Pro() || CROSSINK_APP_DEVICE_X4CLASSIC)
+  const auto recoveryButton = (BoardConfig::isX4Pro() || FLUIDEZ_APP_DEVICE_X4CLASSIC)
                                   ? MappedInputManager::Button::Down
                                   : MappedInputManager::Button::Up;
   const bool recoveryFirmwareMode = wakeupReason == HalGPIO::WakeupReason::PowerButton && !BoardConfig::isPaperMono() &&
@@ -1401,7 +1401,7 @@ void setup() {
 
   if (recoveryFirmwareMode) {
     LOG_INF("MAIN", "Recovery firmware mode (%s + POWER held at boot)",
-            (BoardConfig::isX4Pro() || CROSSINK_APP_DEVICE_X4CLASSIC) ? "DOWN" : "UP");
+            (BoardConfig::isX4Pro() || FLUIDEZ_APP_DEVICE_X4CLASSIC) ? "DOWN" : "UP");
   }
 
   LOG_DBG("MAIN", "Starting FluiDez Reader version %s", AppVersion::version());
@@ -1683,7 +1683,7 @@ void loop() {
   // Notify the active activity before global shortcut and gesture routes consume
   // the input and skip its loop() for this frame.
   const bool userInputReceived = gpio.wasAnyPressed() || gpio.wasAnyReleased()
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
                                  || gpio.wasTouchActivity()
 #endif
                                  || halTiltSensor.hadActivity();
@@ -1875,7 +1875,7 @@ void loop() {
 
   const unsigned long activityStartTime = millis();
   activityManager.loop();
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   // A delayed Home event is valid for this activity dispatch only. If an
   // unrelated gesture took priority, do not carry it into the next activity.
   mappedInputManager.clearDeferredHomeGesture();

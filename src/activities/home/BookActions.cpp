@@ -165,7 +165,7 @@ bool resetBookReaderSettings(const std::string& fullPath) {
 }
 
 std::vector<std::string> epubRenderModeOptions() {
-  return {I18N.get(StrId::STR_RENDER_MODE_CROSSINK_DEFAULT), I18N.get(StrId::STR_RENDER_MODE_BALANCED),
+  return {I18N.get(StrId::STR_RENDER_MODE_FLUIDEZ_DEFAULT), I18N.get(StrId::STR_RENDER_MODE_BALANCED),
           I18N.get(StrId::STR_RENDER_MODE_LIGHT)};
 }
 

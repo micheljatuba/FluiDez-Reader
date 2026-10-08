@@ -14,7 +14,7 @@
 #include "SilentRestart.h"
 #include "activities/settings/FontSelectionActivity.h"
 #include "activities/settings/StatusBarSettingsActivity.h"
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
 #include "activities/settings/TtfRenderOptionsActivity.h"
 #endif
 #include "activities/util/IntervalSelectionActivity.h"
@@ -58,7 +58,7 @@ std::string formatSettingValue(const SettingInfo& setting) {
 SettingInfo buildReaderRenderModeSetting() {
   return SettingInfo::Enum(
              StrId::STR_EPUB_RENDER_MODE, &FluiDezSettings::epubRenderMode,
-             {StrId::STR_RENDER_MODE_CROSSINK_DEFAULT, StrId::STR_RENDER_MODE_BALANCED, StrId::STR_RENDER_MODE_LIGHT})
+             {StrId::STR_RENDER_MODE_FLUIDEZ_DEFAULT, StrId::STR_RENDER_MODE_BALANCED, StrId::STR_RENDER_MODE_LIGHT})
       .withEnumRawValues({static_cast<uint8_t>(EpubRenderMode::CrossInkDefault),
                           static_cast<uint8_t>(EpubRenderMode::Balanced), static_cast<uint8_t>(EpubRenderMode::Light)});
 }
@@ -105,7 +105,7 @@ void ReaderOptionsActivity::rebuildSettingsList() {
                                              setting.nameId == StrId::STR_DOWNLOAD_FONTS;
                                     }),
                      fontSettings.end());
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   if (needsFonts && sdFontSystem.isScalableFamily(SETTINGS.sdFontFamilyName)) {
     const auto fontSize = std::find_if(fontSettings.begin(), fontSettings.end(), [](const SettingInfo& setting) {
       return setting.nameId == StrId::STR_FONT_SIZE;
@@ -547,7 +547,7 @@ void ReaderOptionsActivity::toggleCurrentSetting() {
       silentRestartToManageFonts();
       return;
     }
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
     if (setting.action == SettingAction::TtfRendering) {
       if (settingsDirty) {
         persistReaderSettings();

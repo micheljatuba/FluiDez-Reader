@@ -21,7 +21,7 @@ LIGHT_ON = 1 << 30
 
 def run(work, target=None, magic=MAGIC):
     env = {key: value for key, value in os.environ.items()
-           if not key.startswith(("CROSSPOINT_SIM_", "CROSSINK_SIMULATOR_SMOKE"))}
+           if not key.startswith(("CROSSPOINT_SIM_", "FLUIDEZ_SIMULATOR_SMOKE"))}
     env.update(SDL_VIDEODRIVER="dummy", CROSSPOINT_SIM_INPUT_SCRIPT="500:QUIT",
                CROSSPOINT_SIM_WAKE_REASON="power")
     if target is not None:

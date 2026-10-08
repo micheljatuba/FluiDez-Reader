@@ -53,7 +53,7 @@ jobs:
       # version in platformio.ini needs one before it is tagged.
       - name: Check NOVIDADES.md for the platformio.ini version
         run: |
-          VERSION="$(sed -n '/^\[crossink\]$/,/^\[/s/^version = //p' platformio.ini)"
+          VERSION="$(sed -n '/^\[fluidez\]$/,/^\[/s/^version = //p' platformio.ini)"
           python3 scripts/release_notes.py "$VERSION" > /dev/null
 
   # Releases attach this ZIP, so a plugin that stops compiling fails here first.

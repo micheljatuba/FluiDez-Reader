@@ -558,7 +558,7 @@ void SleepActivity::onEnter() {
   // X4 Pro and X4 Classic share a panel that can retain this high-contrast
   // transient update beneath the final OEM-style sleep refresh. Render only
   // the final sleep frame on that panel family.
-  const bool showSleepPopup = !BoardConfig::isX4Pro() && !CROSSINK_APP_DEVICE_X4CLASSIC;
+  const bool showSleepPopup = !BoardConfig::isX4Pro() && !FLUIDEZ_APP_DEVICE_X4CLASSIC;
   // Show the popup in the orientation that was visible before reader exit restores
   // global settings. Reset to portrait afterwards so sleep screen layout stays unchanged.
   if (APP_STATE.lastSleepFromReader) {
@@ -721,8 +721,8 @@ void SleepActivity::renderDefaultSleepScreen() const {
     renderer.invertScreen();
   }
 
-#ifdef CROSSINK_SHOW_SLEEP_BUILD_INFO
-  const std::string buildInfo = std::string(CROSSINK_BUILD_ENV) + " " + AppVersion::version();
+#ifdef FLUIDEZ_SHOW_SLEEP_BUILD_INFO
+  const std::string buildInfo = std::string(FLUIDEZ_BUILD_ENV) + " " + AppVersion::version();
   const std::string visibleBuildInfo = renderer.truncatedText(SMALL_FONT_ID, buildInfo.c_str(),
                                                               renderer.getScreenWidth() - sleepBuildInfoSideMargin * 2);
   renderer.drawCenteredText(SMALL_FONT_ID, lockupBottom + statusGap + statusHeight + 8, visibleBuildInfo.c_str(),

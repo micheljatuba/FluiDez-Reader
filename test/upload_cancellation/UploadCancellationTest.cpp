@@ -9,7 +9,7 @@
 
 #define LOG_DBG(...) ((void)0)
 #define LOG_ERR(...) ((void)0)
-#define CROSSINK_SCALABLE_FONTS 1
+#define FLUIDEZ_SCALABLE_FONTS 1
 
 class String : public std::string {
  public:

@@ -102,7 +102,7 @@ void ControlsOptionsActivity::rebuildSettingsList() {
   tapsGesturesSettings = buildControlsTapsGesturesSettingsList(allSettings);
   twoFingerSwipeSettings = buildControlsTwoFingerSwipeSettingsList(allSettings);
   edgeGestureSettings = buildControlsEdgeGestureSettingsList(allSettings);
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   if (!gpio.hasTouch()) {
     frontButtonSettings = buildControlsFrontButtonSettingsList(allSettings);
   }

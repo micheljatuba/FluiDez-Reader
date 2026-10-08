@@ -92,30 +92,30 @@ def run_smoke(args: argparse.Namespace) -> int:
             shutil.copytree(Path(args.font_dir), temp_root / "fs_" / "fonts", dirs_exist_ok=True)
         env = os.environ.copy()
         if args.font_dir and args.font_family:
-            env["CROSSINK_SIMULATOR_SMOKE_ISOLATED_FONTS"] = "1"
+            env["FLUIDEZ_SIMULATOR_SMOKE_ISOLATED_FONTS"] = "1"
         if args.font_family:
-            env["CROSSINK_SIMULATOR_SMOKE_FONT_FAMILY"] = args.font_family
-        env["CROSSINK_SIMULATOR_SMOKE_TEST"] = "1"
-        env["CROSSINK_SIMULATOR_SMOKE_BOOK"] = simulator_book_path
-        env["CROSSINK_SIMULATOR_SMOKE_PAGE_TURNS"] = str(args.page_turns)
+            env["FLUIDEZ_SIMULATOR_SMOKE_FONT_FAMILY"] = args.font_family
+        env["FLUIDEZ_SIMULATOR_SMOKE_TEST"] = "1"
+        env["FLUIDEZ_SIMULATOR_SMOKE_BOOK"] = simulator_book_path
+        env["FLUIDEZ_SIMULATOR_SMOKE_PAGE_TURNS"] = str(args.page_turns)
         if args.frontlight_sync:
-            env["CROSSINK_SIMULATOR_SMOKE_FRONTLIGHT_SYNC"] = "1"
+            env["FLUIDEZ_SIMULATOR_SMOKE_FRONTLIGHT_SYNC"] = "1"
         if args.frontlight_layout:
-            env["CROSSINK_SIMULATOR_SMOKE_FRONTLIGHT_LAYOUT"] = "1"
+            env["FLUIDEZ_SIMULATOR_SMOKE_FRONTLIGHT_LAYOUT"] = "1"
         if args.frontlight_captures:
             capture_dir = Path(args.frontlight_captures).resolve()
             capture_dir.mkdir(parents=True, exist_ok=True)
-            env["CROSSINK_SIMULATOR_SMOKE_FRONTLIGHT_CAPTURES"] = str(capture_dir)
+            env["FLUIDEZ_SIMULATOR_SMOKE_FRONTLIGHT_CAPTURES"] = str(capture_dir)
         if args.home_themes:
-            env["CROSSINK_SIMULATOR_SMOKE_HOME_THEMES"] = "1"
+            env["FLUIDEZ_SIMULATOR_SMOKE_HOME_THEMES"] = "1"
         if args.fluidez_captures:
             capture_dir = Path(args.fluidez_captures).resolve()
             capture_dir.mkdir(parents=True, exist_ok=True)
-            env["CROSSINK_SIMULATOR_SMOKE_FLUIDEZ_CAPTURES"] = str(capture_dir)
+            env["FLUIDEZ_SIMULATOR_SMOKE_FLUIDEZ_CAPTURES"] = str(capture_dir)
         if args.fluidez_demo:
             shutil.copytree(Path(args.fluidez_demo), temp_root / "fs_" / "fluidez-demo", dirs_exist_ok=True)
         if args.theme:
-            env["CROSSINK_SIMULATOR_SMOKE_THEME"] = str(THEMES[args.theme])
+            env["FLUIDEZ_SIMULATOR_SMOKE_THEME"] = str(THEMES[args.theme])
         if args.headless:
             env.setdefault("SDL_VIDEODRIVER", "dummy")
 

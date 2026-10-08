@@ -122,7 +122,7 @@ FluiDezSettings::FONT_SIZE firstAvailableReaderFontSize() {
   return (it != std::end(READER_FONT_SIZE_STORAGE_ORDER)) ? *it : FluiDezSettings::TINY;
 }
 
-#if !CROSSINK_SCALABLE_FONTS
+#if !FLUIDEZ_SCALABLE_FONTS
 int getFallbackReaderFontIdForFamily(const FluiDezSettings::FONT_FAMILY family) {
   switch (family) {
     case FluiDezSettings::BITTER:
@@ -1343,7 +1343,7 @@ int FluiDezSettings::getReaderFontId() const {
 }
 
 int FluiDezSettings::getBuiltInReaderFontId() const {
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   return scalableBuiltinReaderFontId(fontFamily == BITTER ? 1 : 0, closestBuiltinReaderPointSize(readerFontPointSize));
 #else
   const FONT_SIZE effectiveSize = getEffectiveReaderFontSize();

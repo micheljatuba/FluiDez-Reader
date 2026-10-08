@@ -1,5 +1,5 @@
 #include "GfxRenderer.h"
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
 #include <HalScalableFont.h>
 #endif
 
@@ -111,7 +111,7 @@ void appendShapedRtlTokens(const char* text, std::string& shapedOut) {
 }  // namespace
 
 const uint8_t* GfxRenderer::getGlyphBitmap(const EpdFontData* fontData, const EpdGlyph* glyph) const {
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   if (fontData->bitmapHandler) return fontData->bitmapHandler(fontData->glyphMissCtx, glyph);
 #endif
   if (fontData->groups != nullptr) {
@@ -1026,7 +1026,7 @@ const char* resolveVisualText(const char* text, std::string& visualBuffer, const
 
 int GfxRenderer::getTextWidth(const int fontId, const char* text, const EpdFontFamily::Style style,
                               const BidiUtils::BidiBaseDir baseDir) const {
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   ScalableFontAccess access;
 #endif
   if (text == nullptr || *text == '\0') {
@@ -1071,7 +1071,7 @@ int GfxRenderer::getTextWidth(const int fontId, const char* text, const EpdFontF
 }
 
 GfxRenderer::TextVerticalBounds GfxRenderer::getTextVerticalBounds(const int fontId, const char* text) const {
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   ScalableFontAccess access;
 #endif
   if (!text || !*text) return {};
@@ -2698,7 +2698,7 @@ bool GfxRenderer::copyBufferToRegion(int lx, int ly, int lw, int lh, const uint8
 }
 
 int GfxRenderer::getSpaceWidth(const int fontId, const EpdFontFamily::Style style) const {
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   ScalableFontAccess access;
 #endif
   // Advance table fast-path for SD card fonts during layout
@@ -2724,7 +2724,7 @@ int GfxRenderer::getSpaceWidth(const int fontId, const EpdFontFamily::Style styl
 
 int GfxRenderer::getSpaceAdvance(const int fontId, const uint32_t leftCp, const uint32_t rightCp,
                                  const EpdFontFamily::Style style) const {
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   ScalableFontAccess access;
 #endif
   // Advance table fast-path for SD card fonts during layout.
@@ -2754,7 +2754,7 @@ int GfxRenderer::getSpaceAdvance(const int fontId, const uint32_t leftCp, const 
 
 int GfxRenderer::getKerning(const int fontId, const uint32_t leftCp, const uint32_t rightCp,
                             const EpdFontFamily::Style style) const {
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   ScalableFontAccess access;
 #endif
   const auto fontIt = fontMap.find(fontId);
@@ -2765,7 +2765,7 @@ int GfxRenderer::getKerning(const int fontId, const uint32_t leftCp, const uint3
 
 int GfxRenderer::getTextAdvanceX(const int fontId, const char* text, const EpdFontFamily::Style style,
                                  const uint32_t followingCp) const {
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   ScalableFontAccess access;
 #endif
   // Match the font drawText would use for CJK-bearing strings (see resolveTextFontId).
@@ -2925,7 +2925,7 @@ int GfxRenderer::getTextAdvanceX(const int fontId, const char* text, const EpdFo
 }
 
 int GfxRenderer::getFontAscenderSize(const int fontId) const {
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   ScalableFontAccess access;
 #endif
   const auto fontIt = fontMap.find(fontId);
@@ -2938,7 +2938,7 @@ int GfxRenderer::getFontAscenderSize(const int fontId) const {
 }
 
 int GfxRenderer::getLineHeight(const int fontId) const {
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   ScalableFontAccess access;
 #endif
   const auto fontIt = fontMap.find(fontId);
@@ -2951,7 +2951,7 @@ int GfxRenderer::getLineHeight(const int fontId) const {
 }
 
 int GfxRenderer::getTextHeight(const int fontId) const {
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   ScalableFontAccess access;
 #endif
   const auto fontIt = fontMap.find(fontId);
@@ -3307,7 +3307,7 @@ void GfxRenderer::setRenderMode(RenderMode mode) {
 }
 
 uint8_t GfxRenderer::getFontPointSize(const int fontId) const {
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   const auto it = fontMap.find(fontId);
   if (it != fontMap.end()) {
     const auto* data = it->second.getData();
@@ -3320,7 +3320,7 @@ uint8_t GfxRenderer::getFontPointSize(const int fontId) const {
 }
 
 int GfxRenderer::getFontIdForSize(const int fontId, const uint8_t points) const {
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   if (!points) return fontId;
   const auto it = fontMap.find(fontId);
   if (it == fontMap.end()) return fontId;

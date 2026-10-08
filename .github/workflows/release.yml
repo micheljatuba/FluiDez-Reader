@@ -57,9 +57,9 @@ jobs:
             echo "::error::Release version '$VERSION' must look like 1.6-fluidez9"
             exit 1
           fi
-          TRACKED="$(sed -n '/^\[crossink\]$/,/^\[/s/^version = //p' platformio.ini)"
+          TRACKED="$(sed -n '/^\[fluidez\]$/,/^\[/s/^version = //p' platformio.ini)"
           if [ "$TRACKED" != "$VERSION" ]; then
-            echo "::warning::platformio.ini [crossink] version is '$TRACKED'; set it to '$VERSION' so local builds match this release."
+            echo "::warning::platformio.ini [fluidez] version is '$TRACKED'; set it to '$VERSION' so local builds match this release."
           fi
           echo "release_version=$VERSION" >> "$GITHUB_OUTPUT"
 
@@ -72,7 +72,7 @@ jobs:
           NOTES="$(python3 scripts/release_notes.py "$RELEASE_VERSION")"
           {
             echo "release_notes<<FLUIDEZ_RELEASE_NOTES_EOF"
-            printf '%s\n' "$NOTES"
+            printf '%s[fluidez]' "$NOTES"
             echo "FLUIDEZ_RELEASE_NOTES_EOF"
           } >> "$GITHUB_OUTPUT"
 
@@ -135,11 +135,11 @@ jobs:
         env:
           RELEASE_VERSION: ${{ needs.prepare-release.outputs.release_version }}
         run: |
-          sed -i "/^\[crossink\]$/,/^\[/s/^version = .*/version = $RELEASE_VERSION/" platformio.ini
+          sed -i "/^\[fluidez\]$/,/^\[/s/^version = .*/version = $RELEASE_VERSION/" platformio.ini
 
       - name: Build firmware
         env:
-          CROSSINK_RELEASE_VERSION: ${{ needs.prepare-release.outputs.release_version }}
+          FLUIDEZ_RELEASE_VERSION: ${{ needs.prepare-release.outputs.release_version }}
         run: pio run -j1 -e ${{ matrix.environment }}
 
       - name: Upload firmware artifact

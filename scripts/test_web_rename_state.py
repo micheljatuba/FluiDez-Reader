@@ -156,7 +156,7 @@ def run(program: Path) -> None:
                    CROSSPOINT_SIM_HTTP_PORT=str(port),
                    CROSSPOINT_SIM_SILENT_REBOOT_MAGIC=str(0xC1EAB007),
                    CROSSPOINT_SIM_SILENT_REBOOT_TARGET="6", CROSSPOINT_SIM_SILENT_REBOOT_PAYLOAD="2")
-        env.pop("CROSSINK_SIMULATOR_SMOKE_TEST", None)
+        env.pop("FLUIDEZ_SIMULATOR_SMOKE_TEST", None)
         env.pop("CROSSPOINT_SIM_INPUT_SCRIPT", None)
         log_path = root / "simulator.log"
         with log_path.open("w") as log:

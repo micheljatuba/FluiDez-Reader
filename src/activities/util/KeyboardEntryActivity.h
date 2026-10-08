@@ -61,7 +61,7 @@ class KeyboardEntryActivity : public Activity {
   // loop() routes touch snapshots against them. Cyrillic's wider rows register
   // 48 keys, so 56 retains headroom for the double-buffered interaction table.
   freeink::ui::InteractionBuffer<56> interactions;
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   // Render-only state prevents live contact changes from altering a frame's
   // feedback. Fixed storage is reused for the lifetime of this activity.
   freeink::ui::InteractionBuffer<56> paintInteractions;

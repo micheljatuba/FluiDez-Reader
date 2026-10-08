@@ -2,13 +2,13 @@
 PlatformIO pre-build script: inject git info into version defines.
 
   default:       1.1.0-dev+<branch>  (local development builds)
-  production:    1.1.0               (when $CROSSINK_RELEASE_VERSION is set)
-  RC:            1.1.0-<hash>-RC      (when $CROSSINK_RC_HASH is set)
+  production:    1.1.0               (when $FLUIDEZ_RELEASE_VERSION is set)
+  RC:            1.1.0-<hash>-RC      (when $FLUIDEZ_RC_HASH is set)
   test & debug:          1.2.6-<branch>+<5-char-hash>
-  gh_release_rc: 1.1.0-<hash>-RC       (hash from $CROSSINK_RC_HASH in CI,
+  gh_release_rc: 1.1.0-<hash>-RC       (hash from $FLUIDEZ_RC_HASH in CI,
                                         or from git locally)
 
-Simulator environments set CROSSINK_VERSION directly in platformio.ini.
+Simulator environments set FLUIDEZ_VERSION directly in platformio.ini.
 """
 
 import configparser
@@ -116,45 +116,45 @@ def _read_ini(project_dir):
     return config
 
 
-def get_crossink_version(project_dir):
+def get_fluidez_version(project_dir):
     config = _read_ini(project_dir)
-    if not config.has_option('crossink', 'version'):
+    if not config.has_option('fluidez', 'version'):
         warn(
-            'No [crossink] version in platformio.ini or platformio.local.ini; '
+            'No [fluidez] version in platformio.ini or platformio.local.ini; '
             'build version will be "0.0.0"'
         )
         return '0.0.0'
-    return config.get('crossink', 'version')
+    return config.get('fluidez', 'version')
 
 
 def get_release_candidate_version(project_dir):
-    short_hash = os.environ.get('CROSSINK_RC_HASH') or get_git_short_hash(project_dir)
-    base_version = re.sub(r'-RC$', '', get_crossink_version(project_dir), flags=re.IGNORECASE)
+    short_hash = os.environ.get('FLUIDEZ_RC_HASH') or get_git_short_hash(project_dir)
+    base_version = re.sub(r'-RC$', '', get_fluidez_version(project_dir), flags=re.IGNORECASE)
     return f'{base_version}-{sanitize_version_component(short_hash)}-RC'
 
 
 def get_production_version(project_dir):
-    release_version = os.environ.get('CROSSINK_RELEASE_VERSION')
+    release_version = os.environ.get('FLUIDEZ_RELEASE_VERSION')
     if release_version:
         return sanitize_version_component(release_version.lstrip('v'))
-    return get_crossink_version(project_dir)
+    return get_fluidez_version(project_dir)
 
 
 def get_hardware_version(project_dir, pioenv):
-    if os.environ.get('CROSSINK_RC_HASH'):
+    if os.environ.get('FLUIDEZ_RC_HASH'):
         return get_release_candidate_version(project_dir)
 
     if pioenv == 'default':
-        if os.environ.get('CROSSINK_RELEASE_VERSION'):
+        if os.environ.get('FLUIDEZ_RELEASE_VERSION'):
             return get_production_version(project_dir)
-        base_version = get_crossink_version(project_dir)
+        base_version = get_fluidez_version(project_dir)
         branch = get_git_branch(project_dir)
         return f'{base_version}-dev+{branch}'
 
     base_version = (
         get_production_version(project_dir)
-        if os.environ.get('CROSSINK_RELEASE_VERSION')
-        else get_crossink_version(project_dir)
+        if os.environ.get('FLUIDEZ_RELEASE_VERSION')
+        else get_fluidez_version(project_dir)
     )
     device_suffix = {'sticky': '-sticky', 'x4-pro': '-x4-pro', 'x4-classic': '-x4-classic'}[pioenv]
     return f'{base_version}{device_suffix}'
@@ -163,72 +163,72 @@ def get_hardware_version(project_dir, pioenv):
 def inject_version(env):
     project_dir = env['PROJECT_DIR']
     pioenv = env['PIOENV']
-    # Keep build provenance separate from CROSSINK_VERSION: production versions
+    # Keep build provenance separate from FLUIDEZ_VERSION: production versions
     # intentionally omit the source revision, while diagnostics need the base
     # commit and whether the compiled tree had tracked modifications.
     scoped = [
-        ('CROSSINK_GIT_SHA', f'\\"{get_git_short_sha(project_dir)}\\"'),
-        ('CROSSINK_GIT_DIRTY', f'\\"{get_git_dirty(project_dir)}\\"'),
+        ('FLUIDEZ_GIT_SHA', f'\\"{get_git_short_sha(project_dir)}\\"'),
+        ('FLUIDEZ_GIT_DIRTY', f'\\"{get_git_dirty(project_dir)}\\"'),
     ]
 
     if pioenv in {'default', 'sticky', 'x4-pro', 'x4-classic'}:
         version_string = get_hardware_version(project_dir, pioenv)
-        if os.environ.get('CROSSINK_RC_HASH'):
+        if os.environ.get('FLUIDEZ_RC_HASH'):
             print(f'FluiDez Reader RC build version: {version_string}')
-        elif os.environ.get('CROSSINK_RELEASE_VERSION'):
+        elif os.environ.get('FLUIDEZ_RELEASE_VERSION'):
             print(f'FluiDez Reader production build version: {version_string}')
         else:
             print(f'FluiDez Reader build version: {version_string}')
-        scoped.append(('CROSSINK_VERSION', f'\\"{version_string}\\"'))
+        scoped.append(('FLUIDEZ_VERSION', f'\\"{version_string}\\"'))
 
     elif pioenv == 'debug':
         branch = get_git_branch(project_dir)
         short_hash = get_git_short_hash(project_dir)
-        ci_version = get_crossink_version(project_dir)
+        ci_version = get_fluidez_version(project_dir)
         suffix = f'-{branch}+{short_hash}'
-        scoped.append(('CROSSINK_VERSION', f'\\"{ci_version}{suffix}\\"'))
+        scoped.append(('FLUIDEZ_VERSION', f'\\"{ci_version}{suffix}\\"'))
         env.Append(CPPDEFINES=[
-            ('CROSSINK_BUILD_ENV', '\\"debug\\"'),
-            'CROSSINK_SHOW_SLEEP_BUILD_INFO',
+            ('FLUIDEZ_BUILD_ENV', '\\"debug\\"'),
+            'FLUIDEZ_SHOW_SLEEP_BUILD_INFO',
         ])
         print(f'FluiDez Reader test build version: {ci_version}{suffix}')
 
     elif pioenv == 'sticky-debug':
         branch = get_git_branch(project_dir)
         short_hash = get_git_short_hash(project_dir)
-        ci_version = get_crossink_version(project_dir)
+        ci_version = get_fluidez_version(project_dir)
         suffix = f'-{branch}+{short_hash}'
-        scoped.append(('CROSSINK_VERSION', f'\\"{ci_version}{suffix}\\"'))
+        scoped.append(('FLUIDEZ_VERSION', f'\\"{ci_version}{suffix}\\"'))
         env.Append(CPPDEFINES=[
-            ('CROSSINK_BUILD_ENV', '\\"debug\\"'),
-            'CROSSINK_SHOW_SLEEP_BUILD_INFO',
+            ('FLUIDEZ_BUILD_ENV', '\\"debug\\"'),
+            'FLUIDEZ_SHOW_SLEEP_BUILD_INFO',
         ])
         print(f'FluiDez Reader test build version: {ci_version}{suffix}')
 
     elif pioenv in {'x4-pro-debug', 'x4-classic-debug'}:
         branch = get_git_branch(project_dir)
         short_hash = get_git_short_hash(project_dir)
-        ci_version = get_crossink_version(project_dir)
+        ci_version = get_fluidez_version(project_dir)
         suffix = f'-{branch}+{short_hash}'
-        scoped.append(('CROSSINK_VERSION', f'\\"{ci_version}{suffix}\\"'))
+        scoped.append(('FLUIDEZ_VERSION', f'\\"{ci_version}{suffix}\\"'))
         env.Append(CPPDEFINES=[
-            ('CROSSINK_BUILD_ENV', '\\"debug\\"'),
-            'CROSSINK_SHOW_SLEEP_BUILD_INFO',
+            ('FLUIDEZ_BUILD_ENV', '\\"debug\\"'),
+            'FLUIDEZ_SHOW_SLEEP_BUILD_INFO',
         ])
         print(f'FluiDez Reader test build version: {ci_version}{suffix}')
 
     elif pioenv == 'test':
         branch = get_git_branch(project_dir)
         short_hash = get_git_short_hash(project_dir)
-        ci_version = get_crossink_version(project_dir)
+        ci_version = get_fluidez_version(project_dir)
         suffix = f'-{branch}+{short_hash}'
-        scoped.append(('CROSSINK_VERSION', f'\\"{ci_version}{suffix}\\"'))
+        scoped.append(('FLUIDEZ_VERSION', f'\\"{ci_version}{suffix}\\"'))
         print(f'FluiDez Reader test build version: {ci_version}{suffix}')
 
     elif pioenv == 'gh_release_rc':
-        # CI passes CROSSINK_RC_HASH as an env var; locally we derive it from git.
+        # CI passes FLUIDEZ_RC_HASH as an env var; locally we derive it from git.
         version_string = get_release_candidate_version(project_dir)
-        scoped.append(('CROSSINK_VERSION', f'\\"{version_string}\\"'))
+        scoped.append(('FLUIDEZ_VERSION', f'\\"{version_string}\\"'))
         print(f'FluiDez Reader RC build version: {version_string}')
 
     # Keep changing source identity out of unrelated compile commands.

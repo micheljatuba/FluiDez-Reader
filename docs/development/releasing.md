@@ -11,7 +11,7 @@ O leitor procura atualizações na versão mais recente (*Latest*) publicada em 
 ## Passos
 
 1. Escolha o número da versão, por exemplo `1.6-fluidez10`, seguindo a seção "Versão depois da sincronização" de [Sincronização com o CrossInk](./upstream-sync.md). O workflow recusa números fora do formato `<versão base>-fluidez<número>`, porque o leitor não os reconheceria.
-2. Atualize `[crossink] version` no `platformio.ini`. No [CHANGELOG](../../CHANGELOG.md), mova as entradas de `[Unreleased]` para uma seção nova, como `## [v1.6-fluidez10] - AAAA-MM-DD`. Faça o mesmo em [NOVIDADES](../../NOVIDADES.md) com as entradas de `[Próxima versão]`: essa seção, em português e escrita para quem usa o leitor, abre a página da release. Para ver o texto que vai para a página, rode `python scripts/release_notes.py 1.6-fluidez10`. O CI falha se o NOVIDADES não tiver a seção da versão do `platformio.ini`.
+2. Atualize `[fluidez] version` no `platformio.ini`. No [CHANGELOG](../../CHANGELOG.md), mova as entradas de `[Unreleased]` para uma seção nova, como `## [v1.6-fluidez10] - AAAA-MM-DD`. Faça o mesmo em [NOVIDADES](../../NOVIDADES.md) com as entradas de `[Próxima versão]`: essa seção, em português e escrita para quem usa o leitor, abre a página da release. Para ver o texto que vai para a página, rode `python scripts/release_notes.py 1.6-fluidez10`. O CI falha se o NOVIDADES não tiver a seção da versão do `platformio.ini`.
 3. Faça o commit em `main`, envie com `git push origin main` e espere o CI passar.
 4. Crie a tag anotada e envie apenas ela:
 

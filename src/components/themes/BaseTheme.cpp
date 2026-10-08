@@ -996,7 +996,7 @@ void BaseTheme::drawOptionPopup(const GfxRenderer& renderer, const char* title, 
   const EpdFontFamily::Style optionStyle =
       metrics.optionPopupOptionFontBold ? EpdFontFamily::BOLD : EpdFontFamily::REGULAR;
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   const bool touchActionStyle = gpio.hasTouch() && primaryOptionIndex >= 0 && options.size() == 2;
   const int itemSpacing = touchActionStyle ? TouchActionButtons::kDefaultGap : metrics.optionPopupItemSpacing;
 #else
@@ -1011,7 +1011,7 @@ void BaseTheme::drawOptionPopup(const GfxRenderer& renderer, const char* title, 
   const bool hasNote = noteLabel && noteBody;
   const int noteLineHeight = renderer.getLineHeight(UI_10_FONT_ID);
   const int noteHeight = hasNote ? noteLineHeight * 2 + metrics.optionPopupTitleGap : 0;
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   const int rowHeight =
       touchActionStyle ? TouchActionButtons::kDefaultHeight : optionLineHeight + selectionVPadding * 2;
 #else
@@ -1152,7 +1152,7 @@ void BaseTheme::drawOptionPopup(const GfxRenderer& renderer, const char* title, 
     renderer.fillRect(scrollBarX - metrics.scrollBarWidth, scrollBarY, metrics.scrollBarWidth, scrollBarHeight, true);
   }
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   if (touchActionStyle && visibleCount == 2) {
     const auto actionLayout = TouchActionButtons::vertical(Rect{itemRectX, y, itemRectW, listHeight},
                                                            static_cast<uint8_t>(visibleCount), rowHeight, itemSpacing);
@@ -1202,7 +1202,7 @@ void BaseTheme::drawOptionPopup(const GfxRenderer& renderer, const char* title, 
 
   if (showConfirmationFooter) {
     const int footerY = dialogY + dialogH - footerHeight;
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
     const char* leftLabel = cancelLabel ? cancelLabel : "";
 #endif
     const char* rightLabel = saveLabel ? saveLabel : "";
@@ -1210,7 +1210,7 @@ void BaseTheme::drawOptionPopup(const GfxRenderer& renderer, const char* title, 
     // use the full footer width for Save.
     renderer.drawLine(dialogX, footerY, dialogX + dialogW, footerY, true);
     const int labelY = footerY + (footerHeight - renderer.getLineHeight(UI_12_FONT_ID)) / 2;
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
     if (gpio.hasTouch()) {
       const int dividerX = dialogX + dialogW / 2;
       renderer.drawLine(dividerX, footerY, dividerX, dialogY + dialogH, true);
@@ -1224,7 +1224,7 @@ void BaseTheme::drawOptionPopup(const GfxRenderer& renderer, const char* title, 
       if (saveFocused) renderer.fillRect(dialogX, footerY + 1, dialogW, footerHeight - 1, true);
       renderer.drawText(UI_12_FONT_ID, dialogX + (dialogW - renderer.getTextWidth(UI_12_FONT_ID, rightLabel)) / 2,
                         labelY, rightLabel, !saveFocused, EpdFontFamily::BOLD);
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
     }
 #endif
   }

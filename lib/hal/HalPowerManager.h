@@ -14,8 +14,8 @@
 // Opt-in battery telemetry for diagnosing a miscalibrated fuel gauge. Off in
 // every shipping environment; the `debug` PlatformIO env sets it to 1. Defined
 // here because this is the lowest layer that consumes it.
-#ifndef CROSSINK_BATTERY_DIAG_LOG
-#define CROSSINK_BATTERY_DIAG_LOG 0
+#ifndef FLUIDEZ_BATTERY_DIAG_LOG
+#define FLUIDEZ_BATTERY_DIAG_LOG 0
 #endif
 
 class HalPowerManager;
@@ -59,7 +59,7 @@ class HalPowerManager {
   // Get battery percentage (range 0-100)
   uint16_t getBatteryPercentage() const;
 
-#if CROSSINK_BATTERY_DIAG_LOG
+#if FLUIDEZ_BATTERY_DIAG_LOG
   // Raw battery telemetry for the diagnostic log, kept behind the flag so
   // shipping builds carry neither the struct nor the extra I2C traffic.
   struct BatteryDiagnostics {

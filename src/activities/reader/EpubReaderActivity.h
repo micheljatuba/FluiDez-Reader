@@ -25,7 +25,7 @@
 #include "activities/Activity.h"
 #include "activities/reader/TouchReaderPreviewModel.h"
 #include "components/OptionPopup.h"
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
 #include "activities/reader/ReaderPinchGesture.h"
 #endif
 
@@ -195,7 +195,7 @@ class EpubReaderActivity final : public Activity {
   std::optional<uint16_t> pendingResolvedReferencePage;
   uint16_t pendingParagraphIndex = UINT16_MAX;
   ReaderDrawerState touchReaderDrawerState{};
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   std::unique_ptr<TouchReaderPreviewModel> touchReaderPreviewModel;
   bool touchReaderPreviewAllocationAttempted = false;
 #endif
@@ -258,7 +258,7 @@ class EpubReaderActivity final : public Activity {
 
   // Footnote support
   std::vector<FootnoteEntry> currentPageFootnotes;
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   ReaderPinchGesture pinchFontGesture;
   FootnoteLinkTargets currentPageFootnoteTouchTargets{};
 #endif
@@ -425,7 +425,7 @@ class EpubReaderActivity final : public Activity {
   void openQuickActionsPopup();
   void executeFootnoteQuickAction(bool suppressInitialPowerRelease = false);
   void openFootnoteSelect(bool returnToReaderMenu);
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   bool handlePinchFontResize();
   void resetPinchFontGesture();
   void buildFootnoteTouchTargets(const Page& page, int fontId, int orientedMarginTop, int orientedMarginLeft);

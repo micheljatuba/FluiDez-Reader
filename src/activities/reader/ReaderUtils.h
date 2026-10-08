@@ -124,7 +124,7 @@ struct TouchPageTurn {
 
 inline TouchPageTurn detectTouchPageTurn(const GfxRenderer& renderer, const MappedInputManager& input,
                                          const bool rtlBook = false) {
-#if !CROSSINK_APP_CAP_TOUCH
+#if !FLUIDEZ_APP_CAP_TOUCH
   (void)renderer;
   (void)input;
   (void)rtlBook;

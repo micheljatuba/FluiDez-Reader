@@ -11,7 +11,7 @@
 #include "DeviceCapabilities.h"
 #include "FluiDezSettings.h"
 #include "GlobalActions.h"
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
 #include "components/TouchRegistry.h"
 #endif
 #include "components/UITheme.h"
@@ -247,7 +247,7 @@ bool MappedInputManager::shouldMirrorPowerAsConfirmHold() const {
          !isPowerButtonActionAvailableOutsideReader(static_cast<FluiDezSettings::SHORT_PWRBTN>(SETTINGS.longPwrBtn));
 }
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
 bool MappedInputManager::touchInputEnabled() const {
   return gpio.hasTouch() && (!readerMode || !SETTINGS.disableReaderTouchscreen || readerTouchscreenOverride);
 }
@@ -897,7 +897,7 @@ bool MappedInputManager::wasReleased(const Button button) const {
       return true;
     }
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
     if (!simulatedRelease && !mapButton(button, &HalGPIO::wasReleased) &&
         !wasFrontButtonHintTapped(mappedFrontButtonFor(button))) {
       return false;
@@ -1020,7 +1020,7 @@ bool MappedInputManager::wasAnyPressed() const {
     return true;
   }
 #endif
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   int id = -1;
   if (wasRegistryTargetTouchedDown(TouchRegistry::Kind::Button, id)) {
     return true;
@@ -1035,7 +1035,7 @@ bool MappedInputManager::wasAnyReleased() const {
     return true;
   }
 #endif
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   int id = -1;
   if (wasRegistryTargetTapped(TouchRegistry::Kind::Button, id)) {
     return true;
@@ -1046,7 +1046,7 @@ bool MappedInputManager::wasAnyReleased() const {
 
 unsigned long MappedInputManager::getHeldTime() const {
   unsigned long heldTime = gpio.getHeldTime();
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   if (!gpio.wasAnyPressed() && !gpio.wasAnyReleased() && touchHeldOverrideValid &&
       millis() - touchHeldOverrideAt <= TOUCH_HELD_OVERRIDE_WINDOW_MS) {
     heldTime = touchHeldOverrideMs;
@@ -1165,7 +1165,7 @@ int MappedInputManager::getPressedFrontButton() const {
   if (gpio.wasPressed(HalGPIO::BTN_RIGHT)) {
     return HalGPIO::BTN_RIGHT;
   }
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   int id = -1;
   if (wasRegistryTargetTouchedDown(TouchRegistry::Kind::Button, id) && id >= HalGPIO::BTN_BACK &&
       id <= HalGPIO::BTN_RIGHT) {
@@ -1190,7 +1190,7 @@ int MappedInputManager::getReleasedFrontButton() const {
   if (gpio.wasReleased(HalGPIO::BTN_RIGHT)) {
     return HalGPIO::BTN_RIGHT;
   }
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   int id = -1;
   if (wasRegistryTargetTapped(TouchRegistry::Kind::Button, id) && id >= HalGPIO::BTN_BACK && id <= HalGPIO::BTN_RIGHT) {
     return id;
@@ -1222,7 +1222,7 @@ void MappedInputManager::simulatorInjectRelease(Button button) {
 void MappedInputManager::simulatorClearInputFrame() {
   simulatorPressed.fill(false);
   simulatorReleased.fill(false);
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   const bool suppressedContactReleased = suppressSimulatedTouchContact && simulatorTouch.releasedThisFrame;
   simulatorTouch.pressedThisFrame = false;
   simulatorTouch.releasedThisFrame = false;
@@ -1234,7 +1234,7 @@ void MappedInputManager::simulatorClearInputFrame() {
 #endif
 }
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
 void MappedInputManager::simulatorInjectTouchDown(const int x, const int y) {
   simulatorTouch.pressed = true;
   simulatorTouch.pressedThisFrame = true;

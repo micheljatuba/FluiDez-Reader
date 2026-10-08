@@ -9,7 +9,7 @@
 #include "SideButtonShortcuts.h"
 #include "activities/Activity.h"
 #include "components/OptionPopup.h"
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
 #include "activities/reader/ReaderPinchGesture.h"
 #endif
 
@@ -29,7 +29,7 @@ class TxtReaderActivity final : public Activity {
   bool longPressMenuHandled = false;
   bool skipRecentBookUpdateOnEntry = false;
   ReaderProgressSaveDebouncer progressSaveDebouncer;
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   ReaderPinchGesture pinchFontGesture;
 #endif
 
@@ -78,7 +78,7 @@ class TxtReaderActivity final : public Activity {
   void rebuildTextLayout();
   void openReaderMenu();
   bool applyReaderOrientation(uint8_t orientation);
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   bool handlePinchFontResize();
   void resetPinchFontGesture();
 #endif

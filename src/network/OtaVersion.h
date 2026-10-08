@@ -2,7 +2,7 @@
 
 #include <cstddef>
 
-// Orders an OTA release tag against the running CROSSINK_VERSION. Numeric
+// Orders an OTA release tag against the running FLUIDEZ_VERSION. Numeric
 // segments decide first ("v1.7-fluidez1" > "1.6-fluidez9"). FluiDez builds keep
 // the upstream base version and count their own releases after "fluidez"
 // ("1.6-fluidez8-x4-pro"), so that build number breaks numeric ties.

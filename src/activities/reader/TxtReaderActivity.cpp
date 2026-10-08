@@ -199,7 +199,7 @@ bool TxtReaderActivity::handleFrontlightPanelResult(const FrontlightPanelResult&
 
 void TxtReaderActivity::loop() {
   if (quickActionsPopup.handleInput(mappedInput, [this] { requestUpdate(); })) return;
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   if (handlePinchFontResize()) return;
 #endif
   const auto touch = ReaderUtils::detectTouchPageTurn(renderer, mappedInput);
@@ -396,7 +396,7 @@ void TxtReaderActivity::rebuildTextLayout() {
   requestUpdate();
 }
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
 bool TxtReaderActivity::handlePinchFontResize() {
   if (!SETTINGS.pinchFontResizeEnabled || !SETTINGS.touchReaderControls || !mappedInput.supportsMultiTouch()) {
     resetPinchFontGesture();

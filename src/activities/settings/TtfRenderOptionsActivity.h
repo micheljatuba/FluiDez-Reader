@@ -1,6 +1,6 @@
 #pragma once
 
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
 
 #include <FreeInkApp.h>
 #include <FreeInkUIGfxRenderer.h>

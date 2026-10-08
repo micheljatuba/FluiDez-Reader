@@ -27,7 +27,7 @@ struct portMUX_TYPE {};
 class Activity;    // forward declaration
 class RenderLock;  // forward declaration
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
 struct LiveLightSwipeState {
   Activity* owner = nullptr;
   bool tracking = false;
@@ -74,7 +74,7 @@ class ActivityManager {
   MappedInputManager& mappedInput;
   std::vector<std::unique_ptr<Activity>> stackActivities;
   std::unique_ptr<Activity> currentActivity;
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   LiveLightSwipeState edgeLightSwipe;
   LiveLightSwipeState twoFingerLightSwipe;
 #endif

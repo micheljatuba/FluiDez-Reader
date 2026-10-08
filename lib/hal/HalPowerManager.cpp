@@ -194,7 +194,7 @@ uint16_t HalPowerManager::getBatteryPercentage() const {
   return _batteryCachedPercent / 10;
 }
 
-#if CROSSINK_BATTERY_DIAG_LOG
+#if FLUIDEZ_BATTERY_DIAG_LOG
 bool HalPowerManager::getBatteryDiagnostics(BatteryDiagnostics& out) const {
   // Function-local like getBatteryPercentage()'s: BoardConfig::ACTIVE is only
   // resolved once HalGPIO::begin() has run the X3/X4 probe, so a file-scope

@@ -1,5 +1,5 @@
 #pragma once
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
 #include <EpdFontFamily.h>
 #include <FtFont.h>
 #include <HalStorage.h>

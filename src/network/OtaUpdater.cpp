@@ -28,15 +28,15 @@ OtaUpdater::OtaUpdaterError OtaUpdater::installUpdate(ProgressCallback, void*, s
 #include "network/WifiPowerSaveGuard.h"
 
 namespace {
-#ifndef CROSSINK_OTA_RELEASE_URL
-#define CROSSINK_OTA_RELEASE_URL "https://api.github.com/repos/micheljatuba/FluiDez-Reader/releases/latest"
+#ifndef FLUIDEZ_OTA_RELEASE_URL
+#define FLUIDEZ_OTA_RELEASE_URL "https://api.github.com/repos/micheljatuba/FluiDez-Reader/releases/latest"
 #endif
 
-constexpr char latestReleaseUrl[] = CROSSINK_OTA_RELEASE_URL;
+constexpr char latestReleaseUrl[] = FLUIDEZ_OTA_RELEASE_URL;
 
-#ifdef CROSSINK_FIRMWARE_DEVICE_TYPE
-constexpr char firmwareAssetStem[] = "firmware-" CROSSINK_FIRMWARE_DEVICE_TYPE;
-constexpr char firmwareAssetName[] = "firmware-" CROSSINK_FIRMWARE_DEVICE_TYPE ".bin";
+#ifdef FLUIDEZ_FIRMWARE_DEVICE_TYPE
+constexpr char firmwareAssetStem[] = "firmware-" FLUIDEZ_FIRMWARE_DEVICE_TYPE;
+constexpr char firmwareAssetName[] = "firmware-" FLUIDEZ_FIRMWARE_DEVICE_TYPE ".bin";
 #else
 constexpr char firmwareAssetStem[] = "firmware";
 constexpr char firmwareAssetName[] = "firmware.bin";

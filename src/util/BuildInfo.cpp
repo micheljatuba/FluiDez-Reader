@@ -1,22 +1,22 @@
 #include <AppVersion.h>
 
 // Only this translation unit receives the changing version and Git defines.
-#ifndef CROSSINK_VERSION
-#define CROSSINK_VERSION "dev"
+#ifndef FLUIDEZ_VERSION
+#define FLUIDEZ_VERSION "dev"
 #endif
 
-#ifndef CROSSINK_GIT_SHA
-#define CROSSINK_GIT_SHA "unknown"
+#ifndef FLUIDEZ_GIT_SHA
+#define FLUIDEZ_GIT_SHA "unknown"
 #endif
 
-#ifndef CROSSINK_GIT_DIRTY
-#define CROSSINK_GIT_DIRTY "unknown"
+#ifndef FLUIDEZ_GIT_DIRTY
+#define FLUIDEZ_GIT_DIRTY "unknown"
 #endif
 
 namespace AppVersion {
-const char* version() { return CROSSINK_VERSION; }
-const char* versionLabel() { return "FluiDez Reader " CROSSINK_VERSION; }
-const char* userAgent() { return "FluiDez-Reader-ESP32-" CROSSINK_VERSION; }
-const char* gitSha() { return CROSSINK_GIT_SHA; }
-const char* gitDirtyFlag() { return CROSSINK_GIT_DIRTY; }
+const char* version() { return FLUIDEZ_VERSION; }
+const char* versionLabel() { return "FluiDez Reader " FLUIDEZ_VERSION; }
+const char* userAgent() { return "FluiDez-Reader-ESP32-" FLUIDEZ_VERSION; }
+const char* gitSha() { return FLUIDEZ_GIT_SHA; }
+const char* gitDirtyFlag() { return FLUIDEZ_GIT_DIRTY; }
 }  // namespace AppVersion
