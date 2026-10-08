@@ -6,8 +6,11 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ## [Unreleased]
 
+## [v1.6-fluidez15] - 2026-10-08
+
 ### Changed
 
+- **Download Fonts** (Settings > Reader > Font Options) uses FluiDez's own font catalog, built from this repository's `sd-fonts.yaml` and hosted in Azure Blob storage (`http://strfluidez001.blob.core.windows.net/fonts/`) by the manual *Build & Publish SD Card Fonts* workflow. It has 29 families, adding Gelasio, EB Garamond, Crimson Pro, Jost and Arimo, and removes the last runtime dependency on CrossInk's servers. Still plain HTTP, which ESP32-C3 readers need.
 - Internal names follow FluiDez: the settings, state and web server classes are `FluiDezSettings`, `FluiDezState`, `FluiDezWebServer` and `FluiDezWebServerActivity`; build flags, compile-time switches and CI variables use the `FLUIDEZ_` prefix (for example `FLUIDEZ_APP_CAP_TOUCH`, `FLUIDEZ_BATTERY_DIAG_LOG`, `FLUIDEZ_RELEASE_VERSION`); the `platformio.ini` section is `[fluidez]`. Local `platformio.local.ini` files must use the new names. Data on the reader is untouched: the `/.crosspoint` folder, file formats and saved settings keep their names. The simulator still receives `CROSSINK_VERSION` because its external library reads that name.
 
 ### Added

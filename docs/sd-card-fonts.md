@@ -12,7 +12,7 @@ fonts directly; ESP32-C3 devices need `.cpfont` files.
 
 ## Available Pre-Built Fonts
 
-**Manage Fonts** lists the pre-built families from FluiDez Reader's font
+**Download Fonts** (Settings > Reader > Font Options) lists the pre-built families from FluiDez Reader's font
 catalog, built from `lib/EpdFont/scripts/sd-fonts.yaml` and hosted in FluiDez's
 Azure Blob storage (`http://strfluidez001.blob.core.windows.net/fonts/`). The
 manual **Build & Publish SD Card Fonts** workflow
@@ -86,7 +86,7 @@ There are three ways to install fonts:
 This option downloads pre-built `.cpfont` packs.
 
 1. Connect your reader to Wi-Fi
-2. Go to **Settings > Reader > Font Options > Manage Fonts**
+2. Go to **Settings > Reader > Font Options > Download Fonts**
 3. Browse available font families and select to download
 4. Downloaded fonts appear immediately in **Settings > Reader > Font Options > Font Family**
 

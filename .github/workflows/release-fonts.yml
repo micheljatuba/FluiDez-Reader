@@ -3,7 +3,7 @@ name: Build & Publish SD Card Fonts
 # Fonts change rarely: run this by hand when font sources or the conversion
 # pipeline change. It builds the .cpfont files and the fonts.json manifest and
 # publishes them to FluiDez's Azure Blob container, where readers download them
-# from Settings > System > Manage fonts.
+# from Settings > Reader > Font Options > Download Fonts.
 #
 # The container is served over plain HTTP on purpose: HTTPS stalls inside
 # esp_http_client on ESP32-C3 readers, and every .cpfont is still checked by

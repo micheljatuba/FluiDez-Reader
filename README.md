@@ -106,7 +106,7 @@ Imagens do simulador do X4 Pro, com a interface em português. Os livros de exem
 ### E mais
 
 - **Identidade própria:** símbolo e logotipo nas telas de inicialização e de repouso, no rodapé das Configurações, no nome do aparelho e no portal web. Veja a [identidade visual](docs/brand/README.md).
-- **Catálogo de fontes próprio:** *Configurações > Sistema > Gerenciar fontes* baixa as fontes do servidor do FluiDez, com 29 famílias, incluindo Gelasio, EB Garamond, Crimson Pro, Jost e Arimo, que só o FluiDez oferece.
+- **Catálogo de fontes próprio:** *Configurações > Leitor > Opções de fonte > Baixar fontes* baixa as fontes do servidor do FluiDez, com 29 famílias, incluindo Gelasio, EB Garamond, Crimson Pro, Jost e Arimo, que só o FluiDez oferece.
 - **Portal web em português:** todas as páginas do `http://fluidez.local/` seguem o idioma do navegador, com um seletor Português/English no rodapé.
 - **Telas de descanso e de inicialização pela web:** a página *Telas* do portal converte qualquer imagem para as duas telas e pode sortear uma imagem diferente da pasta a cada vez.
 - **Português e inglês** embutidos no firmware.
@@ -164,7 +164,7 @@ Mais detalhes, configurações e solução de problemas estão no [README do plu
 
 ## Fontes extras
 
-As famílias Gelasio, EB Garamond, Crimson Pro, Jost e Arimo estão no catálogo do aparelho: baixe-as em **Configurações > Sistema > Gerenciar fontes**. Se preferir gerá-las no computador, a partir de uma cópia deste repositório (requer Git e Python 3):
+As famílias Gelasio, EB Garamond, Crimson Pro, Jost e Arimo estão no catálogo do aparelho: baixe-as em **Configurações > Leitor > Opções de fonte > Baixar fontes**. Se preferir gerá-las no computador, a partir de uma cópia deste repositório (requer Git e Python 3):
 
 ```sh
 git clone https://github.com/micheljatuba/FluiDez-Reader.git

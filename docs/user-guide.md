@@ -686,7 +686,7 @@ O FluiDez Reader permite carregar fontes adicionais do cartão SD, indo além da
 
 Há três formas de instalar fontes:
 
-1. **Baixar pelo aparelho (recomendado):** vá para **Configurações -> Leitor -> Opções de fonte -> Gerenciar fontes**, navegue pelas famílias disponíveis e selecione uma para baixar via Wi-Fi. O catálogo é hospedado pelo FluiDez e traz 29 famílias, incluindo Gelasio, EB Garamond, Crimson Pro, Jost e Arimo.
+1. **Baixar pelo aparelho (recomendado):** vá para **Configurações -> Leitor -> Opções de fonte -> Baixar fontes**, navegue pelas famílias disponíveis e selecione uma para baixar via Wi-Fi. O catálogo é hospedado pelo FluiDez e traz 29 famílias, incluindo Gelasio, EB Garamond, Crimson Pro, Jost e Arimo.
 2. **Cópia manual para o cartão SD:** copie arquivos `.cpfont` (por exemplo, do [Inky](https://inky.crossink.dev/#downloads) ou do [repositório crossink-fonts](https://github.com/uxjulia/crossink-fonts/tree/main/cpfonts)) para `/.fonts/` (preferido) ou `/fonts/` no cartão SD.
 3. **Enviar pela interface web:** enquanto estiver no modo **Transferência de arquivos**, abra a interface web em um navegador e acesse a aba **Fontes** para enviar arquivos `.cpfont`. Em aparelhos compatíveis (ESP32-S3), arquivos `.ttf` também podem ser enviados.
 

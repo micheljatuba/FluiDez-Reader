@@ -4,9 +4,13 @@ O que muda para quem usa o FluiDez Reader em cada versão, da mais recente para 
 
 ## [Próxima versão]
 
+## [v1.6-fluidez15] - 2026-10-08
+
+- **Catálogo de fontes do FluiDez:** *Configurações > Leitor > Opções de fonte > Baixar fontes* agora baixa as fontes do servidor do próprio FluiDez, com 29 famílias. Entre elas estão Gelasio, EB Garamond, Crimson Pro, Jost e Arimo, que antes só dava para gerar no computador.
 - **Portal web em português:** o `http://fluidez.local` agora fala português em todas as páginas: menu, arquivos, configurações, fontes e telas. Ele segue o idioma do navegador, e o link no rodapé troca entre português e inglês.
 - **Tela de inicialização pela web:** a página *Tela de descanso* virou *Telas*, com uma aba para a imagem que aparece ao ligar o leitor. É o mesmo editor: escolha a imagem, ajuste e salve.
 - **Sorteio de imagens:** nas duas abas, *Sortear entre todas as imagens* faz o leitor mostrar uma imagem diferente da pasta a cada vez, em vez de sempre a mesma.
+- **Bastidores:** o código interno passou a usar nomes do FluiDez. Nada muda no aparelho: configurações, livros, progresso e estatísticas continuam onde estavam.
 
 ## [v1.6-fluidez14] - 2026-10-06
 
