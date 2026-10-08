@@ -49,16 +49,18 @@ Troque em **Configurações > Tela > Tema da interface**. Quem já usa outro tem
 
 ### Qualquer imagem na tela de repouso
 
-Seu personagem favorito, a foto do seu cachorro, aquele desenho que você ama: abra `http://fluidez.local/sleep` no celular ou no computador, escolha a imagem, ajuste o enquadramento, o zoom, o brilho e o contraste e veja na hora como ela vai ficar em tons de cinza. Toque em **Salvar e usar no aparelho** e pronto: na próxima vez que você bloquear o leitor, é ela que aparece.
+Seu personagem favorito, a foto do seu cachorro, aquele desenho que você ama: abra `http://fluidez.local/sleep` no celular ou no computador (página *Telas*), escolha a imagem, ajuste o enquadramento, o zoom, o brilho e o contraste e veja na hora como ela vai ficar em tons de cinza. Toque em **Salvar e usar no aparelho** e pronto: na próxima vez que você bloquear o leitor, é ela que aparece.
 
 <table>
   <tr>
-    <td align="center"><img src="docs/images/fluidez/sleep-web.png" alt="Página Sleep Screen do portal web, em português, com a imagem de um pôr do sol, os controles de encaixe, zoom, brilho e contraste e a prévia do e-ink" width="520"><br><sub>Editor no portal web</sub></td>
+    <td align="center"><img src="docs/images/fluidez/sleep-web.png" alt="Página Telas do portal web, em português, com as abas Tela de descanso e Tela de inicialização, a imagem de um pôr do sol, os controles de encaixe, zoom, brilho e contraste e a prévia do e-ink" width="520"><br><sub>Página <i>Telas</i> do portal web</sub></td>
     <td align="center"><img src="docs/images/fluidez/sleep-custom.png" alt="Tela de repouso com a imagem de um pôr do sol sobre montanhas e um lago, com a frase Boa leitura, em quatro tons de cinza" width="200"><br><sub>No leitor</sub></td>
   </tr>
 </table>
 
 A conversão acontece no navegador, no tamanho exato da tela, e o leitor só exibe o arquivo pronto: nenhum processamento a mais no aparelho. Fotos JPG e PNG copiadas direto para a pasta `sleep` do cartão também funcionam; o leitor converte cada uma uma vez e depois ela abre tão rápido quanto um BMP.
+
+Na mesma página, a aba **Tela de inicialização** faz o mesmo com a imagem que aparece ao ligar o leitor, e o botão **Sortear entre todas as imagens** faz o leitor alternar entre as imagens da pasta em vez de mostrar sempre a mesma.
 
 ## Mais telas
 
@@ -104,7 +106,9 @@ Imagens do simulador do X4 Pro, com a interface em português. Os livros de exem
 ### E mais
 
 - **Identidade própria:** símbolo e logotipo nas telas de inicialização e de repouso, no rodapé das Configurações, no nome do aparelho e no portal web. Veja a [identidade visual](docs/brand/README.md).
-- **Cinco famílias de fontes extras** para o cartão SD: Gelasio, EB Garamond, Crimson Pro, Jost e Arimo ([como gerar](#fontes-extras)).
+- **Catálogo de fontes próprio:** *Configurações > Sistema > Gerenciar fontes* baixa as fontes do servidor do FluiDez, com 29 famílias, incluindo Gelasio, EB Garamond, Crimson Pro, Jost e Arimo, que só o FluiDez oferece.
+- **Portal web em português:** todas as páginas do `http://fluidez.local/` seguem o idioma do navegador, com um seletor Português/English no rodapé.
+- **Telas de descanso e de inicialização pela web:** a página *Telas* do portal converte qualquer imagem para as duas telas e pode sortear uma imagem diferente da pasta a cada vez.
 - **Português e inglês** embutidos no firmware.
 - **Atualizações por este repositório:** *Verificar atualizações* instala as versões publicadas aqui.
 - **Plugin próprio para o Calibre** e nomes de rede próprios: o portal web atende em `http://fluidez.local/` e o hotspot do leitor se chama `FluiDez-Reader` (veja [Calibre](#calibre)).
@@ -160,7 +164,7 @@ Mais detalhes, configurações e solução de problemas estão no [README do plu
 
 ## Fontes extras
 
-As famílias Gelasio, EB Garamond, Crimson Pro, Jost e Arimo não estão no catálogo de download de fontes do aparelho. Gere-as no computador, a partir de uma cópia deste repositório (requer Git e Python 3):
+As famílias Gelasio, EB Garamond, Crimson Pro, Jost e Arimo estão no catálogo do aparelho: baixe-as em **Configurações > Sistema > Gerenciar fontes**. Se preferir gerá-las no computador, a partir de uma cópia deste repositório (requer Git e Python 3):
 
 ```sh
 git clone https://github.com/micheljatuba/FluiDez-Reader.git

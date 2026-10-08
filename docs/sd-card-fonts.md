@@ -12,17 +12,23 @@ fonts directly; ESP32-C3 devices need `.cpfont` files.
 
 ## Available Pre-Built Fonts
 
-**Manage Fonts** lists the pre-built families from the font catalog hosted by the
-upstream CrossInk project. The same `.cpfont` packs are in the
-[crossink-fonts](https://github.com/uxjulia/crossink-fonts/tree/main/cpfonts) repository
-and on [Inky](https://inky.crossink.dev/#downloads).
+**Manage Fonts** lists the pre-built families from FluiDez Reader's font
+catalog, built from `lib/EpdFont/scripts/sd-fonts.yaml` and hosted in FluiDez's
+Azure Blob storage (`http://strfluidez001.blob.core.windows.net/fonts/`). The
+manual **Build & Publish SD Card Fonts** workflow
+(`.github/workflows/release-fonts.yml`) rebuilds and publishes it. The catalog is
+served over plain HTTP on purpose: HTTPS stalls inside `esp_http_client` on
+ESP32-C3 readers, and every `.cpfont` is CRC-checked before install. Most of the
+same packs are also in the upstream
+[crossink-fonts](https://github.com/uxjulia/crossink-fonts/tree/main/cpfonts)
+repository and on [Inky](https://inky.crossink.dev/#downloads).
 
 ### FluiDez Reader families
 
 FluiDez Reader adds Gelasio, EB Garamond, Crimson Pro, Jost, and Arimo to
-`lib/EpdFont/scripts/sd-fonts.yaml`. They are not in the hosted catalog, so
-generate them on a computer and copy the family folders to `/.fonts/` or
-`/fonts/` on the SD card:
+`lib/EpdFont/scripts/sd-fonts.yaml`, so they are in the catalog above. To
+generate them on a computer instead, copy the family folders to `/.fonts/` or
+`/fonts/` on the SD card after running:
 
     python3 -m pip install -r lib/EpdFont/scripts/requirements.txt
     python3 lib/EpdFont/scripts/build-sd-fonts.py       --only Gelasio,EBGaramond,CrimsonPro,Jost,Arimo       --output-dir ./generated-fonts
