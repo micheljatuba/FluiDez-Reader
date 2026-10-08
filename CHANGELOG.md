@@ -22,6 +22,8 @@ Stability and performance fixes cherry-picked from CrossInk `development` up to 
 - Reading stats: editing dates from the frontlight drawer no longer double-counts the session; turning stats off keeps accumulated time; saved clock and date status-bar slots survive an unavailable RTC.
 - Button keyboard tips stay steady and hide when they cannot fit; full-width Wi-Fi failure buttons on button devices.
 
+- Measure the top margin in global screen-margin previews from the bottom of the header bar, removing the extra gap.
+
 ### Changed
 
 - `freeink-sdk` moves to 1c54128 and the simulator library to 4586bee9, matching CrossInk.
