@@ -4,6 +4,10 @@ O que muda para quem usa o FluiDez Reader em cada versão, da mais recente para 
 
 ## [Próxima versão]
 
+- **Portal web em português:** o `http://fluidez.local` agora fala português em todas as páginas: menu, arquivos, configurações, fontes e telas. Ele segue o idioma do navegador, e o link no rodapé troca entre português e inglês.
+- **Tela de inicialização pela web:** a página *Tela de descanso* virou *Telas*, com uma aba para a imagem que aparece ao ligar o leitor. É o mesmo editor: escolha a imagem, ajuste e salve.
+- **Sorteio de imagens:** nas duas abas, *Sortear entre todas as imagens* faz o leitor mostrar uma imagem diferente da pasta a cada vez, em vez de sempre a mesma.
+
 ## [v1.6-fluidez14] - 2026-10-06
 
 - **Temas FluiDez:** três telas *Início* com a identidade do FluiDez, em *Configurações > Tela > Tema da interface*. *FluiDez Estante*, o novo padrão, mostra a capa do livro atual com o progresso num anel e uma estante com as lombadas dos livros recentes. *FluiDez Cartões* reúne o livro atual, o tempo de leitura, os dias seguidos e os livros concluídos em cartões, com as capas recentes. *FluiDez Fluxo* é só texto e não lê nenhuma capa do cartão, por isso abre mais rápido. Nos três, o menu é uma barra de ícones no rodapé, com o nome do item selecionado logo acima. Quem já usa outro tema continua com ele depois de atualizar.

@@ -26,7 +26,7 @@ PAGES = {
     "files":    ("/files",    "Files - FluiDez Reader",      "files",    '  <script src="/js/jszip.min.js"></script>'),
     "settings": ("/settings", "Settings - FluiDez Reader",   "settings", ""),
     "fonts":    ("/fonts",    "Fonts - FluiDez Reader",      "fonts",    ""),
-    "sleep":    ("/sleep",    "Sleep Screen - FluiDez Reader", "sleep",  ""),
+    "sleep":    ("/sleep",    "Screens - FluiDez Reader",    "sleep",    ""),
 }
 ROUTE_TO_SLUG = {route: slug for slug, (route, *_rest) in PAGES.items()}
 
@@ -62,8 +62,9 @@ MOCK_API = {
         {"name": "Bookerly", "sizes": [10, 12, 14], "files": [{"size": 120000}, {"size": 140000}]},
         {"name": "Literata", "sizes": [12], "files": [{"size": 160000}]},
     ]},
-    "/api/sleep-image": {"pinned": "", "mode": 3, "customMode": False, "width": 480, "height": 800,
-                         "folder": "/sleep"},
+    "/api/sleep-image": {"pinned": "", "mode": 3, "customMode": False, "folder": "/sleep",
+                         "bootPinned": "", "bootEnabled": True, "bootFolder": "/bootscreen",
+                         "bootRotationFolder": "/bootscreen", "width": 480, "height": 800},
     "/api/wifi": [
         {"ssid": "HomeNetwork", "hasPassword": True, "isLastConnected": True},
         {"ssid": "Library Guest", "hasPassword": False, "isLastConnected": False},

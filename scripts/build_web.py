@@ -35,7 +35,7 @@ PAGES = {
     "files":    ("FilesPageHtml",    "Files - FluiDez Reader",      "files",    '  <script src="/js/jszip.min.js"></script>'),
     "settings": ("SettingsPageHtml", "Settings - FluiDez Reader",   "settings", ""),
     "fonts":    ("FontsPageHtml",    "Fonts - FluiDez Reader",      "fonts",    ""),
-    "sleep":    ("SleepPageHtml",    "Sleep Screen - FluiDez Reader", "sleep",  ""),
+    "sleep":    ("SleepPageHtml",    "Screens - FluiDez Reader",    "sleep",    ""),
 }
 
 PRESERVE_TAGS = "pre|code|textarea|script|style"

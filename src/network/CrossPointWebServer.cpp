@@ -2302,8 +2302,8 @@ void CrossPointWebServer::handleSleepPage() const {
 }
 
 void CrossPointWebServer::handleGetSleepImage() const {
-  // The sleep screen always renders in portrait; report that geometry so the
-  // browser can produce an image that needs no scaling on the device.
+  // Sleep and boot screens always render in portrait; report that geometry so
+  // the browser can produce images that need no scaling on the device.
   const uint16_t panelW = display.getDisplayWidth();
   const uint16_t panelH = display.getDisplayHeight();
 
@@ -2311,9 +2311,17 @@ void CrossPointWebServer::handleGetSleepImage() const {
   doc["pinned"] = APP_STATE.favoriteSleepImagePath.c_str();
   doc["mode"] = SETTINGS.sleepScreen;
   doc["customMode"] = SETTINGS.sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::CUSTOM;
+  doc["folder"] = "/sleep";
+  doc["bootPinned"] = APP_STATE.favoriteBootImagePath.c_str();
+  doc["bootEnabled"] = SETTINGS.customBootscreenEnabled != 0;
+  doc["bootFolder"] = "/bootscreen";
+  // A hidden /.bootscreen wins over /bootscreen when both exist; the page warns
+  // that rotation will not use the images it uploads in that case.
+  std::string bootRotationFolder;
+  doc["bootRotationFolder"] =
+      ImageFolderIndex::resolveBootScreenDirectory(bootRotationFolder) ? bootRotationFolder.c_str() : "";
   doc["width"] = std::min(panelW, panelH);
   doc["height"] = std::max(panelW, panelH);
-  doc["folder"] = "/sleep";
 
   String response;
   serializeJson(doc, response);
@@ -2322,14 +2330,39 @@ void CrossPointWebServer::handleGetSleepImage() const {
 
 void CrossPointWebServer::handlePostSleepImage() {
   const String action = server->hasArg("action") ? server->arg("action") : String("pin");
+  const bool boot = server->hasArg("target") && server->arg("target") == "boot";
+  std::string& favorite = boot ? APP_STATE.favoriteBootImagePath : APP_STATE.favoriteSleepImagePath;
 
-  if (action == "unpin") {
-    APP_STATE.favoriteSleepImagePath.clear();
+  // Both screens only show custom images in one mode; switch to it so the
+  // change is visible on the next lock or power-on.
+  const auto enableCustomScreen = [boot]() {
+    if (boot) {
+      if (SETTINGS.customBootscreenEnabled) return false;
+      SETTINGS.customBootscreenEnabled = 1;
+    } else {
+      if (SETTINGS.sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::CUSTOM) return false;
+      SETTINGS.sleepScreen = CrossPointSettings::SLEEP_SCREEN_MODE::CUSTOM;
+    }
+    const bool saved = SETTINGS.saveToFile();
+    if (!saved) LOG_ERR("WEB", "Failed to save custom %s screen mode", boot ? "boot" : "sleep");
+    return saved;
+  };
+
+  // "rotate" clears the pin so the screen picks a different image from its
+  // folder each time; "unpin" only clears it and leaves the mode alone.
+  if (action == "unpin" || action == "rotate") {
+    favorite.clear();
     if (!APP_STATE.saveToFile()) {
       server->send(500, "text/plain", "Failed to save state");
       return;
     }
-    server->send(200, "application/json", "{\"pinned\":\"\"}");
+    const bool modeChanged = action == "rotate" && enableCustomScreen();
+    JsonDocument doc;
+    doc["pinned"] = "";
+    doc["modeChanged"] = modeChanged;
+    String response;
+    serializeJson(doc, response);
+    server->send(200, "application/json", response);
     return;
   }
 
@@ -2343,28 +2376,24 @@ void CrossPointWebServer::handlePostSleepImage() {
     server->send(403, "text/plain", "Access denied to protected path");
     return;
   }
-  // Custom mode streams BMPs and converts JPG/PNG photos once on first use.
+  // Custom sleep streams BMPs and converts JPG/PNG photos once on first use;
+  // the boot screen draws BMP only so power-on never waits for a decode.
   const std::string pathStr = path.c_str();
-  if ((!FsHelpers::hasBmpExtension(pathStr) && !SleepImageConverter::isConvertible(pathStr)) ||
-      !Storage.exists(path.c_str())) {
-    server->send(400, "text/plain", "Sleep image must be an existing BMP, JPG or PNG file");
+  const bool supported = FsHelpers::hasBmpExtension(pathStr) || (!boot && SleepImageConverter::isConvertible(pathStr));
+  if (!supported || !Storage.exists(path.c_str())) {
+    server->send(
+        400, "text/plain",
+        boot ? "Boot image must be an existing BMP file" : "Sleep image must be an existing BMP, JPG or PNG file");
     return;
   }
 
-  APP_STATE.favoriteSleepImagePath = path.c_str();
+  favorite = pathStr;
   if (!APP_STATE.saveToFile()) {
     server->send(500, "text/plain", "Failed to save state");
     return;
   }
-
-  // A pinned image only shows in Custom mode; switch so the next lock uses it.
-  bool modeChanged = false;
-  if (SETTINGS.sleepScreen != CrossPointSettings::SLEEP_SCREEN_MODE::CUSTOM) {
-    SETTINGS.sleepScreen = CrossPointSettings::SLEEP_SCREEN_MODE::CUSTOM;
-    modeChanged = SETTINGS.saveToFile();
-    if (!modeChanged) LOG_ERR("WEB", "Failed to save Custom sleep mode after pinning");
-  }
-  LOG_INF("WEB", "Pinned sleep image: %s", path.c_str());
+  const bool modeChanged = enableCustomScreen();
+  LOG_INF("WEB", "Pinned %s image: %s", boot ? "boot" : "sleep", path.c_str());
 
   JsonDocument doc;
   doc["pinned"] = path;

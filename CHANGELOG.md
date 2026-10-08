@@ -8,6 +8,7 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ### Added
 
+- The Sleep Screen page becomes **Screens**, with a tab for the boot screen as well. The same editor saves boot images to `/bootscreen` and pins them, turning the custom boot screen on, and both tabs can switch to rotating through every image in their folder. `/api/sleep-image` takes `target=boot` and the new `rotate` action, and reports the boot screen's pin, switch and active folder.
 - The web portal speaks Portuguese: menus, File Manager, Settings, Fonts and the device page follow the browser language, with a Português/English switch in the footer. A shared `/i18n.js` (about 5 KB gzipped, cached) translates the English text as it appears, including messages the pages build later and `alert`/`confirm` prompts; file names and the technical conversion log stay untouched.
 
 ### Fixed
