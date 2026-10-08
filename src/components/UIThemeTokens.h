@@ -11,7 +11,7 @@
 #include <string>
 
 #include "AppCapabilities.h"
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "UITheme.h"
 
 namespace UiThemeTokensDetail {
@@ -19,10 +19,10 @@ inline int16_t scaledListMetric(const int metric) {
   constexpr int baseFontSize = 10;
   int scaleFontSize = baseFontSize;
   switch (SETTINGS.uiScale) {
-    case CrossPointSettings::UI_SCALE_LARGE:
+    case FluiDezSettings::UI_SCALE_LARGE:
       scaleFontSize = 12;
       break;
-    case CrossPointSettings::UI_SCALE_SMALL:
+    case FluiDezSettings::UI_SCALE_SMALL:
     default:
       break;
   }
@@ -52,7 +52,7 @@ inline uint16_t configureUiList(freeink::ui::ListProps& props, const freeink::ui
                                 const freeink::ui::Rect rect, const UiListRowType rowType = UiListRowType::SingleLine) {
   // Button-only menus used compact, single-line rows before their FreeInkUI
   // migration. Keep that layout unless the caller explicitly needs a subtitle.
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   if (!gpio.hasTouch() && rowType == UiListRowType::SingleLine) props.labelText.maxLines = 1;
 #else
   if (rowType == UiListRowType::SingleLine) props.labelText.maxLines = 1;
@@ -66,7 +66,7 @@ inline uint16_t configureUiList(freeink::ui::ListProps& props, const freeink::ui
 }
 
 inline void configureUiListSectionHeaders(freeink::ui::ListProps& props, const freeink::ui::ThemeTokens& tokens) {
-  if (SETTINGS.uiTheme != CrossPointSettings::UI_THEME::ROUNDEDRAFF) return;
+  if (SETTINGS.uiTheme != FluiDezSettings::UI_THEME::ROUNDEDRAFF) return;
 
   props.headerText = tokens.titleText;
   props.headerText.bold = true;
@@ -74,7 +74,7 @@ inline void configureUiListSectionHeaders(freeink::ui::ListProps& props, const f
 }
 
 inline const char* uiListSectionHeaderLabel(std::string& storage, const char* label) {
-  if (SETTINGS.uiTheme != CrossPointSettings::UI_THEME::ROUNDEDRAFF) return label;
+  if (SETTINGS.uiTheme != FluiDezSettings::UI_THEME::ROUNDEDRAFF) return label;
 
   storage = label != nullptr ? label : "";
   std::transform(storage.begin(), storage.end(), storage.begin(),
@@ -100,7 +100,7 @@ inline freeink::ui::ThemeTokens uiThemeTokens(const freeink::ui::GfxRendererTarg
   // The X4 Pro panel sits recessed behind the bezel, so an edge-hugging scroll
   // indicator disappears under it. Push it inward far enough to clear the bezel.
 #ifndef SIMULATOR
-  tokens.listScrollInset = (BoardConfig::isX4Pro() || CROSSINK_APP_DEVICE_X4CLASSIC) ? 7 : 0;
+  tokens.listScrollInset = (BoardConfig::isX4Pro() || FLUIDEZ_APP_DEVICE_X4CLASSIC) ? 7 : 0;
 #endif
   tokens.headerSidePadding = static_cast<int16_t>(metrics.headerSidePadding);
   tokens.headerUnderline = static_cast<uint8_t>(metrics.headerUnderlineSize);

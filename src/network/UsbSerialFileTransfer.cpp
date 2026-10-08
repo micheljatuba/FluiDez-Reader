@@ -15,12 +15,12 @@
 #include <memory>
 #include <string>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "activities/boot_sleep/ImageFolderIndex.h"
 #include "util/BookCacheUtils.h"
 
 #if defined(FREEINK_DEVICE_X4PRO) && FREEINK_DEVICE_X4PRO && !ARDUINO_USB_MODE && !defined(SIMULATOR)
-#define CROSSINK_USB_RX_OVERFLOW_ENABLED
+#define FLUIDEZ_USB_RX_OVERFLOW_ENABLED
 #include <USBCDC.h>
 #endif
 
@@ -42,8 +42,8 @@ constexpr const char* TEMP_UPLOAD_PATH = "/.crosspoint/usb-upload.tmp";
 constexpr const char* INTERNAL_DIR = "/.crosspoint";
 constexpr const char* HIDDEN_ITEMS[] = {"System Volume Information", "XTCache"};
 
-#ifndef CROSSINK_FIRMWARE_DEVICE_TYPE
-#define CROSSINK_FIRMWARE_DEVICE_TYPE "unknown"
+#ifndef FLUIDEZ_FIRMWARE_DEVICE_TYPE
+#define FLUIDEZ_FIRMWARE_DEVICE_TYPE "unknown"
 #endif
 
 uint8_t commandMatchPos = 0;
@@ -53,7 +53,7 @@ uint8_t transferBuffer[SERIAL_CHUNK_SIZE];
 // Set once per process() call from the caller's screen context; read by every command handler.
 bool fileTransferAllowed = false;
 
-#if defined(CROSSINK_USB_RX_OVERFLOW_ENABLED)
+#if defined(FLUIDEZ_USB_RX_OVERFLOW_ENABLED)
 std::atomic<uint32_t> rxDroppedBytes{0};
 
 void onCdcEvent(void*, esp_event_base_t, int32_t eventId, void* eventData) {
@@ -64,7 +64,7 @@ void onCdcEvent(void*, esp_event_base_t, int32_t eventId, void* eventData) {
 #endif
 
 // Only native USB exposes the CDC overflow event used to reject incomplete uploads.
-#if defined(CROSSINK_USB_RX_OVERFLOW_ENABLED)
+#if defined(FLUIDEZ_USB_RX_OVERFLOW_ENABLED)
 uint32_t rxOverflowCount() { return rxDroppedBytes.load(std::memory_order_relaxed); }
 
 bool rxOverflowedSince(const uint32_t snapshot, uint32_t& dropped) {
@@ -305,7 +305,7 @@ bool removeRecursive(const char* path, size_t depth = 0) {
 void handleStatus() {
   char response[160];
   snprintf(response, sizeof(response), "STATUS:protocol=1,device=%s,firmware=%s,free=%u,largest=%u\n",
-           CROSSINK_FIRMWARE_DEVICE_TYPE, AppVersion::version(), ESP.getFreeHeap(), ESP.getMaxAllocHeap());
+           FLUIDEZ_FIRMWARE_DEVICE_TYPE, AppVersion::version(), ESP.getFreeHeap(), ESP.getMaxAllocHeap());
   writeLine(response);
 }
 
@@ -407,12 +407,12 @@ void handleMkdir() {
 }
 
 void handleWrite() {
-#if defined(CROSSINK_USB_RX_OVERFLOW_ENABLED)
+#if defined(FLUIDEZ_USB_RX_OVERFLOW_ENABLED)
   const uint32_t rxOverflowAtStart = rxOverflowCount();
 #endif
   char path[PATH_BUFFER_SIZE];
   if (!readNormalizedPath(path, sizeof(path))) return;
-#if defined(CROSSINK_USB_RX_OVERFLOW_ENABLED)
+#if defined(FLUIDEZ_USB_RX_OVERFLOW_ENABLED)
   if (rxOverflowCount() != rxOverflowAtStart) {
     writeRxOverflowError(rxOverflowAtStart);
     return;
@@ -426,7 +426,7 @@ void handleWrite() {
   }
   const uint32_t expectedSize = readLe32(sizeBytes);
 
-#if defined(CROSSINK_USB_RX_OVERFLOW_ENABLED)
+#if defined(FLUIDEZ_USB_RX_OVERFLOW_ENABLED)
   if (rxOverflowCount() != rxOverflowAtStart) {
     writeRxOverflowError(rxOverflowAtStart);
     return;
@@ -496,7 +496,7 @@ void handleWrite() {
       return;
     }
 
-#if defined(CROSSINK_USB_RX_OVERFLOW_ENABLED)
+#if defined(FLUIDEZ_USB_RX_OVERFLOW_ENABLED)
     if (rxOverflowCount() != rxOverflowAtStart) {
       file.close();
       Storage.remove(TEMP_UPLOAD_PATH);
@@ -536,7 +536,7 @@ void handleWrite() {
   }
   file.close();
 
-#if defined(CROSSINK_USB_RX_OVERFLOW_ENABLED)
+#if defined(FLUIDEZ_USB_RX_OVERFLOW_ENABLED)
   if (rxOverflowCount() != rxOverflowAtStart) {
     Storage.remove(TEMP_UPLOAD_PATH);
     writeRxOverflowError(rxOverflowAtStart);
@@ -745,7 +745,7 @@ ProcessResult handleLine() {
 }  // namespace
 
 void registerUsbCdcOverflowHandler() {
-#if defined(CROSSINK_USB_RX_OVERFLOW_ENABLED)
+#if defined(FLUIDEZ_USB_RX_OVERFLOW_ENABLED)
   logSerial.onEvent(onCdcEvent);
 #endif
 }

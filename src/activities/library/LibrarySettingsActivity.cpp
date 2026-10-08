@@ -37,9 +37,9 @@ void LibrarySettingsActivity::toggle(const int row) {
       SETTINGS.libraryListExpanded = !SETTINGS.libraryListExpanded;
       break;
     case 2:
-      SETTINGS.recentBooksView = SETTINGS.recentBooksView == CrossPointSettings::RECENT_BOOKS_GRID
-                                     ? CrossPointSettings::RECENT_BOOKS_LIST
-                                     : CrossPointSettings::RECENT_BOOKS_GRID;
+      SETTINGS.recentBooksView = SETTINGS.recentBooksView == FluiDezSettings::RECENT_BOOKS_GRID
+                                     ? FluiDezSettings::RECENT_BOOKS_LIST
+                                     : FluiDezSettings::RECENT_BOOKS_GRID;
       break;
     case 3:
       SETTINGS.libraryHideFinishedBooks = !SETTINGS.libraryHideFinishedBooks;
@@ -154,8 +154,7 @@ void LibrarySettingsActivity::provideRow(void*, const uint16_t row, fui::ListIte
     return;
   }
   if (row == 2) {
-    item.value =
-        SETTINGS.recentBooksView == CrossPointSettings::RECENT_BOOKS_GRID ? tr(STR_GRID_VIEW) : tr(STR_LIST_VIEW);
+    item.value = SETTINGS.recentBooksView == FluiDezSettings::RECENT_BOOKS_GRID ? tr(STR_GRID_VIEW) : tr(STR_LIST_VIEW);
     return;
   }
   item.toggle = true;

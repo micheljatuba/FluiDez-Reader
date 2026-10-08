@@ -12,12 +12,12 @@
 #include "ReaderFontSizeStep.h"
 #include "util/ReaderStatusBarConfig.h"
 
-class CrossPointSettings : public PersistableStore<CrossPointSettings> {
+class FluiDezSettings : public PersistableStore<FluiDezSettings> {
  private:
   mutable std::mutex _mutex;
 
-  CrossPointSettings() = default;
-  friend class PersistableStore<CrossPointSettings>;
+  FluiDezSettings() = default;
+  friend class PersistableStore<FluiDezSettings>;
 
  public:
   // Access the settings mutex for protecting multi-field reads/writes from other cores.
@@ -701,7 +701,7 @@ class CrossPointSettings : public PersistableStore<CrossPointSettings> {
   // Master switch for automatic reading statistics; Time Left pace remains independent.
   uint8_t trackReadingStats = 1;
 
-  ~CrossPointSettings() = default;
+  ~FluiDezSettings() = default;
 
   static constexpr uint16_t POWER_BUTTON_LONG_PRESS_MS = 400;
   static constexpr uint16_t POWER_BUTTON_WAKE_SHORT_MS = 10;
@@ -775,11 +775,11 @@ class CrossPointSettings : public PersistableStore<CrossPointSettings> {
   ReaderRenderSpec readerRenderSpec(uint16_t viewportWidth, uint16_t viewportHeight,
                                     EpubRenderMode renderMode = EpubRenderMode::CrossInkDefault) const;
 
-  static void validateFrontButtonMapping(CrossPointSettings& settings);
-  static void validateReaderFrontButtonMapping(CrossPointSettings& settings);
+  static void validateFrontButtonMapping(FluiDezSettings& settings);
+  static void validateReaderFrontButtonMapping(FluiDezSettings& settings);
   static bool isTwoFingerSwipeActionAvailable(uint8_t action, bool frontlightPresent, bool hasColorTemperature);
-  static bool normalizeTwoFingerSwipeActions(CrossPointSettings& settings,
-                                             uint8_t CrossPointSettings::* editedField = nullptr);
+  static bool normalizeTwoFingerSwipeActions(FluiDezSettings& settings,
+                                             uint8_t FluiDezSettings::* editedField = nullptr);
   static uint8_t sleepTimeoutEnumToMinutes(uint8_t legacyValue);
   static uint8_t sleepScreenStorageToMode(uint8_t storedValue);
   static uint8_t sleepScreenModeToStorage(uint8_t mode);
@@ -803,4 +803,4 @@ class CrossPointSettings : public PersistableStore<CrossPointSettings> {
 };
 
 // Helper macro to access settings
-#define SETTINGS CrossPointSettings::getInstance()
+#define SETTINGS FluiDezSettings::getInstance()

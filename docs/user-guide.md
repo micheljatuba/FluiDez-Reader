@@ -611,7 +611,7 @@ Ao usar **Capa** ou **Capa + personalizado**, duas configurações adicionais se
 
 Para usar imagens de repouso personalizadas, defina o modo da tela de repouso como **Personalizado**, **Capa + personalizado** ou **Sobreposição da página** e coloque as imagens no cartão SD:
 
-- **Pela interface web (mais fácil):** com a transferência de arquivos ativa, abra `http://fluidez.local/sleep` (ou o IP mostrado no aparelho) e vá em **Sleep Screen**. Escolha qualquer foto ou desenho, ajuste o enquadramento, o zoom, o brilho e o contraste vendo a prévia em 4 tons de cinza, e toque em **Salvar e usar no aparelho**. A imagem é convertida no navegador para o tamanho exato da tela, salva em `/sleep` e fixada; o modo da tela de repouso muda sozinho para **Personalizado**. Na mesma página você vê as imagens já salvas, escolhe outra ou apaga.
+- **Pela interface web (mais fácil):** com a transferência de arquivos ativa, abra `http://fluidez.local/sleep` (ou o IP mostrado no aparelho), na aba **Tela de descanso** da página **Telas**. Escolha qualquer foto ou desenho, ajuste o enquadramento, o zoom, o brilho e o contraste vendo a prévia em 4 tons de cinza, e toque em **Salvar e usar no aparelho**. A imagem é convertida no navegador para o tamanho exato da tela, salva em `/sleep` e fixada; o modo da tela de repouso muda sozinho para **Personalizado**. Na mesma página você vê as imagens já salvas, escolhe outra ou apaga, e o botão **Sortear entre todas as imagens** tira a imagem fixada para o aparelho mostrar uma diferente a cada descanso.
 - **Várias imagens:** crie um diretório `.sleep` na raiz do cartão SD e coloque qualquer número de imagens `.bmp` dentro dele. No modo **Personalizado**, fotos `.jpg` e `.png` também funcionam: na primeira vez que forem usadas, o aparelho converte cada uma para BMP e guarda o resultado em `/.crosspoint/sleep-converted`, então das próximas vezes elas abrem tão rápido quanto um BMP. No modo **Sobreposição da página**, imagens `.png` também são compatíveis. Uma imagem será selecionada aleatoriamente toda vez que o aparelho entrar em repouso. (Um diretório chamado `sleep` também é aceito como fallback.)
 - **Imagem única:** coloque um arquivo chamado `sleep.bmp` no diretório raiz. No modo **Sobreposição da página**, `sleep.png` também é compatível. Esses arquivos são usados como fallback se nenhuma imagem válida for encontrada no diretório `.sleep`/`sleep`.
 
@@ -637,7 +637,9 @@ uma inicialização fria por imagens BMP armazenadas no cartão SD. Uma tela ini
 configurada também é mostrada depois de despertar pelo botão liga/desliga. Isso é separado da
 tela de repouso.
 
-O FluiDez Reader oferece duas formas de escolher uma tela inicial personalizada:
+O FluiDez Reader oferece três formas de escolher uma tela inicial personalizada:
+
+- **Pela interface web (mais fácil):** abra `http://fluidez.local/sleep#boot`, na aba **Tela de inicialização** da página **Telas**. O editor é o mesmo da tela de descanso: escolha a imagem, ajuste e toque em **Salvar e usar no aparelho**. Ela vai para a pasta `/bootscreen`, fica fixada e a **Tela inicial personalizada** é ligada. **Sortear entre todas as imagens** tira a imagem fixada para o aparelho alternar entre as imagens da pasta.
 
 - **Uma imagem fixa:** em **[Explorar arquivos](#33-tela-explorar-arquivos)**, abra uma
   imagem BMP de qualquer pasta, abra seu menu de contexto e escolha **Tela inicial**.
@@ -684,9 +686,9 @@ O FluiDez Reader permite carregar fontes adicionais do cartão SD, indo além da
 
 Há três formas de instalar fontes:
 
-1. **Cópia manual para o cartão SD (recomendado):** baixe os arquivos de fonte do [Inky](https://inky.crossink.dev/#downloads) ou do [repositório upstream crossink-fonts](https://github.com/uxjulia/crossink-fonts/tree/main/cpfonts) e copie-os para `/.fonts/` (preferido) ou `/fonts/` no cartão SD.
-2. **Baixar pelo aparelho:** vá para **Configurações -> Leitor -> Opções de fonte -> Gerenciar fontes**, navegue pelas famílias de fontes disponíveis e selecione uma para baixar via Wi-Fi. O download por Wi-Fi pode ser instável; se der erro, use outra forma.
-3. **Enviar pela interface web:** enquanto estiver no modo **Transferência de arquivos**, abra a interface web em um navegador e acesse a aba **Fonts** para enviar arquivos `.cpfont`. Em aparelhos compatíveis (ESP32-S3), arquivos `.ttf` também podem ser enviados.
+1. **Baixar pelo aparelho (recomendado):** vá para **Configurações -> Leitor -> Opções de fonte -> Gerenciar fontes**, navegue pelas famílias disponíveis e selecione uma para baixar via Wi-Fi. O catálogo é hospedado pelo FluiDez e traz 29 famílias, incluindo Gelasio, EB Garamond, Crimson Pro, Jost e Arimo.
+2. **Cópia manual para o cartão SD:** copie arquivos `.cpfont` (por exemplo, do [Inky](https://inky.crossink.dev/#downloads) ou do [repositório crossink-fonts](https://github.com/uxjulia/crossink-fonts/tree/main/cpfonts)) para `/.fonts/` (preferido) ou `/fonts/` no cartão SD.
+3. **Enviar pela interface web:** enquanto estiver no modo **Transferência de arquivos**, abra a interface web em um navegador e acesse a aba **Fontes** para enviar arquivos `.cpfont`. Em aparelhos compatíveis (ESP32-S3), arquivos `.ttf` também podem ser enviados.
 
 Depois de instaladas, fontes personalizadas aparecem em **Configurações -> Leitor -> Opções de fonte -> Família da fonte** junto das fontes integradas.
 

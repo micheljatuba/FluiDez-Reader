@@ -13,8 +13,8 @@
 #include <cstdio>
 #include <cstring>
 
-#include "CrossPointSettings.h"
-#include "CrossPointState.h"
+#include "FluiDezSettings.h"
+#include "FluiDezState.h"
 #include "MappedInputManager.h"
 #include "SilentRestart.h"
 #include "activities/boot_sleep/ImageFolderIndex.h"
@@ -209,7 +209,7 @@ bool NearbyBookTransferActivity::sendDiscovery() {
 
 bool NearbyBookTransferActivity::sendAdvertisement(const uint8_t* destination) {
   const char* name = SETTINGS.getEffectiveDeviceName();
-  const uint16_t length = static_cast<uint16_t>(std::min(strlen(name), CrossPointSettings::MAX_DEVICE_NAME_LENGTH));
+  const uint16_t length = static_cast<uint16_t>(std::min(strlen(name), FluiDezSettings::MAX_DEVICE_NAME_LENGTH));
   return sendPacket(nearby::PacketType::Advertise, destination, 0, name, length);
 }
 
@@ -223,7 +223,7 @@ void NearbyBookTransferActivity::selectPeer() {
 
 bool NearbyBookTransferActivity::sendOffer() {
   const char* deviceName = SETTINGS.getEffectiveDeviceName();
-  const size_t senderLength = std::min(strlen(deviceName), CrossPointSettings::MAX_DEVICE_NAME_LENGTH);
+  const size_t senderLength = std::min(strlen(deviceName), FluiDezSettings::MAX_DEVICE_NAME_LENGTH);
   if (offeredFileName_.size() > 180 || senderLength == 0) return false;
   std::array<uint8_t, 212> payload{};
   nearby::writeU64(payload.data(), offeredFileSize_);
@@ -254,7 +254,7 @@ void NearbyBookTransferActivity::handlePacket(const nearby::EspNowTransport::Eve
 
   if (mode_ == Mode::Send && packet.sessionId == sessionId_) {
     if (packet.type == nearby::PacketType::Advertise && (state_ == State::Discovering || state_ == State::DeviceList) &&
-        packet.payloadLength >= 2 && packet.payloadLength <= CrossPointSettings::MAX_DEVICE_NAME_LENGTH) {
+        packet.payloadLength >= 2 && packet.payloadLength <= FluiDezSettings::MAX_DEVICE_NAME_LENGTH) {
       for (uint8_t i = 0; i < peerCount_; ++i) {
         if (sameMac(peers_[i].mac, event.sourceMac.data())) return;
       }
@@ -324,7 +324,7 @@ void NearbyBookTransferActivity::handlePacket(const nearby::EspNowTransport::Eve
   if (packet.type == nearby::PacketType::Offer && state_ == State::Listening && packet.payloadLength >= 14) {
     const uint8_t senderLength = packet.payload[10];
     const uint8_t nameLength = packet.payload[11];
-    if (senderLength == 0 || senderLength > CrossPointSettings::MAX_DEVICE_NAME_LENGTH || nameLength == 0 ||
+    if (senderLength == 0 || senderLength > FluiDezSettings::MAX_DEVICE_NAME_LENGTH || nameLength == 0 ||
         nameLength > 180 || packet.payloadLength != 12 + senderLength + nameLength) {
       return;
     }

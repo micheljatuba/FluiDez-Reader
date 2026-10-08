@@ -5,7 +5,7 @@
 // Thin HAL over the SDK's FrontlightManager (activities never touch SDK
 // classes directly). Inert on boards without a frontlight, so it is always
 // safe to call. State (brightness / warmth / on) is owned by the SDK manager;
-// persistence policy lives in CrossPointSettings and the frontlight panel.
+// persistence policy lives in FluiDezSettings and the frontlight panel.
 class HalFrontlight {
  public:
   static HalFrontlight& getInstance() { return instance; }

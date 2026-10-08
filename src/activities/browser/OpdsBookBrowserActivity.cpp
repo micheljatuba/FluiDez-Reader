@@ -15,7 +15,7 @@
 #include <cstdio>
 #include <utility>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "MappedInputManager.h"
 #include "SdCardFontSystem.h"
 #include "SilentRestart.h"

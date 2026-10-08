@@ -19,9 +19,9 @@
 #include <cstring>
 #include <iterator>
 
-#include "CrossPointSettings.h"
-#include "CrossPointState.h"
 #include "DeviceCapabilities.h"
+#include "FluiDezSettings.h"
+#include "FluiDezState.h"
 #include "MappedInputManager.h"
 #include "ReaderFontLoading.h"
 #include "ReaderUtils.h"
@@ -29,7 +29,7 @@
 #include "StablePageSelectionModel.h"
 #include "activities/reader/ControlsOptionsActivity.h"
 #include "activities/settings/StatusBarSettingsActivity.h"
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
 #include "activities/settings/TtfRenderOptionsActivity.h"
 #endif
 #include "components/DrawerHandle.h"
@@ -96,13 +96,13 @@ int16_t readerDrawerHeight(const GfxRenderer& renderer, const ReaderDrawerPane p
 
 StrId readerOrientationLabel(const uint8_t orientation) {
   switch (orientation) {
-    case CrossPointSettings::PORTRAIT:
+    case FluiDezSettings::PORTRAIT:
       return StrId::STR_PORTRAIT;
-    case CrossPointSettings::LANDSCAPE_CW:
+    case FluiDezSettings::LANDSCAPE_CW:
       return StrId::STR_LANDSCAPE_CW;
-    case CrossPointSettings::INVERTED:
+    case FluiDezSettings::INVERTED:
       return StrId::STR_ORIENTATION_INVERTED;
-    case CrossPointSettings::LANDSCAPE_CCW:
+    case FluiDezSettings::LANDSCAPE_CCW:
       return StrId::STR_LANDSCAPE_CCW;
     default:
       return StrId::STR_PORTRAIT;
@@ -342,7 +342,7 @@ fui::Rect drawerScrollbarBounds(fui::Rect bounds) {
 }
 
 const char* wordSpacingValue(const uint8_t value) {
-  switch (std::min<uint8_t>(value, CrossPointSettings::MAX_WORD_SPACING)) {
+  switch (std::min<uint8_t>(value, FluiDezSettings::MAX_WORD_SPACING)) {
     case 0:
       return "0";
     case 1:
@@ -495,7 +495,7 @@ void EpubReaderDrawerActivity::onExit() {
   dictionaryRegistry.clear();
   // The reader remains active beneath this drawer. Keep the small catalog for
   // its resident scalable family so reopening Font Size avoids an SD rescan.
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   if (!sdFontSystem.hasResidentScalableFamily(SETTINGS.sdFontFamilyName))
 #endif
     sdFontSystem.releaseRegistry();
@@ -510,8 +510,8 @@ void EpubReaderDrawerActivity::discoverFonts() {
   const auto& families = sdFontSystem.registry().getFamilies();
   fontLabels.clear();
   fontSettingIndexes.clear();
-  fontLabels.reserve(CrossPointSettings::BUILTIN_FONT_COUNT + families.size());
-  fontSettingIndexes.reserve(CrossPointSettings::BUILTIN_FONT_COUNT + families.size());
+  fontLabels.reserve(FluiDezSettings::BUILTIN_FONT_COUNT + families.size());
+  fontSettingIndexes.reserve(FluiDezSettings::BUILTIN_FONT_COUNT + families.size());
   constexpr auto builtinRange = BUILTIN_FONT_POINT_SIZE_RANGE;
   fontLabels.push_back(fontFamilyLabel(tr(STR_LEXEND_DECA), builtinRange));
   fontLabels.push_back(fontFamilyLabel(tr(STR_BITTER), builtinRange));
@@ -519,13 +519,13 @@ void EpubReaderDrawerActivity::discoverFonts() {
   fontSettingIndexes.push_back(1);
   for (size_t i = 0; i < families.size(); ++i) {
     fontLabels.push_back(fontFamilyLabel(families[i].name, fontFamilyPointSizeRange(families[i])));
-    fontSettingIndexes.push_back(static_cast<uint8_t>(CrossPointSettings::BUILTIN_FONT_COUNT + i));
+    fontSettingIndexes.push_back(static_cast<uint8_t>(FluiDezSettings::BUILTIN_FONT_COUNT + i));
   }
 }
 
 void EpubReaderDrawerActivity::refreshTtfRenderingRow() {
   paneRows.erase(std::remove(paneRows.begin(), paneRows.end(), RowId::TtfRendering), paneRows.end());
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   if (state.pane == ReaderDrawerPane::ReaderFont && sdFontSystem.isScalableFamily(draft.sdFontFamilyName.data())) {
     const auto fontSize = std::find(paneRows.begin(), paneRows.end(), RowId::FontSize);
     if (fontSize != paneRows.end()) paneRows.insert(std::next(fontSize), RowId::TtfRendering);
@@ -533,7 +533,7 @@ void EpubReaderDrawerActivity::refreshTtfRenderingRow() {
 #endif
 }
 
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
 void EpubReaderDrawerActivity::rebuildTtfRenderingRows() {
   paneRows = {RowId::TtfHinting, RowId::TtfRaster};
   if (ttfRenderProfile.hinting == 1) paneRows.push_back(RowId::TtfInterpreter);
@@ -689,7 +689,7 @@ void EpubReaderDrawerActivity::markSettingChanged(const ReaderSettingsChangeMask
 
 void EpubReaderDrawerActivity::closeAndReturn(const bool cancelled, const EpubReaderMenuAction action,
                                               const bool reopenDrawer) {
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   // ActivityManager copies the result before onExit(). Resolve a pending TTF
   // edit here so the reader knows its old font ID and section need replacing.
   finishTtfRenderingEdit();
@@ -750,18 +750,18 @@ void EpubReaderDrawerActivity::onSliderEvent(const fui::ActionEvent& event, void
   const bool second = event.action == ACTION_SLIDER + 3;
   if (self->state.pane == ReaderDrawerPane::Spacing) {
     if (second) {
-      self->draft.wordSpacing = percentToByte(event.dragPermille, 0, CrossPointSettings::MAX_WORD_SPACING);
+      self->draft.wordSpacing = percentToByte(event.dragPermille, 0, FluiDezSettings::MAX_WORD_SPACING);
     } else {
-      const int value = percentToByte(event.dragPermille, CrossPointSettings::MIN_LINE_HEIGHT_PERCENT,
-                                      CrossPointSettings::MAX_LINE_HEIGHT_PERCENT);
-      self->draft.lineHeightPercent = CrossPointSettings::clampedLineHeightPercent(
-          tapValue(value, CrossPointSettings::MIN_LINE_HEIGHT_PERCENT, CrossPointSettings::MAX_LINE_HEIGHT_PERCENT));
+      const int value = percentToByte(event.dragPermille, FluiDezSettings::MIN_LINE_HEIGHT_PERCENT,
+                                      FluiDezSettings::MAX_LINE_HEIGHT_PERCENT);
+      self->draft.lineHeightPercent = FluiDezSettings::clampedLineHeightPercent(
+          tapValue(value, FluiDezSettings::MIN_LINE_HEIGHT_PERCENT, FluiDezSettings::MAX_LINE_HEIGHT_PERCENT));
     }
   } else if (self->state.pane == ReaderDrawerPane::Margins) {
     auto& target = second ? self->draft.screenMarginHorizontal : self->draft.screenMarginVertical;
     target = tapValue(
-        percentToByte(event.dragPermille, CrossPointSettings::MIN_SCREEN_MARGIN, CrossPointSettings::MAX_SCREEN_MARGIN),
-        CrossPointSettings::MIN_SCREEN_MARGIN, CrossPointSettings::MAX_SCREEN_MARGIN);
+        percentToByte(event.dragPermille, FluiDezSettings::MIN_SCREEN_MARGIN, FluiDezSettings::MAX_SCREEN_MARGIN),
+        FluiDezSettings::MIN_SCREEN_MARGIN, FluiDezSettings::MAX_SCREEN_MARGIN);
   } else if (self->state.pane == ReaderDrawerPane::AutoPageTurn) {
     self->autoPageTurnIntervalSeconds = static_cast<uint16_t>(tapValue(
         percentToByte(event.dragPermille, READER_AUTO_PAGE_TURN_MIN_SECONDS, READER_AUTO_PAGE_TURN_MAX_SECONDS),
@@ -792,11 +792,11 @@ void EpubReaderDrawerActivity::onStepEvent(const fui::ActionEvent& event, void* 
   if (second) {
     if (self->state.pane == ReaderDrawerPane::Spacing) {
       self->draft.wordSpacing =
-          std::clamp<int>(self->draft.wordSpacing + event.value, 0, CrossPointSettings::MAX_WORD_SPACING);
+          std::clamp<int>(self->draft.wordSpacing + event.value, 0, FluiDezSettings::MAX_WORD_SPACING);
     } else if (self->state.pane == ReaderDrawerPane::Margins) {
       self->draft.screenMarginHorizontal =
-          std::clamp<int>(self->draft.screenMarginHorizontal + event.value, CrossPointSettings::MIN_SCREEN_MARGIN,
-                          CrossPointSettings::MAX_SCREEN_MARGIN);
+          std::clamp<int>(self->draft.screenMarginHorizontal + event.value, FluiDezSettings::MIN_SCREEN_MARGIN,
+                          FluiDezSettings::MAX_SCREEN_MARGIN);
     }
   } else {
     self->adjustActiveSlider(event.value);
@@ -828,7 +828,7 @@ void EpubReaderDrawerActivity::drawerScreen(UiApp::ScreenType& screen, void* use
 }
 
 int16_t EpubReaderDrawerActivity::drawerHeight() const {
-  if (CROSSINK_APP_READER_SAMPLE_PREVIEW) return renderer.getScreenHeight();
+  if (FLUIDEZ_APP_READER_SAMPLE_PREVIEW) return renderer.getScreenHeight();
   fui::SheetProps sheet;
   sheet.ruleWidth = DRAWER_RULE_WIDTH;
   const int16_t grabberBand = DrawerHandle::bandHeight(sheet);
@@ -847,13 +847,13 @@ int16_t EpubReaderDrawerActivity::drawerHeight() const {
 }
 
 fui::Rect EpubReaderDrawerActivity::previewBounds() const {
-  if (CROSSINK_APP_READER_SAMPLE_PREVIEW) return samplePreviewBounds;
+  if (FLUIDEZ_APP_READER_SAMPLE_PREVIEW) return samplePreviewBounds;
   const int16_t height = static_cast<int16_t>(renderer.getScreenHeight() - drawerHeight());
   return fui::Rect{0, 0, renderer.getScreenWidth(), height};
 }
 
 bool EpubReaderDrawerActivity::showsSamplePreview() const {
-  if (!CROSSINK_APP_READER_SAMPLE_PREVIEW) return false;
+  if (!FLUIDEZ_APP_READER_SAMPLE_PREVIEW) return false;
   return readerDrawerShowsSamplePreview(state.pane, state.tab, enumOptionRow);
 }
 
@@ -865,7 +865,7 @@ void EpubReaderDrawerActivity::buildDrawer(UiApp::ScreenType& screen) {
   sheet.radius = 0;
   sheet.ruleWidth = DRAWER_RULE_WIDTH;
   const int16_t tabBarHeight = static_cast<int16_t>(TAB_BAR_HEIGHT + TAB_BAR_VERTICAL_PADDING * 2);
-  if (CROSSINK_APP_READER_SAMPLE_PREVIEW) {
+  if (FLUIDEZ_APP_READER_SAMPLE_PREVIEW) {
     screen.target().fill(screen.device().screen(), fui::Paint::solid(fui::Color::White));
     const Rect safe = UITheme::getInstance().getScreenSafeArea(renderer, true, false);
     screen.setContentMarginFromScreen(fui::Insets{
@@ -889,7 +889,7 @@ void EpubReaderDrawerActivity::buildDrawer(UiApp::ScreenType& screen) {
   const fui::Rect tabs = buttonDevice ? screen.takeTop(tabBarHeight) : screen.takeBottom(tabBarHeight);
   buildTabBar(screen, tabs, buttonDevice);
   samplePreviewBounds = {};
-#if CROSSINK_APP_READER_SAMPLE_PREVIEW
+#if FLUIDEZ_APP_READER_SAMPLE_PREVIEW
   if (showsSamplePreview()) {
     const auto& metrics = UITheme::getInstance().getMetrics();
     // In portrait, keep the sample at its pre-header height so the new book
@@ -942,7 +942,7 @@ void EpubReaderDrawerActivity::buildDrawer(UiApp::ScreenType& screen) {
     case ReaderDrawerPane::EnumOptions:
       buildEnumOptionsPane(screen);
       break;
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
     case ReaderDrawerPane::TtfRendering:
       buildTtfRenderingPane(screen);
       break;
@@ -1117,8 +1117,8 @@ void EpubReaderDrawerActivity::buildSpacingPane(UiApp::ScreenType& screen) {
   ReaderSliderRowProps line;
   line.label = tr(STR_LINE_SPACING);
   line.value = lineValue;
-  line.sliderValue = byteToPermille(draft.lineHeightPercent, CrossPointSettings::MIN_LINE_HEIGHT_PERCENT,
-                                    CrossPointSettings::MAX_LINE_HEIGHT_PERCENT);
+  line.sliderValue = byteToPermille(draft.lineHeightPercent, FluiDezSettings::MIN_LINE_HEIGHT_PERCENT,
+                                    FluiDezSettings::MAX_LINE_HEIGHT_PERCENT);
   line.max = 1000;
   line.sliderAction = ACTION_SLIDER;
   line.decrement = ACTION_STEP;
@@ -1127,7 +1127,7 @@ void EpubReaderDrawerActivity::buildSpacingPane(UiApp::ScreenType& screen) {
   ReaderSliderRowProps word;
   word.label = tr(STR_WORD_SPACING);
   word.value = wordSpacingValue(draft.wordSpacing);
-  word.sliderValue = byteToPermille(draft.wordSpacing, 0, CrossPointSettings::MAX_WORD_SPACING);
+  word.sliderValue = byteToPermille(draft.wordSpacing, 0, FluiDezSettings::MAX_WORD_SPACING);
   word.max = 1000;
   word.sliderAction = ACTION_SLIDER + 3;
   word.decrement = ACTION_STEP + 3;
@@ -1151,8 +1151,8 @@ void EpubReaderDrawerActivity::buildMarginsPane(UiApp::ScreenType& screen) {
   ReaderSliderRowProps vertical;
   vertical.label = tr(STR_TOP_BOTTOM);
   vertical.value = verticalValue;
-  vertical.sliderValue = byteToPermille(draft.screenMarginVertical, CrossPointSettings::MIN_SCREEN_MARGIN,
-                                        CrossPointSettings::MAX_SCREEN_MARGIN);
+  vertical.sliderValue = byteToPermille(draft.screenMarginVertical, FluiDezSettings::MIN_SCREEN_MARGIN,
+                                        FluiDezSettings::MAX_SCREEN_MARGIN);
   vertical.max = 1000;
   vertical.sliderAction = ACTION_SLIDER;
   vertical.decrement = ACTION_STEP;
@@ -1161,8 +1161,8 @@ void EpubReaderDrawerActivity::buildMarginsPane(UiApp::ScreenType& screen) {
   ReaderSliderRowProps horizontal;
   horizontal.label = tr(STR_LEFT_RIGHT);
   horizontal.value = horizontalValue;
-  horizontal.sliderValue = byteToPermille(draft.screenMarginHorizontal, CrossPointSettings::MIN_SCREEN_MARGIN,
-                                          CrossPointSettings::MAX_SCREEN_MARGIN);
+  horizontal.sliderValue = byteToPermille(draft.screenMarginHorizontal, FluiDezSettings::MIN_SCREEN_MARGIN,
+                                          FluiDezSettings::MAX_SCREEN_MARGIN);
   horizontal.max = 1000;
   horizontal.sliderAction = ACTION_SLIDER + 3;
   horizontal.decrement = ACTION_STEP + 3;
@@ -1394,7 +1394,7 @@ int EpubReaderDrawerActivity::currentFontSelectionIndex() const {
       });
       if (selected != families.end()) {
         selectedFontIndex =
-            static_cast<int>(CrossPointSettings::BUILTIN_FONT_COUNT + std::distance(families.begin(), selected));
+            static_cast<int>(FluiDezSettings::BUILTIN_FONT_COUNT + std::distance(families.begin(), selected));
       }
     } else {
       const auto selected = std::find(fontSettingIndexes.begin(), fontSettingIndexes.end(), draft.fontFamily);
@@ -1423,7 +1423,7 @@ void EpubReaderDrawerActivity::buildFontFamilyPane(UiApp::ScreenType& screen) {
   const int top = std::clamp<int>(state.paneTopIndex, 0, std::max(0, total - visibleRows));
   state.paneTopIndex = static_cast<int16_t>(top);
   const int drawCount = std::min<int>({visibleRows, WINDOW_SIZE, total - top});
-  if (!CROSSINK_APP_READER_SAMPLE_PREVIEW) evenlySpaceDrawerListRows(props, listBounds, drawCount);
+  if (!FLUIDEZ_APP_READER_SAMPLE_PREVIEW) evenlySpaceDrawerListRows(props, listBounds, drawCount);
   const int selectedFontIndex = currentFontSelectionIndex();
   for (int i = 0; i < drawCount; ++i) {
     itemWindow[static_cast<size_t>(i)] = fui::ListItem{};
@@ -1451,7 +1451,7 @@ void EpubReaderDrawerActivity::buildEnumOptionsPane(UiApp::ScreenType& screen) {
   const int top = std::clamp<int>(state.paneTopIndex, 0, std::max(0, total - visibleRows));
   state.paneTopIndex = static_cast<int16_t>(top);
   const int drawCount = std::min<int>({visibleRows, WINDOW_SIZE, total - top});
-  if (!CROSSINK_APP_READER_SAMPLE_PREVIEW &&
+  if (!FLUIDEZ_APP_READER_SAMPLE_PREVIEW &&
       (enumOptionRow == RowId::FontSize || enumOptionRow == RowId::DictionaryFontFamily ||
        enumOptionRow == RowId::DictionaryFontSize)) {
     evenlySpaceDrawerListRows(props, listBounds, drawCount);
@@ -1474,7 +1474,7 @@ void EpubReaderDrawerActivity::buildEnumOptionsPane(UiApp::ScreenType& screen) {
                                screen.theme().listScrollInset);
 }
 
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
 void EpubReaderDrawerActivity::buildTtfRenderingPane(UiApp::ScreenType& screen) {
   buildPaneHeader(screen);
   const auto& rows = activeRows();
@@ -1538,7 +1538,7 @@ void EpubReaderDrawerActivity::openPane(const ReaderDrawerPane pane) {
   if (pane == ReaderDrawerPane::DictionaryFont) {
     paneRows = {RowId::DictionaryFontFamily, RowId::DictionaryFontSize};
   }
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   if (pane == ReaderDrawerPane::TtfRendering) {
     ttfRenderProfile = TTF_RENDER_PROFILES.profileFor(draft.sdFontFamilyName.data());
     initialTtfRenderProfile = ttfRenderProfile;
@@ -1560,7 +1560,7 @@ void EpubReaderDrawerActivity::closePane() {
     state.pane = enumOptionReturnPane;
   } else if (state.pane == ReaderDrawerPane::FontFamily) {
     state.pane = ReaderDrawerPane::ReaderFont;
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   } else if (state.pane == ReaderDrawerPane::TtfRendering) {
     finishTtfRenderingEdit();
     state.pane = ReaderDrawerPane::ReaderFont;
@@ -1576,7 +1576,7 @@ void EpubReaderDrawerActivity::closePane() {
   if (state.pane == ReaderDrawerPane::DictionaryFont) {
     paneRows = {RowId::DictionaryFontFamily, RowId::DictionaryFontSize};
   }
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   if (state.pane == ReaderDrawerPane::TtfRendering) rebuildTtfRenderingRows();
 #endif
   state.paneTopIndex = 0;
@@ -1586,7 +1586,7 @@ void EpubReaderDrawerActivity::closePane() {
 }
 
 void EpubReaderDrawerActivity::changeTab(const ReaderDrawerTab tab) {
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   finishTtfRenderingEdit();
 #endif
   state.tab = tab;
@@ -1627,11 +1627,11 @@ void EpubReaderDrawerActivity::activateListIndex(const int index) {
     fontPreviewLoading = true;
     state.pendingFontIndex = static_cast<int16_t>(index);
     const uint8_t settingIndex = fontSettingIndexes[static_cast<size_t>(index)];
-    if (settingIndex < CrossPointSettings::BUILTIN_FONT_COUNT) {
+    if (settingIndex < FluiDezSettings::BUILTIN_FONT_COUNT) {
       draft.fontFamily = settingIndex;
       draft.sdFontFamilyName[0] = '\0';
     } else {
-      const int familyIndex = settingIndex - CrossPointSettings::BUILTIN_FONT_COUNT;
+      const int familyIndex = settingIndex - FluiDezSettings::BUILTIN_FONT_COUNT;
       const auto& families = sdFontSystem.registry().getFamilies();
       if (familyIndex >= 0 && familyIndex < static_cast<int>(families.size())) {
         std::strncpy(draft.sdFontFamilyName.data(), families[static_cast<size_t>(familyIndex)].name.c_str(),
@@ -1656,11 +1656,11 @@ void EpubReaderDrawerActivity::activateRow(const RowId row) {
       openPane(ReaderDrawerPane::ReaderFont);
       return;
     case RowId::TtfRendering:
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
       openPane(ReaderDrawerPane::TtfRendering);
 #endif
       return;
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
     case RowId::TtfHinting:
     case RowId::TtfRaster:
     case RowId::TtfInterpreter:
@@ -1917,8 +1917,8 @@ void EpubReaderDrawerActivity::showEnumOptions(const RowId row) {
     case RowId::Orientation:
       title = StrId::STR_ORIENTATION;
       labels = {tr(STR_PORTRAIT), tr(STR_LANDSCAPE_CW), tr(STR_LANDSCAPE_CCW), tr(STR_ORIENTATION_INVERTED)};
-      raw = {CrossPointSettings::PORTRAIT, CrossPointSettings::LANDSCAPE_CW, CrossPointSettings::LANDSCAPE_CCW,
-             CrossPointSettings::INVERTED};
+      raw = {FluiDezSettings::PORTRAIT, FluiDezSettings::LANDSCAPE_CW, FluiDezSettings::LANDSCAPE_CCW,
+             FluiDezSettings::INVERTED};
       currentRaw = draft.orientation;
       break;
     case RowId::Alignment:
@@ -1935,7 +1935,7 @@ void EpubReaderDrawerActivity::showEnumOptions(const RowId row) {
       break;
     case RowId::RenderMode:
       title = StrId::STR_EPUB_RENDER_MODE;
-      labels = {tr(STR_RENDER_MODE_CROSSINK_DEFAULT), tr(STR_RENDER_MODE_BALANCED), tr(STR_RENDER_MODE_LIGHT)};
+      labels = {tr(STR_RENDER_MODE_FLUIDEZ_DEFAULT), tr(STR_RENDER_MODE_BALANCED), tr(STR_RENDER_MODE_LIGHT)};
       raw = {0, 1, 2};
       currentRaw = draft.epubRenderMode;
       break;
@@ -2097,7 +2097,7 @@ void EpubReaderDrawerActivity::selectEnumOption(const int index) {
       }
       notifyDictionaryFontChanged();
       break;
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
     case RowId::TtfHinting:
     case RowId::TtfRaster:
     case RowId::TtfInterpreter:
@@ -2329,13 +2329,12 @@ void EpubReaderDrawerActivity::completeAutoPageTurnSelection() {
 
 void EpubReaderDrawerActivity::adjustActiveSlider(const int delta) {
   if (state.pane == ReaderDrawerPane::Spacing) {
-    draft.lineHeightPercent = CrossPointSettings::clampedLineHeightPercent(static_cast<uint8_t>(
-        std::clamp<int>(draft.lineHeightPercent + delta, CrossPointSettings::MIN_LINE_HEIGHT_PERCENT,
-                        CrossPointSettings::MAX_LINE_HEIGHT_PERCENT)));
+    draft.lineHeightPercent = FluiDezSettings::clampedLineHeightPercent(
+        static_cast<uint8_t>(std::clamp<int>(draft.lineHeightPercent + delta, FluiDezSettings::MIN_LINE_HEIGHT_PERCENT,
+                                             FluiDezSettings::MAX_LINE_HEIGHT_PERCENT)));
   } else if (state.pane == ReaderDrawerPane::Margins) {
-    draft.screenMarginVertical =
-        std::clamp<int>(draft.screenMarginVertical + delta, CrossPointSettings::MIN_SCREEN_MARGIN,
-                        CrossPointSettings::MAX_SCREEN_MARGIN);
+    draft.screenMarginVertical = std::clamp<int>(draft.screenMarginVertical + delta, FluiDezSettings::MIN_SCREEN_MARGIN,
+                                                 FluiDezSettings::MAX_SCREEN_MARGIN);
   } else if (state.pane == ReaderDrawerPane::AutoPageTurn) {
     autoPageTurnIntervalSeconds = static_cast<uint16_t>(std::clamp<int>(
         autoPageTurnIntervalSeconds + delta, READER_AUTO_PAGE_TURN_MIN_SECONDS, READER_AUTO_PAGE_TURN_MAX_SECONDS));
@@ -2346,21 +2345,21 @@ void EpubReaderDrawerActivity::adjustButtonSlider(const int delta) {
   bool changed = false;
   if (state.pane == ReaderDrawerPane::Spacing) {
     if (buttonSliderState.focus == 0) {
-      const uint8_t value = CrossPointSettings::clampedLineHeightPercent(static_cast<uint8_t>(
-          std::clamp<int>(draft.lineHeightPercent + delta, CrossPointSettings::MIN_LINE_HEIGHT_PERCENT,
-                          CrossPointSettings::MAX_LINE_HEIGHT_PERCENT)));
+      const uint8_t value = FluiDezSettings::clampedLineHeightPercent(static_cast<uint8_t>(
+          std::clamp<int>(draft.lineHeightPercent + delta, FluiDezSettings::MIN_LINE_HEIGHT_PERCENT,
+                          FluiDezSettings::MAX_LINE_HEIGHT_PERCENT)));
       changed = value != draft.lineHeightPercent;
       draft.lineHeightPercent = value;
     } else {
       const uint8_t value =
-          static_cast<uint8_t>(std::clamp<int>(draft.wordSpacing + delta, 0, CrossPointSettings::MAX_WORD_SPACING));
+          static_cast<uint8_t>(std::clamp<int>(draft.wordSpacing + delta, 0, FluiDezSettings::MAX_WORD_SPACING));
       changed = value != draft.wordSpacing;
       draft.wordSpacing = value;
     }
   } else if (state.pane == ReaderDrawerPane::Margins) {
     uint8_t& target = buttonSliderState.focus == 0 ? draft.screenMarginVertical : draft.screenMarginHorizontal;
     const uint8_t value = static_cast<uint8_t>(
-        std::clamp<int>(target + delta, CrossPointSettings::MIN_SCREEN_MARGIN, CrossPointSettings::MAX_SCREEN_MARGIN));
+        std::clamp<int>(target + delta, FluiDezSettings::MIN_SCREEN_MARGIN, FluiDezSettings::MAX_SCREEN_MARGIN));
     changed = value != target;
     target = value;
   } else if (state.pane == ReaderDrawerPane::AutoPageTurn) {
@@ -2442,7 +2441,7 @@ void EpubReaderDrawerActivity::renderPreviewContents(const ReaderSettingsDraft& 
   const fui::Rect preview = previewBounds();
   renderer.fillRect(preview.x, preview.y, preview.width, preview.height, ReaderUtils::readerDarkModeEnabled());
   renderPreviewText(previewSettings, previewFontId);
-  if (CROSSINK_APP_READER_SAMPLE_PREVIEW) {
+  if (FLUIDEZ_APP_READER_SAMPLE_PREVIEW) {
     const auto& metrics = UITheme::getInstance().getMetrics();
     const int labelTextHeight = renderer.getTextHeight(UI_10_FONT_ID);
     const int noteHeight = previewSettings.textAntiAliasing ? labelTextHeight + 2 : 0;
@@ -2469,7 +2468,7 @@ void EpubReaderDrawerActivity::renderPreviewContents(const ReaderSettingsDraft& 
 }
 
 void EpubReaderDrawerActivity::renderPreviewText(const ReaderSettingsDraft& previewSettings, const int previewFontId) {
-  if (CROSSINK_APP_READER_SAMPLE_PREVIEW) {
+  if (FLUIDEZ_APP_READER_SAMPLE_PREVIEW) {
     renderSamplePreviewText(previewSettings, previewFontId);
     return;
   }
@@ -2546,7 +2545,7 @@ void EpubReaderDrawerActivity::renderPreviewUnavailable() {
 bool EpubReaderDrawerActivity::renderPreview(int& previewFontId,
                                              std::optional<FontCacheManager::PrewarmScope>& prewarmScope) {
   previewFontId = -1;
-#if CROSSINK_APP_READER_SAMPLE_PREVIEW
+#if FLUIDEZ_APP_READER_SAMPLE_PREVIEW
   if (!showsSamplePreview()) return false;
 #endif
   if (!previewDirty) return false;
@@ -2576,7 +2575,7 @@ bool EpubReaderDrawerActivity::renderPreview(int& previewFontId,
     renderer.fillRect(preview.x, preview.y, preview.width, preview.height, ReaderUtils::readerDarkModeEnabled());
     return true;
   }
-  if (CROSSINK_APP_READER_SAMPLE_PREVIEW && releasePreviewIfBelowReserve()) return false;
+  if (FLUIDEZ_APP_READER_SAMPLE_PREVIEW && releasePreviewIfBelowReserve()) return false;
   if (fontPreviewLoading) {
     GUI.drawPopup(renderer, tr(STR_LOADING_POPUP), true);
     fontPreviewLoading = false;
@@ -2858,18 +2857,18 @@ void EpubReaderDrawerActivity::render(RenderLock&&) {
   // Keep prewarmed glyphs resident through the BW and optional touch grayscale passes.
   std::optional<FontCacheManager::PrewarmScope> previewPrewarmScope;
   bool previewRendered;
-#if !CROSSINK_APP_READER_SAMPLE_PREVIEW
+#if !FLUIDEZ_APP_READER_SAMPLE_PREVIEW
   previewRendered = renderPreview(previewFontId, previewPrewarmScope);
 #endif
   uiReady = false;
-  if (CROSSINK_APP_READER_SAMPLE_PREVIEW && fontPreviewLoading) {
+  if (FLUIDEZ_APP_READER_SAMPLE_PREVIEW && fontPreviewLoading) {
     GUI.drawPopup(renderer, tr(STR_LOADING_POPUP), true);
     fontPreviewLoading = false;
   }
   app.setDevice(uiTarget.deviceContext());
   app.render();
   if (buttonDevice) drawButtonBookHeader();
-#if CROSSINK_APP_READER_SAMPLE_PREVIEW
+#if FLUIDEZ_APP_READER_SAMPLE_PREVIEW
   previewDirty = true;  // The full-screen UI cleared the sample area as well.
   previewRendered = renderPreview(previewFontId, previewPrewarmScope);
   if (showsSamplePreview() && previewUnavailable) {
@@ -2917,7 +2916,7 @@ void EpubReaderDrawerActivity::render(RenderLock&&) {
   renderer.displayBuffer(HalDisplay::FAST_REFRESH);
   // Button menus repaint the sample on every navigation step. A grayscale pass
   // here would add a second panel refresh and flash the preview each time.
-  if (!CROSSINK_APP_READER_SAMPLE_PREVIEW &&
+  if (!FLUIDEZ_APP_READER_SAMPLE_PREVIEW &&
       shouldRenderReaderDrawerAntiAliasing(previewRendered, draft.textAntiAliasing,
                                            ReaderUtils::readerForegroundBlack()) &&
       !sdFontSystem.fontUsesMonochromeRaster(renderer, previewFontId, draft.sdFontFamilyName.data())) {
@@ -2947,7 +2946,7 @@ const char* EpubReaderDrawerActivity::paneTitle() const {
       return tr(STR_BOOK_DICTIONARY);
     case ReaderDrawerPane::EnumOptions:
       return I18N.get(enumOptionTitle);
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
     case ReaderDrawerPane::TtfRendering:
       return tr(STR_TTF_RENDERING);
 #endif
@@ -3061,7 +3060,7 @@ const char* EpubReaderDrawerActivity::rowLabel(const RowId row) const {
       return tr(STR_FONT_FAMILY);
     case RowId::DictionaryFontSize:
       return tr(STR_FONT_SIZE);
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
     case RowId::TtfHinting:
       return TtfRenderOptionsActivity::rowLabel(TtfRenderOptionsActivity::Row::Hinting);
     case RowId::TtfRaster:
@@ -3087,15 +3086,15 @@ const char* EpubReaderDrawerActivity::rowValue(const RowId row, char* buffer, co
   switch (row) {
     case RowId::FontFamily: {
       if (draft.sdFontFamilyName[0] != '\0') return draft.sdFontFamilyName.data();
-      static constexpr std::array<StrId, CrossPointSettings::BUILTIN_FONT_COUNT> labels = {StrId::STR_LEXEND_DECA,
-                                                                                           StrId::STR_BITTER};
+      static constexpr std::array<StrId, FluiDezSettings::BUILTIN_FONT_COUNT> labels = {StrId::STR_LEXEND_DECA,
+                                                                                        StrId::STR_BITTER};
       if (draft.fontFamily >= labels.size()) return tr(STR_UNAVAILABLE);
       return I18N.get(labels[draft.fontFamily]);
     }
     case RowId::FontSize:
       std::snprintf(buffer, bufferSize, "%upt", draft.readerFontPointSize);
       return buffer;
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
     case RowId::TtfHinting:
       return TtfRenderOptionsActivity::rowValue(TtfRenderOptionsActivity::Row::Hinting, ttfRenderProfile);
     case RowId::TtfRaster:
@@ -3125,7 +3124,7 @@ const char* EpubReaderDrawerActivity::rowValue(const RowId row, char* buffer, co
       return I18N.get(labels[std::min<size_t>(draft.imageRendering, labels.size() - 1)]);
     }
     case RowId::RenderMode: {
-      static const std::array<StrId, 3> labels = {StrId::STR_RENDER_MODE_CROSSINK_DEFAULT,
+      static const std::array<StrId, 3> labels = {StrId::STR_RENDER_MODE_FLUIDEZ_DEFAULT,
                                                   StrId::STR_RENDER_MODE_BALANCED, StrId::STR_RENDER_MODE_LIGHT};
       return I18N.get(labels[std::min<size_t>(draft.epubRenderMode, labels.size() - 1)]);
     }
@@ -3162,7 +3161,7 @@ bool EpubReaderDrawerActivity::rowIsToggle(const RowId row) const {
     case RowId::ExtraSpacing:
     case RowId::ForceIndents:
     case RowId::EmbeddedStyle:
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
     case RowId::TtfStemDarkening:
 #endif
       return true;
@@ -3214,7 +3213,7 @@ bool EpubReaderDrawerActivity::rowToggleValue(const RowId row) const {
       return draft.extraParagraphSpacing;
     case RowId::ForceIndents:
       return draft.forceParagraphIndents;
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
     case RowId::TtfStemDarkening:
       return ttfRenderProfile.stemDarkening;
 #endif

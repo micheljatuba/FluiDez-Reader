@@ -1,15 +1,16 @@
-// Sleep screen editor: converts any picture in the browser into an 8-bit
-// grayscale BMP at the panel's exact portrait size, uploads it to /sleep and
-// pins it. The device then only streams rows from the SD card at sleep time and
-// applies its own panel-tuned dithering, so nothing heavy runs on the reader.
+// Screens editor: converts any picture in the browser into an 8-bit grayscale
+// BMP at the panel's exact portrait size, uploads it to /sleep (sleep screen)
+// or /bootscreen (boot screen) and pins it. The device then only streams rows
+// from the SD card and applies its own panel-tuned dithering, so nothing heavy
+// runs on the reader.
 
 const I18N = {
   en: {
-    currentTitle: "Current sleep image",
+    tabSleep: "Sleep screen",
+    tabBoot: "Boot screen",
     noneShort: "None",
     loading: "Loading...",
-    unpin: "Stop using this image",
-    newTitle: "New sleep image",
+    rotate: "Rotate through all images",
     newHelp:
       "Pick any photo or drawing. It is converted here in your browser to the exact size of the screen, so the device shows it instantly.",
     choose: "Choose image",
@@ -25,13 +26,6 @@ const I18N = {
     save: "Save and use on device",
     reset: "Reset",
     galleryTitle: "Images on the device",
-    galleryHelp:
-      "Images in the /sleep folder. JPG and PNG copied straight to the card also work: the device converts them once. When none is pinned, it picks one at random each time it sleeps.",
-    pinnedNow: "The device shows this image when it sleeps.",
-    noPinned: "No image pinned. The device uses its sleep screen setting.",
-    modeCustom: "Sleep screen mode: Custom image.",
-    modeOther: "Pinning an image switches the sleep screen to Custom image.",
-    modeSwitched: "Sleep screen switched to Custom image.",
     use: "Use",
     remove: "Delete",
     inUse: "In use",
@@ -39,16 +33,35 @@ const I18N = {
     confirmDelete: "Delete this image from the device?",
     converting: "Converting...",
     uploading: "Sending to the device...",
-    saved: "Done! Lock the device to see it.",
     failed: "Something went wrong: ",
     badImage: "This file could not be opened as an image.",
+    "sleep.currentTitle": "Current sleep image",
+    "sleep.newTitle": "New sleep image",
+    "sleep.pinned": "The device shows this image when it sleeps.",
+    "sleep.rotating": "Rotating: each time it sleeps, the device shows a different image from {folder}.",
+    "sleep.off": "The sleep screen uses another mode. Pin an image or turn on rotation to show your own.",
+    "sleep.galleryHelp":
+      "Images in the /sleep folder. JPG and PNG copied straight to the card also work: the device converts them once. When none is pinned, it picks one at random each time it sleeps.",
+    "sleep.saved": "Done! Lock the device to see it.",
+    "sleep.modeSwitched": "Sleep screen switched to Custom image.",
+    "boot.currentTitle": "Current boot image",
+    "boot.newTitle": "New boot image",
+    "boot.pinned": "The device shows this image when it turns on.",
+    "boot.rotating": "Rotating: each time it turns on, the device shows a different image from {folder}.",
+    "boot.off": "The custom boot screen is off. Pin an image or turn on rotation to show your own.",
+    "boot.galleryHelp":
+      "BMP images in the /bootscreen folder. When none is pinned, the device picks one at random each time it turns on.",
+    "boot.saved": "Done! Turn the device off and on to see it.",
+    "boot.modeSwitched": "Custom boot screen turned on.",
+    "boot.hiddenFolder":
+      "The device rotates through {folder}, so images saved here only show when they are pinned.",
   },
   pt: {
-    currentTitle: "Imagem de descanso atual",
+    tabSleep: "Tela de descanso",
+    tabBoot: "Tela de inicialização",
     noneShort: "Nenhuma",
     loading: "Carregando...",
-    unpin: "Parar de usar esta imagem",
-    newTitle: "Nova imagem de descanso",
+    rotate: "Sortear entre todas as imagens",
     newHelp:
       "Escolha qualquer foto ou desenho. A conversão acontece aqui no navegador, no tamanho exato da tela, para o aparelho mostrar na hora.",
     choose: "Escolher imagem",
@@ -64,13 +77,6 @@ const I18N = {
     save: "Salvar e usar no aparelho",
     reset: "Restaurar",
     galleryTitle: "Imagens no aparelho",
-    galleryHelp:
-      "Imagens da pasta /sleep. JPG e PNG copiados direto para o cartão também funcionam: o aparelho converte uma vez. Sem imagem fixada, ele sorteia uma a cada vez que entra em descanso.",
-    pinnedNow: "O aparelho mostra esta imagem ao entrar em descanso.",
-    noPinned: "Nenhuma imagem fixada. O aparelho usa o modo de tela de descanso configurado.",
-    modeCustom: "Modo da tela de descanso: Imagem personalizada.",
-    modeOther: "Ao fixar uma imagem, a tela de descanso muda para Imagem personalizada.",
-    modeSwitched: "Tela de descanso alterada para Imagem personalizada.",
     use: "Usar",
     remove: "Apagar",
     inUse: "Em uso",
@@ -78,19 +84,49 @@ const I18N = {
     confirmDelete: "Apagar esta imagem do aparelho?",
     converting: "Convertendo...",
     uploading: "Enviando para o aparelho...",
-    saved: "Pronto! Bloqueie o aparelho para ver.",
     failed: "Algo deu errado: ",
     badImage: "Não foi possível abrir este arquivo como imagem.",
+    "sleep.currentTitle": "Imagem de descanso atual",
+    "sleep.newTitle": "Nova imagem de descanso",
+    "sleep.pinned": "O aparelho mostra esta imagem ao entrar em descanso.",
+    "sleep.rotating": "Sorteio ligado: a cada descanso, o aparelho mostra uma imagem diferente da pasta {folder}.",
+    "sleep.off":
+      "A tela de descanso está em outro modo. Fixe uma imagem ou ligue o sorteio para usar as suas.",
+    "sleep.galleryHelp":
+      "Imagens da pasta /sleep. JPG e PNG copiados direto para o cartão também funcionam: o aparelho converte uma vez. Sem imagem fixada, ele sorteia uma a cada vez que entra em descanso.",
+    "sleep.saved": "Pronto! Bloqueie o aparelho para ver.",
+    "sleep.modeSwitched": "Tela de descanso alterada para Imagem personalizada.",
+    "boot.currentTitle": "Imagem de inicialização atual",
+    "boot.newTitle": "Nova imagem de inicialização",
+    "boot.pinned": "O aparelho mostra esta imagem ao ligar.",
+    "boot.rotating": "Sorteio ligado: a cada vez que liga, o aparelho mostra uma imagem diferente da pasta {folder}.",
+    "boot.off":
+      "A tela de inicialização personalizada está desligada. Fixe uma imagem ou ligue o sorteio para usar as suas.",
+    "boot.galleryHelp":
+      "Imagens BMP da pasta /bootscreen. Sem imagem fixada, o aparelho sorteia uma a cada vez que liga.",
+    "boot.saved": "Pronto! Desligue e ligue o aparelho para ver.",
+    "boot.modeSwitched": "Tela de inicialização personalizada ligada.",
+    "boot.hiddenFolder":
+      "O aparelho sorteia entre as imagens de {folder}, então as salvas aqui só aparecem quando fixadas.",
   },
 };
-const LANG = (navigator.language || "en").toLowerCase().startsWith("pt") ? "pt" : "en";
-const t = (key) => I18N[LANG][key] || I18N.en[key] || key;
+const LANG = window.FZ_LANG === "pt" ? "pt" : "en";
+const t = (key, vars) => {
+  let text = I18N[LANG][key] || I18N.en[key] || key;
+  for (const [name, value] of Object.entries(vars || {})) text = text.replace("{" + name + "}", value);
+  return text;
+};
 
-const SLEEP_FOLDER = "/sleep";
+// Each tab edits one screen: where its images live and which formats it draws.
+const TARGETS = {
+  sleep: { folder: "/sleep", folderName: "sleep", pattern: /\.(bmp|jpe?g|png)$/i },
+  boot: { folder: "/bootscreen", folderName: "bootscreen", pattern: /\.bmp$/i },
+};
 const state = {
+  target: location.hash === "#boot" ? "boot" : "sleep",
+  device: null,
   width: 480,
   height: 800,
-  pinned: "",
   source: null,
   fit: "fill",
   zoom: 1,
@@ -99,6 +135,8 @@ const state = {
   brightness: 0,
   contrast: 10,
 };
+const target = () => TARGETS[state.target];
+const tt = (key, vars) => t(state.target + "." + key, vars);
 
 const $ = (id) => document.getElementById(id);
 const work = document.createElement("canvas");
@@ -108,6 +146,9 @@ function applyTranslations() {
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     el.textContent = t(el.dataset.i18n);
   });
+  $("currentTitle").textContent = tt("currentTitle");
+  $("newTitle").textContent = tt("newTitle");
+  $("galleryHelp").textContent = tt("galleryHelp");
 }
 
 function setStatus(text, kind) {
@@ -120,6 +161,16 @@ function downloadUrl(path) {
   return "/download?path=" + encodeURIComponent(path);
 }
 
+function selectTab(name) {
+  state.target = name;
+  history.replaceState(null, "", name === "boot" ? "#boot" : "#sleep");
+  document.querySelectorAll("#screenTabs button").forEach((b) => b.classList.toggle("active", b.dataset.target === name));
+  applyTranslations();
+  setStatus("");
+  renderCurrent();
+  loadGallery();
+}
+
 // ---------------------------------------------------------------------------
 // Device state
 // ---------------------------------------------------------------------------
@@ -128,49 +179,66 @@ async function loadDeviceState() {
   try {
     const res = await fetch("/api/sleep-image");
     if (!res.ok) throw new Error(res.status + " " + res.statusText);
-    const data = await res.json();
-    state.width = data.width || state.width;
-    state.height = data.height || state.height;
-    state.pinned = data.pinned || "";
-    renderCurrent(data.customMode);
+    state.device = await res.json();
+    state.width = state.device.width || state.width;
+    state.height = state.device.height || state.height;
+    renderCurrent();
   } catch (err) {
     $("currentText").textContent = t("failed") + err.message;
   }
 }
 
-function renderCurrent(customMode) {
+function pinnedPath() {
+  if (!state.device) return "";
+  return (state.target === "boot" ? state.device.bootPinned : state.device.pinned) || "";
+}
+
+function screenEnabled() {
+  if (!state.device) return false;
+  return state.target === "boot" ? state.device.bootEnabled : state.device.customMode;
+}
+
+function renderCurrent() {
+  if (!state.device) return;
+  const pinned = pinnedPath();
   const frame = $("currentFrame");
   frame.textContent = "";
-  if (state.pinned) {
+  if (pinned) {
     const img = document.createElement("img");
-    img.src = downloadUrl(state.pinned);
-    img.alt = state.pinned;
+    img.src = downloadUrl(pinned);
+    img.alt = pinned;
     frame.appendChild(img);
-    $("currentText").textContent = t("pinnedNow") + " (" + state.pinned + ")";
   } else {
     const span = document.createElement("span");
     span.className = "empty muted";
     span.textContent = t("noneShort");
     frame.appendChild(span);
-    $("currentText").textContent = t("noPinned");
   }
-  $("modeText").textContent = customMode ? t("modeCustom") : t("modeOther");
-  $("unpinBtn").hidden = !state.pinned;
+
+  const rotating = screenEnabled() && !pinned;
+  if (!screenEnabled()) $("currentText").textContent = tt("off");
+  else if (pinned) $("currentText").textContent = tt("pinned") + " (" + pinned + ")";
+  else $("currentText").textContent = tt("rotating", { folder: target().folder });
+
+  const rotationFolder = state.target === "boot" ? state.device.bootRotationFolder : "";
+  $("modeText").textContent =
+    rotationFolder && rotationFolder.toLowerCase() !== target().folder ? tt("hiddenFolder", { folder: rotationFolder }) : "";
+  $("rotateBtn").hidden = rotating;
 }
 
-async function ensureSleepFolder() {
+async function ensureFolder() {
   // A missing folder makes the listing drop the connection, so treat any
   // failure as "create it"; an "already exists" reply is fine too.
   try {
-    const res = await fetch("/api/files?path=" + encodeURIComponent(SLEEP_FOLDER));
+    const res = await fetch("/api/files?path=" + encodeURIComponent(target().folder));
     if (res.ok) {
       await res.json();
       return;
     }
   } catch (err) {
-    console.info("Sleep folder not listed, creating it", err);
+    console.info("Screen folder not listed, creating it", err);
   }
-  const body = new URLSearchParams({ name: "sleep", path: "/" });
+  const body = new URLSearchParams({ name: target().folderName, path: "/" });
   const made = await fetch("/mkdir", { method: "POST", body });
   if (!made.ok) {
     const text = await made.text();
@@ -180,15 +248,17 @@ async function ensureSleepFolder() {
 
 async function loadGallery() {
   const gallery = $("gallery");
+  const listedTarget = state.target;
   let items = [];
   try {
-    const res = await fetch("/api/files?path=" + encodeURIComponent(SLEEP_FOLDER));
+    const res = await fetch("/api/files?path=" + encodeURIComponent(target().folder));
     if (res.ok) items = await res.json();
   } catch (err) {
     console.error(err);
   }
+  if (listedTarget !== state.target) return;  // the user switched tabs meanwhile
   const images = items
-    .filter((it) => !it.isDirectory && /\.(bmp|jpe?g|png)$/i.test(it.name))
+    .filter((it) => !it.isDirectory && target().pattern.test(it.name))
     .sort((a, b) => b.name.localeCompare(a.name));
   gallery.textContent = "";
   if (!images.length) {
@@ -198,11 +268,12 @@ async function loadGallery() {
     gallery.appendChild(p);
     return;
   }
+  const pinned = pinnedPath();
   for (const it of images) {
-    const path = SLEEP_FOLDER + "/" + it.name;
-    const pinned = path === state.pinned;
+    const path = target().folder + "/" + it.name;
+    const isPinned = path === pinned;
     const tile = document.createElement("div");
-    tile.className = "tile" + (pinned ? " pinned" : "");
+    tile.className = "tile" + (isPinned ? " pinned" : "");
     const thumb = document.createElement("div");
     thumb.className = "thumb";
     const img = document.createElement("img");
@@ -215,7 +286,7 @@ async function loadGallery() {
     name.textContent = it.name;
     const row = document.createElement("div");
     row.className = "row";
-    if (pinned) {
+    if (isPinned) {
       const badge = document.createElement("span");
       badge.className = "badge";
       badge.textContent = t("inUse");
@@ -237,23 +308,21 @@ async function loadGallery() {
   }
 }
 
-async function pinImage(path) {
-  const body = new URLSearchParams({ action: "pin", path });
+async function postScreen(params) {
+  const body = new URLSearchParams({ target: state.target, ...params });
   const res = await fetch("/api/sleep-image", { method: "POST", body });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 
-async function unpinImage() {
-  const body = new URLSearchParams({ action: "unpin" });
-  const res = await fetch("/api/sleep-image", { method: "POST", body });
-  if (!res.ok) throw new Error(await res.text());
-}
+const pinImage = (path) => postScreen({ action: "pin", path });
+const unpinImage = () => postScreen({ action: "unpin" });
+const rotateImages = () => postScreen({ action: "rotate" });
 
 async function deleteImage(path) {
   if (!confirm(t("confirmDelete"))) return;
   try {
-    if (path === state.pinned) await unpinImage();
+    if (path === pinnedPath()) await unpinImage();
     const res = await fetch("/delete", { method: "POST", body: new URLSearchParams({ path }) });
     if (!res.ok) throw new Error(await res.text());
   } catch (err) {
@@ -456,14 +525,14 @@ async function saveToDevice() {
     clampOffsets();
     const blob = encodeGrayBmp(composeGray(), state.width, state.height);
     setStatus(t("uploading"));
-    await ensureSleepFolder();
+    await ensureFolder();
     const name = uniqueName();
     const form = new FormData();
     form.append("file", blob, name);
-    const res = await fetch("/upload?path=" + encodeURIComponent(SLEEP_FOLDER), { method: "POST", body: form });
+    const res = await fetch("/upload?path=" + encodeURIComponent(target().folder), { method: "POST", body: form });
     if (!res.ok) throw new Error(await res.text());
-    const result = await pinImage(SLEEP_FOLDER + "/" + name);
-    setStatus(t("saved") + (result.modeChanged ? " " + t("modeSwitched") : ""), "ok");
+    const result = await pinImage(target().folder + "/" + name);
+    setStatus(tt("saved") + (result.modeChanged ? " " + tt("modeSwitched") : ""), "ok");
     await refreshAll();
   } catch (err) {
     setStatus(t("failed") + err.message, "err");
@@ -524,9 +593,12 @@ function setupEditor() {
   $("einkPreview").addEventListener("change", renderPreview);
   $("saveBtn").addEventListener("click", saveToDevice);
   $("resetBtn").addEventListener("click", resetAdjustments);
-  $("unpinBtn").addEventListener("click", () =>
-    unpinImage()
-      .then(refreshAll)
+  $("rotateBtn").addEventListener("click", () =>
+    rotateImages()
+      .then((result) => {
+        if (result.modeChanged) setStatus(tt("modeSwitched"), "ok");
+        return refreshAll();
+      })
       .catch((err) => alert(t("failed") + err.message)),
   );
 
@@ -555,4 +627,8 @@ function setupEditor() {
 
 applyTranslations();
 setupEditor();
+document.querySelectorAll("#screenTabs button").forEach((b) => {
+  b.classList.toggle("active", b.dataset.target === state.target);
+  b.addEventListener("click", () => selectTab(b.dataset.target));
+});
 refreshAll();

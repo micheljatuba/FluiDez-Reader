@@ -105,10 +105,10 @@ Antes de resolver um conflito, leia o commit do upstream e o PR citado nele (por
 
 | Onde | O que fazer |
 | --- | --- |
-| `lib/I18n/translations/*.yaml` | Mantenha os textos da marca FluiDez (`STR_CROSSINK` = "FluiDez Reader", modo de renderização "FluiDez Default") e aceite as chaves novas do upstream. |
+| `lib/I18n/translations/*.yaml` | Mantenha os textos da marca FluiDez (`STR_FLUIDEZ` = "FluiDez Reader", modo de renderização "FluiDez Default") e aceite as chaves novas do upstream. |
 | `docs/` | Mantenha o nome FluiDez Reader e aproveite o conteúdo técnico novo. |
 | `CHANGELOG.md` | Não copie o changelog do CrossInk. Adicione em `[Unreleased]` uma linha resumindo a sincronização, com link para o changelog do CrossInk. Em `NOVIDADES.md`, resuma em `[Próxima versão]`, em português, o que a sincronização muda para quem usa o leitor. |
-| `platformio.ini` | Preserve a versão FluiDez em `[crossink] version`, os idiomas de `custom_i18n_builtin_langs` e os nomes USB `FluiDez_*`. |
+| `platformio.ini` | Preserve a versão FluiDez em `[fluidez] version`, os idiomas de `custom_i18n_builtin_langs` e os nomes USB `FluiDez_*`. |
 | `src/network/OtaUpdater.cpp` | Mantenha as atualizações apontando para `micheljatuba/FluiDez-Reader`. |
 | `README.md`, `SCOPE.md`, `.github/`, `docs/brand/` | São do FluiDez: mantenha a versão local. |
 | Arquivos removidos no FluiDez (`site/`, `docs/catalog`, `docs/CNAME`, `.github/FUNDING.yml`, `.github/ISSUE_TEMPLATE/`, `.github/aw/`, `.github/skills/`, `scripts/generate_release_catalog.py`, `src/images/crossink.png`, `src/images/crossink-white.png`, `src/images/Logo120.h`) | Mantenha-os removidos com `git rm`. |

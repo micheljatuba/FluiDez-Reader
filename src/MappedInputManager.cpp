@@ -8,10 +8,10 @@
 #include <cstdlib>
 #include <utility>
 
-#include "CrossPointSettings.h"
 #include "DeviceCapabilities.h"
+#include "FluiDezSettings.h"
 #include "GlobalActions.h"
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
 #include "components/TouchRegistry.h"
 #endif
 #include "components/UITheme.h"
@@ -40,17 +40,17 @@ struct SideLayoutMap {
 };
 
 bool shouldSwapReaderSideButtons(const bool readerMode) {
-  return readerMode && SETTINGS.sideButtonOrientationAware && SETTINGS.orientation != CrossPointSettings::PORTRAIT;
+  return readerMode && SETTINGS.sideButtonOrientationAware && SETTINGS.orientation != FluiDezSettings::PORTRAIT;
 }
 
-bool shouldSwapReaderFrontNavButtons(const CrossPointSettings::FRONT_BUTTON_ORIENTATION_AWARE orientationMode) {
-  if (orientationMode == CrossPointSettings::FRONT_ORIENTATION_AWARE_OFF) {
+bool shouldSwapReaderFrontNavButtons(const FluiDezSettings::FRONT_BUTTON_ORIENTATION_AWARE orientationMode) {
+  if (orientationMode == FluiDezSettings::FRONT_ORIENTATION_AWARE_OFF) {
     return false;
   }
-  return SETTINGS.orientation == CrossPointSettings::LANDSCAPE_CW ||
-         SETTINGS.orientation == CrossPointSettings::LANDSCAPE_CCW ||
-         (orientationMode == CrossPointSettings::FRONT_ORIENTATION_AWARE_NAV_BUTTONS &&
-          SETTINGS.orientation == CrossPointSettings::INVERTED);
+  return SETTINGS.orientation == FluiDezSettings::LANDSCAPE_CW ||
+         SETTINGS.orientation == FluiDezSettings::LANDSCAPE_CCW ||
+         (orientationMode == FluiDezSettings::FRONT_ORIENTATION_AWARE_NAV_BUTTONS &&
+          SETTINGS.orientation == FluiDezSettings::INVERTED);
 }
 
 ButtonIndex invertFrontButtonPosition(const ButtonIndex button) {
@@ -75,10 +75,10 @@ ButtonIndex mapFrontButtonForReaderOrientation(const ButtonIndex button, const B
   }
 
   const auto orientationMode =
-      static_cast<CrossPointSettings::FRONT_BUTTON_ORIENTATION_AWARE>(SETTINGS.frontButtonOrientationAware);
+      static_cast<FluiDezSettings::FRONT_BUTTON_ORIENTATION_AWARE>(SETTINGS.frontButtonOrientationAware);
 
-  if (orientationMode == CrossPointSettings::FRONT_ORIENTATION_AWARE_ALL_BUTTONS &&
-      SETTINGS.orientation == CrossPointSettings::INVERTED) {
+  if (orientationMode == FluiDezSettings::FRONT_ORIENTATION_AWARE_ALL_BUTTONS &&
+      SETTINGS.orientation == FluiDezSettings::INVERTED) {
     return invertFrontButtonPosition(button);
   }
 
@@ -169,10 +169,10 @@ bool MappedInputManager::mapButton(const Button button, bool (HalGPIO::*fn)(uint
   const ButtonIndex up = mapSideButtonForReaderOrientation(HalGPIO::BTN_UP, readerMode);
   const ButtonIndex down = mapSideButtonForReaderOrientation(HalGPIO::BTN_DOWN, readerMode);
   const SideLayoutMap side = {
-      SETTINGS.sideButtonUpShort == CrossPointSettings::PREVIOUS_PAGE ? up : kNoButton,
-      SETTINGS.sideButtonDownShort == CrossPointSettings::PREVIOUS_PAGE ? down : kNoButton,
-      SETTINGS.sideButtonUpShort == CrossPointSettings::PAGE_TURN ? up : kNoButton,
-      SETTINGS.sideButtonDownShort == CrossPointSettings::PAGE_TURN ? down : kNoButton,
+      SETTINGS.sideButtonUpShort == FluiDezSettings::PREVIOUS_PAGE ? up : kNoButton,
+      SETTINGS.sideButtonDownShort == FluiDezSettings::PREVIOUS_PAGE ? down : kNoButton,
+      SETTINGS.sideButtonUpShort == FluiDezSettings::PAGE_TURN ? up : kNoButton,
+      SETTINGS.sideButtonDownShort == FluiDezSettings::PAGE_TURN ? down : kNoButton,
   };
   const auto sideEvent = [&](const ButtonIndex physical) {
     if (physical == kNoButton) return false;
@@ -238,16 +238,16 @@ uint8_t MappedInputManager::mappedFrontButtonFor(const Button button) const {
 bool MappedInputManager::shouldUsePowerAsConfirmFallback() const { return !readerMode || powerAsConfirmInReaderMode; }
 
 bool MappedInputManager::isFrontNavButtonSwapActive() const {
-  return readerMode && shouldSwapReaderFrontNavButtons(static_cast<CrossPointSettings::FRONT_BUTTON_ORIENTATION_AWARE>(
+  return readerMode && shouldSwapReaderFrontNavButtons(static_cast<FluiDezSettings::FRONT_BUTTON_ORIENTATION_AWARE>(
                            SETTINGS.frontButtonOrientationAware));
 }
 
 bool MappedInputManager::shouldMirrorPowerAsConfirmHold() const {
   return shouldUsePowerAsConfirmFallback() &&
-         !isPowerButtonActionAvailableOutsideReader(static_cast<CrossPointSettings::SHORT_PWRBTN>(SETTINGS.longPwrBtn));
+         !isPowerButtonActionAvailableOutsideReader(static_cast<FluiDezSettings::SHORT_PWRBTN>(SETTINGS.longPwrBtn));
 }
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
 bool MappedInputManager::touchInputEnabled() const {
   return gpio.hasTouch() && (!readerMode || !SETTINGS.disableReaderTouchscreen || readerTouchscreenOverride);
 }
@@ -706,8 +706,8 @@ MappedInputManager::SwipeDir MappedInputManager::wasSwipe() const {
 bool MappedInputManager::wasBackGesture() const {
   if (!touchInputEnabled()) return false;
   // A disabled previous-page swipe must not fall through to Back/Home.
-  if (readerMode && SETTINGS.previousPageGesture != CrossPointSettings::TAP_AND_SWIPE &&
-      SETTINGS.previousPageGesture != CrossPointSettings::SWIPE_ONLY) {
+  if (readerMode && SETTINGS.previousPageGesture != FluiDezSettings::TAP_AND_SWIPE &&
+      SETTINGS.previousPageGesture != FluiDezSettings::SWIPE_ONLY) {
     return false;
   }
   // Back = left-to-right swipe starting near the left edge. Edge-anchored so that
@@ -813,7 +813,7 @@ bool MappedInputManager::wasHomeGesture() const {
     clearDeferredHomeGesture();
     return false;
   }
-  if (SETTINGS.homeButtonTapAction != CrossPointSettings::HOME_BUTTON_BACK_HOME) return false;
+  if (SETTINGS.homeButtonTapAction != FluiDezSettings::HOME_BUTTON_BACK_HOME) return false;
   // A swipe starting on the lower bezel can also report a short capacitive Home
   // tap on the X4 Pro. The screen gesture belongs to the active list/reader, so
   // give it priority over the global Home route for this release frame.
@@ -832,7 +832,7 @@ bool MappedInputManager::wasHomeGesture() const {
 bool MappedInputManager::wasReaderMenuHold() const {
   if (!hasHomeKeyHardware()) return false;
   if (isHomeButtonLockedInReader()) return false;
-  if (SETTINGS.homeButtonLongPressAction != CrossPointSettings::HOME_BUTTON_READER_MENU) return false;
+  if (SETTINGS.homeButtonLongPressAction != FluiDezSettings::HOME_BUTTON_READER_MENU) return false;
 #ifdef SIMULATOR
   return simulatorHomeKeyInput.wasLongPressed();
 #else
@@ -869,7 +869,7 @@ bool MappedInputManager::wasPressed(const Button button) const {
 
     return shouldUsePowerAsConfirmFallback() &&
            !isPowerButtonActionAvailableOutsideReader(
-               static_cast<CrossPointSettings::SHORT_PWRBTN>(SETTINGS.shortPwrBtn)) &&
+               static_cast<FluiDezSettings::SHORT_PWRBTN>(SETTINGS.shortPwrBtn)) &&
            gpio.wasPressed(HalGPIO::BTN_POWER);
   }
 
@@ -897,7 +897,7 @@ bool MappedInputManager::wasReleased(const Button button) const {
       return true;
     }
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
     if (!simulatedRelease && !mapButton(button, &HalGPIO::wasReleased) &&
         !wasFrontButtonHintTapped(mappedFrontButtonFor(button))) {
       return false;
@@ -937,8 +937,8 @@ bool MappedInputManager::wasReleased(const Button button) const {
     }
 
     const bool longPress = gpio.getHeldTime() >= SETTINGS.getPowerButtonLongPressDuration();
-    const auto action = longPress ? static_cast<CrossPointSettings::SHORT_PWRBTN>(SETTINGS.longPwrBtn)
-                                  : static_cast<CrossPointSettings::SHORT_PWRBTN>(SETTINGS.shortPwrBtn);
+    const auto action = longPress ? static_cast<FluiDezSettings::SHORT_PWRBTN>(SETTINGS.longPwrBtn)
+                                  : static_cast<FluiDezSettings::SHORT_PWRBTN>(SETTINGS.shortPwrBtn);
     return !isPowerButtonActionAvailableOutsideReader(action);
   }
 
@@ -998,7 +998,7 @@ bool MappedInputManager::isPressed(const Button button) const {
     }
 
     return !isPowerButtonActionAvailableOutsideReader(
-               static_cast<CrossPointSettings::SHORT_PWRBTN>(SETTINGS.shortPwrBtn)) ||
+               static_cast<FluiDezSettings::SHORT_PWRBTN>(SETTINGS.shortPwrBtn)) ||
            gpio.getHeldTime() >= SETTINGS.getPowerButtonLongPressDuration();
   }
 
@@ -1020,7 +1020,7 @@ bool MappedInputManager::wasAnyPressed() const {
     return true;
   }
 #endif
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   int id = -1;
   if (wasRegistryTargetTouchedDown(TouchRegistry::Kind::Button, id)) {
     return true;
@@ -1035,7 +1035,7 @@ bool MappedInputManager::wasAnyReleased() const {
     return true;
   }
 #endif
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   int id = -1;
   if (wasRegistryTargetTapped(TouchRegistry::Kind::Button, id)) {
     return true;
@@ -1046,7 +1046,7 @@ bool MappedInputManager::wasAnyReleased() const {
 
 unsigned long MappedInputManager::getHeldTime() const {
   unsigned long heldTime = gpio.getHeldTime();
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   if (!gpio.wasAnyPressed() && !gpio.wasAnyReleased() && touchHeldOverrideValid &&
       millis() - touchHeldOverrideAt <= TOUCH_HELD_OVERRIDE_WINDOW_MS) {
     heldTime = touchHeldOverrideMs;
@@ -1165,7 +1165,7 @@ int MappedInputManager::getPressedFrontButton() const {
   if (gpio.wasPressed(HalGPIO::BTN_RIGHT)) {
     return HalGPIO::BTN_RIGHT;
   }
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   int id = -1;
   if (wasRegistryTargetTouchedDown(TouchRegistry::Kind::Button, id) && id >= HalGPIO::BTN_BACK &&
       id <= HalGPIO::BTN_RIGHT) {
@@ -1190,7 +1190,7 @@ int MappedInputManager::getReleasedFrontButton() const {
   if (gpio.wasReleased(HalGPIO::BTN_RIGHT)) {
     return HalGPIO::BTN_RIGHT;
   }
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   int id = -1;
   if (wasRegistryTargetTapped(TouchRegistry::Kind::Button, id) && id >= HalGPIO::BTN_BACK && id <= HalGPIO::BTN_RIGHT) {
     return id;
@@ -1222,7 +1222,7 @@ void MappedInputManager::simulatorInjectRelease(Button button) {
 void MappedInputManager::simulatorClearInputFrame() {
   simulatorPressed.fill(false);
   simulatorReleased.fill(false);
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   const bool suppressedContactReleased = suppressSimulatedTouchContact && simulatorTouch.releasedThisFrame;
   simulatorTouch.pressedThisFrame = false;
   simulatorTouch.releasedThisFrame = false;
@@ -1234,7 +1234,7 @@ void MappedInputManager::simulatorClearInputFrame() {
 #endif
 }
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
 void MappedInputManager::simulatorInjectTouchDown(const int x, const int y) {
   simulatorTouch.pressed = true;
   simulatorTouch.pressedThisFrame = true;

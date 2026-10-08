@@ -32,8 +32,8 @@
 #include "../reader/XtcReaderActivity.h"
 #include "AppCapabilities.h"
 #include "AppVersion.h"
-#include "CrossPointSettings.h"
-#include "CrossPointState.h"
+#include "FluiDezSettings.h"
+#include "FluiDezState.h"
 #include "ImageFolderIndex.h"
 #include "RecentBooksStore.h"
 #include "SleepCoverAssets.h"
@@ -52,7 +52,7 @@ constexpr bool TURN_OFF_SCREEN_AFTER_SLEEP_REFRESH = true;
 constexpr int sleepBuildInfoSideMargin = 20;
 
 bool sleepCoverFilterInvertsGeneratedScreen() {
-  return SETTINGS.sleepScreenCoverFilter == CrossPointSettings::SLEEP_SCREEN_COVER_FILTER::INVERTED_BLACK_AND_WHITE;
+  return SETTINGS.sleepScreenCoverFilter == FluiDezSettings::SLEEP_SCREEN_COVER_FILTER::INVERTED_BLACK_AND_WHITE;
 }
 
 void hideOverlayBatteryStrip(const GfxRenderer& renderer) {
@@ -72,7 +72,7 @@ void hideOverlayBatteryStrip(const GfxRenderer& renderer) {
 
   const int textY = renderer.getScreenHeight() - statusBarHeight - orientedMarginBottom - 4;
   const bool showBatteryPercentage =
-      SETTINGS.hideBatteryPercentage == CrossPointSettings::HIDE_BATTERY_PERCENTAGE::HIDE_NEVER;
+      SETTINGS.hideBatteryPercentage == FluiDezSettings::HIDE_BATTERY_PERCENTAGE::HIDE_NEVER;
 
   // Reserve the full left-side status indicator lane used by bookmark + battery.
   // This keeps chapter/progress text readable while removing the battery glance target.
@@ -420,8 +420,8 @@ bool selectRandomSleepImage(SleepImageMode mode, SleepImageSelection& selection,
                                    : static_cast<uint8_t>(ImageFolderIndex::KIND_PNG | ImageFolderIndex::KIND_JPEG));
   ImageFolderIndex::Selection indexedSelection;
   if (ImageFolderIndex::select(sleepDir, kinds, validateBmpHeaders, APP_STATE.recentSleepImages,
-                               CrossPointState::SLEEP_RECENT_COUNT, APP_STATE.recentSleepPos, APP_STATE.recentSleepFill,
-                               std::min(APP_STATE.recentSleepFill, CrossPointState::SLEEP_RECENT_COUNT),
+                               FluiDezState::SLEEP_RECENT_COUNT, APP_STATE.recentSleepPos, APP_STATE.recentSleepFill,
+                               std::min(APP_STATE.recentSleepFill, FluiDezState::SLEEP_RECENT_COUNT),
                                indexedSelection)) {
     selection.path = std::move(indexedSelection.path);
     selection.isPng = indexedSelection.isPng;
@@ -442,7 +442,7 @@ bool selectRandomSleepImage(SleepImageMode mode, SleepImageSelection& selection,
   uint16_t selectedIndex = 0;
   uint16_t nonRecentCount = 0;
   uint16_t nonRecentIndex = 0;
-  const uint8_t recentWindow = std::min(APP_STATE.recentSleepFill, CrossPointState::SLEEP_RECENT_COUNT);
+  const uint8_t recentWindow = std::min(APP_STATE.recentSleepFill, FluiDezState::SLEEP_RECENT_COUNT);
   const auto setSleepImagePath = [&](std::string& path, std::string_view filename) {
     path = sleepDir;
     path += '/';
@@ -529,9 +529,9 @@ bool selectRandomSleepImage(SleepImageMode mode, SleepImageSelection& selection,
 void SleepActivity::onEnter() {
   Activity::onEnter();
   const bool renderQuickResume =
-      SETTINGS.sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::QUICK_RESUME ||
+      SETTINGS.sleepScreen == FluiDezSettings::SLEEP_SCREEN_MODE::QUICK_RESUME ||
       (fromTimeout &&
-       SETTINGS.quickResumeSleepScreen == CrossPointSettings::QUICK_RESUME_SLEEP_SCREEN::QUICK_RESUME_AFTER_TIMEOUT);
+       SETTINGS.quickResumeSleepScreen == FluiDezSettings::QUICK_RESUME_SLEEP_SCREEN::QUICK_RESUME_AFTER_TIMEOUT);
 
   // Sleep screens draw directly, outside ActivityManager's normal render path.
   // Quick Resume retains the current screen, so preserve its Night Mode output;
@@ -543,22 +543,22 @@ void SleepActivity::onEnter() {
   }
 
   const auto sleepScreen = SETTINGS.sleepScreen;
-  const bool sleepScreenUsesRecentBooks = sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::READING_STATS_SLEEP ||
-                                          sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::MINIMAL_SLEEP ||
-                                          sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::MINIMAL_STATS_SLEEP ||
-                                          sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::DASHBOARD_SLEEP;
+  const bool sleepScreenUsesRecentBooks = sleepScreen == FluiDezSettings::SLEEP_SCREEN_MODE::READING_STATS_SLEEP ||
+                                          sleepScreen == FluiDezSettings::SLEEP_SCREEN_MODE::MINIMAL_SLEEP ||
+                                          sleepScreen == FluiDezSettings::SLEEP_SCREEN_MODE::MINIMAL_STATS_SLEEP ||
+                                          sleepScreen == FluiDezSettings::SLEEP_SCREEN_MODE::DASHBOARD_SLEEP;
   const std::string& recentBookPath = currentBookPath.empty() ? APP_STATE.openEpubPath : currentBookPath;
   if (sleepScreenUsesRecentBooks && !recentBookPath.empty()) {
     RECENT_BOOKS.ensureLoaded();
   }
 
   overlayBackgroundBufferStored =
-      sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::OVERLAY && renderer.storeBwBuffer();
+      sleepScreen == FluiDezSettings::SLEEP_SCREEN_MODE::OVERLAY && renderer.storeBwBuffer();
 
   // X4 Pro and X4 Classic share a panel that can retain this high-contrast
   // transient update beneath the final OEM-style sleep refresh. Render only
   // the final sleep frame on that panel family.
-  const bool showSleepPopup = !BoardConfig::isX4Pro() && !CROSSINK_APP_DEVICE_X4CLASSIC;
+  const bool showSleepPopup = !BoardConfig::isX4Pro() && !FLUIDEZ_APP_DEVICE_X4CLASSIC;
   // Show the popup in the orientation that was visible before reader exit restores
   // global settings. Reset to portrait afterwards so sleep screen layout stays unchanged.
   if (APP_STATE.lastSleepFromReader) {
@@ -572,29 +572,29 @@ void SleepActivity::onEnter() {
   }
 
   switch (sleepScreen) {
-    case (CrossPointSettings::SLEEP_SCREEN_MODE::BLANK):
+    case (FluiDezSettings::SLEEP_SCREEN_MODE::BLANK):
       return renderBlankSleepScreen();
-    case (CrossPointSettings::SLEEP_SCREEN_MODE::CUSTOM):
+    case (FluiDezSettings::SLEEP_SCREEN_MODE::CUSTOM):
       return renderCustomSleepScreen();
-    case (CrossPointSettings::SLEEP_SCREEN_MODE::COVER):
+    case (FluiDezSettings::SLEEP_SCREEN_MODE::COVER):
       return renderCoverSleepScreen();
-    case (CrossPointSettings::SLEEP_SCREEN_MODE::COVER_CUSTOM):
+    case (FluiDezSettings::SLEEP_SCREEN_MODE::COVER_CUSTOM):
       if (APP_STATE.lastSleepFromReader) {
         return renderCoverSleepScreen();
       } else {
         return renderCustomSleepScreen();
       }
-    case (CrossPointSettings::SLEEP_SCREEN_MODE::OVERLAY):
+    case (FluiDezSettings::SLEEP_SCREEN_MODE::OVERLAY):
       return renderOverlaySleepScreen();
-    case (CrossPointSettings::SLEEP_SCREEN_MODE::READING_STATS_SLEEP):
+    case (FluiDezSettings::SLEEP_SCREEN_MODE::READING_STATS_SLEEP):
       if (!BookStatsTracking::isEnabled(bookStatsCachePathFor(recentBookPath))) return renderMinimalSleepScreen();
       return renderReadingStatsSleepScreen();
-    case (CrossPointSettings::SLEEP_SCREEN_MODE::MINIMAL_SLEEP):
+    case (FluiDezSettings::SLEEP_SCREEN_MODE::MINIMAL_SLEEP):
       return renderMinimalSleepScreen();
-    case (CrossPointSettings::SLEEP_SCREEN_MODE::MINIMAL_STATS_SLEEP):
+    case (FluiDezSettings::SLEEP_SCREEN_MODE::MINIMAL_STATS_SLEEP):
       if (!BookStatsTracking::isEnabled(bookStatsCachePathFor(recentBookPath))) return renderMinimalSleepScreen();
       return renderMinimalStatsSleepScreen();
-    case (CrossPointSettings::SLEEP_SCREEN_MODE::DASHBOARD_SLEEP):
+    case (FluiDezSettings::SLEEP_SCREEN_MODE::DASHBOARD_SLEEP):
       return renderDashboardSleepScreen();
     default:
       return renderDefaultSleepScreen();
@@ -606,27 +606,26 @@ bool SleepActivity::rendersBeforeExit() const {
   // images can otherwise compete with the reader for scarce internal memory.
   if (!psramHeapAvailable()) return false;
   if (fromTimeout &&
-      SETTINGS.quickResumeSleepScreen == CrossPointSettings::QUICK_RESUME_SLEEP_SCREEN::QUICK_RESUME_AFTER_TIMEOUT) {
+      SETTINGS.quickResumeSleepScreen == FluiDezSettings::QUICK_RESUME_SLEEP_SCREEN::QUICK_RESUME_AFTER_TIMEOUT) {
     return false;
   }
   switch (SETTINGS.sleepScreen) {
-    case CrossPointSettings::SLEEP_SCREEN_MODE::DARK:
-    case CrossPointSettings::SLEEP_SCREEN_MODE::LIGHT:
-    case CrossPointSettings::SLEEP_SCREEN_MODE::BLANK:
-    case CrossPointSettings::SLEEP_SCREEN_MODE::CUSTOM:
+    case FluiDezSettings::SLEEP_SCREEN_MODE::DARK:
+    case FluiDezSettings::SLEEP_SCREEN_MODE::LIGHT:
+    case FluiDezSettings::SLEEP_SCREEN_MODE::BLANK:
+    case FluiDezSettings::SLEEP_SCREEN_MODE::CUSTOM:
       return true;
-    case CrossPointSettings::SLEEP_SCREEN_MODE::COVER:
-    case CrossPointSettings::SLEEP_SCREEN_MODE::COVER_CUSTOM: {
-      if (SETTINGS.sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::COVER_CUSTOM &&
-          !APP_STATE.lastSleepFromReader) {
+    case FluiDezSettings::SLEEP_SCREEN_MODE::COVER:
+    case FluiDezSettings::SLEEP_SCREEN_MODE::COVER_CUSTOM: {
+      if (SETTINGS.sleepScreen == FluiDezSettings::SLEEP_SCREEN_MODE::COVER_CUSTOM && !APP_STATE.lastSleepFromReader) {
         return true;
       }
       const std::string& path = currentBookPath.empty() ? APP_STATE.openEpubPath : currentBookPath;
       if (path.empty()) return true;
       // Uncached covers still need the memory and file handles released on exit.
       const bool absolute = renderer.supportsAbsoluteGrayscale() &&
-                            SETTINGS.sleepScreenCoverFilter == CrossPointSettings::SLEEP_SCREEN_COVER_FILTER::NO_FILTER;
-      const bool cropped = SETTINGS.sleepScreenCoverMode == CrossPointSettings::SLEEP_SCREEN_COVER_MODE::CROP;
+                            SETTINGS.sleepScreenCoverFilter == FluiDezSettings::SLEEP_SCREEN_COVER_FILTER::NO_FILTER;
+      const bool cropped = SETTINGS.sleepScreenCoverMode == FluiDezSettings::SLEEP_SCREEN_COVER_MODE::CROP;
       return !SleepCoverAssets::cachedCoverPathFor(path, cropped, absolute).empty();
     }
     default:
@@ -639,9 +638,8 @@ bool SleepActivity::rendersBeforeExit() const {
 void SleepActivity::renderCustomSleepScreen() const {
   const auto tryRenderSelection = [this](const SleepImageSelection& selection) {
     // Use image-specific gray levels only when the panel accepts complete planes.
-    const bool imageLevels =
-        renderer.supportsAbsoluteGrayscale() &&
-        SETTINGS.sleepScreenCoverFilter == CrossPointSettings::SLEEP_SCREEN_COVER_FILTER::NO_FILTER;
+    const bool imageLevels = renderer.supportsAbsoluteGrayscale() &&
+                             SETTINGS.sleepScreenCoverFilter == FluiDezSettings::SLEEP_SCREEN_COVER_FILTER::NO_FILTER;
     std::string bmpPath;
     if (!SleepImageConverter::resolveRenderableBmp(selection.path, imageLevels, bmpPath)) {
       LOG_ERR("SLP", "Cannot prepare custom sleep image: %s", selection.path.c_str());
@@ -692,7 +690,7 @@ void SleepActivity::renderCustomSleepScreen() const {
   if (Storage.openFileForRead("SLP", "/sleep.bmp", file)) {
     Bitmap bitmap(file, true,
                   renderer.supportsAbsoluteGrayscale() &&
-                      SETTINGS.sleepScreenCoverFilter == CrossPointSettings::SLEEP_SCREEN_COVER_FILTER::NO_FILTER);
+                      SETTINGS.sleepScreenCoverFilter == FluiDezSettings::SLEEP_SCREEN_COVER_FILTER::NO_FILTER);
     if (bitmap.parseHeaders() == BmpReaderError::Ok) {
       const bool success = renderBitmapSleepScreen(bitmap);
       file.close();
@@ -718,13 +716,13 @@ void SleepActivity::renderDefaultSleepScreen() const {
   renderer.drawCenteredText(SMALL_FONT_ID, lockupBottom + statusGap, tr(STR_SLEEPING));
 
   // Make sleep screen dark unless light is selected in settings
-  const bool lightSleepScreen = SETTINGS.sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::LIGHT;
+  const bool lightSleepScreen = SETTINGS.sleepScreen == FluiDezSettings::SLEEP_SCREEN_MODE::LIGHT;
   if (!lightSleepScreen) {
     renderer.invertScreen();
   }
 
-#ifdef CROSSINK_SHOW_SLEEP_BUILD_INFO
-  const std::string buildInfo = std::string(CROSSINK_BUILD_ENV) + " " + AppVersion::version();
+#ifdef FLUIDEZ_SHOW_SLEEP_BUILD_INFO
+  const std::string buildInfo = std::string(FLUIDEZ_BUILD_ENV) + " " + AppVersion::version();
   const std::string visibleBuildInfo = renderer.truncatedText(SMALL_FONT_ID, buildInfo.c_str(),
                                                               renderer.getScreenWidth() - sleepBuildInfoSideMargin * 2);
   renderer.drawCenteredText(SMALL_FONT_ID, lockupBottom + statusGap + statusHeight + 8, visibleBuildInfo.c_str(),
@@ -742,7 +740,7 @@ bool SleepActivity::renderBitmapSleepScreen(Bitmap& bitmap) const {
 
   // Keep error diffusion on the screen-sized grid. Resampling an already
   // dithered source makes the source pattern alias into regular seams.
-  if (SETTINGS.sleepScreenCoverMode == CrossPointSettings::SLEEP_SCREEN_COVER_MODE::FIT &&
+  if (SETTINGS.sleepScreenCoverMode == FluiDezSettings::SLEEP_SCREEN_COVER_MODE::FIT &&
       (bitmap.getWidth() > pageWidth || bitmap.getHeight() > pageHeight)) {
     const float scale = std::min(static_cast<float>(pageWidth) / bitmap.getWidth(),
                                  static_cast<float>(pageHeight) / bitmap.getHeight());
@@ -758,7 +756,7 @@ bool SleepActivity::renderBitmapSleepScreen(Bitmap& bitmap) const {
 
     if (ratio > screenRatio) {
       // image wider than viewport ratio, scaled down image needs to be centered vertically
-      if (SETTINGS.sleepScreenCoverMode == CrossPointSettings::SLEEP_SCREEN_COVER_MODE::CROP) {
+      if (SETTINGS.sleepScreenCoverMode == FluiDezSettings::SLEEP_SCREEN_COVER_MODE::CROP) {
         cropX = 1.0f - (screenRatio / ratio);
         ratio = (1.0f - cropX) * static_cast<float>(bitmap.getWidth()) / static_cast<float>(bitmap.getHeight());
       }
@@ -766,7 +764,7 @@ bool SleepActivity::renderBitmapSleepScreen(Bitmap& bitmap) const {
       y = std::round((static_cast<float>(pageHeight) - static_cast<float>(pageWidth) / ratio) / 2);
     } else {
       // image taller than viewport ratio, scaled down image needs to be centered horizontally
-      if (SETTINGS.sleepScreenCoverMode == CrossPointSettings::SLEEP_SCREEN_COVER_MODE::CROP) {
+      if (SETTINGS.sleepScreenCoverMode == FluiDezSettings::SLEEP_SCREEN_COVER_MODE::CROP) {
         cropY = 1.0f - (ratio / screenRatio);
         ratio = static_cast<float>(bitmap.getWidth()) / ((1.0f - cropY) * static_cast<float>(bitmap.getHeight()));
       }
@@ -781,8 +779,8 @@ bool SleepActivity::renderBitmapSleepScreen(Bitmap& bitmap) const {
 
   renderer.clearScreen();
 
-  const bool hasGreyscale = bitmap.hasGreyscale() &&
-                            SETTINGS.sleepScreenCoverFilter == CrossPointSettings::SLEEP_SCREEN_COVER_FILTER::NO_FILTER;
+  const bool hasGreyscale =
+      bitmap.hasGreyscale() && SETTINGS.sleepScreenCoverFilter == FluiDezSettings::SLEEP_SCREEN_COVER_FILTER::NO_FILTER;
   const bool absolute = renderer.supportsAbsoluteGrayscale();
   const bool direct = absolute && renderer.supportsDirectGrayscale();
 
@@ -790,7 +788,7 @@ bool SleepActivity::renderBitmapSleepScreen(Bitmap& bitmap) const {
   // still need the B/W base, so only Direct can skip this extra image decode.
   if (!hasGreyscale || !direct) {
     if (!renderer.drawBitmap(bitmap, x, y, pageWidth, pageHeight, cropX, cropY)) return false;
-    if (SETTINGS.sleepScreenCoverFilter == CrossPointSettings::SLEEP_SCREEN_COVER_FILTER::INVERTED_BLACK_AND_WHITE) {
+    if (SETTINGS.sleepScreenCoverFilter == FluiDezSettings::SLEEP_SCREEN_COVER_FILTER::INVERTED_BLACK_AND_WHITE) {
       renderer.invertScreen();
     }
   }
@@ -837,7 +835,7 @@ bool SleepActivity::renderBitmapSleepScreen(Bitmap& bitmap) const {
 void SleepActivity::renderCoverSleepScreen() const {
   void (SleepActivity::*renderNoCoverSleepScreen)() const;
   switch (SETTINGS.sleepScreen) {
-    case (CrossPointSettings::SLEEP_SCREEN_MODE::COVER_CUSTOM):
+    case (FluiDezSettings::SLEEP_SCREEN_MODE::COVER_CUSTOM):
       renderNoCoverSleepScreen = &SleepActivity::renderCustomSleepScreen;
       break;
     default:
@@ -851,8 +849,8 @@ void SleepActivity::renderCoverSleepScreen() const {
   }
 
   const bool absolute = renderer.supportsAbsoluteGrayscale() &&
-                        SETTINGS.sleepScreenCoverFilter == CrossPointSettings::SLEEP_SCREEN_COVER_FILTER::NO_FILTER;
-  bool cropped = SETTINGS.sleepScreenCoverMode == CrossPointSettings::SLEEP_SCREEN_COVER_MODE::CROP;
+                        SETTINGS.sleepScreenCoverFilter == FluiDezSettings::SLEEP_SCREEN_COVER_FILTER::NO_FILTER;
+  bool cropped = SETTINGS.sleepScreenCoverMode == FluiDezSettings::SLEEP_SCREEN_COVER_MODE::CROP;
   std::string coverBmpPath = SleepCoverAssets::cachedCoverPathFor(path, cropped, absolute);
   if (coverBmpPath.empty() && SleepCoverAssets::prepareFullCoverForPath(path, cropped, &renderer, absolute)) {
     coverBmpPath = SleepCoverAssets::cachedCoverPathFor(path, cropped, absolute);

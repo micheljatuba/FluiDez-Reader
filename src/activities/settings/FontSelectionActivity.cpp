@@ -10,8 +10,8 @@
 #include <cstdio>
 #include <cstring>
 
-#include "CrossPointSettings.h"
-#include "CrossPointState.h"
+#include "FluiDezSettings.h"
+#include "FluiDezState.h"
 #include "MappedInputManager.h"
 #include "SdCardFontSystem.h"
 #include "activities/reader/TouchReaderPreviewModel.h"
@@ -61,12 +61,12 @@ int findCurrentFontIndex(const SdCardFontRegistry* registry, const char* sdFontF
     const auto& families = registry->getFamilies();
     for (int i = 0; i < static_cast<int>(families.size()); i++) {
       if (families[i].name == sdFontFamilyName) {
-        return CrossPointSettings::BUILTIN_FONT_COUNT + i;
+        return FluiDezSettings::BUILTIN_FONT_COUNT + i;
       }
     }
   }
 
-  return fontFamily < CrossPointSettings::BUILTIN_FONT_COUNT ? fontFamily : 0;
+  return fontFamily < FluiDezSettings::BUILTIN_FONT_COUNT ? fontFamily : 0;
 }
 }  // namespace
 
@@ -98,7 +98,7 @@ void FontSelectionActivity::onEnter() {
   originalSdFontFamilyName_[sizeof(originalSdFontFamilyName_) - 1] = '\0';
 
   fonts_.clear();
-  fonts_.reserve(CrossPointSettings::BUILTIN_FONT_COUNT + (registry_ ? registry_->getFamilyCount() : 0));
+  fonts_.reserve(FluiDezSettings::BUILTIN_FONT_COUNT + (registry_ ? registry_->getFamilyCount() : 0));
 
   constexpr auto builtinRange = BUILTIN_FONT_POINT_SIZE_RANGE;
   fonts_.push_back({fontFamilyLabel(I18N.get(StrId::STR_LEXEND_DECA), builtinRange), true, 0});
@@ -108,7 +108,7 @@ void FontSelectionActivity::onEnter() {
     const auto& families = registry_->getFamilies();
     for (int i = 0; i < static_cast<int>(families.size()); i++) {
       fonts_.push_back({fontFamilyLabel(families[i].name, fontFamilyPointSizeRange(families[i])), false,
-                        static_cast<uint8_t>(CrossPointSettings::BUILTIN_FONT_COUNT + i)});
+                        static_cast<uint8_t>(FluiDezSettings::BUILTIN_FONT_COUNT + i)});
     }
   }
 
@@ -143,7 +143,7 @@ void FontSelectionActivity::activateSelected() {
     SETTINGS.sdFontFamilyName[0] = '\0';
     sdFontSystem.ensureLoaded(renderer);
   } else if (registry_) {
-    const int sdIdx = font.settingIndex - CrossPointSettings::BUILTIN_FONT_COUNT;
+    const int sdIdx = font.settingIndex - FluiDezSettings::BUILTIN_FONT_COUNT;
     const auto& families = registry_->getFamilies();
     if (sdIdx < static_cast<int>(families.size())) {
       strncpy(SETTINGS.sdFontFamilyName, families[sdIdx].name.c_str(), sizeof(SETTINGS.sdFontFamilyName) - 1);
@@ -238,7 +238,7 @@ void FontSelectionActivity::handleSelection() {
   const bool sameBuiltin =
       font.isBuiltin && originalSdFontFamilyName_[0] == '\0' && font.settingIndex == originalFontFamily_;
   const bool sameSdFamily = !font.isBuiltin && registry_ &&
-                            registry_->getFamilies()[font.settingIndex - CrossPointSettings::BUILTIN_FONT_COUNT].name ==
+                            registry_->getFamilies()[font.settingIndex - FluiDezSettings::BUILTIN_FONT_COUNT].name ==
                                 originalSdFontFamilyName_;
   if (sameBuiltin || sameSdFamily) {
     // Previewing another family and choosing the original one is still a no-op.
@@ -254,14 +254,14 @@ void FontSelectionActivity::handleSelection() {
   const uint8_t previousPointSize = SETTINGS.readerFontPointSize;
   char previousSdFamily[sizeof(SETTINGS.sdFontFamilyName)];
   std::memcpy(previousSdFamily, SETTINGS.sdFontFamilyName, sizeof(previousSdFamily));
-  if (font.settingIndex < CrossPointSettings::BUILTIN_FONT_COUNT) {
+  if (font.settingIndex < FluiDezSettings::BUILTIN_FONT_COUNT) {
     SETTINGS.fontFamily = font.settingIndex;
     SETTINGS.sdFontFamilyName[0] = '\0';
     SETTINGS.readerFontPointSize = closestBuiltinReaderPointSize(targetPointSize);
     RenderLock lock;
     sdFontSystem.ensureLoaded(renderer);
   } else if (registry_) {
-    const int sdIdx = font.settingIndex - CrossPointSettings::BUILTIN_FONT_COUNT;
+    const int sdIdx = font.settingIndex - FluiDezSettings::BUILTIN_FONT_COUNT;
     const auto& families = registry_->getFamilies();
     if (sdIdx < static_cast<int>(families.size())) {
       const std::vector<uint8_t> sizes = families[sdIdx].availableSizes();

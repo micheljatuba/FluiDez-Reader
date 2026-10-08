@@ -300,7 +300,7 @@ std::string getPanicInfo(bool full) {
     std::string info;
 
     info += std::string("FluiDez Reader version: ") + AppVersion::version();
-    info += "\nFluiDez Reader device type: " CROSSINK_FIRMWARE_DEVICE_TYPE;
+    info += "\nFluiDez Reader device type: " FLUIDEZ_FIRMWARE_DEVICE_TYPE;
     char elfSha[65] = {};
     esp_app_get_elf_sha256(elfSha, sizeof(elfSha));
     info += "\nFirmware ELF SHA256: " + std::string(elfSha);

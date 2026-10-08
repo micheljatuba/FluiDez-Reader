@@ -34,7 +34,7 @@ void delay(const unsigned long milliseconds) {
 void yield() { ++yields; }
 
 namespace {
-struct CrossPointSettings {
+struct FluiDezSettings {
   enum class SHORT_PWRBTN { NONE, QUICK_LOCK };
   static constexpr int IGNORE = 0;
 };
@@ -53,9 +53,9 @@ struct Settings {
   int orientation = 0;
   bool fadingFix = false;
   bool disableReaderTouchscreen = false;
-  int sideButtonUpLong = CrossPointSettings::IGNORE;
-  int sideButtonDownLong = CrossPointSettings::IGNORE;
-  CrossPointSettings::SHORT_PWRBTN shortPwrBtn = CrossPointSettings::SHORT_PWRBTN::NONE;
+  int sideButtonUpLong = FluiDezSettings::IGNORE;
+  int sideButtonDownLong = FluiDezSettings::IGNORE;
+  FluiDezSettings::SHORT_PWRBTN shortPwrBtn = FluiDezSettings::SHORT_PWRBTN::NONE;
   unsigned long sleepTimeoutMs = 0;
 
   unsigned long getPowerButtonLongPressDuration() const { return 600; }
@@ -175,9 +175,9 @@ ButtonShortcutController::ChordAction configuredSideButtonChordAction() {
 ButtonShortcutController::ChordAction configuredChordAction() {
   return ButtonShortcutController::ChordAction::Disabled;
 }
-CrossPointSettings::SHORT_PWRBTN getPowerButtonAction() { return CrossPointSettings::SHORT_PWRBTN::NONE; }
-bool dispatchShortcutAction(CrossPointSettings::SHORT_PWRBTN) { return false; }
-bool handleGlobalPowerButtonAction(CrossPointSettings::SHORT_PWRBTN, QuickLockTrigger) { return false; }
+FluiDezSettings::SHORT_PWRBTN getPowerButtonAction() { return FluiDezSettings::SHORT_PWRBTN::NONE; }
+bool dispatchShortcutAction(FluiDezSettings::SHORT_PWRBTN) { return false; }
+bool handleGlobalPowerButtonAction(FluiDezSettings::SHORT_PWRBTN, QuickLockTrigger) { return false; }
 
 #ifdef SIMULATOR
 struct {

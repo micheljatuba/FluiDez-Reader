@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "MappedInputManager.h"
 #include "ReaderUtils.h"
 #include "util/QuickLockTrigger.h"
@@ -18,7 +18,7 @@ class SideButtonShortcuts {
     bool triggered = false;
     bool longPress = false;
     bool up = false;
-    uint8_t action = CrossPointSettings::IGNORE;
+    uint8_t action = FluiDezSettings::IGNORE;
   };
 
   static QuickLockTrigger quickLockTrigger(const Result& result) {
@@ -65,7 +65,7 @@ class SideButtonShortcuts {
     const bool pressed = input.isPressed(button);
     const bool released = input.wasReleased(button);
     const uint8_t longAction = up ? SETTINGS.sideButtonUpLong : SETTINGS.sideButtonDownLong;
-    if (!state.longFired && longAction != CrossPointSettings::IGNORE &&
+    if (!state.longFired && longAction != FluiDezSettings::IGNORE &&
         now - state.pressedAt >= ReaderUtils::SKIP_HOLD_MS && (pressed || released)) {
       state.longFired = true;
       result.triggered = true;

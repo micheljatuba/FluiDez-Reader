@@ -8,7 +8,7 @@
 
 #include <cstdint>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "components/UITheme.h"
 #include "components/themes/dashboard/DashboardTheme.h"
 #include "components/themes/minimal/MinimalTheme.h"
@@ -21,17 +21,17 @@ constexpr int kDashboardSleepCoverHeight = DashboardMetrics::homeCoverImageHeigh
 constexpr int kDashboardSleepCoverWidth = DashboardMetrics::homeCoverImageWidth;
 
 bool shouldPrepareFullCover() {
-  return SETTINGS.sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::COVER ||
-         SETTINGS.sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::COVER_CUSTOM;
+  return SETTINGS.sleepScreen == FluiDezSettings::SLEEP_SCREEN_MODE::COVER ||
+         SETTINGS.sleepScreen == FluiDezSettings::SLEEP_SCREEN_MODE::COVER_CUSTOM;
 }
 
 bool shouldPrepareMinimalCover() {
-  return SETTINGS.sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::MINIMAL_SLEEP ||
-         SETTINGS.sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::MINIMAL_STATS_SLEEP;
+  return SETTINGS.sleepScreen == FluiDezSettings::SLEEP_SCREEN_MODE::MINIMAL_SLEEP ||
+         SETTINGS.sleepScreen == FluiDezSettings::SLEEP_SCREEN_MODE::MINIMAL_STATS_SLEEP;
 }
 
 bool shouldPrepareDashboardCover() {
-  return SETTINGS.sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::DASHBOARD_SLEEP;
+  return SETTINGS.sleepScreen == FluiDezSettings::SLEEP_SCREEN_MODE::DASHBOARD_SLEEP;
 }
 
 bool fileExists(const std::string& path) { return !path.empty() && Storage.exists(path.c_str()); }

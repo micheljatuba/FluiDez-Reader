@@ -1,7 +1,7 @@
 #include "Activity.h"
 
 #include "ActivityManager.h"
-#include "CrossPointState.h"
+#include "FluiDezState.h"
 #include "GlobalActions.h"
 #include "KOReaderCredentialStore.h"
 #include "reader/EpubReaderMenuModel.h"

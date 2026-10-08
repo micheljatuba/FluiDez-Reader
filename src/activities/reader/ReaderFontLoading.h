@@ -3,7 +3,7 @@
 #include <GfxRenderer.h>
 #include <I18n.h>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "SdCardFontSystem.h"
 #include "activities/RenderLock.h"
 #include "components/UITheme.h"

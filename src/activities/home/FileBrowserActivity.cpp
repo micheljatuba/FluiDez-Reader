@@ -20,9 +20,9 @@
 #include <limits>
 
 #include "BookActions.h"
-#include "CrossPointSettings.h"
-#include "CrossPointState.h"
 #include "FileBrowserActionActivity.h"
+#include "FluiDezSettings.h"
+#include "FluiDezState.h"
 #include "MappedInputManager.h"
 #include "activities/boot_sleep/ImageFolderIndex.h"
 #include "activities/reader/EpubReaderActivity.h"
@@ -55,7 +55,7 @@ constexpr uint32_t FILE_BROWSER_APPEND_MIN_FREE_AFTER_ALLOC = 48U * 1024U;
 constexpr uint32_t FILE_BROWSER_APPEND_MIN_MAX_ALLOC_AFTER_ALLOC = 16U * 1024U;
 
 bool usesTwoLineFileBrowserRows() {
-  return SETTINGS.fileBrowserDisplay == CrossPointSettings::FILE_BROWSER_DISPLAY_2_LINES;
+  return SETTINGS.fileBrowserDisplay == FluiDezSettings::FILE_BROWSER_DISPLAY_2_LINES;
 }
 
 bool equalsIgnoreCase(std::string_view a, std::string_view b) {
@@ -585,8 +585,8 @@ void FileBrowserActivity::pinSleepFavorite(const std::string& fullPath) {
 
   // PNG sleep images only render in Page Overlay mode, so make selecting one
   // from the File Browser immediately usable.
-  if (FsHelpers::hasPngExtension(fullPath) && SETTINGS.sleepScreen != CrossPointSettings::SLEEP_SCREEN_MODE::OVERLAY) {
-    SETTINGS.sleepScreen = CrossPointSettings::SLEEP_SCREEN_MODE::OVERLAY;
+  if (FsHelpers::hasPngExtension(fullPath) && SETTINGS.sleepScreen != FluiDezSettings::SLEEP_SCREEN_MODE::OVERLAY) {
+    SETTINGS.sleepScreen = FluiDezSettings::SLEEP_SCREEN_MODE::OVERLAY;
     if (!SETTINGS.saveToFile()) {
       LOG_ERR("FileBrowser", "Failed to save Page Overlay mode for PNG sleep image");
     }

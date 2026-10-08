@@ -8,7 +8,7 @@
 #include <cstring>
 #include <utility>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 
 namespace {
 constexpr char FILENAME_FORMAT_AUTHOR_TITLE[] = "author_title";

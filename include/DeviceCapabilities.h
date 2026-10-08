@@ -24,7 +24,7 @@ inline bool deviceUsesHorizontalSideButtonsForMenus(const HalGPIO& gpio) {
 
 inline bool deviceUsesSideButtonHintGutters(const HalGPIO& gpio) {
   if (!deviceHasEdgeSideButtons(gpio)) return false;
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   return !gpio.hasTouch();
 #else
   return true;
@@ -36,7 +36,7 @@ inline bool deviceUsesSideButtonHintGutters(const HalGPIO& gpio) {
 // buttons plus a separate four-button front cluster, so it has the same escape
 // path without a touchscreen.
 inline bool deviceSupportsSideButtonChord(const HalGPIO& gpio) {
-#if CROSSINK_APP_DEVICE_X4CLASSIC || defined(SIMULATOR_DEVICE_X4_CLASSIC)
+#if FLUIDEZ_APP_DEVICE_X4CLASSIC || defined(SIMULATOR_DEVICE_X4_CLASSIC)
   return true;
 #else
   return gpio.hasTouch();

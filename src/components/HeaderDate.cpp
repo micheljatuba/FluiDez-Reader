@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <cstddef>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "components/themes/BaseTheme.h"
 #include "fontIds.h"
 #include "util/MonthNames.h"
@@ -18,11 +18,11 @@ constexpr size_t kHeaderDateBufferSize = 32;
 
 char dateSeparatorChar() {
   switch (SETTINGS.dateSeparator) {
-    case CrossPointSettings::DATE_SEPARATOR_PERIOD:
+    case FluiDezSettings::DATE_SEPARATOR_PERIOD:
       return '.';
-    case CrossPointSettings::DATE_SEPARATOR_HYPHEN:
+    case FluiDezSettings::DATE_SEPARATOR_HYPHEN:
       return '-';
-    case CrossPointSettings::DATE_SEPARATOR_SLASH:
+    case FluiDezSettings::DATE_SEPARATOR_SLASH:
     default:
       return '/';
   }

@@ -101,7 +101,7 @@ class HalGPIO {
   bool rawInputActive();
   unsigned long getHeldTime() const;
   unsigned long getPowerButtonHeldTime() const;
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   bool hasTouch() const;
   bool supportsMultiTouch() const;
   TouchSnapshot getTouchSnapshot() const;

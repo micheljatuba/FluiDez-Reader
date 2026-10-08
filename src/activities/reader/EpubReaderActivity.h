@@ -25,7 +25,7 @@
 #include "activities/Activity.h"
 #include "activities/reader/TouchReaderPreviewModel.h"
 #include "components/OptionPopup.h"
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
 #include "activities/reader/ReaderPinchGesture.h"
 #endif
 
@@ -59,7 +59,7 @@ class EpubReaderActivity final : public Activity {
     uint8_t focusReadingEnabled = 0;
     uint8_t guideReadingEnabled = 0;
     uint8_t epubRenderMode = 0;
-    uint8_t indexingMethod = CrossPointSettings::INDEXING_FULL_SECTION;
+    uint8_t indexingMethod = FluiDezSettings::INDEXING_FULL_SECTION;
     char sdFontFamilyName[64] = "";
   };
 
@@ -195,7 +195,7 @@ class EpubReaderActivity final : public Activity {
   std::optional<uint16_t> pendingResolvedReferencePage;
   uint16_t pendingParagraphIndex = UINT16_MAX;
   ReaderDrawerState touchReaderDrawerState{};
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   std::unique_ptr<TouchReaderPreviewModel> touchReaderPreviewModel;
   bool touchReaderPreviewAllocationAttempted = false;
 #endif
@@ -258,7 +258,7 @@ class EpubReaderActivity final : public Activity {
 
   // Footnote support
   std::vector<FootnoteEntry> currentPageFootnotes;
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   ReaderPinchGesture pinchFontGesture;
   FootnoteLinkTargets currentPageFootnoteTouchTargets{};
 #endif
@@ -419,13 +419,13 @@ class EpubReaderActivity final : public Activity {
   void jumpToStablePage(uint32_t page);
   void reindexCurrentSection();
   void prepareCurrentSectionForRelayout();
-  void executeReaderQuickAction(CrossPointSettings::LONG_PRESS_MENU_ACTION action,
+  void executeReaderQuickAction(FluiDezSettings::LONG_PRESS_MENU_ACTION action,
                                 bool dictionaryLookupFramebufferContainsPage = true,
                                 QuickLockTrigger quickLockTrigger = QuickLockTrigger::LongMenu);
   void openQuickActionsPopup();
   void executeFootnoteQuickAction(bool suppressInitialPowerRelease = false);
   void openFootnoteSelect(bool returnToReaderMenu);
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   bool handlePinchFontResize();
   void resetPinchFontGesture();
   void buildFootnoteTouchTargets(const Page& page, int fontId, int orientedMarginTop, int orientedMarginLeft);
@@ -489,7 +489,7 @@ class EpubReaderActivity final : public Activity {
   void onExit() override;
   void loop() override;
   void render(RenderLock&& lock) override;
-  bool handleTwoFingerSwipeAction(CrossPointSettings::TWO_FINGER_SWIPE_ACTION action) override;
+  bool handleTwoFingerSwipeAction(FluiDezSettings::TWO_FINGER_SWIPE_ACTION action) override;
   bool handleTwoFingerRotation(bool clockwise) override;
   bool prepareManualRefresh() override {
     pagesUntilFullRefresh = -1;
@@ -522,7 +522,7 @@ class EpubReaderActivity final : public Activity {
   bool canSnapshotForSleepOverlay() const override { return true; }
   bool allowPowerAsConfirmInReaderMode() const override { return quickActionsPopup.isActive(); }
   bool blocksGlobalInput() const override { return quickActionsPopup.isActive(); }
-  bool handleShortcutAction(CrossPointSettings::SHORT_PWRBTN action) override;
+  bool handleShortcutAction(FluiDezSettings::SHORT_PWRBTN action) override;
   bool openReaderSettingsMenu() override {
     if (!epub) {
       return false;

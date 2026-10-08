@@ -222,7 +222,7 @@ unsigned long HalGPIO::getHeldTime() const { return inputMgr.getHeldTime(); }
 
 unsigned long HalGPIO::getPowerButtonHeldTime() const { return inputMgr.getPowerButtonHeldTime(); }
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
 bool HalGPIO::hasTouch() const { return inputMgr.hasTouch(); }
 
 bool HalGPIO::supportsMultiTouch() const { return inputMgr.supportsMultiTouch(); }

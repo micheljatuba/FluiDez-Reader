@@ -3,7 +3,7 @@
 #include <I18n.h>
 #include <MappedInputManager.h>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "activities/Activity.h"
 #include "components/UITheme.h"
 #include "util/WordSelectNavigator.h"
@@ -22,8 +22,8 @@ inline void cancelAndFinish(Activity& act) {
 // buttons turn forward, reserve Up for previous navigation in the picker.
 inline bool dictionaryPageButtonTriggered(MappedInputManager& input, const bool previous) {
   const MappedInputManager::Button button =
-      SETTINGS.sideButtonUpShort == CrossPointSettings::PAGE_TURN &&
-              SETTINGS.sideButtonDownShort == CrossPointSettings::PAGE_TURN
+      SETTINGS.sideButtonUpShort == FluiDezSettings::PAGE_TURN &&
+              SETTINGS.sideButtonDownShort == FluiDezSettings::PAGE_TURN
           ? (previous ? MappedInputManager::Button::Up : MappedInputManager::Button::Down)
           : (previous ? MappedInputManager::Button::PageBack : MappedInputManager::Button::PageForward);
   return input.wasReleased(button);

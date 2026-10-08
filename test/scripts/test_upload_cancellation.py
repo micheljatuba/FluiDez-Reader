@@ -8,8 +8,8 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
-source = (ROOT / 'src/network/CrossPointWebServer.cpp').read_text()
-activity = (ROOT / 'src/activities/network/CrossPointWebServerActivity.cpp').read_text()
+source = (ROOT / 'src/network/FluiDezWebServer.cpp').read_text()
+activity = (ROOT / 'src/activities/network/FluiDezWebServerActivity.cpp').read_text()
 
 
 def function(text, signature):
@@ -19,19 +19,19 @@ def function(text, signature):
 
 
 parts = [function(source, signature) for signature in (
-    'bool CrossPointWebServer::dropUploadIfCancelled()',
-    'void CrossPointWebServer::abortUpload(',
-    'void CrossPointWebServer::abortFontUpload()',
+    'bool FluiDezWebServer::dropUploadIfCancelled()',
+    'void FluiDezWebServer::abortUpload(',
+    'void FluiDezWebServer::abortFontUpload()',
     'static bool flushUploadBuffer(')]
-handler = function(source, 'void CrossPointWebServer::handleUpload(')
+handler = function(source, 'void FluiDezWebServer::handleUpload(')
 start = handler.index('  } else if (upload.status == UPLOAD_FILE_WRITE)')
-parts.append('void CrossPointWebServer::handleUpload(UploadState& state) const {\n'
+parts.append('void FluiDezWebServer::handleUpload(UploadState& state) const {\n'
              'const HTTPUpload& upload = server->upload();\n  if' + handler[start + len('  } else if'):])
-font = function(source, 'void CrossPointWebServer::handleFontUploadData()')
-parts.append('void CrossPointWebServer::handleFontUploadData() {\n'
+font = function(source, 'void FluiDezWebServer::handleFontUploadData()')
+parts.append('void FluiDezWebServer::handleFontUploadData() {\n'
              'HTTPUpload& upload = server->upload();\nswitch(upload.status) {\n' +
              font[font.index('    case UPLOAD_FILE_WRITE:'):])
-parts.append(function(activity, 'bool CrossPointWebServerActivity::checkUploadCancellation()'))
+parts.append(function(activity, 'bool FluiDezWebServerActivity::checkUploadCancellation()'))
 # Normal requests must return to the owner loop without consuming its touch events.
 batch = activity[activity.index('      // Process a batch of HTTP requests'):activity.index('      lastHandleClientTime = millis();', activity.index('      // Process a batch'))]
 assert 'mappedInput.update(' not in batch

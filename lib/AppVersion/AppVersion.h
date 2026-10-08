@@ -10,10 +10,10 @@ const char* gitSha();
 const char* gitDirtyFlag();
 }  // namespace AppVersion
 
-#ifndef CROSSINK_BUILD_ENV
-#define CROSSINK_BUILD_ENV "unknown"
+#ifndef FLUIDEZ_BUILD_ENV
+#define FLUIDEZ_BUILD_ENV "unknown"
 #endif
 
-#ifndef CROSSINK_FIRMWARE_DEVICE_TYPE
-#define CROSSINK_FIRMWARE_DEVICE_TYPE "unknown"
+#ifndef FLUIDEZ_FIRMWARE_DEVICE_TYPE
+#define FLUIDEZ_FIRMWARE_DEVICE_TYPE "unknown"
 #endif

@@ -14,8 +14,8 @@
 #include <exception>
 #include <filesystem>
 
-#include "CrossPointState.h"
-#if CROSSINK_SCALABLE_FONTS
+#include "FluiDezState.h"
+#if FLUIDEZ_SCALABLE_FONTS
 #include <Epub/parsers/ChapterHtmlSlimParser.h>
 #include <HalScalableFont.h>
 
@@ -28,8 +28,8 @@
 #include <memory>
 #include <vector>
 
-#include "CrossPointSettings.h"
 #include "DeviceCapabilities.h"
+#include "FluiDezSettings.h"
 #include "MappedInputManager.h"
 #include "RecentBooksStore.h"
 #include "SdCardFontSystem.h"
@@ -226,10 +226,10 @@ class SimulatorSmokeTest {
     }
   }
 
-  static bool enabled() { return std::getenv("CROSSINK_SIMULATOR_SMOKE_TEST") != nullptr; }
+  static bool enabled() { return std::getenv("FLUIDEZ_SIMULATOR_SMOKE_TEST") != nullptr; }
 
   static int pageTurnCount() {
-    const char* raw = std::getenv("CROSSINK_SIMULATOR_SMOKE_PAGE_TURNS");
+    const char* raw = std::getenv("FLUIDEZ_SIMULATOR_SMOKE_PAGE_TURNS");
     if (raw == nullptr || raw[0] == '\0') {
       return 2;
     }
@@ -237,18 +237,18 @@ class SimulatorSmokeTest {
   }
 
   static bool landscapeReaderRequested() {
-    const char* raw = std::getenv("CROSSINK_SIMULATOR_SMOKE_LANDSCAPE_READER");
+    const char* raw = std::getenv("FLUIDEZ_SIMULATOR_SMOKE_LANDSCAPE_READER");
     return raw != nullptr && raw[0] != '\0' && raw[0] != '0';
   }
 
   static void applyRequestedTheme() {
-    const char* raw = std::getenv("CROSSINK_SIMULATOR_SMOKE_THEME");
+    const char* raw = std::getenv("FLUIDEZ_SIMULATOR_SMOKE_THEME");
     if (raw == nullptr || raw[0] == '\0') {
       return;
     }
 
     const int theme = std::atoi(raw);
-    if (theme < 0 || theme >= CrossPointSettings::UI_THEME_COUNT) {
+    if (theme < 0 || theme >= FluiDezSettings::UI_THEME_COUNT) {
       fail("Invalid smoke test theme index: %d", theme);
     }
 
@@ -258,23 +258,22 @@ class SimulatorSmokeTest {
   }
 
   static void verifyMixedPageGestures() {
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
     if (!gpio.hasTouch()) return;
     const uint8_t savedNext = SETTINGS.pageTurnGesture;
     const uint8_t savedPrevious = SETTINGS.previousPageGesture;
     const int width = renderer.getScreenWidth();
     const int y = renderer.getScreenHeight() / 2;
     mappedInputManager.setReaderMode(true);
-    for (uint8_t next = 0; next < CrossPointSettings::PAGE_TURN_GESTURE_COUNT; ++next) {
-      for (uint8_t previous = 0; previous < CrossPointSettings::PAGE_TURN_GESTURE_COUNT; ++previous) {
+    for (uint8_t next = 0; next < FluiDezSettings::PAGE_TURN_GESTURE_COUNT; ++next) {
+      for (uint8_t previous = 0; previous < FluiDezSettings::PAGE_TURN_GESTURE_COUNT; ++previous) {
         SETTINGS.pageTurnGesture = next;
         SETTINGS.previousPageGesture = previous;
-        const bool inverted = next == CrossPointSettings::INVERTED_TAP || previous == CrossPointSettings::INVERTED_TAP;
-        const bool nextTap = next == CrossPointSettings::TAP_AND_SWIPE || next == CrossPointSettings::TAP_ONLY ||
-                             next == CrossPointSettings::INVERTED_TAP;
-        const bool previousTap = previous == CrossPointSettings::TAP_AND_SWIPE ||
-                                 previous == CrossPointSettings::TAP_ONLY ||
-                                 previous == CrossPointSettings::INVERTED_TAP;
+        const bool inverted = next == FluiDezSettings::INVERTED_TAP || previous == FluiDezSettings::INVERTED_TAP;
+        const bool nextTap = next == FluiDezSettings::TAP_AND_SWIPE || next == FluiDezSettings::TAP_ONLY ||
+                             next == FluiDezSettings::INVERTED_TAP;
+        const bool previousTap = previous == FluiDezSettings::TAP_AND_SWIPE || previous == FluiDezSettings::TAP_ONLY ||
+                                 previous == FluiDezSettings::INVERTED_TAP;
         for (const int x : {0, width / 3 - 1, width / 3, width * 2 / 3 - 1, width * 2 / 3, width - 1}) {
           mappedInputManager.simulatorInjectTouchDown(x, y);
           mappedInputManager.simulatorInjectTouchRelease(x, y);
@@ -295,7 +294,7 @@ class SimulatorSmokeTest {
           mappedInputManager.simulatorInjectTouchRelease(endX, y);
           const auto result = ReaderUtils::detectTouchPageTurn(renderer, mappedInputManager);
           const uint8_t mode = right ? previous : next;
-          const bool expected = (mode == CrossPointSettings::TAP_AND_SWIPE || mode == CrossPointSettings::SWIPE_ONLY);
+          const bool expected = (mode == FluiDezSettings::TAP_AND_SWIPE || mode == FluiDezSettings::SWIPE_ONLY);
           if (result.next != (!right && expected) || result.prev != (right && expected) ||
               (right && !expected && mappedInputManager.wasReleased(MappedInputManager::Button::Back))) {
             fail("Mixed page swipe mismatch: next=%u previous=%u right=%d", next, previous, right);
@@ -344,7 +343,7 @@ class SimulatorSmokeTest {
   }
 
   static void captureStatusBarScreen(const char* name) {
-    const char* output = std::getenv("CROSSINK_SIMULATOR_SMOKE_STATUS_BAR_CAPTURES");
+    const char* output = std::getenv("FLUIDEZ_SIMULATOR_SMOKE_STATUS_BAR_CAPTURES");
     if (!output) return;
     std::filesystem::create_directories(output);
     const auto path = std::filesystem::path(output) / (std::string(name) + ".pgm");
@@ -388,7 +387,7 @@ class SimulatorSmokeTest {
     }
     JsonDocument original;
     SETTINGS.toJson(original);
-    for (uint8_t mode = 0; mode <= CrossPointSettings::PAGE_TURN_GESTURE_DISABLED; ++mode) {
+    for (uint8_t mode = 0; mode <= FluiDezSettings::PAGE_TURN_GESTURE_DISABLED; ++mode) {
       JsonDocument legacy;
       legacy["pageTurnGesture"] = mode;
       SETTINGS.fromJson(legacy.as<JsonVariantConst>());
@@ -396,8 +395,8 @@ class SimulatorSmokeTest {
         fail("Legacy page gesture migration mismatch");
       }
     }
-    constexpr uint8_t importedGestures[] = {CrossPointSettings::TAP_AND_SWIPE, CrossPointSettings::TAP_ONLY,
-                                            CrossPointSettings::SWIPE_ONLY, CrossPointSettings::INVERTED_TAP};
+    constexpr uint8_t importedGestures[] = {FluiDezSettings::TAP_AND_SWIPE, FluiDezSettings::TAP_ONLY,
+                                            FluiDezSettings::SWIPE_ONLY, FluiDezSettings::INVERTED_TAP};
     for (uint8_t mode = 0; mode < 4; ++mode) {
       JsonDocument crosspoint;
       crosspoint["touchReaderControls"] = mode;
@@ -411,8 +410,8 @@ class SimulatorSmokeTest {
       JsonDocument migrated;
       SETTINGS.toJson(migrated);
       SETTINGS.disableReaderTouchscreen = 1;
-      SETTINGS.pageTurnGesture = CrossPointSettings::PAGE_TURN_GESTURE_DISABLED;
-      SETTINGS.previousPageGesture = CrossPointSettings::PAGE_TURN_GESTURE_DISABLED;
+      SETTINGS.pageTurnGesture = FluiDezSettings::PAGE_TURN_GESTURE_DISABLED;
+      SETTINGS.previousPageGesture = FluiDezSettings::PAGE_TURN_GESTURE_DISABLED;
       SETTINGS.fromJson(migrated.as<JsonVariantConst>());
       if (SETTINGS.disableReaderTouchscreen || SETTINGS.touchReaderControls != (mode != 0) ||
           SETTINGS.pageTurnGesture != importedGestures[mode] ||
@@ -426,43 +425,43 @@ class SimulatorSmokeTest {
     locked["disableReaderTouchscreen"] = 1;
     SETTINGS.fromJson(locked.as<JsonVariantConst>());
     if (!SETTINGS.disableReaderTouchscreen) fail("CrossInk touch lock was lost");
-    locked["pageTurnGesture"] = CrossPointSettings::TAP_ONLY;
-    locked["previousPageGesture"] = CrossPointSettings::PAGE_TURN_GESTURE_DISABLED;
+    locked["pageTurnGesture"] = FluiDezSettings::TAP_ONLY;
+    locked["previousPageGesture"] = FluiDezSettings::PAGE_TURN_GESTURE_DISABLED;
     SETTINGS.fromJson(locked.as<JsonVariantConst>(), true);
-    if (!SETTINGS.disableReaderTouchscreen || SETTINGS.pageTurnGesture != CrossPointSettings::TAP_ONLY ||
-        SETTINGS.previousPageGesture != CrossPointSettings::PAGE_TURN_GESTURE_DISABLED) {
+    if (!SETTINGS.disableReaderTouchscreen || SETTINGS.pageTurnGesture != FluiDezSettings::TAP_ONLY ||
+        SETTINGS.previousPageGesture != FluiDezSettings::PAGE_TURN_GESTURE_DISABLED) {
       fail("Legacy CrossInk gesture settings were treated as CrossPoint");
     }
-    SETTINGS.previousPageGesture = CrossPointSettings::SWIPE_ONLY;
-    SETTINGS.pageTurnGesture = CrossPointSettings::TAP_ONLY;
+    SETTINGS.previousPageGesture = FluiDezSettings::SWIPE_ONLY;
+    SETTINGS.pageTurnGesture = FluiDezSettings::TAP_ONLY;
     SETTINGS.customBootscreenEnabled = 0;
     SETTINGS.tapToHideStatusBar = 0;
     JsonDocument saved;
     SETTINGS.toJson(saved);
-    SETTINGS.previousPageGesture = CrossPointSettings::TAP_AND_SWIPE;
+    SETTINGS.previousPageGesture = FluiDezSettings::TAP_AND_SWIPE;
     SETTINGS.customBootscreenEnabled = 1;
     SETTINGS.tapToHideStatusBar = 1;
     SETTINGS.fromJson(saved.as<JsonVariantConst>());
-    if (SETTINGS.previousPageGesture != CrossPointSettings::SWIPE_ONLY ||
-        SETTINGS.pageTurnGesture != CrossPointSettings::TAP_ONLY || SETTINGS.customBootscreenEnabled ||
+    if (SETTINGS.previousPageGesture != FluiDezSettings::SWIPE_ONLY ||
+        SETTINGS.pageTurnGesture != FluiDezSettings::TAP_ONLY || SETTINGS.customBootscreenEnabled ||
         SETTINGS.tapToHideStatusBar) {
       fail("Reader controls settings round-trip mismatch");
     }
-    constexpr char CROSSINK_SETTINGS_FILE_BAK[] = "/.crosspoint/crossink-settings.json.bak";
+    constexpr char FLUIDEZ_SETTINGS_FILE_BAK[] = "/.crosspoint/crossink-settings.json.bak";
     constexpr char LEGACY_SETTINGS_FILE_JSON[] = "/.crosspoint/settings.json";
-    const char* const crossInkSettingsPath = CrossPointSettings::getFilePath();
+    const char* const crossInkSettingsPath = FluiDezSettings::getFilePath();
     const bool hadCrossInkSettings = Storage.exists(crossInkSettingsPath);
     const String savedCrossInkSettings = hadCrossInkSettings ? Storage.readFile(crossInkSettingsPath) : String();
-    const bool hadCrossInkSettingsBackup = Storage.exists(CROSSINK_SETTINGS_FILE_BAK);
+    const bool hadCrossInkSettingsBackup = Storage.exists(FLUIDEZ_SETTINGS_FILE_BAK);
     const String savedCrossInkSettingsBackup =
-        hadCrossInkSettingsBackup ? Storage.readFile(CROSSINK_SETTINGS_FILE_BAK) : String();
+        hadCrossInkSettingsBackup ? Storage.readFile(FLUIDEZ_SETTINGS_FILE_BAK) : String();
     const bool hadLegacySettings = Storage.exists(LEGACY_SETTINGS_FILE_JSON);
     const String savedLegacySettings = hadLegacySettings ? Storage.readFile(LEGACY_SETTINGS_FILE_JSON) : String();
 
     JsonDocument crossInkSettings;
-    crossInkSettings["touchReaderControls"] = CrossPointSettings::TOUCH_READER_ON;
-    crossInkSettings["pageTurnGesture"] = CrossPointSettings::TAP_ONLY;
-    crossInkSettings["previousPageGesture"] = CrossPointSettings::SWIPE_ONLY;
+    crossInkSettings["touchReaderControls"] = FluiDezSettings::TOUCH_READER_ON;
+    crossInkSettings["pageTurnGesture"] = FluiDezSettings::TAP_ONLY;
+    crossInkSettings["previousPageGesture"] = FluiDezSettings::SWIPE_ONLY;
     crossInkSettings["disableReaderTouchscreen"] = 0;
     String crossInkJson;
     serializeJson(crossInkSettings, crossInkJson);
@@ -478,11 +477,11 @@ class SimulatorSmokeTest {
       fail("Could not write settings migration test fixture");
     }
     SETTINGS.disableReaderTouchscreen = 1;
-    SETTINGS.pageTurnGesture = CrossPointSettings::PAGE_TURN_GESTURE_DISABLED;
-    SETTINGS.previousPageGesture = CrossPointSettings::PAGE_TURN_GESTURE_DISABLED;
+    SETTINGS.pageTurnGesture = FluiDezSettings::PAGE_TURN_GESTURE_DISABLED;
+    SETTINGS.previousPageGesture = FluiDezSettings::PAGE_TURN_GESTURE_DISABLED;
     if (!SETTINGS.loadFromFile() || SETTINGS.disableReaderTouchscreen ||
-        SETTINGS.pageTurnGesture != CrossPointSettings::TAP_ONLY ||
-        SETTINGS.previousPageGesture != CrossPointSettings::SWIPE_ONLY) {
+        SETTINGS.pageTurnGesture != FluiDezSettings::TAP_ONLY ||
+        SETTINGS.previousPageGesture != FluiDezSettings::SWIPE_ONLY) {
       fail("CrossInk settings file did not take precedence over CrossPoint settings");
     }
 
@@ -490,23 +489,23 @@ class SimulatorSmokeTest {
     // to leave settings unchanged than to silently import CrossPoint values.
     if (!Storage.writeFile(crossInkSettingsPath, "{")) fail("Could not corrupt CrossInk settings test fixture");
     if (SETTINGS.loadFromFile() || SETTINGS.disableReaderTouchscreen ||
-        SETTINGS.pageTurnGesture != CrossPointSettings::TAP_ONLY ||
-        SETTINGS.previousPageGesture != CrossPointSettings::SWIPE_ONLY) {
+        SETTINGS.pageTurnGesture != FluiDezSettings::TAP_ONLY ||
+        SETTINGS.previousPageGesture != FluiDezSettings::SWIPE_ONLY) {
       fail("Corrupt CrossInk settings fell through to CrossPoint settings");
     }
 
     // An interrupted atomic replacement leaves the CrossInk backup as the
     // sole namespaced file. Recover it before considering CrossPoint's file.
-    if (!Storage.writeFile(CROSSINK_SETTINGS_FILE_BAK, crossInkJson) || !Storage.remove(crossInkSettingsPath)) {
+    if (!Storage.writeFile(FLUIDEZ_SETTINGS_FILE_BAK, crossInkJson) || !Storage.remove(crossInkSettingsPath)) {
       fail("Could not create interrupted CrossInk settings fixture");
     }
     SETTINGS.disableReaderTouchscreen = 1;
-    SETTINGS.pageTurnGesture = CrossPointSettings::PAGE_TURN_GESTURE_DISABLED;
-    SETTINGS.previousPageGesture = CrossPointSettings::PAGE_TURN_GESTURE_DISABLED;
+    SETTINGS.pageTurnGesture = FluiDezSettings::PAGE_TURN_GESTURE_DISABLED;
+    SETTINGS.previousPageGesture = FluiDezSettings::PAGE_TURN_GESTURE_DISABLED;
     if (!SETTINGS.loadFromFile() || SETTINGS.disableReaderTouchscreen ||
-        SETTINGS.pageTurnGesture != CrossPointSettings::TAP_ONLY ||
-        SETTINGS.previousPageGesture != CrossPointSettings::SWIPE_ONLY || !Storage.exists(crossInkSettingsPath) ||
-        Storage.exists(CROSSINK_SETTINGS_FILE_BAK)) {
+        SETTINGS.pageTurnGesture != FluiDezSettings::TAP_ONLY ||
+        SETTINGS.previousPageGesture != FluiDezSettings::SWIPE_ONLY || !Storage.exists(crossInkSettingsPath) ||
+        Storage.exists(FLUIDEZ_SETTINGS_FILE_BAK)) {
       fail("Interrupted CrossInk settings save did not recover before CrossPoint import");
     }
 
@@ -516,10 +515,10 @@ class SimulatorSmokeTest {
       fail("Could not remove CrossInk settings test fixture");
     }
     if (hadCrossInkSettingsBackup) {
-      if (!Storage.writeFile(CROSSINK_SETTINGS_FILE_BAK, savedCrossInkSettingsBackup)) {
+      if (!Storage.writeFile(FLUIDEZ_SETTINGS_FILE_BAK, savedCrossInkSettingsBackup)) {
         fail("Could not restore CrossInk settings backup");
       }
-    } else if (Storage.exists(CROSSINK_SETTINGS_FILE_BAK) && !Storage.remove(CROSSINK_SETTINGS_FILE_BAK)) {
+    } else if (Storage.exists(FLUIDEZ_SETTINGS_FILE_BAK) && !Storage.remove(FLUIDEZ_SETTINGS_FILE_BAK)) {
       fail("Could not remove CrossInk settings backup fixture");
     }
     if (hadLegacySettings) {
@@ -531,7 +530,7 @@ class SimulatorSmokeTest {
     SETTINGS.librarySortMethod = 3;
     SETTINGS.librarySortDescending = 0;
     SETTINGS.libraryListExpanded = 1;
-    SETTINGS.recentBooksView = CrossPointSettings::RECENT_BOOKS_GRID;
+    SETTINGS.recentBooksView = FluiDezSettings::RECENT_BOOKS_GRID;
     SETTINGS.libraryShowMarkdown = 0;
     SETTINGS.libraryHideFinishedBooks = 1;
     JsonDocument librarySaved;
@@ -539,12 +538,12 @@ class SimulatorSmokeTest {
     SETTINGS.librarySortMethod = 0;
     SETTINGS.librarySortDescending = 1;
     SETTINGS.libraryListExpanded = 0;
-    SETTINGS.recentBooksView = CrossPointSettings::RECENT_BOOKS_LIST;
+    SETTINGS.recentBooksView = FluiDezSettings::RECENT_BOOKS_LIST;
     SETTINGS.libraryShowMarkdown = 1;
     SETTINGS.libraryHideFinishedBooks = 0;
     SETTINGS.fromJson(librarySaved.as<JsonVariantConst>());
     if (SETTINGS.librarySortMethod != 3 || SETTINGS.librarySortDescending || !SETTINGS.libraryListExpanded ||
-        SETTINGS.recentBooksView != CrossPointSettings::RECENT_BOOKS_GRID || SETTINGS.libraryShowMarkdown ||
+        SETTINGS.recentBooksView != FluiDezSettings::RECENT_BOOKS_GRID || SETTINGS.libraryShowMarkdown ||
         !SETTINGS.libraryHideFinishedBooks) {
       fail("Library settings round-trip mismatch");
     }
@@ -554,13 +553,13 @@ class SimulatorSmokeTest {
     librarySaved["recentBooksView"] = 2;
     SETTINGS.fromJson(librarySaved.as<JsonVariantConst>());
     if (SETTINGS.librarySortMethod != 3 || SETTINGS.libraryShowTxt != 1 || !SETTINGS.libraryHideFinishedBooks ||
-        SETTINGS.recentBooksView != CrossPointSettings::RECENT_BOOKS_LIST) {
+        SETTINGS.recentBooksView != FluiDezSettings::RECENT_BOOKS_LIST) {
       fail("Invalid Library settings were not rejected");
     }
     librarySaved.remove("recentBooksView");
-    SETTINGS.recentBooksView = CrossPointSettings::RECENT_BOOKS_GRID;
+    SETTINGS.recentBooksView = FluiDezSettings::RECENT_BOOKS_GRID;
     SETTINGS.fromJson(librarySaved.as<JsonVariantConst>());
-    if (SETTINGS.recentBooksView != CrossPointSettings::RECENT_BOOKS_LIST)
+    if (SETTINGS.recentBooksView != FluiDezSettings::RECENT_BOOKS_LIST)
       fail("Missing Recently Opened view did not default to List");
     SETTINGS.fromJson(original.as<JsonVariantConst>());
   }
@@ -585,18 +584,18 @@ class SimulatorSmokeTest {
     });
     if (chordSetting == allSettings.end()) fail("Power chord setting is missing");
     if (std::find(chordSetting->enumRawValues.begin(), chordSetting->enumRawValues.end(),
-                  CrossPointSettings::CHORD_QUICK_ACTIONS) == chordSetting->enumRawValues.end()) {
+                  FluiDezSettings::CHORD_QUICK_ACTIONS) == chordSetting->enumRawValues.end()) {
       fail("Quick Actions is missing from the Power + Up chord setting");
     }
-    if (CrossPointSettings::HOME_READER != 36 || CrossPointSettings::SHORT_PWRBTN_COUNT != 37 ||
-        CrossPointSettings::CHORD_HOME_READER != 32 || CrossPointSettings::POWER_CHORD_ACTION_COUNT != 33) {
+    if (FluiDezSettings::HOME_READER != 36 || FluiDezSettings::SHORT_PWRBTN_COUNT != 37 ||
+        FluiDezSettings::CHORD_HOME_READER != 32 || FluiDezSettings::POWER_CHORD_ACTION_COUNT != 33) {
       fail("Home/Reader changed persisted shortcut IDs or counts");
     }
-    if (QuickActions::actionLabel(CrossPointSettings::HOME_READER) != StrId::STR_HOME_READER ||
+    if (QuickActions::actionLabel(FluiDezSettings::HOME_READER) != StrId::STR_HOME_READER ||
         std::string(I18N.get(StrId::STR_HOME_READER)) != "Home/Reader") {
       fail("Home/Reader shortcut label mismatch");
     }
-    if (QuickActions::isActionAvailable(CrossPointSettings::HOME_READER) != !gpio.hasTouch()) {
+    if (QuickActions::isActionAvailable(FluiDezSettings::HOME_READER) != !gpio.hasTouch()) {
       fail("Home/Reader capability gating does not match button-only devices");
     }
     const auto containsShortcut = [](const std::vector<SettingInfo>& settings, const char* key,
@@ -604,7 +603,7 @@ class SimulatorSmokeTest {
       const auto setting = std::find_if(settings.begin(), settings.end(),
                                         [key](const SettingInfo& candidate) { return settingKeyIs(candidate, key); });
       if (setting == settings.end()) return false;
-      const uint8_t raw = shortcutRawValue(catalog, CrossPointSettings::HOME_READER);
+      const uint8_t raw = shortcutRawValue(catalog, FluiDezSettings::HOME_READER);
       const auto choice = std::find(setting->enumRawValues.begin(), setting->enumRawValues.end(), raw);
       return choice != setting->enumRawValues.end() &&
              setting->enumValues[static_cast<size_t>(choice - setting->enumRawValues.begin())] ==
@@ -618,25 +617,24 @@ class SimulatorSmokeTest {
             shouldExposeHomeReader) {
       fail("Home/Reader shortcut availability or settings mapping mismatch");
     }
-    if (shortcutRawValue(ShortcutOptionCatalog::HomeButton, CrossPointSettings::HOME_READER) !=
+    if (shortcutRawValue(ShortcutOptionCatalog::HomeButton, FluiDezSettings::HOME_READER) !=
             SHORTCUT_OPTION_UNAVAILABLE ||
-        shortcutRawValue(ShortcutOptionCatalog::LongPress, CrossPointSettings::HOME_READER) !=
+        shortcutRawValue(ShortcutOptionCatalog::LongPress, FluiDezSettings::HOME_READER) !=
             SHORTCUT_OPTION_UNAVAILABLE) {
       fail("Home/Reader was exposed on Home-key or long-press controls");
     }
     const uint8_t savedPowerAction = SETTINGS.shortPwrBtn;
     const uint8_t savedChordAction = SETTINGS.powerChordAction;
-    SETTINGS.shortPwrBtn = CrossPointSettings::HOME_READER;
-    SETTINGS.powerChordAction = CrossPointSettings::CHORD_HOME_READER;
+    SETTINGS.shortPwrBtn = FluiDezSettings::HOME_READER;
+    SETTINGS.powerChordAction = FluiDezSettings::CHORD_HOME_READER;
     JsonDocument shortcutRoundTrip;
     SETTINGS.toJson(shortcutRoundTrip);
-    SETTINGS.shortPwrBtn = CrossPointSettings::IGNORE;
-    SETTINGS.powerChordAction = CrossPointSettings::CHORD_DISABLED;
+    SETTINGS.shortPwrBtn = FluiDezSettings::IGNORE;
+    SETTINGS.powerChordAction = FluiDezSettings::CHORD_DISABLED;
     SETTINGS.fromJson(shortcutRoundTrip.as<JsonVariantConst>());
-    const uint8_t expectedPowerAction =
-        shouldExposeHomeReader ? CrossPointSettings::HOME_READER : CrossPointSettings::IGNORE;
+    const uint8_t expectedPowerAction = shouldExposeHomeReader ? FluiDezSettings::HOME_READER : FluiDezSettings::IGNORE;
     const uint8_t expectedChordAction =
-        shouldExposeHomeReader ? CrossPointSettings::CHORD_HOME_READER : CrossPointSettings::CHORD_DISABLED;
+        shouldExposeHomeReader ? FluiDezSettings::CHORD_HOME_READER : FluiDezSettings::CHORD_DISABLED;
     if (SETTINGS.shortPwrBtn != expectedPowerAction || SETTINGS.powerChordAction != expectedChordAction) {
       fail("Home/Reader settings round-trip did not match device availability");
     }
@@ -644,26 +642,25 @@ class SimulatorSmokeTest {
     SETTINGS.powerChordAction = savedChordAction;
     if (!gpio.hasHomeKey() &&
         std::find(chordSetting->enumRawValues.begin(), chordSetting->enumRawValues.end(),
-                  CrossPointSettings::CHORD_TOGGLE_HOME_BUTTON) != chordSetting->enumRawValues.end()) {
+                  FluiDezSettings::CHORD_TOGGLE_HOME_BUTTON) != chordSetting->enumRawValues.end()) {
       fail("Toggle Home Button is still offered without a Home key");
     }
     if (std::find(chordSetting->enumRawValues.begin(), chordSetting->enumRawValues.end(),
-                  CrossPointSettings::CHORD_PREVIOUS_PAGE) == chordSetting->enumRawValues.end()) {
+                  FluiDezSettings::CHORD_PREVIOUS_PAGE) == chordSetting->enumRawValues.end()) {
       fail("Previous Page was removed by an unrelated power-button action ID");
     }
-    if (!gpio.hasTouch() &&
-        std::find(chordSetting->enumRawValues.begin(), chordSetting->enumRawValues.end(),
-                  CrossPointSettings::CHORD_TOGGLE_TOUCHSCREEN) != chordSetting->enumRawValues.end()) {
+    if (!gpio.hasTouch() && std::find(chordSetting->enumRawValues.begin(), chordSetting->enumRawValues.end(),
+                                      FluiDezSettings::CHORD_TOGGLE_TOUCHSCREEN) != chordSetting->enumRawValues.end()) {
       fail("Toggle Touchscreen is still offered without touch hardware");
     }
     if (!Frontlight.present() &&
         std::find(chordSetting->enumRawValues.begin(), chordSetting->enumRawValues.end(),
-                  CrossPointSettings::CHORD_TOGGLE_FRONTLIGHT) != chordSetting->enumRawValues.end()) {
+                  FluiDezSettings::CHORD_TOGGLE_FRONTLIGHT) != chordSetting->enumRawValues.end()) {
       fail("Toggle Frontlight is still offered without a frontlight");
     }
 
     const auto hasLibrary = [](const SettingInfo& setting, const ShortcutOptionCatalog catalog) {
-      const auto raw = shortcutRawValue(catalog, CrossPointSettings::LIBRARY);
+      const auto raw = shortcutRawValue(catalog, FluiDezSettings::LIBRARY);
       const auto choice = std::find(setting.enumRawValues.begin(), setting.enumRawValues.end(), raw);
       return choice != setting.enumRawValues.end() &&
              setting.enumValues[static_cast<size_t>(choice - setting.enumRawValues.begin())] == StrId::STR_LIBRARY;
@@ -682,9 +679,9 @@ class SimulatorSmokeTest {
       const auto setting = std::find_if(allSettings.begin(), allSettings.end(),
                                         [key](const SettingInfo& candidate) { return settingKeyIs(candidate, key); });
       for (const auto [action, suffix] :
-           {std::pair{CrossPointSettings::SIDE_ROTATE_COUNTERCLOCKWISE, StrId::STR_ROTATE_CCW},
-            std::pair{CrossPointSettings::SIDE_ROTATE_CLOCKWISE, StrId::STR_ROTATE_CW},
-            std::pair{CrossPointSettings::SIDE_ROTATE_FLIP, StrId::STR_ROTATE_FLIP}}) {
+           {std::pair{FluiDezSettings::SIDE_ROTATE_COUNTERCLOCKWISE, StrId::STR_ROTATE_CCW},
+            std::pair{FluiDezSettings::SIDE_ROTATE_CLOCKWISE, StrId::STR_ROTATE_CW},
+            std::pair{FluiDezSettings::SIDE_ROTATE_FLIP, StrId::STR_ROTATE_FLIP}}) {
         const auto choice = std::find(setting->enumRawValues.begin(), setting->enumRawValues.end(), action);
         const std::string expected = I18N.get(suffix);
         if (choice == setting->enumRawValues.end() ||
@@ -694,7 +691,7 @@ class SimulatorSmokeTest {
         }
       }
     }
-    for (uint8_t orientation = 0; orientation < CrossPointSettings::ORIENTATION_COUNT; ++orientation) {
+    for (uint8_t orientation = 0; orientation < FluiDezSettings::ORIENTATION_COUNT; ++orientation) {
       if (ReaderUtils::flippedOrientation(ReaderUtils::flippedOrientation(orientation)) != orientation ||
           ReaderUtils::flippedOrientation(orientation) !=
               ReaderUtils::rotatedOrientation(ReaderUtils::rotatedOrientation(orientation, true), true)) {
@@ -707,7 +704,7 @@ class SimulatorSmokeTest {
     const auto verifySleepChoice = [&](const char* key, const ShortcutOptionCatalog catalog) {
       const auto setting = std::find_if(allSettings.begin(), allSettings.end(),
                                         [key](const SettingInfo& candidate) { return settingKeyIs(candidate, key); });
-      const auto raw = shortcutRawValue(catalog, CrossPointSettings::SLEEP);
+      const auto raw = shortcutRawValue(catalog, FluiDezSettings::SLEEP);
       if (setting == allSettings.end() || raw == SHORTCUT_OPTION_UNAVAILABLE) {
         fail("Sleep shortcut is missing from %s", key);
       }
@@ -726,8 +723,8 @@ class SimulatorSmokeTest {
       const auto setting = std::find_if(allSettings.begin(), allSettings.end(),
                                         [key](const SettingInfo& candidate) { return settingKeyIs(candidate, key); });
       if (setting == allSettings.end()) fail("Power shortcut setting is missing: %s", key);
-      for (const auto [action, label] : {std::pair{CrossPointSettings::SLEEP_ONLY, StrId::STR_SLEEP},
-                                         std::pair{CrossPointSettings::WAKE_ONLY, StrId::STR_WAKE}}) {
+      for (const auto [action, label] : {std::pair{FluiDezSettings::SLEEP_ONLY, StrId::STR_SLEEP},
+                                         std::pair{FluiDezSettings::WAKE_ONLY, StrId::STR_WAKE}}) {
         const auto choice = std::find(setting->enumRawValues.begin(), setting->enumRawValues.end(), action);
         if (choice == setting->enumRawValues.end() ||
             sideButtonOptionLabel(*setting, static_cast<uint8_t>(choice - setting->enumRawValues.begin())) !=
@@ -738,8 +735,8 @@ class SimulatorSmokeTest {
     }
     const uint8_t savedShortPowerAction = SETTINGS.shortPwrBtn;
     for (const auto [action, wakes] :
-         {std::pair{CrossPointSettings::IGNORE, false}, std::pair{CrossPointSettings::SLEEP_ONLY, false},
-          std::pair{CrossPointSettings::WAKE_ONLY, true}, std::pair{CrossPointSettings::SLEEP, true}}) {
+         {std::pair{FluiDezSettings::IGNORE, false}, std::pair{FluiDezSettings::SLEEP_ONLY, false},
+          std::pair{FluiDezSettings::WAKE_ONLY, true}, std::pair{FluiDezSettings::SLEEP, true}}) {
       SETTINGS.shortPwrBtn = action;
       if (SETTINGS.shortPowerPressWakes() != wakes) fail("Short Power wake policy does not match its shortcut");
     }
@@ -751,7 +748,7 @@ class SimulatorSmokeTest {
       const auto side = std::find_if(sideButtonSettings.begin(), sideButtonSettings.end(),
                                      [key](const SettingInfo& candidate) { return settingKeyIs(candidate, key); });
       if (side != sideButtonSettings.end()) {
-        const auto sleep = std::find(side->enumRawValues.begin(), side->enumRawValues.end(), CrossPointSettings::SLEEP);
+        const auto sleep = std::find(side->enumRawValues.begin(), side->enumRawValues.end(), FluiDezSettings::SLEEP);
         if (sleep == side->enumRawValues.end() ||
             sideButtonOptionLabel(*side, static_cast<uint8_t>(sleep - side->enumRawValues.begin())) != tr(STR_SLEEP)) {
           fail("Sleep shortcut has the wrong label in %s", key);
@@ -774,14 +771,14 @@ class SimulatorSmokeTest {
         fail("Library shortcut is missing from the filtered Up + Down choices");
       }
       const auto sleep =
-          std::find(side->enumRawValues.begin(), side->enumRawValues.end(), CrossPointSettings::CHORD_SLEEP);
+          std::find(side->enumRawValues.begin(), side->enumRawValues.end(), FluiDezSettings::CHORD_SLEEP);
       if (sleep == side->enumRawValues.end() ||
           sideButtonOptionLabel(*side, static_cast<uint8_t>(sleep - side->enumRawValues.begin())) != tr(STR_SLEEP)) {
         fail("Sleep shortcut is missing or mislabeled in the filtered Up + Down choices");
       }
     }
-    if (!QuickActions::isQuickActionSlotActionAvailable(CrossPointSettings::LIBRARY) ||
-        QuickActions::actionLabel(CrossPointSettings::LIBRARY) != StrId::STR_LIBRARY) {
+    if (!QuickActions::isQuickActionSlotActionAvailable(FluiDezSettings::LIBRARY) ||
+        QuickActions::actionLabel(FluiDezSettings::LIBRARY) != StrId::STR_LIBRARY) {
       fail("Library is missing from Quick Actions choices");
     }
 
@@ -793,7 +790,7 @@ class SimulatorSmokeTest {
       const auto setting = std::find_if(statsDisabledSettings.begin(), statsDisabledSettings.end(),
                                         [key](const SettingInfo& candidate) { return settingKeyIs(candidate, key); });
       if (setting == statsDisabledSettings.end() ||
-          std::find(setting->enumRawValues.begin(), setting->enumRawValues.end(), CrossPointSettings::READING_STATS) !=
+          std::find(setting->enumRawValues.begin(), setting->enumRawValues.end(), FluiDezSettings::READING_STATS) !=
               setting->enumRawValues.end()) {
         fail("Reading Stats remains available in %s while tracking is disabled", key);
       }
@@ -808,28 +805,28 @@ class SimulatorSmokeTest {
     for (const char* key : {"sideButtonUpShort", "sideButtonUpLong", "sideButtonDownShort", "sideButtonDownLong"}) {
       legacy[key] = nullptr;
     }
-    legacy["sideButtonLayout"] = CrossPointSettings::NEXT_PREV;
-    legacy["sideButtonLongPress"] = CrossPointSettings::SIDE_LONG_CHAPTER_SKIP;
+    legacy["sideButtonLayout"] = FluiDezSettings::NEXT_PREV;
+    legacy["sideButtonLongPress"] = FluiDezSettings::SIDE_LONG_CHAPTER_SKIP;
     SETTINGS.fromJson(legacy.as<JsonVariantConst>());
-    if (SETTINGS.sideButtonUpShort != CrossPointSettings::PAGE_TURN ||
-        SETTINGS.sideButtonDownShort != CrossPointSettings::PREVIOUS_PAGE ||
-        SETTINGS.sideButtonUpLong != CrossPointSettings::SIDE_NEXT_CHAPTER ||
-        SETTINGS.sideButtonDownLong != CrossPointSettings::SIDE_PREVIOUS_CHAPTER)
+    if (SETTINGS.sideButtonUpShort != FluiDezSettings::PAGE_TURN ||
+        SETTINGS.sideButtonDownShort != FluiDezSettings::PREVIOUS_PAGE ||
+        SETTINGS.sideButtonUpLong != FluiDezSettings::SIDE_NEXT_CHAPTER ||
+        SETTINGS.sideButtonDownLong != FluiDezSettings::SIDE_PREVIOUS_CHAPTER)
       fail("Swapped side-button layout migration failed");
 
-    legacy["sideButtonLayout"] = CrossPointSettings::SIDE_BUTTONS_DISABLED;
-    legacy["sideButtonLongPress"] = CrossPointSettings::SIDE_LONG_FONT_SIZE;
+    legacy["sideButtonLayout"] = FluiDezSettings::SIDE_BUTTONS_DISABLED;
+    legacy["sideButtonLongPress"] = FluiDezSettings::SIDE_LONG_FONT_SIZE;
     SETTINGS.fromJson(legacy.as<JsonVariantConst>());
-    if (SETTINGS.sideButtonUpShort != CrossPointSettings::IGNORE ||
-        SETTINGS.sideButtonDownShort != CrossPointSettings::IGNORE ||
-        SETTINGS.sideButtonUpLong != CrossPointSettings::SIDE_INCREASE_FONT ||
-        SETTINGS.sideButtonDownLong != CrossPointSettings::SIDE_DECREASE_FONT)
+    if (SETTINGS.sideButtonUpShort != FluiDezSettings::IGNORE ||
+        SETTINGS.sideButtonDownShort != FluiDezSettings::IGNORE ||
+        SETTINGS.sideButtonUpLong != FluiDezSettings::SIDE_INCREASE_FONT ||
+        SETTINGS.sideButtonDownLong != FluiDezSettings::SIDE_DECREASE_FONT)
       fail("Disabled layout with font hold migration failed");
 
-    legacy["sideButtonUpShort"] = CrossPointSettings::LIBRARY;
+    legacy["sideButtonUpShort"] = FluiDezSettings::LIBRARY;
     SETTINGS.fromJson(legacy.as<JsonVariantConst>());
-    if (SETTINGS.sideButtonUpShort != CrossPointSettings::LIBRARY ||
-        SETTINGS.sideButtonDownShort != CrossPointSettings::IGNORE)
+    if (SETTINGS.sideButtonUpShort != FluiDezSettings::LIBRARY ||
+        SETTINGS.sideButtonDownShort != FluiDezSettings::IGNORE)
       fail("Partially migrated side-button choices were overwritten");
 
     SETTINGS.fromJson(original.as<JsonVariantConst>());
@@ -945,9 +942,9 @@ class SimulatorSmokeTest {
     const uint8_t savedShort = SETTINGS.shortPwrBtn;
     const uint8_t savedLong = SETTINGS.longPwrBtn;
     const uint8_t savedSlot = SETTINGS.quickActionSlots[0];
-    SETTINGS.shortPwrBtn = CrossPointSettings::SHORT_PWRBTN::QUICK_LOCK;
-    SETTINGS.longPwrBtn = CrossPointSettings::SHORT_PWRBTN::QUICK_ACTIONS;
-    SETTINGS.quickActionSlots[0] = CrossPointSettings::SHORT_PWRBTN::FORCE_REFRESH;
+    SETTINGS.shortPwrBtn = FluiDezSettings::SHORT_PWRBTN::QUICK_LOCK;
+    SETTINGS.longPwrBtn = FluiDezSettings::SHORT_PWRBTN::QUICK_ACTIONS;
+    SETTINGS.quickActionSlots[0] = FluiDezSettings::SHORT_PWRBTN::FORCE_REFRESH;
 
     // Apply the same mapped-input guards as a Power-button wake, then exercise
     // the reader's independent long-press route across the hold and release.
@@ -1055,7 +1052,7 @@ class SimulatorSmokeTest {
     inputScript.clear();
     scriptIndex = 0;
     inputCompletionStep = SmokeStep::CarouselHome;
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
     if (mappedInputManager.hasTouchHardware()) {
       const int startX = renderer.getScreenWidth() * (next ? 3 : 1) / 4;
       const int endX = renderer.getScreenWidth() * (next ? 1 : 3) / 4;
@@ -1147,7 +1144,7 @@ class SimulatorSmokeTest {
     queueStep("Carousel return cache", SmokeStep::CarouselHome, 8);
   }
 
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   void verifyBlockFontSizes(const int readerFontId) {
     RenderLock lock;
     const int baseFont = renderer.getFontIdForSize(readerFontId, 12);
@@ -1292,7 +1289,7 @@ class SimulatorSmokeTest {
       global.save();
     }
     SETTINGS.trackReadingStats = 1;
-    SETTINGS.uiTheme = CrossPointSettings::FLUIDEZ_FLUXO;
+    SETTINGS.uiTheme = FluiDezSettings::FLUIDEZ_FLUXO;
     UITheme::getInstance().reload();
   }
 
@@ -1311,17 +1308,17 @@ class SimulatorSmokeTest {
     switch (step) {
       case SmokeStep::Start:
         LOG_INF("SMOKE", "Starting simulator smoke test");
-        if (std::getenv("CROSSINK_SIMULATOR_SMOKE_FLUIDEZ_CAPTURES")) {
+        if (std::getenv("FLUIDEZ_SIMULATOR_SMOKE_FLUIDEZ_CAPTURES")) {
           prepareFluiDezCaptureFixture();
           activityManager.replaceActivity(std::make_unique<HomeActivity>(renderer, mappedInputManager));
           queueStep("FluiDez Home capture", SmokeStep::FluiDezCapture, 8);
           break;
         }
-        if (std::getenv("CROSSINK_SIMULATOR_SMOKE_STATUS_BARS")) {
+        if (std::getenv("FLUIDEZ_SIMULATOR_SMOKE_STATUS_BARS")) {
           verifyStatusBarSettings();
           SETTINGS.clockDateHasBeenSynced = true;
-          SETTINGS.dateFormat = CrossPointSettings::DATE_FORMAT_YEAR_MONTH_DAY_NUMERIC;
-          SETTINGS.dateSeparator = CrossPointSettings::DATE_SEPARATOR_HYPHEN;
+          SETTINGS.dateFormat = FluiDezSettings::DATE_FORMAT_YEAR_MONTH_DAY_NUMERIC;
+          SETTINGS.dateSeparator = FluiDezSettings::DATE_SEPARATOR_HYPHEN;
           SETTINGS.displayStatusBar.slots = {ReaderStatusBarItem::Clock, ReaderStatusBarItem::Date,
                                              ReaderStatusBarItem::Battery};
           activityManager.replaceActivity(
@@ -1330,15 +1327,15 @@ class SimulatorSmokeTest {
           break;
         }
 
-        if (std::getenv("CROSSINK_SIMULATOR_SMOKE_HOME_THEMES")) {
+        if (std::getenv("FLUIDEZ_SIMULATOR_SMOKE_HOME_THEMES")) {
           if (!mappedInputManager.hasHomeKey() || !mappedInputManager.hasTouchHardware())
             fail("Home theme regression requires the X4 Pro simulator");
           for (const char* path : {"/books/theme-first.txt", "/books/theme-second.txt"}) {
             if (!Storage.writeFile(path, "Home theme fixture")) fail("Cannot create Home theme fixture");
             RECENT_BOOKS.addOrUpdateBook(path, path, {}, {}, RecentBook::CoverState::Missing);
           }
-          SETTINGS.uiTheme = CrossPointSettings::LYRA_CAROUSEL;
-          SETTINGS.uiScale = CrossPointSettings::UI_SCALE_SMALL;
+          SETTINGS.uiTheme = FluiDezSettings::LYRA_CAROUSEL;
+          SETTINGS.uiScale = FluiDezSettings::UI_SCALE_SMALL;
           UITheme::getInstance().reload();
           homeThemeBookPath = "/books/theme-first.txt";
           activityManager.replaceActivity(std::make_unique<HomeActivity>(
@@ -1346,7 +1343,7 @@ class SimulatorSmokeTest {
           queueStep("Initial carousel Home", SmokeStep::ThemeHome, 8);
           break;
         }
-        if (std::getenv("CROSSINK_SIMULATOR_SMOKE_FRONTLIGHT_LAYOUT")) {
+        if (std::getenv("FLUIDEZ_SIMULATOR_SMOKE_FRONTLIGHT_LAYOUT")) {
           if (!mappedInputManager.hasHomeKey() || !mappedInputManager.hasTouchHardware())
             fail("Frontlight layout regression requires the X4 Pro simulator");
           activityManager.replaceActivity(std::make_unique<HomeActivity>(renderer, mappedInputManager));
@@ -1355,10 +1352,10 @@ class SimulatorSmokeTest {
         }
         verifyLoadingPopupBackdrop();
         verifyCachedHomeProgressMigration();
-        if (!CrossPointSettings::verifySleepTimeoutMigrationContract()) {
+        if (!FluiDezSettings::verifySleepTimeoutMigrationContract()) {
           fail("Sleep timeout migration contract failed");
         }
-        if (!CrossPointSettings::verifySleepScreenMigrationContract()) {
+        if (!FluiDezSettings::verifySleepScreenMigrationContract()) {
           fail("Sleep screen migration contract failed");
         }
         if (!SimulatorHomeKeyInput::verifyTimingContract()) {
@@ -1369,9 +1366,9 @@ class SimulatorSmokeTest {
         verifyReaderControlsSettings();
         verifyStatusBarSettings();
         verifyMixedPageGestures();
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
         verifyBlockFontSizes(sdFontSystem.ensureBuiltInReaderFont(renderer));
-        if (const char* family = std::getenv("CROSSINK_SIMULATOR_SMOKE_FONT_FAMILY")) {
+        if (const char* family = std::getenv("FLUIDEZ_SIMULATOR_SMOKE_FONT_FAMILY")) {
           // Exercise the production registry, adapter, size cache, and dictionary
           // handoff before the normal reader navigation smoke sequence.
           sdFontSystem.ensureRegistry();
@@ -1453,7 +1450,7 @@ class SimulatorSmokeTest {
             if (SETTINGS.getReaderFontId() == SETTINGS.getBuiltInReaderFontId()) fail("TTF size activation failed");
           }
           if (SETTINGS.getReaderFontId() != original) fail("TTF size identity changed on reuse");
-          if (std::getenv("CROSSINK_SIMULATOR_SMOKE_ISOLATED_FONTS")) {
+          if (std::getenv("FLUIDEZ_SIMULATOR_SMOKE_ISOLATED_FONTS")) {
             // A clean resize must use resident metadata, even with the cache temporarily unavailable.
             namespace fs = std::filesystem;
             fs::rename("fs_/.crosspoint/font-catalog.bin", "fs_/.crosspoint/font-catalog.saved");
@@ -1489,7 +1486,7 @@ class SimulatorSmokeTest {
           sdFontSystem.releaseLoadedFont(renderer);
           sdFontSystem.ensureLoaded(renderer);
           if (SETTINGS.getReaderFontId() != original) fail("TTF reload changed identity");
-          if (std::getenv("CROSSINK_SIMULATOR_SMOKE_ISOLATED_FONTS")) {
+          if (std::getenv("FLUIDEZ_SIMULATOR_SMOKE_ISOLATED_FONTS")) {
             namespace fs = std::filesystem;
             // The runner provides disposable copies; never mutate a user's SD tree.
             const auto* current = sdFontSystem.registry().findFamily(family);
@@ -1611,8 +1608,8 @@ class SimulatorSmokeTest {
         break;
 
       case SmokeStep::HomeReaderTrigger:
-        if (!activityManager.handleShortcutAction(CrossPointSettings::HOME_READER) ||
-            !activityManager.handleShortcutAction(CrossPointSettings::HOME_READER)) {
+        if (!activityManager.handleShortcutAction(FluiDezSettings::HOME_READER) ||
+            !activityManager.handleShortcutAction(FluiDezSettings::HOME_READER)) {
           fail("Repeated Home/Reader press was not consumed");
         }
         queueStep("Home/Reader unwound to reader", SmokeStep::HomeReaderUnwound);
@@ -1623,7 +1620,7 @@ class SimulatorSmokeTest {
             homeReaderConfirmationAccepted) {
           fail("Home/Reader did not cancel every nested screen back to the existing reader");
         }
-        if (!activityManager.handleShortcutAction(CrossPointSettings::HOME_READER)) {
+        if (!activityManager.handleShortcutAction(FluiDezSettings::HOME_READER)) {
           fail("Home/Reader from the reader was not consumed");
         }
         queueStep("Home/Reader reader to Home", SmokeStep::HomeReaderReturnedHome);
@@ -1632,7 +1629,7 @@ class SimulatorSmokeTest {
       case SmokeStep::HomeReaderReturnedHome: {
         if (!activityManager.isHomeActivity()) fail("Home/Reader from the reader did not return Home");
         Activity* const homeBeforeNoOp = activityManager.simulatorCurrentActivity();
-        if (!activityManager.handleShortcutAction(CrossPointSettings::HOME_READER) ||
+        if (!activityManager.handleShortcutAction(FluiDezSettings::HOME_READER) ||
             activityManager.simulatorCurrentActivity() != homeBeforeNoOp) {
           fail("Home/Reader was not a no-op on Home");
         }
@@ -1657,8 +1654,8 @@ class SimulatorSmokeTest {
         break;
 
       case SmokeStep::HomeReaderNonReaderNested:
-        if (!activityManager.handleShortcutAction(CrossPointSettings::HOME_READER) ||
-            !activityManager.handleShortcutAction(CrossPointSettings::HOME_READER)) {
+        if (!activityManager.handleShortcutAction(FluiDezSettings::HOME_READER) ||
+            !activityManager.handleShortcutAction(FluiDezSettings::HOME_READER)) {
           fail("Home/Reader outside a reader was not consumed");
         }
         queueStep("Home/Reader non-reader to Home", SmokeStep::HomeReaderNonReaderHome);
@@ -1703,7 +1700,7 @@ class SimulatorSmokeTest {
         break;
 
       case SmokeStep::FileBrowser:
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
         if (mappedInputManager.hasTouchHardware()) {
           buildFileBrowserInputScript();
           step = SmokeStep::ReaderInput;
@@ -1716,7 +1713,7 @@ class SimulatorSmokeTest {
         break;
 
       case SmokeStep::FileBrowserSettings:
-        if (std::getenv("CROSSINK_SIMULATOR_SMOKE_FRONTLIGHT_SYNC")) {
+        if (std::getenv("FLUIDEZ_SIMULATOR_SMOKE_FRONTLIGHT_SYNC")) {
           if (!mappedInputManager.hasHomeKey()) fail("Frontlight sync regression requires X4 Pro simulator");
           LOG_INF("SMOKE", "Frontlight sync: stats on/off menu and dispatch checks passed");
           step = SmokeStep::Done;
@@ -1767,7 +1764,7 @@ class SimulatorSmokeTest {
         activity->simulatorSetView(4, true);
         if (activity->simulatorRowCount() != 18 || !activity->simulatorReadBook(0, book))
           fail("Recent Library stayed unavailable after a failed full scan");
-        const char* epubPath = std::getenv("CROSSINK_SIMULATOR_SMOKE_BOOK");
+        const char* epubPath = std::getenv("FLUIDEZ_SIMULATOR_SMOKE_BOOK");
         if (epubPath) {
           const std::string cachePath = Epub(epubPath, "/.crosspoint").getCachePath();
           if (!Storage.exists(cachePath.c_str()) && !Storage.mkdir(cachePath.c_str()))
@@ -1812,7 +1809,7 @@ class SimulatorSmokeTest {
         // Rendering an error screen is not a successful Library smoke test.
         // The script supplies an isolated card with at least one EPUB.
         library::LibraryIndexFile shelf;
-        const bool hasFixture = std::getenv("CROSSINK_SIMULATOR_SMOKE_BOOK") != nullptr;
+        const bool hasFixture = std::getenv("FLUIDEZ_SIMULATOR_SMOKE_BOOK") != nullptr;
         const bool readable = shelf.open(library::libraryIndexPath());
         const bool populated = readable && (!hasFixture || shelf.bookCount() > 0);
         const uint16_t books = shelf.bookCount();
@@ -1835,7 +1832,7 @@ class SimulatorSmokeTest {
             if (libraryActivity->simulatorPendingInputs() != 2 ||
                 libraryActivity->simulatorSelection() != beforeSelection)
               fail("Library did not buffer navigation while rendering");
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
             mappedInputManager.simulatorClearInputFrame();
             mappedInputManager.simulatorInjectTouchDown(200, 300);
             libraryActivity->loop();
@@ -1910,12 +1907,12 @@ class SimulatorSmokeTest {
       case SmokeStep::StatusBarPicker: {
         RenderLock lock;
         captureStatusBarScreen("display-picker");
-        for (const uint8_t theme : {CrossPointSettings::CLASSIC, CrossPointSettings::MINIMAL, CrossPointSettings::LYRA,
-                                    CrossPointSettings::ROUNDEDRAFF, CrossPointSettings::DASHBOARD}) {
+        for (const uint8_t theme : {FluiDezSettings::CLASSIC, FluiDezSettings::MINIMAL, FluiDezSettings::LYRA,
+                                    FluiDezSettings::ROUNDEDRAFF, FluiDezSettings::DASHBOARD}) {
           SETTINGS.uiTheme = theme;
           UITheme::getInstance().reload();
           const auto& metrics = UITheme::getInstance().getMetrics();
-          for (unsigned format = 0; format < CrossPointSettings::DATE_FORMAT_COUNT; ++format) {
+          for (unsigned format = 0; format < FluiDezSettings::DATE_FORMAT_COUNT; ++format) {
             SETTINGS.dateFormat = format;
             renderer.clearScreen();
             GUI.drawHeader(renderer, Rect{0, metrics.topPadding, renderer.getScreenWidth(), metrics.headerHeight},
@@ -1979,9 +1976,9 @@ class SimulatorSmokeTest {
         break;
 
       case SmokeStep::Sleep: {
-        const char* bookPath = std::getenv("CROSSINK_SIMULATOR_SMOKE_BOOK");
+        const char* bookPath = std::getenv("FLUIDEZ_SIMULATOR_SMOKE_BOOK");
         if (bookPath == nullptr || bookPath[0] == '\0') {
-          LOG_INF("SMOKE", "Skipping Reader step; CROSSINK_SIMULATOR_SMOKE_BOOK is not set");
+          LOG_INF("SMOKE", "Skipping Reader step; FLUIDEZ_SIMULATOR_SMOKE_BOOK is not set");
           step = SmokeStep::Reader;
           break;
         }
@@ -1989,7 +1986,7 @@ class SimulatorSmokeTest {
           fail("Smoke test book is missing: %s", bookPath);
         }
         if (landscapeReaderRequested()) {
-          SETTINGS.orientation = CrossPointSettings::LANDSCAPE_CCW;
+          SETTINGS.orientation = FluiDezSettings::LANDSCAPE_CCW;
           LOG_INF("SMOKE", "Opening smoke reader in landscape");
         }
         activityManager.goToReader(bookPath, true);
@@ -2022,7 +2019,7 @@ class SimulatorSmokeTest {
         {
           RenderLock lock;
           SETTINGS.uiScale =
-              (frontlightLayoutPass / 64) ? CrossPointSettings::UI_SCALE_LARGE : CrossPointSettings::UI_SCALE_SMALL;
+              (frontlightLayoutPass / 64) ? FluiDezSettings::UI_SCALE_LARGE : FluiDezSettings::UI_SCALE_SMALL;
           SETTINGS.uiTheme = (frontlightLayoutPass / 8) % 8;
           renderer.setOrientation(static_cast<GfxRenderer::Orientation>((frontlightLayoutPass / 2) % 4));
           UITheme::getInstance().reload();
@@ -2052,7 +2049,7 @@ class SimulatorSmokeTest {
             panel->simulatorContentBottom > panel->simulatorActionBarTop) {
           fail("Frontlight controls overflow in layout matrix case %u", frontlightLayoutPass);
         }
-        if (const char* outputDir = std::getenv("CROSSINK_SIMULATOR_SMOKE_FRONTLIGHT_CAPTURES")) {
+        if (const char* outputDir = std::getenv("FLUIDEZ_SIMULATOR_SMOKE_FRONTLIGHT_CAPTURES")) {
           const auto path = std::filesystem::path(outputDir) / (std::to_string(frontlightLayoutPass) + ".pgm");
           FILE* image = std::fopen(path.c_str(), "wb");
           if (!image) fail("Cannot create frontlight layout capture");
@@ -2065,7 +2062,7 @@ class SimulatorSmokeTest {
           }
           std::fclose(image);
         }
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
         const int x = handle.x + handle.width / 2;
         const int y = handle.y + handle.height / 2;
         inputScript = {touchDown(x, y), touchRelease(x, y), render("Frontlight closed by visible handle", 4),
@@ -2081,7 +2078,7 @@ class SimulatorSmokeTest {
       }
 
       case SmokeStep::ThemeHome: {
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
         if (activityManager.getCurrentBookPath() != homeThemeBookPath) fail("Theme switch lost the selected book");
         const int width = renderer.getScreenWidth();
         const int height = renderer.getScreenHeight();
@@ -2103,17 +2100,17 @@ class SimulatorSmokeTest {
       }
 
       case SmokeStep::ThemeSettings: {
-        static constexpr uint8_t themes[] = {CrossPointSettings::LYRA_3_COVERS, CrossPointSettings::DASHBOARD,
-                                             CrossPointSettings::MINIMAL,       CrossPointSettings::COVER_GRID,
-                                             CrossPointSettings::LYRA,          CrossPointSettings::CLASSIC,
-                                             CrossPointSettings::ROUNDEDRAFF,   CrossPointSettings::LYRA_CAROUSEL,
-                                             CrossPointSettings::LYRA_CAROUSEL, CrossPointSettings::LYRA_CAROUSEL};
+        static constexpr uint8_t themes[] = {FluiDezSettings::LYRA_3_COVERS, FluiDezSettings::DASHBOARD,
+                                             FluiDezSettings::MINIMAL,       FluiDezSettings::COVER_GRID,
+                                             FluiDezSettings::LYRA,          FluiDezSettings::CLASSIC,
+                                             FluiDezSettings::ROUNDEDRAFF,   FluiDezSettings::LYRA_CAROUSEL,
+                                             FluiDezSettings::LYRA_CAROUSEL, FluiDezSettings::LYRA_CAROUSEL};
         // Change the global values while the real Settings child is open, then
         // return through its real drawer callback. Compare with a fresh Home.
         {
           RenderLock lock;
           SETTINGS.uiTheme = themes[homeThemePass];
-          if (homeThemePass == 8) SETTINGS.uiScale = CrossPointSettings::UI_SCALE_LARGE;
+          if (homeThemePass == 8) SETTINGS.uiScale = FluiDezSettings::UI_SCALE_LARGE;
           UITheme::getInstance().reload();
         }
         inputScript = {press(MappedInputManager::Button::Back), release(MappedInputManager::Button::Back),
@@ -2159,17 +2156,17 @@ class SimulatorSmokeTest {
           int bookIndex;  // book selected on entry; -1 keeps the lead book
         };
         static constexpr CapturePass passes[] = {
-            {CrossPointSettings::FLUIDEZ_FLUXO, "fluxo", HomeMenuItem::NONE, -1},
-            {CrossPointSettings::FLUIDEZ_CARDS, "cartoes", HomeMenuItem::NONE, -1},
-            {CrossPointSettings::FLUIDEZ_SHELF, "estante", HomeMenuItem::NONE, -1},
-            {CrossPointSettings::FLUIDEZ_FLUXO, "fluxo-menu", HomeMenuItem::SETTINGS_MENU, -1},
-            {CrossPointSettings::FLUIDEZ_CARDS, "cartoes-menu", HomeMenuItem::SETTINGS_MENU, -1},
-            {CrossPointSettings::FLUIDEZ_SHELF, "estante-menu", HomeMenuItem::SETTINGS_MENU, -1},
-            {CrossPointSettings::FLUIDEZ_SHELF, "estante-livro", HomeMenuItem::NONE, 2},
-            {CrossPointSettings::FLUIDEZ_CARDS, "cartoes-livro", HomeMenuItem::NONE, 1},
+            {FluiDezSettings::FLUIDEZ_FLUXO, "fluxo", HomeMenuItem::NONE, -1},
+            {FluiDezSettings::FLUIDEZ_CARDS, "cartoes", HomeMenuItem::NONE, -1},
+            {FluiDezSettings::FLUIDEZ_SHELF, "estante", HomeMenuItem::NONE, -1},
+            {FluiDezSettings::FLUIDEZ_FLUXO, "fluxo-menu", HomeMenuItem::SETTINGS_MENU, -1},
+            {FluiDezSettings::FLUIDEZ_CARDS, "cartoes-menu", HomeMenuItem::SETTINGS_MENU, -1},
+            {FluiDezSettings::FLUIDEZ_SHELF, "estante-menu", HomeMenuItem::SETTINGS_MENU, -1},
+            {FluiDezSettings::FLUIDEZ_SHELF, "estante-livro", HomeMenuItem::NONE, 2},
+            {FluiDezSettings::FLUIDEZ_CARDS, "cartoes-livro", HomeMenuItem::NONE, 1},
         };
         constexpr unsigned passCount = sizeof(passes) / sizeof(passes[0]);
-        const char* outputDir = std::getenv("CROSSINK_SIMULATOR_SMOKE_FLUIDEZ_CAPTURES");
+        const char* outputDir = std::getenv("FLUIDEZ_SIMULATOR_SMOKE_FLUIDEZ_CAPTURES");
         {
           RenderLock lock;
           const auto path = std::filesystem::path(outputDir) / (std::string(passes[fluidezCapturePass].name) + ".pgm");
@@ -2204,8 +2201,8 @@ class SimulatorSmokeTest {
       }
 
       case SmokeStep::Done:
-        if (SETTINGS.uiTheme == CrossPointSettings::LYRA_CAROUSEL && carouselCachePass == 0 &&
-            std::getenv("CROSSINK_SIMULATOR_SMOKE_BOOK")) {
+        if (SETTINGS.uiTheme == FluiDezSettings::LYRA_CAROUSEL && carouselCachePass == 0 &&
+            std::getenv("FLUIDEZ_SIMULATOR_SMOKE_BOOK")) {
           const RecentBook book = RECENT_BOOKS.getBooks().front();
           for (const char* path : {"/books/carousel-second.txt", "/books/carousel-third.txt"}) {
             if (!Storage.writeFile(path, "Carousel side cover fixture")) fail("Cannot create carousel fixture");
@@ -2300,7 +2297,7 @@ class SimulatorSmokeTest {
     return {ScriptActionType::AssertActivity, MappedInputManager::Button::Back, name, 0, 0, 0};
   }
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   static ScriptAction touchDown(const int x, const int y) {
     return {ScriptActionType::TouchDown, MappedInputManager::Button::Back, nullptr, 0, x, y};
   }
@@ -2335,7 +2332,7 @@ class SimulatorSmokeTest {
       const auto& families = sdFontSystem.registry().getFamilies();
       for (size_t i = 0; i < families.size(); ++i) {
         if (families[i].name != SETTINGS.sdFontFamilyName) continue;
-        currentFontIndex = CrossPointSettings::BUILTIN_FONT_COUNT + static_cast<int>(i);
+        currentFontIndex = FluiDezSettings::BUILTIN_FONT_COUNT + static_cast<int>(i);
         currentFontSizes = families[i].availableSizes();
         break;
       }
@@ -2344,7 +2341,7 @@ class SimulatorSmokeTest {
     const int currentSizeIndex = sizeIt == currentFontSizes.end() ? 0 : std::distance(currentFontSizes.begin(), sizeIt);
 
     const int turns = pageTurnCount();
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
     if (mappedInputManager.hasTouch()) {
       const int width = renderer.getScreenWidth();
       const int height = renderer.getScreenHeight();
@@ -2359,7 +2356,7 @@ class SimulatorSmokeTest {
 
       // Exercise the TTF edit path that replaces the active scalable font IDs:
       // Auto -> Native, switch tabs, then return to the current page.
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
       if (SETTINGS.sdFontFamilyName[0] != '\0' && sdFontSystem.isScalableFamily(SETTINGS.sdFontFamilyName)) {
         inputScript.push_back(touchDown(width / 2, height - 8));
         inputScript.push_back(touchMove(width / 2, height * 3 / 4));
@@ -2678,7 +2675,7 @@ class SimulatorSmokeTest {
     inputScript.push_back(render("Font Size choices opened", 3));
     inputScript.push_back(assertReaderMenu(ReaderDrawerTab::Font, ReaderDrawerPane::EnumOptions, currentSizeIndex));
 
-#if CROSSINK_APP_READER_SAMPLE_PREVIEW
+#if FLUIDEZ_APP_READER_SAMPLE_PREVIEW
     addTap(menuDown);
     addTap(MappedInputManager::Button::Confirm);
     inputScript.push_back(render("C3 font size paragraph preview", 4));
@@ -2687,7 +2684,7 @@ class SimulatorSmokeTest {
     addTap(MappedInputManager::Button::Back);
     inputScript.push_back(render("Reader Font after closing Font Size", 4));
 
-#if CROSSINK_APP_READER_SAMPLE_PREVIEW
+#if FLUIDEZ_APP_READER_SAMPLE_PREVIEW
     addTap(MappedInputManager::Button::Confirm);
     inputScript.push_back(render("C3 font family picker", 4));
     addTap(menuDown);
@@ -2700,7 +2697,7 @@ class SimulatorSmokeTest {
     addTap(MappedInputManager::Button::Back);
     inputScript.push_back(render("Reader Menu tab focus restored", 4));
 
-#if CROSSINK_APP_READER_SAMPLE_PREVIEW
+#if FLUIDEZ_APP_READER_SAMPLE_PREVIEW
     addTap(menuDown);
     addTap(menuDown);
     addTap(menuDown);
@@ -2723,7 +2720,7 @@ class SimulatorSmokeTest {
     inputScript.push_back(render("Reader Menu advanced to next tab", 4));
     inputScript.push_back(assertReaderMenu(ReaderDrawerTab::Layout, ReaderDrawerPane::Root, 0));
 
-#if CROSSINK_APP_READER_SAMPLE_PREVIEW
+#if FLUIDEZ_APP_READER_SAMPLE_PREVIEW
     addTap(menuDown);
     addTap(MappedInputManager::Button::Confirm);
     inputScript.push_back(render("C3 margin paragraph preview", 4));
@@ -2752,7 +2749,7 @@ class SimulatorSmokeTest {
     LOG_INF("SMOKE", "Running reader input script with %d page turn(s)", turns);
   }
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   void buildFileBrowserInputScript() {
     inputScript.clear();
     scriptIndex = 0;
@@ -2862,7 +2859,7 @@ class SimulatorSmokeTest {
         APP_STATE.openEpubPath.clear();
         break;
       case ScriptActionType::PrepareFrontlightSync: {
-        const char* bookPath = std::getenv("CROSSINK_SIMULATOR_SMOKE_BOOK");
+        const char* bookPath = std::getenv("FLUIDEZ_SIMULATOR_SMOKE_BOOK");
         if (!bookPath || !Storage.exists(bookPath)) fail("Frontlight sync fixture is missing");
         APP_STATE.openEpubPath = bookPath;
         break;
@@ -2894,7 +2891,7 @@ class SimulatorSmokeTest {
                 fail("Unselected sync option is highlighted");
           }
         }
-        if (const char* outputDir = std::getenv("CROSSINK_SIMULATOR_SMOKE_FRONTLIGHT_CAPTURES")) {
+        if (const char* outputDir = std::getenv("FLUIDEZ_SIMULATOR_SMOKE_FRONTLIGHT_CAPTURES")) {
           const auto path = std::filesystem::path(outputDir) / (unavailable                  ? "sync-no-book.pgm"
                                                                 : SETTINGS.trackReadingStats ? "sync-stats-on.pgm"
                                                                                              : "sync-stats-off.pgm");
@@ -2930,8 +2927,8 @@ class SimulatorSmokeTest {
         break;
       case ScriptActionType::ConfigureHomeButtonPowerLock:
         SETTINGS.homeButtonInReaderEnabled = 1;
-        SETTINGS.shortPwrBtn = CrossPointSettings::SHORT_PWRBTN::TOGGLE_HOME_BUTTON_IN_READER;
-        SETTINGS.longPwrBtn = CrossPointSettings::SHORT_PWRBTN::TOGGLE_HOME_BUTTON_IN_READER;
+        SETTINGS.shortPwrBtn = FluiDezSettings::SHORT_PWRBTN::TOGGLE_HOME_BUTTON_IN_READER;
+        SETTINGS.longPwrBtn = FluiDezSettings::SHORT_PWRBTN::TOGGLE_HOME_BUTTON_IN_READER;
         break;
       case ScriptActionType::WaitForPowerLongPress:
         if (mappedInputManager.getHeldTime() < SETTINGS.getPowerButtonLongPressDuration()) {
@@ -2951,14 +2948,14 @@ class SimulatorSmokeTest {
         if (SETTINGS.disableReaderTouchscreen) fail("Expected reader touchscreen to be enabled");
         break;
       case ScriptActionType::AssertTtfProfileNative:
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
         if (TTF_RENDER_PROFILES.profileFor(SETTINGS.sdFontFamilyName).hinting != 1) {
           fail("Expected active TTF profile to use native hinting");
         }
 #endif
         break;
       case ScriptActionType::OpenSmokeBook: {
-        const char* bookPath = std::getenv("CROSSINK_SIMULATOR_SMOKE_BOOK");
+        const char* bookPath = std::getenv("FLUIDEZ_SIMULATOR_SMOKE_BOOK");
         if (bookPath == nullptr || bookPath[0] == '\0') fail("Smoke test book path is missing");
         activityManager.goToReader(bookPath, true);
         break;
@@ -2970,7 +2967,7 @@ class SimulatorSmokeTest {
         SETTINGS.disableReaderTouchscreen = false;
         break;
       case ScriptActionType::TouchDownFrontlightHandle: {
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
         auto* panel = dynamic_cast<FrontlightPanelActivity*>(activityManager.simulatorCurrentActivity());
         if (!panel) fail("Expected frontlight drawer before touching its handle");
         const auto handle = panel->simulatorHandleRect();
@@ -2979,17 +2976,17 @@ class SimulatorSmokeTest {
         break;
       }
       case ScriptActionType::TouchDown:
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
         mappedInputManager.simulatorInjectTouchDown(action.x, action.y);
 #endif
         break;
       case ScriptActionType::TouchMove:
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
         mappedInputManager.simulatorInjectTouchMove(action.x, action.y);
 #endif
         break;
       case ScriptActionType::TouchRelease:
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
         mappedInputManager.simulatorInjectTouchRelease(action.x, action.y);
 #endif
         break;

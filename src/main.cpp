@@ -81,8 +81,8 @@ inline esp_sleep_wakeup_cause_t esp_sleep_get_wakeup_cause() { return ESP_SLEEP_
 #endif
 
 #include "AppVersion.h"
-#include "CrossPointSettings.h"
-#include "CrossPointState.h"
+#include "FluiDezSettings.h"
+#include "FluiDezState.h"
 #include "GlobalActions.h"
 #include "KOReaderCredentialStore.h"
 #include "MappedInputManager.h"
@@ -179,7 +179,7 @@ static void logBootHeap(const char* stage) {
 }
 
 // Fonts
-#if !CROSSINK_SCALABLE_FONTS
+#if !FLUIDEZ_SCALABLE_FONTS
 EpdFont lexenddeca10RegularFont(&lexenddeca_10_regular);
 EpdFont lexenddeca10BoldFont(&lexenddeca_10_bold);
 EpdFont lexenddeca10ItalicFont(&lexenddeca_10_italic);
@@ -475,15 +475,15 @@ void silentRestartToNetwork(const NetworkBootTarget target, const uint32_t paylo
 void silentRestartToManageFonts() { silentRestartToNetwork(NetworkBootTarget::MANAGE_FONTS); }
 
 static uint32_t encodeKOReaderSyncOrientation(const uint8_t orientation) {
-  return orientation < CrossPointSettings::ORIENTATION_COUNT ? static_cast<uint32_t>(orientation) + 1 : 0;
+  return orientation < FluiDezSettings::ORIENTATION_COUNT ? static_cast<uint32_t>(orientation) + 1 : 0;
 }
 
 static uint8_t decodeKOReaderSyncOrientation(const uint32_t payload) {
-  return payload > 0 && payload <= CrossPointSettings::ORIENTATION_COUNT ? static_cast<uint8_t>(payload - 1)
-                                                                         : CrossPointSettings::ORIENTATION_COUNT;
+  return payload > 0 && payload <= FluiDezSettings::ORIENTATION_COUNT ? static_cast<uint8_t>(payload - 1)
+                                                                      : FluiDezSettings::ORIENTATION_COUNT;
 }
 
-bool isGlobalPowerButtonAction(const CrossPointSettings::SHORT_PWRBTN action) {
+bool isGlobalPowerButtonAction(const FluiDezSettings::SHORT_PWRBTN action) {
   return isPowerButtonActionAvailableOutsideReader(action);
 }
 
@@ -523,28 +523,28 @@ bool startGlobalSyncProgress(const bool networkBootReady, const uint8_t readerOr
   return true;
 }
 
-CrossPointSettings::SHORT_PWRBTN getPowerButtonAction() {
+FluiDezSettings::SHORT_PWRBTN getPowerButtonAction() {
   static bool longPowerButtonHandled = false;
 
   if (mappedInputManager.wasReleased(MappedInputManager::Button::Power)) {
     if (longPowerButtonHandled) {
       longPowerButtonHandled = false;
-      return CrossPointSettings::SHORT_PWRBTN::IGNORE;
+      return FluiDezSettings::SHORT_PWRBTN::IGNORE;
     }
 
     return mappedInputManager.getHeldTime() < SETTINGS.getPowerButtonLongPressDuration()
-               ? static_cast<CrossPointSettings::SHORT_PWRBTN>(SETTINGS.shortPwrBtn)
-               : static_cast<CrossPointSettings::SHORT_PWRBTN>(SETTINGS.longPwrBtn);
+               ? static_cast<FluiDezSettings::SHORT_PWRBTN>(SETTINGS.shortPwrBtn)
+               : static_cast<FluiDezSettings::SHORT_PWRBTN>(SETTINGS.longPwrBtn);
   }
 
   if (longPowerButtonHandled || !mappedInputManager.isPressed(MappedInputManager::Button::Power) ||
       mappedInputManager.getHeldTime() < SETTINGS.getPowerButtonLongPressDuration()) {
-    return CrossPointSettings::SHORT_PWRBTN::IGNORE;
+    return FluiDezSettings::SHORT_PWRBTN::IGNORE;
   }
 
-  const auto action = static_cast<CrossPointSettings::SHORT_PWRBTN>(SETTINGS.longPwrBtn);
+  const auto action = static_cast<FluiDezSettings::SHORT_PWRBTN>(SETTINGS.longPwrBtn);
   if (!isGlobalPowerButtonAction(action)) {
-    return CrossPointSettings::SHORT_PWRBTN::IGNORE;
+    return FluiDezSettings::SHORT_PWRBTN::IGNORE;
   }
 
   longPowerButtonHandled = true;
@@ -597,16 +597,16 @@ void notifyQuickLockChanged() {
   }
 }
 
-bool handleGlobalPowerButtonAction(const CrossPointSettings::SHORT_PWRBTN action,
+bool handleGlobalPowerButtonAction(const FluiDezSettings::SHORT_PWRBTN action,
                                    const QuickLockTrigger quickLockTrigger) {
   switch (action) {
-    case CrossPointSettings::SHORT_PWRBTN::SLEEP:
-    case CrossPointSettings::SHORT_PWRBTN::SLEEP_ONLY:
+    case FluiDezSettings::SHORT_PWRBTN::SLEEP:
+    case FluiDezSettings::SHORT_PWRBTN::SLEEP_ONLY:
       enterDeepSleep();
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::WAKE_ONLY:
+    case FluiDezSettings::SHORT_PWRBTN::WAKE_ONLY:
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::QUICK_LOCK:
+    case FluiDezSettings::SHORT_PWRBTN::QUICK_LOCK:
       if (quickLockTrigger == QuickLockTrigger::None) {
         LOG_ERR("MAIN", "Quick Lock requested without an input trigger");
         return false;
@@ -615,7 +615,7 @@ bool handleGlobalPowerButtonAction(const CrossPointSettings::SHORT_PWRBTN action
                                                quickLockTrigger == QuickLockTrigger::LongPower);
       notifyQuickLockChanged();
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::FORCE_REFRESH: {
+    case FluiDezSettings::SHORT_PWRBTN::FORCE_REFRESH: {
       // Reader redraws must replace overlays before the panel refreshes.
       if (activityManager.requestManualReaderRefresh()) {
         return true;
@@ -624,7 +624,7 @@ bool handleGlobalPowerButtonAction(const CrossPointSettings::SHORT_PWRBTN action
       renderer.displayBuffer(manualScreenRefreshMode());
       return true;
     }
-    case CrossPointSettings::SHORT_PWRBTN::SCREENSHOT: {
+    case FluiDezSettings::SHORT_PWRBTN::SCREENSHOT: {
       if (activityManager.canSnapshotForSleepOverlay()) {
         return false;
       }
@@ -632,39 +632,39 @@ bool handleGlobalPowerButtonAction(const CrossPointSettings::SHORT_PWRBTN action
       ScreenshotUtil::takeScreenshot(renderer);
       return true;
     }
-    case CrossPointSettings::SHORT_PWRBTN::SYNC_PROGRESS:
+    case FluiDezSettings::SHORT_PWRBTN::SYNC_PROGRESS:
       if (activityManager.canSnapshotForSleepOverlay()) {
         return false;
       }
       return startGlobalSyncProgress();
-    case CrossPointSettings::SHORT_PWRBTN::FILE_TRANSFER:
+    case FluiDezSettings::SHORT_PWRBTN::FILE_TRANSFER:
       if (activityManager.canSnapshotForSleepOverlay()) {
         return false;
       }
       activityManager.goToFileTransfer();
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::CALIBRE_WIRELESS:
+    case FluiDezSettings::SHORT_PWRBTN::CALIBRE_WIRELESS:
       if (activityManager.canSnapshotForSleepOverlay()) {
         return false;
       }
       activityManager.goToCalibreWireless();
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::JOIN_NETWORK:
+    case FluiDezSettings::SHORT_PWRBTN::JOIN_NETWORK:
       if (activityManager.canSnapshotForSleepOverlay()) {
         return false;
       }
       activityManager.goToJoinNetworkFileTransfer();
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::CREATE_HOTSPOT:
+    case FluiDezSettings::SHORT_PWRBTN::CREATE_HOTSPOT:
       if (activityManager.canSnapshotForSleepOverlay()) {
         return false;
       }
       activityManager.goToHotspotFileTransfer();
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::LIBRARY:
+    case FluiDezSettings::SHORT_PWRBTN::LIBRARY:
       activityManager.goToLibrary();
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_FRONTLIGHT: {
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_FRONTLIGHT: {
       if (!Frontlight.present()) return false;
       const bool lightOn = !Frontlight.isOn();
       Frontlight.setOn(lightOn);
@@ -673,7 +673,7 @@ bool handleGlobalPowerButtonAction(const CrossPointSettings::SHORT_PWRBTN action
       LOG_INF("LIGHT", "Frontlight toggled %s by shortcut", lightOn ? "on" : "off");
       return true;
     }
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_TOUCHSCREEN:
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_TOUCHSCREEN:
       if (!gpio.hasTouch()) return false;
       SETTINGS.disableReaderTouchscreen = SETTINGS.disableReaderTouchscreen ? 0 : 1;
       activityManager.persistGlobalSettings();
@@ -692,12 +692,12 @@ bool handleGlobalPowerButtonAction(const CrossPointSettings::SHORT_PWRBTN action
   return false;
 }
 
-bool dispatchShortcutAction(const CrossPointSettings::SHORT_PWRBTN action) {
-  if (action == CrossPointSettings::SHORT_PWRBTN::READING_STATS && !SETTINGS.shouldTrackReadingStats()) return false;
+bool dispatchShortcutAction(const FluiDezSettings::SHORT_PWRBTN action) {
+  if (action == FluiDezSettings::SHORT_PWRBTN::READING_STATS && !SETTINGS.shouldTrackReadingStats()) return false;
   // An EPUB reader may have a per-book orientation that is restored during
   // teardown. Let it hand off Sync Progress before the global restart drops
   // that transient setting.
-  if (action == CrossPointSettings::SHORT_PWRBTN::SYNC_PROGRESS && activityManager.handleShortcutAction(action)) {
+  if (action == FluiDezSettings::SHORT_PWRBTN::SYNC_PROGRESS && activityManager.handleShortcutAction(action)) {
     return true;
   }
   return handleGlobalPowerButtonAction(action) || activityManager.handleShortcutAction(action);
@@ -705,7 +705,7 @@ bool dispatchShortcutAction(const CrossPointSettings::SHORT_PWRBTN action) {
 
 ButtonShortcutController::ChordAction configuredChordAction() {
   const auto rawAction = SETTINGS.powerChordAction;
-  if (rawAction >= CrossPointSettings::POWER_CHORD_ACTION_COUNT) {
+  if (rawAction >= FluiDezSettings::POWER_CHORD_ACTION_COUNT) {
     return ButtonShortcutController::ChordAction::Disabled;
   }
   return static_cast<ButtonShortcutController::ChordAction>(rawAction);
@@ -713,15 +713,15 @@ ButtonShortcutController::ChordAction configuredChordAction() {
 
 ButtonShortcutController::ChordAction configuredSideButtonChordAction() {
   const auto rawAction = SETTINGS.sideButtonChordAction;
-  if (rawAction >= CrossPointSettings::POWER_CHORD_ACTION_COUNT) {
+  if (rawAction >= FluiDezSettings::POWER_CHORD_ACTION_COUNT) {
     return ButtonShortcutController::ChordAction::Disabled;
   }
   return static_cast<ButtonShortcutController::ChordAction>(rawAction);
 }
 
-CrossPointSettings::SHORT_PWRBTN chordPowerAction(const ButtonShortcutController::ChordAction action) {
+FluiDezSettings::SHORT_PWRBTN chordPowerAction(const ButtonShortcutController::ChordAction action) {
   using Chord = ButtonShortcutController::ChordAction;
-  using Power = CrossPointSettings::SHORT_PWRBTN;
+  using Power = FluiDezSettings::SHORT_PWRBTN;
   switch (action) {
     case Chord::Sleep:
       return Power::SLEEP;
@@ -831,9 +831,9 @@ void putTiltSensorToSleepForDeepSleep() {
 bool executeX4ProHomeButtonAction(const uint8_t action,
                                   const QuickLockTrigger quickLockTrigger = QuickLockTrigger::None) {
   switch (action) {
-    case CrossPointSettings::HOME_BUTTON_BACK_HOME:
+    case FluiDezSettings::HOME_BUTTON_BACK_HOME:
       return activityManager.handleHomeButtonBackOrHome();
-    case CrossPointSettings::HOME_BUTTON_TOGGLE_FRONTLIGHT: {
+    case FluiDezSettings::HOME_BUTTON_TOGGLE_FRONTLIGHT: {
       const bool lightOn = !Frontlight.isOn();
       Frontlight.setOn(lightOn);
       SETTINGS.frontlightOn = lightOn ? 1 : 0;
@@ -841,18 +841,18 @@ bool executeX4ProHomeButtonAction(const uint8_t action,
       LOG_INF("LIGHT", "Frontlight toggled %s by Home key", lightOn ? "on" : "off");
       return true;
     }
-    case CrossPointSettings::HOME_BUTTON_READER_MENU:
+    case FluiDezSettings::HOME_BUTTON_READER_MENU:
       return activityManager.openReaderMenuFromShortcut();
     default:
       break;
   }
 
-  if (action >= CrossPointSettings::SHORT_PWRBTN_COUNT) {
+  if (action >= FluiDezSettings::SHORT_PWRBTN_COUNT) {
     return false;
   }
 
-  const auto powerAction = static_cast<CrossPointSettings::SHORT_PWRBTN>(action);
-  if (powerAction == CrossPointSettings::SHORT_PWRBTN::SYNC_PROGRESS) {
+  const auto powerAction = static_cast<FluiDezSettings::SHORT_PWRBTN>(action);
+  if (powerAction == FluiDezSettings::SHORT_PWRBTN::SYNC_PROGRESS) {
     dispatchShortcutAction(powerAction);
     return true;
   }
@@ -959,7 +959,7 @@ bool handleX4ProHomeKeyShortcuts() {
     // A single-tap action must wait briefly so the reader does not navigate
     // away before a second capacitive-key tap can be recognized.
     x4ProHomeKeyTapPending = false;
-    if (SETTINGS.homeButtonTapAction == CrossPointSettings::HOME_BUTTON_BACK_HOME) {
+    if (SETTINGS.homeButtonTapAction == FluiDezSettings::HOME_BUTTON_BACK_HOME) {
       // Keep reader menus and other overlays on their existing local Home route.
       mappedInputManager.queueDeferredHomeGesture();
     } else {
@@ -971,7 +971,7 @@ bool handleX4ProHomeKeyShortcuts() {
   if (wasX4ProHomeKeyLongPressed()) {
     // A hold is a separate gesture, not the second half of a double tap.
     x4ProHomeKeyTapPending = false;
-    if (SETTINGS.homeButtonLongPressAction == CrossPointSettings::HOME_BUTTON_READER_MENU) {
+    if (SETTINGS.homeButtonLongPressAction == FluiDezSettings::HOME_BUTTON_READER_MENU) {
       return completedPendingTap;
     }
     executeX4ProHomeButtonAction(SETTINGS.homeButtonLongPressAction, QuickLockTrigger::HomeLongPress);
@@ -1098,9 +1098,9 @@ void enterDeepSleep(bool fromTimeout) {
   APP_STATE.lastSleepFromReader = activityManager.isReaderActivity();
 
   const bool isQuickResumeSleep =
-      SETTINGS.sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::QUICK_RESUME ||
+      SETTINGS.sleepScreen == FluiDezSettings::SLEEP_SCREEN_MODE::QUICK_RESUME ||
       (fromTimeout &&
-       SETTINGS.quickResumeSleepScreen == CrossPointSettings::QUICK_RESUME_SLEEP_SCREEN::QUICK_RESUME_AFTER_TIMEOUT);
+       SETTINGS.quickResumeSleepScreen == FluiDezSettings::QUICK_RESUME_SLEEP_SCREEN::QUICK_RESUME_AFTER_TIMEOUT);
   // Every sleep mode leaves a complete retained frame on the e-ink panel. Keep
   // it visible until the first useful reader or Home paint replaces it.
   APP_STATE.showBootScreen = false;
@@ -1184,7 +1184,7 @@ void setupDisplayAndFonts(const bool seamless, const bool loadReaderResources, c
   fontCacheManager.setFontDecompressor(&fontDecompressor);
   renderer.setFontCacheManager(&fontCacheManager);
 
-#if !CROSSINK_SCALABLE_FONTS
+#if !FLUIDEZ_SCALABLE_FONTS
   renderer.insertFont(LEXENDDECA_10_FONT_ID, lexenddeca10FontFamily);
   renderer.insertFont(LEXENDDECA_12_FONT_ID, lexenddeca12FontFamily);
   renderer.insertFont(LEXENDDECA_14_FONT_ID, lexenddeca14FontFamily);
@@ -1282,7 +1282,7 @@ void setup() {
 #ifndef SIMULATOR
   const bool shortPressWakes = readWakeShortPressFromNvs();
   if (wakeupReason == HalGPIO::WakeupReason::PowerButton &&
-      !gpio.verifyPowerButtonWakeup(shortPressWakes, CrossPointSettings::POWER_BUTTON_LONG_PRESS_MS)) {
+      !gpio.verifyPowerButtonWakeup(shortPressWakes, FluiDezSettings::POWER_BUTTON_LONG_PRESS_MS)) {
     LOG_DBG("MAIN", "Power-button wake not held through verification, sleeping");
     powerManager.startDeepSleep(gpio);
   }
@@ -1292,7 +1292,7 @@ void setup() {
   // X4 Pro and X4 Classic both map Up to the GPIO0 boot strap. Use Down for
   // recovery so holding the recovery chord cannot strand either S3 board in a
   // boot-mode loop.
-  const auto recoveryButton = (BoardConfig::isX4Pro() || CROSSINK_APP_DEVICE_X4CLASSIC)
+  const auto recoveryButton = (BoardConfig::isX4Pro() || FLUIDEZ_APP_DEVICE_X4CLASSIC)
                                   ? MappedInputManager::Button::Down
                                   : MappedInputManager::Button::Up;
   const bool recoveryFirmwareMode = wakeupReason == HalGPIO::WakeupReason::PowerButton && !BoardConfig::isPaperMono() &&
@@ -1401,7 +1401,7 @@ void setup() {
 
   if (recoveryFirmwareMode) {
     LOG_INF("MAIN", "Recovery firmware mode (%s + POWER held at boot)",
-            (BoardConfig::isX4Pro() || CROSSINK_APP_DEVICE_X4CLASSIC) ? "DOWN" : "UP");
+            (BoardConfig::isX4Pro() || FLUIDEZ_APP_DEVICE_X4CLASSIC) ? "DOWN" : "UP");
   }
 
   LOG_DBG("MAIN", "Starting FluiDez Reader version %s", AppVersion::version());
@@ -1683,7 +1683,7 @@ void loop() {
   // Notify the active activity before global shortcut and gesture routes consume
   // the input and skip its loop() for this frame.
   const bool userInputReceived = gpio.wasAnyPressed() || gpio.wasAnyReleased()
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
                                  || gpio.wasTouchActivity()
 #endif
                                  || halTiltSensor.hadActivity();
@@ -1739,7 +1739,7 @@ void loop() {
   const bool shortPowerRelease = gpio.wasReleased(HalGPIO::BTN_POWER) &&
                                  gpio.getPowerButtonHeldTime() < SETTINGS.getPowerButtonLongPressDuration();
   const bool quickLockOnShortPower =
-      shortPowerRelease && SETTINGS.shortPwrBtn == CrossPointSettings::SHORT_PWRBTN::QUICK_LOCK;
+      shortPowerRelease && SETTINGS.shortPwrBtn == FluiDezSettings::SHORT_PWRBTN::QUICK_LOCK;
   const auto shortcutResult =
       buttonShortcutController.update(millis(), powerPressed, chordButtonPressed, shortPowerRelease,
                                       quickLockOnShortPower, configuredChordAction(), modalOwnsInput);
@@ -1759,11 +1759,11 @@ void loop() {
     if (buttonShortcutController.tryUnlockSide(millis(), mappedInputManager.isPressed(MappedInputManager::Button::Up),
                                                mappedInputManager.wasPressed(MappedInputManager::Button::Up),
                                                mappedInputManager.wasReleased(MappedInputManager::Button::Up),
-                                               SETTINGS.sideButtonUpLong != CrossPointSettings::IGNORE,
+                                               SETTINGS.sideButtonUpLong != FluiDezSettings::IGNORE,
                                                mappedInputManager.isPressed(MappedInputManager::Button::Down),
                                                mappedInputManager.wasPressed(MappedInputManager::Button::Down),
                                                mappedInputManager.wasReleased(MappedInputManager::Button::Down),
-                                               SETTINGS.sideButtonDownLong != CrossPointSettings::IGNORE,
+                                               SETTINGS.sideButtonDownLong != FluiDezSettings::IGNORE,
                                                ReaderUtils::SKIP_HOLD_MS)) {
       notifyQuickLockChanged();
       lastActivityTime = millis();
@@ -1832,7 +1832,7 @@ void loop() {
     }
   } else if (millis() >= allowSleepAt) {
     const auto powerAction = getPowerButtonAction();
-    if (powerAction == CrossPointSettings::SHORT_PWRBTN::QUICK_LOCK) {
+    if (powerAction == FluiDezSettings::SHORT_PWRBTN::QUICK_LOCK) {
       const bool longPower = gpio.getPowerButtonHeldTime() >= SETTINGS.getPowerButtonLongPressDuration();
       if (handleGlobalPowerButtonAction(powerAction,
                                         longPower ? QuickLockTrigger::LongPower : QuickLockTrigger::ShortPower)) {
@@ -1875,7 +1875,7 @@ void loop() {
 
   const unsigned long activityStartTime = millis();
   activityManager.loop();
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   // A delayed Home event is valid for this activity dispatch only. If an
   // unrelated gesture took priority, do not carry it into the next activity.
   mappedInputManager.clearDeferredHomeGesture();

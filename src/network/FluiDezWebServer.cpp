@@ -1,4 +1,4 @@
-#include "CrossPointWebServer.h"
+#include "FluiDezWebServer.h"
 
 #include <ArduinoJson.h>
 #include <BoardConfig.h>
@@ -22,8 +22,8 @@
 #include <iterator>
 
 #include "AppVersion.h"
-#include "CrossPointSettings.h"
-#include "CrossPointState.h"
+#include "FluiDezSettings.h"
+#include "FluiDezState.h"
 #include "FontInstaller.h"
 #include "OpdsServerStore.h"
 #include "QuickActions.h"
@@ -37,6 +37,7 @@
 #include "html/FilesPageHtml.generated.h"
 #include "html/FontsPageHtml.generated.h"
 #include "html/HomePageHtml.generated.h"
+#include "html/I18nJs.generated.h"
 #include "html/LogoPng.generated.h"
 #include "html/SettingsPageHtml.generated.h"
 #include "html/SleepPageHtml.generated.h"
@@ -56,7 +57,7 @@ constexpr uint16_t UDP_PORTS[] = {54982, 48123, 39001, 44044, 59678};
 constexpr uint16_t LOCAL_UDP_PORT = 8134;
 
 // Static pointer for WebSocket callback (WebSocketsServer requires C-style callback)
-CrossPointWebServer* wsInstance = nullptr;
+FluiDezWebServer* wsInstance = nullptr;
 
 uint8_t enumRawValueForDisplayIndex(const SettingInfo& setting, uint8_t displayIndex) {
   if (setting.enumRawValues.empty()) {
@@ -85,10 +86,9 @@ bool isWebEnumOptionAvailable(const SettingInfo& setting, size_t optionIndex) {
   const StrId option = setting.enumValues[optionIndex];
   if (!SETTINGS.shouldTrackReadingStats()) {
     if (option == StrId::STR_READING_STATS) return false;
-    if (setting.valuePtr == &CrossPointSettings::sleepScreen && optionIndex < setting.enumRawValues.size()) {
+    if (setting.valuePtr == &FluiDezSettings::sleepScreen && optionIndex < setting.enumRawValues.size()) {
       const uint8_t raw = setting.enumRawValues[optionIndex];
-      if (raw == CrossPointSettings::READING_STATS_SLEEP || raw == CrossPointSettings::MINIMAL_STATS_SLEEP)
-        return false;
+      if (raw == FluiDezSettings::READING_STATS_SLEEP || raw == FluiDezSettings::MINIMAL_STATS_SLEEP) return false;
     }
   }
   if (option == StrId::STR_TOGGLE_TOUCHSCREEN && !gpio.hasTouch()) return false;
@@ -101,7 +101,7 @@ bool isWebEnumOptionAvailable(const SettingInfo& setting, size_t optionIndex) {
       return false;
     }
     return setting.nameId != StrId::STR_REFRESH_FREQ || optionIndex >= setting.enumRawValues.size() ||
-           setting.enumRawValues[optionIndex] != CrossPointSettings::REFRESH_NEVER;
+           setting.enumRawValues[optionIndex] != FluiDezSettings::REFRESH_NEVER;
   }
 
   return Frontlight.hasColorTemperature() || !isSwipeActionSetting(setting) ||
@@ -324,11 +324,11 @@ bool isProtectedPath(const String& path) {
 // - HomePageHtml (from html/HomePage.html)
 // - FilesPageHeaderHtml (from html/FilesPageHeader.html)
 // - FilesPageFooterHtml (from html/FilesPageFooter.html)
-CrossPointWebServer::CrossPointWebServer() {}
+FluiDezWebServer::FluiDezWebServer() {}
 
-CrossPointWebServer::~CrossPointWebServer() { stop(); }
+FluiDezWebServer::~FluiDezWebServer() { stop(); }
 
-void CrossPointWebServer::begin() {
+void FluiDezWebServer::begin() {
   if (running) {
     LOG_DBG("WEB", "Web server already running");
     return;
@@ -378,6 +378,7 @@ void CrossPointWebServer::begin() {
   server->on("/files", HTTP_GET, [this] { handleFileList(); });
   server->on("/js/jszip.min.js", HTTP_GET, [this] { handleJszip(); });
   server->on("/style.css", HTTP_GET, [this] { handleStyleCss(); });
+  server->on("/i18n.js", HTTP_GET, [this] { handleI18nJs(); });
   server->on("/logo.png", HTTP_GET, [this] { handleLogo(); });
 
   server->on("/api/status", HTTP_GET, [this] { handleStatus(); });
@@ -438,7 +439,7 @@ void CrossPointWebServer::begin() {
 
   // Start WebSocket server for fast binary uploads
   wsServer.reset(new WebSocketsServer(wsPort));
-  wsInstance = const_cast<CrossPointWebServer*>(this);
+  wsInstance = const_cast<FluiDezWebServer*>(this);
   wsServer->begin();
   wsServer->onEvent(wsEventCallback);
 
@@ -457,7 +458,7 @@ void CrossPointWebServer::begin() {
   LOG_DBG("WEB", "[MEM] Free heap after server.begin(): %d bytes", ESP.getFreeHeap());
 }
 
-void CrossPointWebServer::rememberClient(const IPAddress& ip) {
+void FluiDezWebServer::rememberClient(const IPAddress& ip) {
   if (ip == IPAddress()) {
     return;
   }
@@ -467,18 +468,18 @@ void CrossPointWebServer::rememberClient(const IPAddress& ip) {
   }
 }
 
-void CrossPointWebServer::recordWsUploadFailure() {
+void FluiDezWebServer::recordWsUploadFailure() {
   wsLastFailedName = wsUploadFileName.c_str();
   wsLastFailedAt = millis();
 }
 
-bool CrossPointWebServer::dropUploadIfCancelled() const {
+bool FluiDezWebServer::dropUploadIfCancelled() const {
   if (!uploadCancelCheck || !uploadCancelCheck(uploadCancelContext)) return false;
   server->client().stop();
   return true;
 }
 
-void CrossPointWebServer::abortUpload(UploadState& state) const {
+void FluiDezWebServer::abortUpload(UploadState& state) const {
   state.success = false;
   state.bufferPos = 0;
   if (state.file) {
@@ -492,7 +493,7 @@ void CrossPointWebServer::abortUpload(UploadState& state) const {
   LOG_DBG("WEB", "Upload aborted");
 }
 
-void CrossPointWebServer::abortFontUpload() {
+void FluiDezWebServer::abortFontUpload() {
   fontUpload.bufferPos = 0;
   if (fontUpload.file) fontUpload.file.close();
   if (!fontUpload.filePath.empty()) Storage.remove(fontUpload.filePath.c_str());
@@ -500,7 +501,7 @@ void CrossPointWebServer::abortFontUpload() {
   LOG_DBG("WEB", "Font upload aborted");
 }
 
-void CrossPointWebServer::abortWsUpload(const char* tag) {
+void FluiDezWebServer::abortWsUpload(const char* tag) {
   recordWsUploadFailure();
   // Explicit close() required: file-scope global persists beyond function scope
   wsUploadFile.close();
@@ -517,7 +518,7 @@ void CrossPointWebServer::abortWsUpload(const char* tag) {
   wsLastProgressSent = 0;
 }
 
-void CrossPointWebServer::stop() {
+void FluiDezWebServer::stop() {
   if (!running || !server) {
     LOG_DBG("WEB", "stop() called but already stopped (running=%d, server=%p)", running, server.get());
     return;
@@ -559,7 +560,7 @@ void CrossPointWebServer::stop() {
   LOG_DBG("WEB", "[MEM] Free heap final: %d bytes", ESP.getFreeHeap());
 }
 
-void CrossPointWebServer::handleClient() {
+void FluiDezWebServer::handleClient() {
   static unsigned long lastDebugPrint = 0;
 
   // Check running flag FIRST before accessing server
@@ -611,7 +612,7 @@ void CrossPointWebServer::handleClient() {
   }
 }
 
-CrossPointWebServer::WsUploadStatus CrossPointWebServer::getWsUploadStatus() const {
+FluiDezWebServer::WsUploadStatus FluiDezWebServer::getWsUploadStatus() const {
   WsUploadStatus status;
   status.inProgress = wsUploadInProgress;
   status.received = wsUploadReceived;
@@ -639,29 +640,33 @@ static void sendStaticContent(WebServer* server, const char* data, size_t len, c
   server->send_P(200, contentType, data, len);
 }
 
-void CrossPointWebServer::handleRoot() const {
+void FluiDezWebServer::handleRoot() const {
   sendStaticContent(server.get(), HomePageHtml, sizeof(HomePageHtml), HomePageHtmlETag);
 }
 
-void CrossPointWebServer::handleJszip() const {
+void FluiDezWebServer::handleJszip() const {
   sendStaticContent(server.get(), jszip_minJs, jszip_minJsCompressedSize, jszip_minJsETag, "application/javascript");
 }
 
 // Shared stylesheet and logo are referenced with a content-hashed ?v= query,
 // so they can be cached aggressively: a new build changes the URL.
-void CrossPointWebServer::handleStyleCss() const {
+void FluiDezWebServer::handleI18nJs() const {
+  sendStaticContent(server.get(), I18nJs, I18nJsCompressedSize, I18nJsETag, "application/javascript");
+}
+
+void FluiDezWebServer::handleStyleCss() const {
   server->sendHeader("Content-Encoding", "gzip");
   server->sendHeader("Cache-Control", "public, max-age=31536000, immutable");
   server->send_P(200, "text/css", StyleCss, StyleCssCompressedSize);
 }
 
-void CrossPointWebServer::handleLogo() const {
+void FluiDezWebServer::handleLogo() const {
   // Raw PNG (already compressed); no Content-Encoding.
   server->sendHeader("Cache-Control", "public, max-age=31536000, immutable");
   server->send_P(200, "image/png", LogoPng, LogoPngSize);
 }
 
-void CrossPointWebServer::handleNotFound() const {
+void FluiDezWebServer::handleNotFound() const {
   // in AP mode, redirect unmatched browser/captive-portal requests to "/" so the OS auto-opens the browser
   // API requests (/api/*) still return 404 so XHR errors surface correctly
   // see https://en.wikipedia.org/wiki/Captive_portal#Detection
@@ -676,7 +681,7 @@ void CrossPointWebServer::handleNotFound() const {
   server->send(404, "text/plain", message);
 }
 
-void CrossPointWebServer::handleStatus() const {
+void FluiDezWebServer::handleStatus() const {
   // Get correct IP based on AP vs STA mode
   const String ipAddr = apMode ? WiFi.softAPIP().toString() : WiFi.localIP().toString();
 
@@ -723,7 +728,7 @@ void CrossPointWebServer::handleStatus() const {
   server->send(200, "application/json", response);
 }
 
-bool CrossPointWebServer::scanFiles(const char* path, const FileVisitor visitor, void* context) const {
+bool FluiDezWebServer::scanFiles(const char* path, const FileVisitor visitor, void* context) const {
   HalFile root = Storage.open(path);
   if (!root) {
     LOG_DBG("WEB", "Failed to open directory: %s", path);
@@ -786,13 +791,13 @@ bool CrossPointWebServer::scanFiles(const char* path, const FileVisitor visitor,
   return complete;
 }
 
-bool CrossPointWebServer::isEpubFile(const String& filename) const { return FsHelpers::hasEpubExtension(filename); }
+bool FluiDezWebServer::isEpubFile(const String& filename) const { return FsHelpers::hasEpubExtension(filename); }
 
-void CrossPointWebServer::handleFileList() const {
+void FluiDezWebServer::handleFileList() const {
   sendStaticContent(server.get(), FilesPageHtml, sizeof(FilesPageHtml), FilesPageHtmlETag);
 }
 
-void CrossPointWebServer::handleFileListData() const {
+void FluiDezWebServer::handleFileListData() const {
   // Get current path from query string (default to root)
   String currentPath = "/";
   if (server->hasArg("path")) {
@@ -893,7 +898,7 @@ void CrossPointWebServer::handleFileListData() const {
   server->sendContent("");
 }
 
-void CrossPointWebServer::handleDownload() const {
+void FluiDezWebServer::handleDownload() const {
   if (!server->hasArg("path")) {
     server->send(400, "text/plain", "Missing path");
     return;
@@ -969,7 +974,7 @@ void CrossPointWebServer::handleDownload() const {
 // Upload start time is used for the completion throughput summary.
 static unsigned long uploadStartTime = 0;
 
-static bool flushUploadBuffer(CrossPointWebServer::UploadState& state) {
+static bool flushUploadBuffer(FluiDezWebServer::UploadState& state) {
   if (state.bufferPos > 0 && state.file) {
     const size_t written = state.file.write(state.buffer.data(), state.bufferPos);
 
@@ -983,7 +988,7 @@ static bool flushUploadBuffer(CrossPointWebServer::UploadState& state) {
   return true;
 }
 
-void CrossPointWebServer::handleUpload(UploadState& state) const {
+void FluiDezWebServer::handleUpload(UploadState& state) const {
   // Safety check: ensure server is still valid
   if (!running || !server) {
     LOG_DBG("WEB", "[UPLOAD] ERROR: handleUpload called but server not running!");
@@ -1103,7 +1108,7 @@ void CrossPointWebServer::handleUpload(UploadState& state) const {
   }
 }
 
-void CrossPointWebServer::handleUploadPost(UploadState& state) const {
+void FluiDezWebServer::handleUploadPost(UploadState& state) const {
   if (state.success) {
     server->send(200, "text/plain", "File uploaded successfully: " + state.fileName);
   } else {
@@ -1112,7 +1117,7 @@ void CrossPointWebServer::handleUploadPost(UploadState& state) const {
   }
 }
 
-void CrossPointWebServer::handleCreateFolder() const {
+void FluiDezWebServer::handleCreateFolder() const {
   // Get folder name from form data
   if (!server->hasArg("name")) {
     server->send(400, "text/plain", "Missing folder name");
@@ -1206,7 +1211,7 @@ void CrossPointWebServer::handleCreateFolder() const {
   }
 }
 
-void CrossPointWebServer::handleRename() const {
+void FluiDezWebServer::handleRename() const {
   if (!server->hasArg("path") || !server->hasArg("name")) {
     server->send(400, "text/plain", "Missing path or new name");
     return;
@@ -1304,7 +1309,7 @@ void CrossPointWebServer::handleRename() const {
   server->send(200, "text/plain", "Renamed successfully");
 }
 
-void CrossPointWebServer::handleMove() const {
+void FluiDezWebServer::handleMove() const {
   if (!server->hasArg("path") || !server->hasArg("dest")) {
     server->send(400, "text/plain", "Missing path or destination");
     return;
@@ -1399,7 +1404,7 @@ void CrossPointWebServer::handleMove() const {
   }
 }
 
-void CrossPointWebServer::handleDelete() const {
+void FluiDezWebServer::handleDelete() const {
   // To ensure backwards compatibility, plain `path` is mapped
   // to a single element JSON array.
   bool hasPathArg = server->hasArg("path");
@@ -1488,11 +1493,11 @@ void CrossPointWebServer::handleDelete() const {
   }
 }
 
-void CrossPointWebServer::handleSettingsPage() const {
+void FluiDezWebServer::handleSettingsPage() const {
   sendStaticContent(server.get(), SettingsPageHtml, sizeof(SettingsPageHtml), SettingsPageHtmlETag);
 }
 
-void CrossPointWebServer::handleGetStatusBars() const {
+void FluiDezWebServer::handleGetStatusBars() const {
   JsonDocument doc;
   writeReaderStatusBarJson(doc["top"].to<JsonObject>(), SETTINGS.readerStatusBar(ReaderStatusBarPosition::Top));
   writeReaderStatusBarJson(doc["bottom"].to<JsonObject>(), SETTINGS.readerStatusBar(ReaderStatusBarPosition::Bottom));
@@ -1551,7 +1556,7 @@ void CrossPointWebServer::handleGetStatusBars() const {
   server->send(200, "application/json", payload);
 }
 
-void CrossPointWebServer::handlePostStatusBars() {
+void FluiDezWebServer::handlePostStatusBars() {
   if (!server->hasArg("plain")) {
     server->send(400, "text/plain", "Missing JSON body");
     return;
@@ -1564,7 +1569,7 @@ void CrossPointWebServer::handlePostStatusBars() {
   ReaderStatusBarsPayload bars;
   DisplayStatusBarConfig display;
   if ((!doc["display"].isNull() && !readDisplayStatusBarJson(doc["display"], display, halClock.isAvailable())) ||
-      !CrossPointSettings::parseReaderStatusBars(doc.as<JsonVariantConst>(), bars)) {
+      !FluiDezSettings::parseReaderStatusBars(doc.as<JsonVariantConst>(), bars)) {
     server->send(400, "text/plain", "Invalid status bar configuration");
     return;
   }
@@ -1590,7 +1595,7 @@ void CrossPointWebServer::handlePostStatusBars() {
   server->send(200, "text/plain", "Status bars saved");
 }
 
-void CrossPointWebServer::handleGetSettings() const {
+void FluiDezWebServer::handleGetSettings() const {
   // The device settings UI needs an owned, mutable copy of the settings list.
   // The web API only reads it, so iterate the static base list directly rather
   // than copying its nested vectors and callbacks while WiFi is using the heap.
@@ -1632,21 +1637,21 @@ void CrossPointWebServer::handleGetSettings() const {
       }
       case SettingType::ENUM: {
         doc["type"] = "enum";
-        if (s.valuePtr == &CrossPointSettings::shortPwrBtn || s.valuePtr == &CrossPointSettings::longPwrBtn) {
-          doc["footnotesIndex"] = enumDisplayIndexForWeb(s, CrossPointSettings::FOOTNOTES);
-        } else if (s.valuePtr == &CrossPointSettings::longPressMenuAction ||
-                   s.valuePtr == &CrossPointSettings::longPressBackAction) {
-          doc["footnotesIndex"] = enumDisplayIndexForWeb(s, CrossPointSettings::LONG_MENU_FOOTNOTES);
+        if (s.valuePtr == &FluiDezSettings::shortPwrBtn || s.valuePtr == &FluiDezSettings::longPwrBtn) {
+          doc["footnotesIndex"] = enumDisplayIndexForWeb(s, FluiDezSettings::FOOTNOTES);
+        } else if (s.valuePtr == &FluiDezSettings::longPressMenuAction ||
+                   s.valuePtr == &FluiDezSettings::longPressBackAction) {
+          doc["footnotesIndex"] = enumDisplayIndexForWeb(s, FluiDezSettings::LONG_MENU_FOOTNOTES);
         }
         if (s.nameId == StrId::STR_FONT_FAMILY && !fontFamilies.empty()) {
-          uint8_t selected = SETTINGS.fontFamily < CrossPointSettings::BUILTIN_FONT_COUNT ? SETTINGS.fontFamily : 0;
+          uint8_t selected = SETTINGS.fontFamily < FluiDezSettings::BUILTIN_FONT_COUNT ? SETTINGS.fontFamily : 0;
           if (selectedSdFamily) {
             const auto it = std::find_if(
                 fontFamilies.begin(), fontFamilies.end(),
                 [](const SdCardFontFamilyInfo& family) { return family.name == SETTINGS.sdFontFamilyName; });
             if (it != fontFamilies.end()) {
-              selected = static_cast<uint8_t>(CrossPointSettings::BUILTIN_FONT_COUNT +
-                                              std::distance(fontFamilies.begin(), it));
+              selected =
+                  static_cast<uint8_t>(FluiDezSettings::BUILTIN_FONT_COUNT + std::distance(fontFamilies.begin(), it));
             }
           }
           doc["value"] = selected;
@@ -1736,7 +1741,7 @@ void CrossPointWebServer::handleGetSettings() const {
   sdFontSystem.releaseRegistry();
 }
 
-void CrossPointWebServer::handlePostSettings() {
+void FluiDezWebServer::handlePostSettings() {
   if (!server->hasArg("plain")) {
     server->send(400, "text/plain", "Missing JSON body");
     return;
@@ -1753,7 +1758,7 @@ void CrossPointWebServer::handlePostSettings() {
   sdFontSystem.refreshIfDirty();
   const auto& settings = getSettingsList(&sdFontSystem.registry());
   int applied = 0;
-  uint8_t CrossPointSettings::* twoFingerSwipeEdited = nullptr;
+  uint8_t FluiDezSettings::* twoFingerSwipeEdited = nullptr;
 
   for (const auto& s : settings) {
     if (!s.key || !isWebSettingAvailable(s)) continue;
@@ -1776,10 +1781,10 @@ void CrossPointWebServer::handlePostSettings() {
           if (s.valuePtr) {
             SETTINGS.*(s.valuePtr) = enumRawValueForDisplayIndex(s, static_cast<uint8_t>(val));
             QuickActions::settingChanged(SETTINGS, s.valuePtr);
-            if (s.valuePtr == &CrossPointSettings::twoFingerSwipeUp ||
-                s.valuePtr == &CrossPointSettings::twoFingerSwipeDown ||
-                s.valuePtr == &CrossPointSettings::twoFingerSwipeLeft ||
-                s.valuePtr == &CrossPointSettings::twoFingerSwipeRight) {
+            if (s.valuePtr == &FluiDezSettings::twoFingerSwipeUp ||
+                s.valuePtr == &FluiDezSettings::twoFingerSwipeDown ||
+                s.valuePtr == &FluiDezSettings::twoFingerSwipeLeft ||
+                s.valuePtr == &FluiDezSettings::twoFingerSwipeRight) {
               twoFingerSwipeEdited = s.valuePtr;
             }
           } else if (s.valueSetter) {
@@ -1803,8 +1808,8 @@ void CrossPointWebServer::handlePostSettings() {
       }
       case SettingType::STRING: {
         const std::string val = doc[s.key].as<std::string>();
-        if (std::strcmp(s.key, "deviceName") == 0 && (val.length() < CrossPointSettings::MIN_DEVICE_NAME_LENGTH ||
-                                                      val.length() > CrossPointSettings::MAX_DEVICE_NAME_LENGTH)) {
+        if (std::strcmp(s.key, "deviceName") == 0 && (val.length() < FluiDezSettings::MIN_DEVICE_NAME_LENGTH ||
+                                                      val.length() > FluiDezSettings::MAX_DEVICE_NAME_LENGTH)) {
           break;
         }
         if (s.stringSetter) {
@@ -1823,7 +1828,7 @@ void CrossPointWebServer::handlePostSettings() {
   }
 
   if (twoFingerSwipeEdited != nullptr) {
-    CrossPointSettings::normalizeTwoFingerSwipeActions(SETTINGS, twoFingerSwipeEdited);
+    FluiDezSettings::normalizeTwoFingerSwipeActions(SETTINGS, twoFingerSwipeEdited);
   }
   SETTINGS.saveToFile();
 
@@ -1834,7 +1839,7 @@ void CrossPointWebServer::handlePostSettings() {
 
 // ---- OPDS Server API ----
 
-void CrossPointWebServer::handleGetOpdsServers() const {
+void FluiDezWebServer::handleGetOpdsServers() const {
   const auto& servers = OPDS_STORE.getServers();
 
   // Stream JSON array incrementally to avoid allocating the full response in memory
@@ -1868,7 +1873,7 @@ void CrossPointWebServer::handleGetOpdsServers() const {
   server->sendContent("");
 }
 
-void CrossPointWebServer::handlePostOpdsServer() {
+void FluiDezWebServer::handlePostOpdsServer() {
   if (!server->hasArg("plain")) {
     server->send(400, "text/plain", "Missing JSON body");
     return;
@@ -1925,7 +1930,7 @@ void CrossPointWebServer::handlePostOpdsServer() {
 }
 
 // Uses POST (not HTTP DELETE) because ESP32 WebServer doesn't support DELETE with body.
-void CrossPointWebServer::handleDeleteOpdsServer() {
+void FluiDezWebServer::handleDeleteOpdsServer() {
   if (!server->hasArg("plain")) {
     server->send(400, "text/plain", "Missing JSON body");
     return;
@@ -1957,7 +1962,7 @@ void CrossPointWebServer::handleDeleteOpdsServer() {
 
 // ---- Wi-Fi Credentials API ----
 
-void CrossPointWebServer::handleGetWifiNetworks() const {
+void FluiDezWebServer::handleGetWifiNetworks() const {
   const auto credentials = WIFI_STORE.getCredentialSummaries();
 
   // Stream JSON array incrementally to avoid allocating the full response in memory
@@ -1989,7 +1994,7 @@ void CrossPointWebServer::handleGetWifiNetworks() const {
   server->sendContent("");
 }
 
-void CrossPointWebServer::handlePostWifiNetwork() {
+void FluiDezWebServer::handlePostWifiNetwork() {
   if (!server->hasArg("plain")) {
     server->send(400, "text/plain", "Missing JSON body");
     return;
@@ -2056,7 +2061,7 @@ void CrossPointWebServer::handlePostWifiNetwork() {
 }
 
 // Uses POST (not HTTP DELETE) because ESP32 WebServer doesn't support DELETE with body.
-void CrossPointWebServer::handleDeleteWifiNetwork() {
+void FluiDezWebServer::handleDeleteWifiNetwork() {
   if (!server->hasArg("plain")) {
     server->send(400, "text/plain", "Missing JSON body");
     return;
@@ -2096,7 +2101,7 @@ void CrossPointWebServer::handleDeleteWifiNetwork() {
 }
 
 // WebSocket callback trampoline
-void CrossPointWebServer::wsEventCallback(uint8_t num, WStype_t type, uint8_t* payload, size_t length) {
+void FluiDezWebServer::wsEventCallback(uint8_t num, WStype_t type, uint8_t* payload, size_t length) {
   if (wsInstance) {
     wsInstance->onWebSocketEvent(num, type, payload, length);
   }
@@ -2108,7 +2113,7 @@ void CrossPointWebServer::wsEventCallback(uint8_t num, WStype_t type, uint8_t* p
 //   2. Client sends BINARY messages with file data chunks
 //   3. Server sends TEXT "PROGRESS:<received>:<total>" after each chunk
 //   4. Server sends TEXT "DONE" or "ERROR:<message>" when complete
-void CrossPointWebServer::onWebSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length) {
+void FluiDezWebServer::onWebSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length) {
   switch (type) {
     case WStype_DISCONNECTED:
       LOG_DBG("WS", "Client %u disconnected", num);
@@ -2291,39 +2296,72 @@ void CrossPointWebServer::onWebSocketEvent(uint8_t num, WStype_t type, uint8_t* 
 
 // --- Sleep image handlers ---
 
-void CrossPointWebServer::handleSleepPage() const {
+void FluiDezWebServer::handleSleepPage() const {
   sendStaticContent(server.get(), SleepPageHtml, sizeof(SleepPageHtml), SleepPageHtmlETag);
 }
 
-void CrossPointWebServer::handleGetSleepImage() const {
-  // The sleep screen always renders in portrait; report that geometry so the
-  // browser can produce an image that needs no scaling on the device.
+void FluiDezWebServer::handleGetSleepImage() const {
+  // Sleep and boot screens always render in portrait; report that geometry so
+  // the browser can produce images that need no scaling on the device.
   const uint16_t panelW = display.getDisplayWidth();
   const uint16_t panelH = display.getDisplayHeight();
 
   JsonDocument doc;
   doc["pinned"] = APP_STATE.favoriteSleepImagePath.c_str();
   doc["mode"] = SETTINGS.sleepScreen;
-  doc["customMode"] = SETTINGS.sleepScreen == CrossPointSettings::SLEEP_SCREEN_MODE::CUSTOM;
+  doc["customMode"] = SETTINGS.sleepScreen == FluiDezSettings::SLEEP_SCREEN_MODE::CUSTOM;
+  doc["folder"] = "/sleep";
+  doc["bootPinned"] = APP_STATE.favoriteBootImagePath.c_str();
+  doc["bootEnabled"] = SETTINGS.customBootscreenEnabled != 0;
+  doc["bootFolder"] = "/bootscreen";
+  // A hidden /.bootscreen wins over /bootscreen when both exist; the page warns
+  // that rotation will not use the images it uploads in that case.
+  std::string bootRotationFolder;
+  doc["bootRotationFolder"] =
+      ImageFolderIndex::resolveBootScreenDirectory(bootRotationFolder) ? bootRotationFolder.c_str() : "";
   doc["width"] = std::min(panelW, panelH);
   doc["height"] = std::max(panelW, panelH);
-  doc["folder"] = "/sleep";
 
   String response;
   serializeJson(doc, response);
   server->send(200, "application/json", response);
 }
 
-void CrossPointWebServer::handlePostSleepImage() {
+void FluiDezWebServer::handlePostSleepImage() {
   const String action = server->hasArg("action") ? server->arg("action") : String("pin");
+  const bool boot = server->hasArg("target") && server->arg("target") == "boot";
+  std::string& favorite = boot ? APP_STATE.favoriteBootImagePath : APP_STATE.favoriteSleepImagePath;
 
-  if (action == "unpin") {
-    APP_STATE.favoriteSleepImagePath.clear();
+  // Both screens only show custom images in one mode; switch to it so the
+  // change is visible on the next lock or power-on.
+  const auto enableCustomScreen = [boot]() {
+    if (boot) {
+      if (SETTINGS.customBootscreenEnabled) return false;
+      SETTINGS.customBootscreenEnabled = 1;
+    } else {
+      if (SETTINGS.sleepScreen == FluiDezSettings::SLEEP_SCREEN_MODE::CUSTOM) return false;
+      SETTINGS.sleepScreen = FluiDezSettings::SLEEP_SCREEN_MODE::CUSTOM;
+    }
+    const bool saved = SETTINGS.saveToFile();
+    if (!saved) LOG_ERR("WEB", "Failed to save custom %s screen mode", boot ? "boot" : "sleep");
+    return saved;
+  };
+
+  // "rotate" clears the pin so the screen picks a different image from its
+  // folder each time; "unpin" only clears it and leaves the mode alone.
+  if (action == "unpin" || action == "rotate") {
+    favorite.clear();
     if (!APP_STATE.saveToFile()) {
       server->send(500, "text/plain", "Failed to save state");
       return;
     }
-    server->send(200, "application/json", "{\"pinned\":\"\"}");
+    const bool modeChanged = action == "rotate" && enableCustomScreen();
+    JsonDocument doc;
+    doc["pinned"] = "";
+    doc["modeChanged"] = modeChanged;
+    String response;
+    serializeJson(doc, response);
+    server->send(200, "application/json", response);
     return;
   }
 
@@ -2337,28 +2375,24 @@ void CrossPointWebServer::handlePostSleepImage() {
     server->send(403, "text/plain", "Access denied to protected path");
     return;
   }
-  // Custom mode streams BMPs and converts JPG/PNG photos once on first use.
+  // Custom sleep streams BMPs and converts JPG/PNG photos once on first use;
+  // the boot screen draws BMP only so power-on never waits for a decode.
   const std::string pathStr = path.c_str();
-  if ((!FsHelpers::hasBmpExtension(pathStr) && !SleepImageConverter::isConvertible(pathStr)) ||
-      !Storage.exists(path.c_str())) {
-    server->send(400, "text/plain", "Sleep image must be an existing BMP, JPG or PNG file");
+  const bool supported = FsHelpers::hasBmpExtension(pathStr) || (!boot && SleepImageConverter::isConvertible(pathStr));
+  if (!supported || !Storage.exists(path.c_str())) {
+    server->send(
+        400, "text/plain",
+        boot ? "Boot image must be an existing BMP file" : "Sleep image must be an existing BMP, JPG or PNG file");
     return;
   }
 
-  APP_STATE.favoriteSleepImagePath = path.c_str();
+  favorite = pathStr;
   if (!APP_STATE.saveToFile()) {
     server->send(500, "text/plain", "Failed to save state");
     return;
   }
-
-  // A pinned image only shows in Custom mode; switch so the next lock uses it.
-  bool modeChanged = false;
-  if (SETTINGS.sleepScreen != CrossPointSettings::SLEEP_SCREEN_MODE::CUSTOM) {
-    SETTINGS.sleepScreen = CrossPointSettings::SLEEP_SCREEN_MODE::CUSTOM;
-    modeChanged = SETTINGS.saveToFile();
-    if (!modeChanged) LOG_ERR("WEB", "Failed to save Custom sleep mode after pinning");
-  }
-  LOG_INF("WEB", "Pinned sleep image: %s", path.c_str());
+  const bool modeChanged = enableCustomScreen();
+  LOG_INF("WEB", "Pinned %s image: %s", boot ? "boot" : "sleep", path.c_str());
 
   JsonDocument doc;
   doc["pinned"] = path;
@@ -2370,11 +2404,11 @@ void CrossPointWebServer::handlePostSleepImage() {
 
 // --- Font management handlers ---
 
-void CrossPointWebServer::handleFontsPage() const {
+void FluiDezWebServer::handleFontsPage() const {
   sendStaticContent(server.get(), FontsPageHtml, sizeof(FontsPageHtml), FontsPageHtmlETag);
 }
 
-void CrossPointWebServer::handleFontList() const {
+void FluiDezWebServer::handleFontList() const {
   // Pick up any uploads/deletes that happened since the last reader load.
   sdFontSystem.ensureRegistry();
   const auto& families = sdFontSystem.registry().getFamilies();
@@ -2439,7 +2473,7 @@ void CrossPointWebServer::handleFontList() const {
     yield();
   }
 
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
   json.append("],\"ttfSupported\":true,\"maxFamilies\":");
 #else
   json.append("],\"ttfSupported\":false,\"maxFamilies\":");
@@ -2450,7 +2484,7 @@ void CrossPointWebServer::handleFontList() const {
   server->sendContent("");
 }
 
-void CrossPointWebServer::handleFontUploadData() {
+void FluiDezWebServer::handleFontUploadData() {
   HTTPUpload& upload = server->upload();
 
   switch (upload.status) {
@@ -2512,7 +2546,7 @@ void CrossPointWebServer::handleFontUploadData() {
 
       // Validate the complete file after closing it; multipart chunks may
       // split the signature at any byte boundary.
-#if CROSSINK_SCALABLE_FONTS
+#if FLUIDEZ_SCALABLE_FONTS
       const auto& path = fontUpload.filePath;
       if (path.size() > 4 && strcasecmp(path.c_str() + path.size() - 4, ".ttf") == 0 &&
           fontUpload.bytesWritten + fontUpload.bufferPos + upload.currentSize > 2 * 1024 * 1024) {
@@ -2573,7 +2607,7 @@ void CrossPointWebServer::handleFontUploadData() {
   }
 }
 
-void CrossPointWebServer::handleFontUpload() {
+void FluiDezWebServer::handleFontUpload() {
   if (fontUpload.valid) {
     sdFontSystem.markRegistryDirty();
     server->send(200, "application/json", "{\"ok\":true}");
@@ -2583,7 +2617,7 @@ void CrossPointWebServer::handleFontUpload() {
   }
 }
 
-void CrossPointWebServer::handleFontDelete() {
+void FluiDezWebServer::handleFontDelete() {
   String body = server->arg("plain");
   JsonDocument doc;
   DeserializationError err = deserializeJson(doc, body);

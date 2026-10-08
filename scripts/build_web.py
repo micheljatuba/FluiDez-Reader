@@ -35,7 +35,7 @@ PAGES = {
     "files":    ("FilesPageHtml",    "Files - FluiDez Reader",      "files",    '  <script src="/js/jszip.min.js"></script>'),
     "settings": ("SettingsPageHtml", "Settings - FluiDez Reader",   "settings", ""),
     "fonts":    ("FontsPageHtml",    "Fonts - FluiDez Reader",      "fonts",    ""),
-    "sleep":    ("SleepPageHtml",    "Sleep Screen - FluiDez Reader", "sleep",  ""),
+    "sleep":    ("SleepPageHtml",    "Screens - FluiDez Reader",    "sleep",    ""),
 }
 
 PRESERVE_TAGS = "pre|code|textarea|script|style"
@@ -122,12 +122,16 @@ def emit_gzip(path, ident, text):
 # Cache-busting version derived from the shared assets' content.
 style_css = read(WEB, "assets", "style.css")
 logo_png = open(os.path.join(WEB, "assets", "logo.png"), "rb").read()
-v = hashlib.sha1(style_css.encode("utf-8") + logo_png).hexdigest()[:8]
+i18n_js = read(WEB, "assets", "i18n.js")
+v = hashlib.sha1(style_css.encode("utf-8") + logo_png + i18n_js.encode("utf-8")).hexdigest()[:8]
 
 base = read(WEB, "templates", "base.html")
 
 page_assets = [os.path.join(WEB, "pages", f"{slug}.{ext}") for slug in PAGES for ext in ("css", "js")]
+i18n_path = os.path.join(WEB, "assets", "i18n.js")
 minified = minify_page_assets([p for p in page_assets if os.path.getsize(p)])
+# Separate run: esbuild mirrors source folders when inputs come from several.
+minified.update(minify_page_assets([i18n_path]))
 
 for slug, (ident, title, active, head_extra) in PAGES.items():
     css_path = os.path.join(WEB, "pages", f"{slug}.css")
@@ -149,6 +153,10 @@ for slug, (ident, title, active, head_extra) in PAGES.items():
 # Shared CSS (served once at /style.css).
 orig, comp = emit_gzip(os.path.join(OUT, "StyleCss.generated.h"), "StyleCss", minify_css(style_css))
 print(f"{'StyleCss':18} {orig:>7}B -> {comp:>6}B gz")
+
+# Portal translations (served once at /i18n.js, loaded by every page).
+orig, comp = emit_gzip(os.path.join(OUT, "I18nJs.generated.h"), "I18nJs", (minified.get(i18n_path) or i18n_js).strip())
+print(f"{'I18nJs':18} {orig:>7}B -> {comp:>6}B gz")
 
 # Logo (already PNG-compressed: served raw at /logo.png).
 emit_header(os.path.join(OUT, "LogoPng.generated.h"), "LogoPng", logo_png)

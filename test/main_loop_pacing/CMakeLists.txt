@@ -19,7 +19,7 @@ foreach(profile IN ITEMS Device Simulator)
     ${CMAKE_CURRENT_BINARY_DIR}
     ${REPO_ROOT}/src/util
   )
-  target_compile_definitions(${target} PRIVATE CROSSINK_APP_CAP_TOUCH=1)
+  target_compile_definitions(${target} PRIVATE FLUIDEZ_APP_CAP_TOUCH=1)
   if(profile STREQUAL "Simulator")
     target_compile_definitions(${target} PRIVATE SIMULATOR)
   endif()

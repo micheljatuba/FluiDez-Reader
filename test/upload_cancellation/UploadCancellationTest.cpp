@@ -9,7 +9,7 @@
 
 #define LOG_DBG(...) ((void)0)
 #define LOG_ERR(...) ((void)0)
-#define CROSSINK_SCALABLE_FONTS 1
+#define FLUIDEZ_SCALABLE_FONTS 1
 
 class String : public std::string {
  public:
@@ -70,7 +70,7 @@ struct Server {
   HTTPUpload& upload() { return body; }
   Client& client() { return socket; }
 };
-class CrossPointWebServer {
+class FluiDezWebServer {
  public:
   struct UploadState {
     HalFile file;
@@ -109,7 +109,7 @@ struct MappedInputManager {
   void update() { ++polls; }
   bool isPressed(Button) { return held; }
 };
-struct CrossPointWebServerActivity {
+struct FluiDezWebServerActivity {
   MappedInputManager mappedInput;
   bool leaveRequested = false;
   bool exitEvent = false;
@@ -118,7 +118,7 @@ struct CrossPointWebServerActivity {
 };
 #include "UploadHandlers.inc"
 
-void send(CrossPointWebServer& server, bool font, int status, size_t bytes = 0) {
+void send(FluiDezWebServer& server, bool font, int status, size_t bytes = 0) {
   static uint8_t body[8192] = {};
   assert(bytes <= sizeof(body));
   server.server->body = {status, body, bytes};
@@ -132,7 +132,7 @@ int main() {
   for (bool font : {false, true}) {
     // Normal multi-chunk uploads still finish with every byte and no deletion.
     Storage.removed.clear();
-    CrossPointWebServer server;
+    FluiDezWebServer server;
     send(server, font, UPLOAD_FILE_WRITE, 6000);
     send(server, font, UPLOAD_FILE_WRITE, 77);
     send(server, font, UPLOAD_FILE_END);
@@ -144,10 +144,10 @@ int main() {
     for (int cancelStatus : {UPLOAD_FILE_WRITE, UPLOAD_FILE_END}) {
       Storage.removed.clear();
       cacheClears = FontInstaller::validations = 0;
-      CrossPointWebServer cancelled;
-      CrossPointWebServerActivity activity;
+      FluiDezWebServer cancelled;
+      FluiDezWebServerActivity activity;
       cancelled.uploadCancelCheck = [](void* ctx) {
-        return static_cast<CrossPointWebServerActivity*>(ctx)->checkUploadCancellation();
+        return static_cast<FluiDezWebServerActivity*>(ctx)->checkUploadCancellation();
       };
       cancelled.uploadCancelContext = &activity;
       send(cancelled, font, UPLOAD_FILE_WRITE, 5000);  // disk data plus unflushed tail
@@ -168,13 +168,13 @@ int main() {
       assert(cacheClears == 0 && FontInstaller::validations == 0);
     }
     // Unrequested transport abort still cleans up.
-    CrossPointWebServer aborted;
+    FluiDezWebServer aborted;
     send(aborted, font, UPLOAD_FILE_WRITE, 80);
     send(aborted, font, UPLOAD_FILE_ABORTED);
     assert(!(font ? aborted.fontUpload.file.isOpen() : aborted.upload.file.isOpen()));
   }
   // Touch-header/Home/back-release exit events use the same latch as held Back.
-  CrossPointWebServerActivity touched;
+  FluiDezWebServerActivity touched;
   touched.exitEvent = true;
   assert(touched.checkUploadCancellation());
   touched.exitEvent = false;

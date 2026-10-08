@@ -3,7 +3,7 @@
 #include <GfxRenderer.h>
 #include <I18n.h>
 
-#include "CrossPointState.h"
+#include "FluiDezState.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
 

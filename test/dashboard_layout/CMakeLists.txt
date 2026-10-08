@@ -23,6 +23,6 @@ target_include_directories(DashboardLayoutTest PRIVATE
   ${REPO_ROOT}/freeink-sdk/libs/display/FreeInkDisplay/include
   ${REPO_ROOT}/lib/EpdFont ${REPO_ROOT}/lib/Memory ${REPO_ROOT}/lib/Utf8
   ${REPO_ROOT}/lib/MiniBidi ${REPO_ROOT}/lib/InflateReader ${REPO_ROOT}/lib/uzlib/src)
-target_compile_definitions(DashboardLayoutTest PRIVATE ARDUINO_ARCH_ESP32=1 CROSSINK_MEMORY_TEST=1)
+target_compile_definitions(DashboardLayoutTest PRIVATE ARDUINO_ARCH_ESP32=1 FLUIDEZ_MEMORY_TEST=1)
 target_link_libraries(DashboardLayoutTest PRIVATE crosspoint_test_common GTest::gtest_main)
 gtest_discover_tests(DashboardLayoutTest PROPERTIES ENVIRONMENT "UBSAN_OPTIONS=halt_on_error=1")

@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <cstdio>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "MappedInputManager.h"
 #include "activities/ActivityManager.h"
 #include "activities/RenderLock.h"

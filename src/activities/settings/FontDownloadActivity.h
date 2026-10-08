@@ -23,14 +23,15 @@ struct Rect;
 #define FONTS_MANIFEST_VERSION 1
 
 #ifndef FONT_MANIFEST_URL
-// Default hosted SD-font manifest. Use plain HTTP for this public S3 bucket:
-// HTTPS stalls inside esp_http_client on ESP32-C3, and downloaded .cpfont files
-// are still validated by CRC before install. The versioned prefix must stay in
-// sync with .github/workflows/release-fonts.yml and cpfont_version.py.
+// Default hosted SD-font manifest, in FluiDez's Azure Blob container. Use plain
+// HTTP: HTTPS stalls inside esp_http_client on ESP32-C3, and downloaded .cpfont
+// files are still validated by CRC before install. The host and the versioned
+// prefix must stay in sync with .github/workflows/release-fonts.yml and
+// cpfont_version.py.
 #define FONT_MANIFEST_URL_STRINGIFY_INNER(x) #x
 #define FONT_MANIFEST_URL_STRINGIFY(x) FONT_MANIFEST_URL_STRINGIFY_INNER(x)
-#define FONT_MANIFEST_URL                                                                    \
-  "http://crossink-fonts.s3.us-east-1.amazonaws.com/sd-fonts-m" FONT_MANIFEST_URL_STRINGIFY( \
+#define FONT_MANIFEST_URL                                                                   \
+  "http://strfluidez001.blob.core.windows.net/fonts/sd-fonts-m" FONT_MANIFEST_URL_STRINGIFY( \
       FONTS_MANIFEST_VERSION) "-b" FONT_MANIFEST_URL_STRINGIFY(CPFONT_VERSION) "/fonts.json"
 #endif
 

@@ -95,7 +95,7 @@ void CalibreConnectActivity::startWebServer() {
     LOG_DBG("CAL", "mDNS started: http://%s.local/", HOSTNAME);
   }
 
-  webServer.reset(new CrossPointWebServer());
+  webServer.reset(new FluiDezWebServer());
   webServer->begin();
 
   if (webServer->isRunning()) {

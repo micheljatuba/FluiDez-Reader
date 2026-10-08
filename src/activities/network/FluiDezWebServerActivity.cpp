@@ -1,4 +1,4 @@
-#include "CrossPointWebServerActivity.h"
+#include "FluiDezWebServerActivity.h"
 
 #include <DNSServer.h>
 #include <ESPmDNS.h>
@@ -10,7 +10,7 @@
 
 #include <cstddef>
 
-#include "CrossPointState.h"
+#include "FluiDezState.h"
 #include "MappedInputManager.h"
 #include "NetworkModeSelectionActivity.h"
 #include "SdCardFontSystem.h"
@@ -66,7 +66,7 @@ int barsForRssi(int rssi, int currentBars) {
 }
 }  // namespace
 
-void CrossPointWebServerActivity::onEnter() {
+void FluiDezWebServerActivity::onEnter() {
   Activity::onEnter();
   // Build or refresh the compact on-disk font index before Wi-Fi starts. The
   // C3 has substantially more contiguous heap here than while serving HTTP.
@@ -100,7 +100,7 @@ void CrossPointWebServerActivity::onEnter() {
                          });
 }
 
-void CrossPointWebServerActivity::onExit() {
+void FluiDezWebServerActivity::onExit() {
   library::invalidateLibraryIndex();
   Activity::onExit();
 
@@ -146,7 +146,7 @@ void CrossPointWebServerActivity::onExit() {
   LOG_DBG("WEBACT", "Free heap at onExit end: %d bytes", ESP.getFreeHeap());
 }
 
-void CrossPointWebServerActivity::onNetworkModeSelected(const NetworkMode mode) {
+void FluiDezWebServerActivity::onNetworkModeSelected(const NetworkMode mode) {
   const char* modeName = "Join Network";
   if (mode == NetworkMode::CONNECT_CALIBRE) {
     modeName = "Connect to Calibre";
@@ -249,7 +249,7 @@ void CrossPointWebServerActivity::onNetworkModeSelected(const NetworkMode mode) 
   }
 }
 
-void CrossPointWebServerActivity::onWifiSelectionComplete(const bool connected) {
+void FluiDezWebServerActivity::onWifiSelectionComplete(const bool connected) {
   if (connected) {
     // Get connection info before exiting subactivity
     isApMode = false;
@@ -274,7 +274,7 @@ void CrossPointWebServerActivity::onWifiSelectionComplete(const bool connected) 
   }
 }
 
-void CrossPointWebServerActivity::startAccessPoint() {
+void FluiDezWebServerActivity::startAccessPoint() {
   LOG_DBG("WEBACT", "Free heap before AP start: %d bytes", ESP.getFreeHeap());
 
   // Configure and start the AP
@@ -321,13 +321,12 @@ void CrossPointWebServerActivity::startAccessPoint() {
   startWebServer();
 }
 
-void CrossPointWebServerActivity::startWebServer() {
+void FluiDezWebServerActivity::startWebServer() {
   // Create the web server instance
-  webServer.reset(new CrossPointWebServer());
+  webServer.reset(new FluiDezWebServer());
   leaveRequested = false;
   webServer->setUploadCancelCheck(
-      [](void* context) { return static_cast<CrossPointWebServerActivity*>(context)->checkUploadCancellation(); },
-      this);
+      [](void* context) { return static_cast<FluiDezWebServerActivity*>(context)->checkUploadCancellation(); }, this);
   webServer->begin();
 
   if (webServer->isRunning()) {
@@ -345,7 +344,7 @@ void CrossPointWebServerActivity::startWebServer() {
   }
 }
 
-bool CrossPointWebServerActivity::checkUploadCancellation() {
+bool FluiDezWebServerActivity::checkUploadCancellation() {
   if (leaveRequested) return true;
   // Only poll here while a multipart body blocks the main loop. HalGPIO::update
   // already re-samples pending physical-button debounce; no extra delay needed.
@@ -354,7 +353,7 @@ bool CrossPointWebServerActivity::checkUploadCancellation() {
   return leaveRequested;
 }
 
-void CrossPointWebServerActivity::exitToOrigin() {
+void FluiDezWebServerActivity::exitToOrigin() {
   if (networkBootReady) {
     if (returnBookPath.empty()) {
       silentRestart();
@@ -378,14 +377,14 @@ void CrossPointWebServerActivity::exitToOrigin() {
   activityManager.goToReader(returnBookPath, true);
 }
 
-void CrossPointWebServerActivity::stopWebServer() {
+void FluiDezWebServerActivity::stopWebServer() {
   if (webServer && webServer->isRunning()) {
     webServer->stop();
   }
   webServer.reset();
 }
 
-void CrossPointWebServerActivity::loop() {
+void FluiDezWebServerActivity::loop() {
   if ((state == WebServerActivityState::SERVER_RUNNING || state == WebServerActivityState::AP_STARTING) &&
       exitRequested()) {
     exitToOrigin();
@@ -474,7 +473,7 @@ void CrossPointWebServerActivity::loop() {
   }
 }
 
-void CrossPointWebServerActivity::render(RenderLock&&) {
+void FluiDezWebServerActivity::render(RenderLock&&) {
   // Only render our own UI when server is running
   // Subactivities handle their own rendering
   if (state == WebServerActivityState::SERVER_RUNNING || state == WebServerActivityState::AP_STARTING) {
@@ -493,7 +492,7 @@ void CrossPointWebServerActivity::render(RenderLock&&) {
   }
 }
 
-void CrossPointWebServerActivity::renderHeader() const {
+void FluiDezWebServerActivity::renderHeader() const {
   const char* title = isApMode ? tr(STR_HOTSPOT_MODE) : tr(STR_FILE_TRANSFER);
   if (mappedInput.hasTouchHardware()) {
     TouchHeaderBackButton::drawCompact(renderer, title);
@@ -502,12 +501,12 @@ void CrossPointWebServerActivity::renderHeader() const {
   }
 }
 
-bool CrossPointWebServerActivity::exitRequested() const {
+bool FluiDezWebServerActivity::exitRequested() const {
   return TouchHeaderBackButton::wasTapped(mappedInput, renderer) ||
          mappedInput.wasPressed(MappedInputManager::Button::Back) || mappedInput.wasHomeGesture();
 }
 
-void CrossPointWebServerActivity::renderServerRunning() const {
+void FluiDezWebServerActivity::renderServerRunning() const {
   const auto& metrics = UITheme::getInstance().getMetrics();
   const auto pageWidth = renderer.getScreenWidth();
 
@@ -585,7 +584,7 @@ void CrossPointWebServerActivity::renderServerRunning() const {
   GUI.drawButtonHints(renderer, labels.btn1, labels.btn2, labels.btn3, labels.btn4);
 }
 
-void CrossPointWebServerActivity::renderWifiIndicator(int subHeaderTop) const {
+void FluiDezWebServerActivity::renderWifiIndicator(int subHeaderTop) const {
   constexpr int BAR_COUNT = 4;
   constexpr int BAR_WIDTH = 4;
   constexpr int BAR_GAP = 2;

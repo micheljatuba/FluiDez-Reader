@@ -363,7 +363,7 @@ int LibraryActivity::rowCount() const {
 }
 
 bool LibraryActivity::gridEnabled() const {
-  return sort == Sort::RecentlyRead && SETTINGS.recentBooksView == CrossPointSettings::RECENT_BOOKS_GRID;
+  return sort == Sort::RecentlyRead && SETTINGS.recentBooksView == FluiDezSettings::RECENT_BOOKS_GRID;
 }
 
 void LibraryActivity::loadGridProgress() {
@@ -1043,9 +1043,9 @@ void LibraryActivity::provideRow(void* user, const uint16_t row, fui::ListItem& 
         self->groupHeading = "?";
       } else {
         char heading[32];
-        const char separator = SETTINGS.dateSeparator == CrossPointSettings::DATE_SEPARATOR_PERIOD   ? '.'
-                               : SETTINGS.dateSeparator == CrossPointSettings::DATE_SEPARATOR_HYPHEN ? '-'
-                                                                                                     : '/';
+        const char separator = SETTINGS.dateSeparator == FluiDezSettings::DATE_SEPARATOR_PERIOD   ? '.'
+                               : SETTINGS.dateSeparator == FluiDezSettings::DATE_SEPARATOR_HYPHEN ? '-'
+                                                                                                  : '/';
         // Long formats use the UI language's month names, as the header date does.
         const char* shortMonths[12];
         const char* fullMonths[12];

@@ -90,8 +90,8 @@ class XtcReaderActivity final : public Activity {
   void openReaderMenu();
   void onReaderMenuConfirm(int action);
   void toggleHomeButtonInReader();
-  static bool supportsQuickAction(CrossPointSettings::SHORT_PWRBTN action);
-  bool executeReaderShortcutAction(CrossPointSettings::SHORT_PWRBTN action);
+  static bool supportsQuickAction(FluiDezSettings::SHORT_PWRBTN action);
+  bool executeReaderShortcutAction(FluiDezSettings::SHORT_PWRBTN action);
   bool executeLongPressBackAction();
 
  public:
@@ -105,7 +105,7 @@ class XtcReaderActivity final : public Activity {
   void onExit() override;
   void loop() override;
   void render(RenderLock&&) override;
-  bool handleTwoFingerSwipeAction(CrossPointSettings::TWO_FINGER_SWIPE_ACTION action) override;
+  bool handleTwoFingerSwipeAction(FluiDezSettings::TWO_FINGER_SWIPE_ACTION action) override;
   bool prepareManualRefresh() override {
     pagesUntilFullRefresh = -1;
     return true;
@@ -124,7 +124,7 @@ class XtcReaderActivity final : public Activity {
   bool canSnapshotForSleepOverlay() const override { return true; }
   bool allowPowerAsConfirmInReaderMode() const override { return quickActionsPopup.isActive(); }
   bool blocksGlobalInput() const override { return quickActionsPopup.isActive(); }
-  bool handleShortcutAction(CrossPointSettings::SHORT_PWRBTN action) override;
+  bool handleShortcutAction(FluiDezSettings::SHORT_PWRBTN action) override;
   bool openReaderSettingsMenu() override {
     if (!xtc) {
       return false;

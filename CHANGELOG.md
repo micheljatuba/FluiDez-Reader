@@ -6,6 +6,15 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ## [Unreleased]
 
+### Changed
+
+- Internal names follow FluiDez: the settings, state and web server classes are `FluiDezSettings`, `FluiDezState`, `FluiDezWebServer` and `FluiDezWebServerActivity`; build flags, compile-time switches and CI variables use the `FLUIDEZ_` prefix (for example `FLUIDEZ_APP_CAP_TOUCH`, `FLUIDEZ_BATTERY_DIAG_LOG`, `FLUIDEZ_RELEASE_VERSION`); the `platformio.ini` section is `[fluidez]`. Local `platformio.local.ini` files must use the new names. Data on the reader is untouched: the `/.crosspoint` folder, file formats and saved settings keep their names. The simulator still receives `CROSSINK_VERSION` because its external library reads that name.
+
+### Added
+
+- The Sleep Screen page becomes **Screens**, with a tab for the boot screen as well. The same editor saves boot images to `/bootscreen` and pins them, turning the custom boot screen on, and both tabs can switch to rotating through every image in their folder. `/api/sleep-image` takes `target=boot` and the new `rotate` action, and reports the boot screen's pin, switch and active folder.
+- The web portal speaks Portuguese: menus, File Manager, Settings, Fonts and the device page follow the browser language, with a Português/English switch in the footer. A shared `/i18n.js` (about 5 KB gzipped, cached) translates the English text as it appears, including messages the pages build later and `alert`/`confirm` prompts; file names and the technical conversion log stay untouched.
+
 ### Fixed
 
 - The Sleep Screen page's empty gallery message spans the whole row instead of wrapping in one grid column.

@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <iterator>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "MappedInputManager.h"
 #include "QuickActions.h"
 #include "SettingsList.h"
@@ -62,9 +62,9 @@ fui::BitmapRef swipeActionIcon(const StrId nameId) {
   }
 }
 
-bool isTwoFingerSwipeSetting(const uint8_t CrossPointSettings::* const valuePtr) {
-  return valuePtr == &CrossPointSettings::twoFingerSwipeUp || valuePtr == &CrossPointSettings::twoFingerSwipeDown ||
-         valuePtr == &CrossPointSettings::twoFingerSwipeLeft || valuePtr == &CrossPointSettings::twoFingerSwipeRight;
+bool isTwoFingerSwipeSetting(const uint8_t FluiDezSettings::* const valuePtr) {
+  return valuePtr == &FluiDezSettings::twoFingerSwipeUp || valuePtr == &FluiDezSettings::twoFingerSwipeDown ||
+         valuePtr == &FluiDezSettings::twoFingerSwipeLeft || valuePtr == &FluiDezSettings::twoFingerSwipeRight;
 }
 }  // namespace
 
@@ -102,7 +102,7 @@ void ControlsOptionsActivity::rebuildSettingsList() {
   tapsGesturesSettings = buildControlsTapsGesturesSettingsList(allSettings);
   twoFingerSwipeSettings = buildControlsTwoFingerSwipeSettingsList(allSettings);
   edgeGestureSettings = buildControlsEdgeGestureSettingsList(allSettings);
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   if (!gpio.hasTouch()) {
     frontButtonSettings = buildControlsFrontButtonSettingsList(allSettings);
   }
@@ -217,7 +217,7 @@ void ControlsOptionsActivity::openEnumOptionPicker(const SettingInfo& setting) {
   if (currentIndex >= optionCount) currentIndex = 0;
 
   const SettingInfo selectedSetting = setting;
-  const auto note = setting.valuePtr == &CrossPointSettings::sideButtonChordAction && mappedInput.hasTouchHardware()
+  const auto note = setting.valuePtr == &FluiDezSettings::sideButtonChordAction && mappedInput.hasTouchHardware()
                         ? OptionPopup::Note{tr(STR_NOTE), tr(STR_TOUCHSCREEN_ESCAPE_HATCH_NOTE)}
                         : OptionPopup::Note{};
   optionPopup.show(
@@ -227,7 +227,7 @@ void ControlsOptionsActivity::openEnumOptionPicker(const SettingInfo& setting) {
           SETTINGS.*(selectedSetting.valuePtr) =
               enumRawValueForDisplayIndex(selectedSetting, static_cast<uint8_t>(selectedIndex));
           if (isTwoFingerSwipeSetting(selectedSetting.valuePtr)) {
-            CrossPointSettings::normalizeTwoFingerSwipeActions(SETTINGS, selectedSetting.valuePtr);
+            FluiDezSettings::normalizeTwoFingerSwipeActions(SETTINGS, selectedSetting.valuePtr);
           }
           QuickActions::settingChanged(SETTINGS, selectedSetting.valuePtr);
           SETTINGS.saveToFile();
@@ -257,7 +257,7 @@ void ControlsOptionsActivity::toggleCurrentSetting() {
     const uint8_t nextIndex = (currentIndex + 1) % static_cast<uint8_t>(optionCount);
     SETTINGS.*(setting.valuePtr) = enumRawValueForDisplayIndex(setting, nextIndex);
     if (isTwoFingerSwipeSetting(setting.valuePtr)) {
-      CrossPointSettings::normalizeTwoFingerSwipeActions(SETTINGS, setting.valuePtr);
+      FluiDezSettings::normalizeTwoFingerSwipeActions(SETTINGS, setting.valuePtr);
     }
     QuickActions::settingChanged(SETTINGS, setting.valuePtr);
     SETTINGS.saveToFile();

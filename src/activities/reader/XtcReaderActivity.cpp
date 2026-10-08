@@ -17,8 +17,8 @@
 
 #include "BookStatsActivity.h"
 #include "BookStatsTracking.h"
-#include "CrossPointSettings.h"
-#include "CrossPointState.h"
+#include "FluiDezSettings.h"
+#include "FluiDezState.h"
 #include "GlobalActions.h"
 #include "MappedInputManager.h"
 #include "QuickActions.h"
@@ -161,8 +161,7 @@ void XtcReaderActivity::onExit() {
 
   // Generate carousel thumbnails while XTC is still loaded so the home screen
   // can display the cover on the very first render without a loading popup.
-  if (xtc &&
-      static_cast<CrossPointSettings::UI_THEME>(SETTINGS.uiTheme) == CrossPointSettings::UI_THEME::LYRA_CAROUSEL) {
+  if (xtc && static_cast<FluiDezSettings::UI_THEME>(SETTINGS.uiTheme) == FluiDezSettings::UI_THEME::LYRA_CAROUSEL) {
     xtc->generateThumbBmp(LyraCarouselTheme::kCenterCoverW, LyraCarouselTheme::kCenterCoverH);
     xtc->generateThumbBmp(LyraCarouselTheme::kSideCoverW, LyraCarouselTheme::kSideCoverH);
   }
@@ -217,12 +216,12 @@ void XtcReaderActivity::loop() {
   const int bottomHeight = UITheme::getReaderStatusBarHeight(ReaderStatusBarPosition::Bottom);
   const int topHeight =
       SETTINGS.legacyXtcTopUsesBottom ? bottomHeight : UITheme::getReaderStatusBarHeight(ReaderStatusBarPosition::Top);
-  const auto statusBarMode = static_cast<CrossPointSettings::XTC_STATUS_BAR_MODE>(SETTINGS.xtcStatusBarMode);
-  const bool tappedStatusBar = touch.tapped && (((statusBarMode == CrossPointSettings::XTC_STATUS_BAR_TOP ||
-                                                  statusBarMode == CrossPointSettings::XTC_STATUS_BAR_BOTH) &&
+  const auto statusBarMode = static_cast<FluiDezSettings::XTC_STATUS_BAR_MODE>(SETTINGS.xtcStatusBarMode);
+  const bool tappedStatusBar = touch.tapped && (((statusBarMode == FluiDezSettings::XTC_STATUS_BAR_TOP ||
+                                                  statusBarMode == FluiDezSettings::XTC_STATUS_BAR_BOTH) &&
                                                  ReaderUtils::isTopStatusBarTap(renderer, touch.y, topHeight)) ||
-                                                ((statusBarMode == CrossPointSettings::XTC_STATUS_BAR_BOTTOM ||
-                                                  statusBarMode == CrossPointSettings::XTC_STATUS_BAR_BOTH) &&
+                                                ((statusBarMode == FluiDezSettings::XTC_STATUS_BAR_BOTTOM ||
+                                                  statusBarMode == FluiDezSettings::XTC_STATUS_BAR_BOTH) &&
                                                  ReaderUtils::isBottomStatusBarTap(renderer, touch.y, bottomHeight)));
   if (tappedStatusBar) {
     if (SETTINGS.tapToHideStatusBar) {
@@ -285,23 +284,22 @@ void XtcReaderActivity::loop() {
     return;
   }
 
-  const auto longPressMenuAction =
-      static_cast<CrossPointSettings::LONG_PRESS_MENU_ACTION>(SETTINGS.longPressMenuAction);
-  if (longPressMenuAction == CrossPointSettings::LONG_MENU_QUICK_LOCK &&
+  const auto longPressMenuAction = static_cast<FluiDezSettings::LONG_PRESS_MENU_ACTION>(SETTINGS.longPressMenuAction);
+  if (longPressMenuAction == FluiDezSettings::LONG_MENU_QUICK_LOCK &&
       mappedInput.isPressed(MappedInputManager::Button::Confirm) && mappedInput.getHeldTime() >= LONG_PRESS_MENU_MS) {
     longPressMenuHandled = true;
     mappedInput.suppressNextConfirmRelease();
-    handleGlobalPowerButtonAction(CrossPointSettings::SHORT_PWRBTN::QUICK_LOCK, QuickLockTrigger::LongMenu);
+    handleGlobalPowerButtonAction(FluiDezSettings::SHORT_PWRBTN::QUICK_LOCK, QuickLockTrigger::LongMenu);
     return;
   }
-  if (longPressMenuAction == CrossPointSettings::LONG_MENU_QUICK_LOCK &&
+  if (longPressMenuAction == FluiDezSettings::LONG_MENU_QUICK_LOCK &&
       mappedInput.wasReleased(MappedInputManager::Button::Confirm) && mappedInput.getHeldTime() >= LONG_PRESS_MENU_MS) {
     mappedInput.suppressNextConfirmRelease();
-    handleGlobalPowerButtonAction(CrossPointSettings::SHORT_PWRBTN::QUICK_LOCK, QuickLockTrigger::LongMenu);
+    handleGlobalPowerButtonAction(FluiDezSettings::SHORT_PWRBTN::QUICK_LOCK, QuickLockTrigger::LongMenu);
     return;
   }
 
-  if (longPressMenuAction == CrossPointSettings::LONG_MENU_LIBRARY && mappedInput.getHeldTime() >= LONG_PRESS_MENU_MS &&
+  if (longPressMenuAction == FluiDezSettings::LONG_MENU_LIBRARY && mappedInput.getHeldTime() >= LONG_PRESS_MENU_MS &&
       (mappedInput.isPressed(MappedInputManager::Button::Confirm) ||
        mappedInput.wasReleased(MappedInputManager::Button::Confirm))) {
     longPressMenuHandled = mappedInput.isPressed(MappedInputManager::Button::Confirm);
@@ -346,18 +344,18 @@ void XtcReaderActivity::loop() {
         mappedInput.suppressNextSideRelease(side.up ? MappedInputManager::Button::Up
                                                     : MappedInputManager::Button::Down);
       switch (side.action) {
-        case CrossPointSettings::PAGE_TURN:
+        case FluiDezSettings::PAGE_TURN:
           shortcutPageTurn = true;
           shortcutPageTurnFromSide = true;
           break;
-        case CrossPointSettings::PREVIOUS_PAGE:
+        case FluiDezSettings::PREVIOUS_PAGE:
           shortcutPreviousPage = true;
           shortcutPreviousPageFromSide = true;
           break;
-        case CrossPointSettings::SIDE_PREVIOUS_CHAPTER:
-        case CrossPointSettings::SIDE_NEXT_CHAPTER: {
+        case FluiDezSettings::SIDE_PREVIOUS_CHAPTER:
+        case FluiDezSettings::SIDE_NEXT_CHAPTER: {
           // Fixed-page books keep the established ten-page chapter-skip step.
-          const bool next = side.action == CrossPointSettings::SIDE_NEXT_CHAPTER;
+          const bool next = side.action == FluiDezSettings::SIDE_NEXT_CHAPTER;
           if (!next && currentPage == 0) break;
           bool goHome = false;
           {
@@ -383,17 +381,17 @@ void XtcReaderActivity::loop() {
             requestUpdate();
           break;
         }
-        case CrossPointSettings::SIDE_INCREASE_FONT:
-        case CrossPointSettings::SIDE_DECREASE_FONT:
-        case CrossPointSettings::SIDE_ROTATE_COUNTERCLOCKWISE:
-        case CrossPointSettings::SIDE_ROTATE_CLOCKWISE:
-        case CrossPointSettings::SIDE_ROTATE_FLIP:
-        case CrossPointSettings::IGNORE:
+        case FluiDezSettings::SIDE_INCREASE_FONT:
+        case FluiDezSettings::SIDE_DECREASE_FONT:
+        case FluiDezSettings::SIDE_ROTATE_COUNTERCLOCKWISE:
+        case FluiDezSettings::SIDE_ROTATE_CLOCKWISE:
+        case FluiDezSettings::SIDE_ROTATE_FLIP:
+        case FluiDezSettings::IGNORE:
           // XTC pages are pre-rendered; font size and rotation do not apply.
           break;
         default: {
-          const auto action = static_cast<CrossPointSettings::SHORT_PWRBTN>(side.action);
-          if (action == CrossPointSettings::QUICK_LOCK)
+          const auto action = static_cast<FluiDezSettings::SHORT_PWRBTN>(side.action);
+          if (action == FluiDezSettings::QUICK_LOCK)
             handleGlobalPowerButtonAction(action, SideButtonShortcuts::quickLockTrigger(side));
           else if (!handleShortcutAction(action))
             handleGlobalPowerButtonAction(action);
@@ -413,12 +411,12 @@ void XtcReaderActivity::loop() {
     return;
   }
   if (powerReleased && mappedInput.getHeldTime() < SETTINGS.getPowerButtonLongPressDuration() &&
-      executeReaderShortcutAction(static_cast<CrossPointSettings::SHORT_PWRBTN>(SETTINGS.shortPwrBtn))) {
+      executeReaderShortcutAction(static_cast<FluiDezSettings::SHORT_PWRBTN>(SETTINGS.shortPwrBtn))) {
     return;
   }
   if (!longPowerPageTurnHandled && mappedInput.isPressed(MappedInputManager::Button::Power) &&
       mappedInput.getHeldTime() >= SETTINGS.getPowerButtonLongPressDuration() &&
-      executeReaderShortcutAction(static_cast<CrossPointSettings::SHORT_PWRBTN>(SETTINGS.longPwrBtn))) {
+      executeReaderShortcutAction(static_cast<FluiDezSettings::SHORT_PWRBTN>(SETTINGS.longPwrBtn))) {
     // Reader long-press actions execute while Power is still held. Consume its
     // later release so the app-wide shortcut dispatcher cannot run it again.
     mappedInput.suppressNextPowerRelease();
@@ -426,11 +424,11 @@ void XtcReaderActivity::loop() {
     return;
   }
 
-  const bool shortPowerTurn = SETTINGS.shortPwrBtn == CrossPointSettings::SHORT_PWRBTN::PAGE_TURN && powerReleased &&
+  const bool shortPowerTurn = SETTINGS.shortPwrBtn == FluiDezSettings::SHORT_PWRBTN::PAGE_TURN && powerReleased &&
                               mappedInput.getHeldTime() < SETTINGS.getPowerButtonLongPressDuration();
-  const bool longPowerTurn = SETTINGS.longPwrBtn == CrossPointSettings::SHORT_PWRBTN::PAGE_TURN && powerReleased &&
+  const bool longPowerTurn = SETTINGS.longPwrBtn == FluiDezSettings::SHORT_PWRBTN::PAGE_TURN && powerReleased &&
                              mappedInput.getHeldTime() >= SETTINGS.getPowerButtonLongPressDuration();
-  const bool timedLongPowerTurn = SETTINGS.longPwrBtn == CrossPointSettings::SHORT_PWRBTN::PAGE_TURN &&
+  const bool timedLongPowerTurn = SETTINGS.longPwrBtn == FluiDezSettings::SHORT_PWRBTN::PAGE_TURN &&
                                   !longPowerPageTurnHandled &&
                                   mappedInput.isPressed(MappedInputManager::Button::Power) &&
                                   mappedInput.getHeldTime() >= SETTINGS.getPowerButtonLongPressDuration();
@@ -440,8 +438,8 @@ void XtcReaderActivity::loop() {
   const bool powerPageTurn = shortPowerTurn || longPowerTurn || timedLongPowerTurn;
   const bool frontNext = mappedInput.wasReleased(MappedInputManager::Button::Right) || powerPageTurn;
 
-  const bool frontLongPressAction = SETTINGS.longPressButtonBehavior == CrossPointSettings::CHAPTER_SKIP ||
-                                    SETTINGS.longPressButtonBehavior == CrossPointSettings::FONT_SIZE_CHANGE;
+  const bool frontLongPressAction = SETTINGS.longPressButtonBehavior == FluiDezSettings::CHAPTER_SKIP ||
+                                    SETTINGS.longPressButtonBehavior == FluiDezSettings::FONT_SIZE_CHANGE;
   if (frontLongPressAction) {
     const bool leftReleased = mappedInput.wasReleased(MappedInputManager::Button::Left);
     const bool rightReleased = mappedInput.wasReleased(MappedInputManager::Button::Right);
@@ -455,7 +453,7 @@ void XtcReaderActivity::loop() {
     const bool nextLongPressed = longPressReady && mappedInput.isPressed(MappedInputManager::Button::Right);
     if (!frontButtonLongPressHandled && (prevLongPressed || nextLongPressed)) {
       frontButtonLongPressHandled = true;
-      if (SETTINGS.longPressButtonBehavior == CrossPointSettings::FONT_SIZE_CHANGE) {
+      if (SETTINGS.longPressButtonBehavior == FluiDezSettings::FONT_SIZE_CHANGE) {
         return;
       }
 
@@ -534,7 +532,7 @@ void XtcReaderActivity::loop() {
   const bool sideShortcutPageTurn = shortcutPageTurnFromSide || shortcutPreviousPageFromSide;
   const bool skipPages = !chordPageTurn && !sideShortcutPageTurn && !fromTouch && !fromTilt && !powerPageTurn &&
                          heldMs > ReaderUtils::SKIP_HOLD_MS &&
-                         SETTINGS.longPressButtonBehavior == CrossPointSettings::CHAPTER_SKIP;
+                         SETTINGS.longPressButtonBehavior == FluiDezSettings::CHAPTER_SKIP;
   const int skipAmount = skipPages ? 10 : 1;
 
   bool goHome = false;
@@ -585,7 +583,7 @@ void XtcReaderActivity::loop() {
   }
 }
 
-bool XtcReaderActivity::handleTwoFingerSwipeAction(const CrossPointSettings::TWO_FINGER_SWIPE_ACTION) {
+bool XtcReaderActivity::handleTwoFingerSwipeAction(const FluiDezSettings::TWO_FINGER_SWIPE_ACTION) {
   // XTC pages are pre-rendered images: they cannot be reflowed for font-size
   // changes, and the reader does not expose stable chapter jumps. Consume the
   // configured command without letting it turn into a regular page swipe.
@@ -651,11 +649,11 @@ bool XtcReaderActivity::handleQuickLockUnlock(const QuickLockTrigger trigger) {
       }
       return true;
     }
-    if (SETTINGS.longPressMenuAction == CrossPointSettings::LONG_MENU_QUICK_LOCK &&
+    if (SETTINGS.longPressMenuAction == FluiDezSettings::LONG_MENU_QUICK_LOCK &&
         mappedInput.isPressed(MappedInputManager::Button::Confirm) && mappedInput.getHeldTime() >= LONG_PRESS_MENU_MS) {
       longPressMenuHandled = true;
       mappedInput.suppressNextConfirmRelease();
-      handleGlobalPowerButtonAction(CrossPointSettings::SHORT_PWRBTN::QUICK_LOCK, QuickLockTrigger::LongMenu);
+      handleGlobalPowerButtonAction(FluiDezSettings::SHORT_PWRBTN::QUICK_LOCK, QuickLockTrigger::LongMenu);
       return true;
     }
     return false;
@@ -669,12 +667,12 @@ bool XtcReaderActivity::handleQuickLockUnlock(const QuickLockTrigger trigger) {
       }
       return true;
     }
-    if (SETTINGS.longPressBackAction == CrossPointSettings::LONG_MENU_QUICK_LOCK &&
+    if (SETTINGS.longPressBackAction == FluiDezSettings::LONG_MENU_QUICK_LOCK &&
         mappedInput.isPressed(MappedInputManager::Button::Back) &&
         mappedInput.getHeldTime() >= ReaderUtils::GO_HOME_MS) {
       longPressBackHandled = true;
       mappedInput.suppressNextBackRelease();
-      handleGlobalPowerButtonAction(CrossPointSettings::SHORT_PWRBTN::QUICK_LOCK, QuickLockTrigger::LongBack);
+      handleGlobalPowerButtonAction(FluiDezSettings::SHORT_PWRBTN::QUICK_LOCK, QuickLockTrigger::LongBack);
       return true;
     }
     return false;
@@ -1018,60 +1016,60 @@ bool XtcReaderActivity::handleFrontlightPanelResult(const FrontlightPanelResult&
   return activityManager.goToNearbyBookSend(xtc->getPath(), true);
 }
 
-bool XtcReaderActivity::supportsQuickAction(const CrossPointSettings::SHORT_PWRBTN action) {
+bool XtcReaderActivity::supportsQuickAction(const FluiDezSettings::SHORT_PWRBTN action) {
   switch (action) {
-    case CrossPointSettings::SHORT_PWRBTN::PREVIOUS_PAGE:
-    case CrossPointSettings::SHORT_PWRBTN::SLEEP:
-    case CrossPointSettings::SHORT_PWRBTN::FORCE_REFRESH:
-    case CrossPointSettings::SHORT_PWRBTN::FILE_TRANSFER:
-    case CrossPointSettings::SHORT_PWRBTN::CALIBRE_WIRELESS:
-    case CrossPointSettings::SHORT_PWRBTN::JOIN_NETWORK:
-    case CrossPointSettings::SHORT_PWRBTN::CREATE_HOTSPOT:
-    case CrossPointSettings::SHORT_PWRBTN::FILE_BROWSER:
-    case CrossPointSettings::SHORT_PWRBTN::LIBRARY:
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_FRONTLIGHT:
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_TOUCHSCREEN:
-    case CrossPointSettings::SHORT_PWRBTN::HOME_READER:
+    case FluiDezSettings::SHORT_PWRBTN::PREVIOUS_PAGE:
+    case FluiDezSettings::SHORT_PWRBTN::SLEEP:
+    case FluiDezSettings::SHORT_PWRBTN::FORCE_REFRESH:
+    case FluiDezSettings::SHORT_PWRBTN::FILE_TRANSFER:
+    case FluiDezSettings::SHORT_PWRBTN::CALIBRE_WIRELESS:
+    case FluiDezSettings::SHORT_PWRBTN::JOIN_NETWORK:
+    case FluiDezSettings::SHORT_PWRBTN::CREATE_HOTSPOT:
+    case FluiDezSettings::SHORT_PWRBTN::FILE_BROWSER:
+    case FluiDezSettings::SHORT_PWRBTN::LIBRARY:
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_FRONTLIGHT:
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_TOUCHSCREEN:
+    case FluiDezSettings::SHORT_PWRBTN::HOME_READER:
       return true;
     default:
       return false;
   }
 }
 
-bool XtcReaderActivity::executeReaderShortcutAction(const CrossPointSettings::SHORT_PWRBTN action) {
+bool XtcReaderActivity::executeReaderShortcutAction(const FluiDezSettings::SHORT_PWRBTN action) {
   switch (action) {
-    case CrossPointSettings::SHORT_PWRBTN::PAGE_TURN:
+    case FluiDezSettings::SHORT_PWRBTN::PAGE_TURN:
       shortcutPageTurnPending = true;
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::PREVIOUS_PAGE:
+    case FluiDezSettings::SHORT_PWRBTN::PREVIOUS_PAGE:
       shortcutPreviousPagePending = true;
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::FILE_TRANSFER:
+    case FluiDezSettings::SHORT_PWRBTN::FILE_TRANSFER:
       activityManager.goToFileTransfer(xtc ? xtc->getPath() : "");
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::CALIBRE_WIRELESS:
+    case FluiDezSettings::SHORT_PWRBTN::CALIBRE_WIRELESS:
       saveProgressBeforeRestart();
       activityManager.goToCalibreWireless(xtc ? xtc->getPath() : "");
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::JOIN_NETWORK:
+    case FluiDezSettings::SHORT_PWRBTN::JOIN_NETWORK:
       saveProgressBeforeRestart();
       activityManager.goToJoinNetworkFileTransfer(xtc ? xtc->getPath() : "");
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::CREATE_HOTSPOT:
+    case FluiDezSettings::SHORT_PWRBTN::CREATE_HOTSPOT:
       saveProgressBeforeRestart();
       activityManager.goToHotspotFileTransfer(xtc ? xtc->getPath() : "");
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::FILE_BROWSER:
+    case FluiDezSettings::SHORT_PWRBTN::FILE_BROWSER:
       activityManager.goToFileBrowser(xtc ? xtc->getPath() : "");
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::LIBRARY:
+    case FluiDezSettings::SHORT_PWRBTN::LIBRARY:
       activityManager.goToLibrary();
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_HOME_BUTTON_IN_READER:
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_HOME_BUTTON_IN_READER:
       toggleHomeButtonInReader();
       return true;
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_FRONTLIGHT:
-    case CrossPointSettings::SHORT_PWRBTN::TOGGLE_TOUCHSCREEN:
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_FRONTLIGHT:
+    case FluiDezSettings::SHORT_PWRBTN::TOGGLE_TOUCHSCREEN:
       return handleGlobalPowerButtonAction(action);
     default:
       return false;
@@ -1079,47 +1077,47 @@ bool XtcReaderActivity::executeReaderShortcutAction(const CrossPointSettings::SH
 }
 
 bool XtcReaderActivity::executeLongPressBackAction() {
-  switch (static_cast<CrossPointSettings::LONG_PRESS_MENU_ACTION>(SETTINGS.longPressBackAction)) {
-    case CrossPointSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_SLEEP:
+  switch (static_cast<FluiDezSettings::LONG_PRESS_MENU_ACTION>(SETTINGS.longPressBackAction)) {
+    case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_SLEEP:
       enterDeepSleep();
       return true;
-    case CrossPointSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_REFRESH_SCREEN:
+    case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_REFRESH_SCREEN:
       prepareManualRefresh();
       requestUpdate();
       return true;
-    case CrossPointSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_FILE_TRANSFER:
+    case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_FILE_TRANSFER:
       activityManager.goToFileTransfer(xtc ? xtc->getPath() : "");
       return true;
-    case CrossPointSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_CALIBRE_WIRELESS:
+    case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_CALIBRE_WIRELESS:
       saveProgressBeforeRestart();
       activityManager.goToCalibreWireless(xtc ? xtc->getPath() : "");
       return true;
-    case CrossPointSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_JOIN_NETWORK:
+    case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_JOIN_NETWORK:
       saveProgressBeforeRestart();
       activityManager.goToJoinNetworkFileTransfer(xtc ? xtc->getPath() : "");
       return true;
-    case CrossPointSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_CREATE_HOTSPOT:
+    case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_CREATE_HOTSPOT:
       saveProgressBeforeRestart();
       activityManager.goToHotspotFileTransfer(xtc ? xtc->getPath() : "");
       return true;
-    case CrossPointSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_FILE_BROWSER:
+    case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_FILE_BROWSER:
       activityManager.goToFileBrowser(xtc ? xtc->getPath() : "");
       return true;
-    case CrossPointSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_LIBRARY:
+    case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_LIBRARY:
       activityManager.goToLibrary();
       return true;
-    case CrossPointSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_CREATE_CLIPPING:
+    case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_CREATE_CLIPPING:
       return false;
-    case CrossPointSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_QUICK_LOCK:
-      return handleGlobalPowerButtonAction(CrossPointSettings::SHORT_PWRBTN::QUICK_LOCK, QuickLockTrigger::LongBack);
+    case FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_QUICK_LOCK:
+      return handleGlobalPowerButtonAction(FluiDezSettings::SHORT_PWRBTN::QUICK_LOCK, QuickLockTrigger::LongBack);
     default:
       return false;
   }
 }
 
-bool XtcReaderActivity::handleShortcutAction(const CrossPointSettings::SHORT_PWRBTN action) {
-  if (action == CrossPointSettings::SHORT_PWRBTN::HOME_READER) return dispatchShortcutAction(action);
-  if (action == CrossPointSettings::SHORT_PWRBTN::QUICK_ACTIONS) {
+bool XtcReaderActivity::handleShortcutAction(const FluiDezSettings::SHORT_PWRBTN action) {
+  if (action == FluiDezSettings::SHORT_PWRBTN::HOME_READER) return dispatchShortcutAction(action);
+  if (action == FluiDezSettings::SHORT_PWRBTN::QUICK_ACTIONS) {
     QuickActions::showConfiguredPopup(
         quickActionsPopup, [this] { requestUpdate(); },
         [this](const auto quickAction) {
@@ -1193,11 +1191,11 @@ XtcReaderActivity::StatusBarInfo XtcReaderActivity::getStatusBarInfo(const uint3
 
 void XtcReaderActivity::renderStatusBarOverlay(const StatusBarOverlayPosition position, const uint32_t pageToRender,
                                                const bool drawContent) const {
-  const bool drawBottom = (SETTINGS.xtcStatusBarMode == CrossPointSettings::XTC_STATUS_BAR_BOTTOM ||
-                           SETTINGS.xtcStatusBarMode == CrossPointSettings::XTC_STATUS_BAR_BOTH) &&
+  const bool drawBottom = (SETTINGS.xtcStatusBarMode == FluiDezSettings::XTC_STATUS_BAR_BOTTOM ||
+                           SETTINGS.xtcStatusBarMode == FluiDezSettings::XTC_STATUS_BAR_BOTH) &&
                           position == StatusBarOverlayPosition::Bottom;
-  const bool drawTop = (SETTINGS.xtcStatusBarMode == CrossPointSettings::XTC_STATUS_BAR_TOP ||
-                        SETTINGS.xtcStatusBarMode == CrossPointSettings::XTC_STATUS_BAR_BOTH) &&
+  const bool drawTop = (SETTINGS.xtcStatusBarMode == FluiDezSettings::XTC_STATUS_BAR_TOP ||
+                        SETTINGS.xtcStatusBarMode == FluiDezSettings::XTC_STATUS_BAR_BOTH) &&
                        position == StatusBarOverlayPosition::Top;
   if (!drawBottom && !drawTop) {
     return;

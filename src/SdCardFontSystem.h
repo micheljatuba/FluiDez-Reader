@@ -57,7 +57,7 @@ class SdCardFontSystem {
   void releaseRegistry();
 
   /// Resolve an SD card font ID from family name + selected point size.
-  /// Returns 0 if not found. Used by CrossPointSettings::getReaderFontId().
+  /// Returns 0 if not found. Used by FluiDezSettings::getReaderFontId().
   int resolveFontId(const char* familyName, uint8_t pointSize) const;
 
   /// Whether changing point size can reuse the active scalable faces. A font

@@ -3,7 +3,7 @@
 #include <HalStorage.h>
 #include <Logging.h>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 
 namespace {
 constexpr char MARKER_NAME[] = "/reading_stats_off";

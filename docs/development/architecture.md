@@ -146,15 +146,15 @@ Notes:
 
 Two singletons are central:
 
-- `src/CrossPointSettings.h` (`SETTINGS`): user preferences and behavior flags
-- `src/CrossPointState.h` (`APP_STATE`): runtime/session state such as current book and sleep context
+- `src/FluiDezSettings.h` (`SETTINGS`): user preferences and behavior flags
+- `src/FluiDezState.h` (`APP_STATE`): runtime/session state such as current book and sleep context
 
 Most SD-card persistence lives under `/.crosspoint/`. See file inventory in
 `docs/data-cache.md`; for binary cache formats, see `docs/file-formats.md`.
 
 ## Networking architecture
 
-Network file transfer is controlled by `src/activities/network/CrossPointWebServerActivity.h` and served by `src/network/CrossPointWebServer.h`.
+Network file transfer is controlled by `src/activities/network/FluiDezWebServerActivity.h` and served by `src/network/FluiDezWebServer.h`.
 
 Modes:
 

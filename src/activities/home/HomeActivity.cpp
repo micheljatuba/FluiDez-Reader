@@ -29,9 +29,9 @@
 #include "BookActions.h"
 #include "BookmarkStore.h"
 #include "ClippingStore.h"
-#include "CrossPointSettings.h"
-#include "CrossPointState.h"
 #include "FileBrowserActionActivity.h"
+#include "FluiDezSettings.h"
+#include "FluiDezState.h"
 #include "GlobalActions.h"
 #include "MappedInputManager.h"
 #include "OpdsServerStore.h"
@@ -330,11 +330,11 @@ int findMenuActionIndex(const HomeMenuEntries& items, HomeMenuAction action) {
 }
 
 bool isMinimalTheme() {
-  return static_cast<CrossPointSettings::UI_THEME>(SETTINGS.uiTheme) == CrossPointSettings::UI_THEME::MINIMAL;
+  return static_cast<FluiDezSettings::UI_THEME>(SETTINGS.uiTheme) == FluiDezSettings::UI_THEME::MINIMAL;
 }
 
 bool isDashboardTheme() {
-  return static_cast<CrossPointSettings::UI_THEME>(SETTINGS.uiTheme) == CrossPointSettings::UI_THEME::DASHBOARD;
+  return static_cast<FluiDezSettings::UI_THEME>(SETTINGS.uiTheme) == FluiDezSettings::UI_THEME::DASHBOARD;
 }
 
 bool usesMinimalHomeInteraction() { return isMinimalTheme() || isDashboardTheme(); }
@@ -677,7 +677,7 @@ void HomeActivity::loadRecentCovers(int coverHeight) {
   };
 
   const bool isCarouselTheme =
-      static_cast<CrossPointSettings::UI_THEME>(SETTINGS.uiTheme) == CrossPointSettings::UI_THEME::LYRA_CAROUSEL;
+      static_cast<FluiDezSettings::UI_THEME>(SETTINGS.uiTheme) == FluiDezSettings::UI_THEME::LYRA_CAROUSEL;
   const bool isMinimal = isMinimalTheme();
   const bool isDashboard = isDashboardTheme();
   const size_t recentBookCount = recentBooks.size();
@@ -842,7 +842,7 @@ void HomeActivity::onEnter() {
     if (!coverGridUi) LOG_ERR("HOME", "Cannot allocate cover grid UI; using standard Home");
   }
   const bool isCarouselTheme =
-      static_cast<CrossPointSettings::UI_THEME>(SETTINGS.uiTheme) == CrossPointSettings::UI_THEME::LYRA_CAROUSEL;
+      static_cast<FluiDezSettings::UI_THEME>(SETTINGS.uiTheme) == FluiDezSettings::UI_THEME::LYRA_CAROUSEL;
 
   // Check if any books have bookmarks (directory scan only, no file parsing)
   hasBookmarks = BookmarkStore::hasAnyBookmarks();
@@ -997,7 +997,7 @@ void HomeActivity::loadGridTileProgress() {
     if (!recentBooks.empty()) FluiDezTheme::setLeadBookStats(loadRecentBookStats(recentBooks.front()));
     return;
   }
-  if (static_cast<CrossPointSettings::UI_THEME>(SETTINGS.uiTheme) != CrossPointSettings::UI_THEME::LYRA_GRID) {
+  if (static_cast<FluiDezSettings::UI_THEME>(SETTINGS.uiTheme) != FluiDezSettings::UI_THEME::LYRA_GRID) {
     return;
   }
   const int count = std::min(static_cast<int>(recentBooks.size()), LyraGridTheme::kTileCount);
@@ -1543,11 +1543,11 @@ void HomeActivity::loop() {
     return;
   }
 
-  if (SETTINGS.longPwrBtn == CrossPointSettings::SHORT_PWRBTN::QUICK_ACTIONS &&
+  if (SETTINGS.longPwrBtn == FluiDezSettings::SHORT_PWRBTN::QUICK_ACTIONS &&
       mappedInput.isPressed(MappedInputManager::Button::Power) &&
       mappedInput.getHeldTime() >= SETTINGS.getPowerButtonLongPressDuration()) {
     quickActionsLongPowerHandled = true;
-    handleShortcutAction(CrossPointSettings::SHORT_PWRBTN::QUICK_ACTIONS);
+    handleShortcutAction(FluiDezSettings::SHORT_PWRBTN::QUICK_ACTIONS);
     return;
   }
 
@@ -1830,7 +1830,7 @@ void HomeActivity::loop() {
   }
 
   const bool isCarousel =
-      static_cast<CrossPointSettings::UI_THEME>(SETTINGS.uiTheme) == CrossPointSettings::UI_THEME::LYRA_CAROUSEL;
+      static_cast<FluiDezSettings::UI_THEME>(SETTINGS.uiTheme) == FluiDezSettings::UI_THEME::LYRA_CAROUSEL;
   const bool carouselTouchOnly = isCarousel && mappedInput.hasTouchHardware();
   const int previousHighlightedBookIdx = getHighlightedBookIndex();
   const int visibleBookCount = getVisibleRecentBookCount();
@@ -1938,7 +1938,7 @@ void HomeActivity::loop() {
     return;
   }
 
-  if (static_cast<CrossPointSettings::UI_THEME>(SETTINGS.uiTheme) == CrossPointSettings::UI_THEME::LYRA &&
+  if (static_cast<FluiDezSettings::UI_THEME>(SETTINGS.uiTheme) == FluiDezSettings::UI_THEME::LYRA &&
       mappedInput.hasTouch() && canSwapHomeBook() && mappedInput.wasSwipe() == MappedInputManager::SwipeDir::Left) {
     showNextRecentBookOnHome();
     return;
@@ -2188,13 +2188,13 @@ void HomeActivity::activateCoverGridSelection() {
   }
 }
 
-bool HomeActivity::handleShortcutAction(const CrossPointSettings::SHORT_PWRBTN action) {
-  if (action == CrossPointSettings::SHORT_PWRBTN::FILE_BROWSER) {
+bool HomeActivity::handleShortcutAction(const FluiDezSettings::SHORT_PWRBTN action) {
+  if (action == FluiDezSettings::SHORT_PWRBTN::FILE_BROWSER) {
     onFileBrowserOpen();
     return true;
   }
 
-  if (action != CrossPointSettings::SHORT_PWRBTN::QUICK_ACTIONS) {
+  if (action != FluiDezSettings::SHORT_PWRBTN::QUICK_ACTIONS) {
     return false;
   }
 
@@ -2206,7 +2206,7 @@ bool HomeActivity::handleShortcutAction(const CrossPointSettings::SHORT_PWRBTN a
   QuickActions::showConfiguredPopup(
       quickActionsPopup, [this] { requestUpdate(); },
       [this](const auto selectedAction) {
-        if (selectedAction == CrossPointSettings::SHORT_PWRBTN::FORCE_REFRESH) {
+        if (selectedAction == FluiDezSettings::SHORT_PWRBTN::FORCE_REFRESH) {
           // OptionPopup has already dismissed itself. Repaint Home before flushing
           // so the full refresh cannot preserve the popup in the panel image.
           initialRefreshMode = HalDisplay::FULL_REFRESH;
@@ -2217,7 +2217,7 @@ bool HomeActivity::handleShortcutAction(const CrossPointSettings::SHORT_PWRBTN a
       },
       [](const auto selectedAction) {
         return isPowerButtonActionAvailableOutsideReader(selectedAction) ||
-               selectedAction == CrossPointSettings::SHORT_PWRBTN::FILE_BROWSER;
+               selectedAction == FluiDezSettings::SHORT_PWRBTN::FILE_BROWSER;
       });
   return true;
 }
@@ -2385,7 +2385,7 @@ void HomeActivity::render(RenderLock&&) {
   auto menuItems = buildSelectableHomeMenuItems(hasOpdsServers, hasReadingStats, hasBookmarks, hasClippings,
                                                 metrics.homeContinueReadingInMenu && !recentBooks.empty());
   int homeCoverTileHeight = metrics.homeCoverTileHeight;
-  if (SETTINGS.uiTheme == CrossPointSettings::UI_THEME::CLASSIC) {
+  if (SETTINGS.uiTheme == FluiDezSettings::UI_THEME::CLASSIC) {
     // Keep the four always-present actions clear of the button-hint strip on
     // shorter displays; any optional actions paginate below them.
     const int menuRows = std::min(4, static_cast<int>(menuItems.size()));
@@ -2418,7 +2418,7 @@ void HomeActivity::render(RenderLock&&) {
   const int menuHeight = std::max(0, menuEndY - menuStartY);
 
   const bool isCarouselTheme =
-      static_cast<CrossPointSettings::UI_THEME>(SETTINGS.uiTheme) == CrossPointSettings::UI_THEME::LYRA_CAROUSEL;
+      static_cast<FluiDezSettings::UI_THEME>(SETTINGS.uiTheme) == FluiDezSettings::UI_THEME::LYRA_CAROUSEL;
   const int menuSelectedIndex = isCarouselTheme && mappedInput.hasTouchHardware()
                                     ? carouselMenuTouchDownIndex
                                     : selectorIndex - getHomeMenuSelectionOffset(recentBooks);
@@ -2500,7 +2500,7 @@ void HomeActivity::onContinueReading() {
   if (recentBooks.empty()) return;
 
   const bool isCarousel =
-      static_cast<CrossPointSettings::UI_THEME>(SETTINGS.uiTheme) == CrossPointSettings::UI_THEME::LYRA_CAROUSEL;
+      static_cast<FluiDezSettings::UI_THEME>(SETTINGS.uiTheme) == FluiDezSettings::UI_THEME::LYRA_CAROUSEL;
   const int bookIndex = isCarousel ? getHighlightedBookIndex() : 0;
   if (bookIndex >= 0 && bookIndex < static_cast<int>(recentBooks.size())) {
     onSelectBook(recentBooks[bookIndex].path);

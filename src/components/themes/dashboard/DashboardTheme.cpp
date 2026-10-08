@@ -17,7 +17,7 @@
 #include <string>
 #include <vector>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "RecentBooksStore.h"
 #include "activities/reader/BookReadingStats.h"
 #include "activities/reader/BookStatsTracking.h"

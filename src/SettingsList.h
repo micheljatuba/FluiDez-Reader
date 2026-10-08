@@ -14,8 +14,8 @@
 #include <utility>
 #include <vector>
 
-#include "CrossPointSettings.h"
 #include "DeviceCapabilities.h"
+#include "FluiDezSettings.h"
 #include "KOReaderCredentialStore.h"
 #include "QuickActions.h"
 #include "activities/settings/SettingsActivity.h"
@@ -31,7 +31,7 @@ inline SettingInfo buildBuiltinFontSizeSetting() {
   SettingInfo s;
   s.nameId = StrId::STR_FONT_SIZE;
   s.type = SettingType::ENUM;
-  s.valuePtr = &CrossPointSettings::readerFontPointSize;
+  s.valuePtr = &FluiDezSettings::readerFontPointSize;
   s.key = "fontSize";
   s.category = StrId::STR_CAT_READER;
   s.enumStringValues.reserve(std::size(BUILTIN_READER_FONT_SIZES));
@@ -48,7 +48,7 @@ inline SettingInfo buildSdFontSizeSetting(const SdCardFontFamilyInfo& family) {
   SettingInfo s;
   s.nameId = StrId::STR_FONT_SIZE;
   s.type = SettingType::ENUM;
-  s.valuePtr = &CrossPointSettings::readerFontPointSize;
+  s.valuePtr = &FluiDezSettings::readerFontPointSize;
   s.key = "fontSize";
   s.category = StrId::STR_CAT_READER;
 
@@ -86,15 +86,15 @@ inline bool isSideButtonActionSetting(const SettingInfo& setting) {
 
 inline std::string sideButtonOptionLabel(const SettingInfo& setting, const uint8_t displayIndex) {
   if ((settingKeyIs(setting, "shortPwrBtn") || settingKeyIs(setting, "longPwrBtn")) &&
-      displayIndex < setting.enumRawValues.size() && setting.enumRawValues[displayIndex] == CrossPointSettings::SLEEP) {
+      displayIndex < setting.enumRawValues.size() && setting.enumRawValues[displayIndex] == FluiDezSettings::SLEEP) {
     return std::string(tr(STR_SLEEP)) + "/" + tr(STR_WAKE);
   }
   if (isSideButtonActionSetting(setting) && displayIndex < setting.enumRawValues.size()) {
     const uint8_t action = setting.enumRawValues[displayIndex];
-    if (action == CrossPointSettings::SIDE_ROTATE_COUNTERCLOCKWISE ||
-        action == CrossPointSettings::SIDE_ROTATE_CLOCKWISE || action == CrossPointSettings::SIDE_ROTATE_FLIP) {
-      if (action == CrossPointSettings::SIDE_ROTATE_CLOCKWISE) return tr(STR_ROTATE_CW);
-      if (action == CrossPointSettings::SIDE_ROTATE_FLIP) return tr(STR_ROTATE_FLIP);
+    if (action == FluiDezSettings::SIDE_ROTATE_COUNTERCLOCKWISE || action == FluiDezSettings::SIDE_ROTATE_CLOCKWISE ||
+        action == FluiDezSettings::SIDE_ROTATE_FLIP) {
+      if (action == FluiDezSettings::SIDE_ROTATE_CLOCKWISE) return tr(STR_ROTATE_CW);
+      if (action == FluiDezSettings::SIDE_ROTATE_FLIP) return tr(STR_ROTATE_FLIP);
       return tr(STR_ROTATE_CCW);
     }
   }
@@ -139,7 +139,7 @@ inline SettingInfo buildFontFamilySetting(const SdCardFontRegistry* registry) {
   // Runtime string labels for SD card fonts
   std::vector<std::string> enumStringValues;
 
-  // Reserve: first CrossPointSettings::BUILTIN_FONT_COUNT entries use StrId, rest use strings
+  // Reserve: first FluiDezSettings::BUILTIN_FONT_COUNT entries use StrId, rest use strings
   if (registry) {
     const auto& families = registry->getFamilies();
     enumStringValues.reserve(families.size());
@@ -186,23 +186,23 @@ inline SettingInfo buildFontFamilySetting(const SdCardFontRegistry* registry) {
     if (SETTINGS.sdFontFamilyName[0] != '\0') {
       for (int i = 0; i < static_cast<int>(sdFamilyNames.size()); i++) {
         if (sdFamilyNames[i] == SETTINGS.sdFontFamilyName) {
-          return static_cast<uint8_t>(CrossPointSettings::BUILTIN_FONT_COUNT + i);
+          return static_cast<uint8_t>(FluiDezSettings::BUILTIN_FONT_COUNT + i);
         }
       }
       // SD font name not found in registry — fall through to built-in
     }
-    return SETTINGS.fontFamily < CrossPointSettings::BUILTIN_FONT_COUNT ? SETTINGS.fontFamily : 0;
+    return SETTINGS.fontFamily < FluiDezSettings::BUILTIN_FONT_COUNT ? SETTINGS.fontFamily : 0;
   };
 
   s.valueSetter = [sdFamilyNames, registry](uint8_t v) {
     const uint8_t targetPointSize = SETTINGS.readerFontPointSize;
 
-    if (v < CrossPointSettings::BUILTIN_FONT_COUNT) {
+    if (v < FluiDezSettings::BUILTIN_FONT_COUNT) {
       SETTINGS.fontFamily = v;
       SETTINGS.sdFontFamilyName[0] = '\0';
       SETTINGS.readerFontPointSize = closestBuiltinReaderPointSize(targetPointSize);
     } else {
-      int sdIdx = v - CrossPointSettings::BUILTIN_FONT_COUNT;
+      int sdIdx = v - FluiDezSettings::BUILTIN_FONT_COUNT;
       if (sdIdx < static_cast<int>(sdFamilyNames.size())) {
         const auto* family = registry ? registry->findFamily(sdFamilyNames[sdIdx]) : nullptr;
         const auto sizes = family ? family->availableSizes() : std::vector<uint8_t>{};
@@ -259,7 +259,7 @@ inline SettingInfo buildDictionaryFontSizeSetting(const SdCardFontRegistry* regi
   SettingInfo s;
   s.nameId = StrId::STR_DICTIONARY_FONT_SIZE;
   s.type = SettingType::ENUM;
-  s.valuePtr = &CrossPointSettings::dictionaryFontPointSize;
+  s.valuePtr = &FluiDezSettings::dictionaryFontPointSize;
   s.key = "dictionaryFontSize";
   s.category = StrId::STR_CAT_READER;
   s.enumStringValues.push_back(I18N.get(StrId::STR_USE_READER_FONT_SIZE));
@@ -331,24 +331,24 @@ inline SettingInfo buildDictionarySetting(const DictionaryRegistry* dictRegistry
 
 inline SettingInfo buildSleepScreenSetting() {
   SettingInfo s = SettingInfo::Enum(
-      StrId::STR_SLEEP_SCREEN, &CrossPointSettings::sleepScreen,
+      StrId::STR_SLEEP_SCREEN, &FluiDezSettings::sleepScreen,
       {StrId::STR_NONE_OPT, StrId::STR_DARK, StrId::STR_LIGHT, StrId::STR_CUSTOM, StrId::STR_COVER,
        StrId::STR_COVER_CUSTOM, StrId::STR_PAGE_OVERLAY, StrId::STR_READING_STATS, StrId::STR_THEME_MINIMAL,
        StrId::STR_THEME_MINIMAL_STATS, StrId::STR_THEME_DASHBOARD, StrId::STR_QUICK_RESUME},
       "sleepScreen", StrId::STR_CAT_DISPLAY);
   s.withEnumRawValues({
-      static_cast<uint8_t>(CrossPointSettings::BLANK),
-      static_cast<uint8_t>(CrossPointSettings::DARK),
-      static_cast<uint8_t>(CrossPointSettings::LIGHT),
-      static_cast<uint8_t>(CrossPointSettings::CUSTOM),
-      static_cast<uint8_t>(CrossPointSettings::COVER),
-      static_cast<uint8_t>(CrossPointSettings::COVER_CUSTOM),
-      static_cast<uint8_t>(CrossPointSettings::OVERLAY),
-      static_cast<uint8_t>(CrossPointSettings::READING_STATS_SLEEP),
-      static_cast<uint8_t>(CrossPointSettings::MINIMAL_SLEEP),
-      static_cast<uint8_t>(CrossPointSettings::MINIMAL_STATS_SLEEP),
-      static_cast<uint8_t>(CrossPointSettings::DASHBOARD_SLEEP),
-      static_cast<uint8_t>(CrossPointSettings::QUICK_RESUME),
+      static_cast<uint8_t>(FluiDezSettings::BLANK),
+      static_cast<uint8_t>(FluiDezSettings::DARK),
+      static_cast<uint8_t>(FluiDezSettings::LIGHT),
+      static_cast<uint8_t>(FluiDezSettings::CUSTOM),
+      static_cast<uint8_t>(FluiDezSettings::COVER),
+      static_cast<uint8_t>(FluiDezSettings::COVER_CUSTOM),
+      static_cast<uint8_t>(FluiDezSettings::OVERLAY),
+      static_cast<uint8_t>(FluiDezSettings::READING_STATS_SLEEP),
+      static_cast<uint8_t>(FluiDezSettings::MINIMAL_SLEEP),
+      static_cast<uint8_t>(FluiDezSettings::MINIMAL_STATS_SLEEP),
+      static_cast<uint8_t>(FluiDezSettings::DASHBOARD_SLEEP),
+      static_cast<uint8_t>(FluiDezSettings::QUICK_RESUME),
   });
   return s;
 }
@@ -357,10 +357,10 @@ enum class ShortcutOptionCatalog { PowerButton, ButtonChord, LongPress, HomeButt
 
 constexpr uint8_t SHORTCUT_OPTION_UNAVAILABLE = UINT8_MAX;
 
-inline uint8_t shortcutRawValue(const ShortcutOptionCatalog catalog, const CrossPointSettings::SHORT_PWRBTN action) {
-  using Action = CrossPointSettings::SHORT_PWRBTN;
-  using LongPress = CrossPointSettings::LONG_PRESS_MENU_ACTION;
-  using Chord = CrossPointSettings::POWER_CHORD_ACTION;
+inline uint8_t shortcutRawValue(const ShortcutOptionCatalog catalog, const FluiDezSettings::SHORT_PWRBTN action) {
+  using Action = FluiDezSettings::SHORT_PWRBTN;
+  using LongPress = FluiDezSettings::LONG_PRESS_MENU_ACTION;
+  using Chord = FluiDezSettings::POWER_CHORD_ACTION;
 
   switch (catalog) {
     case ShortcutOptionCatalog::PowerButton:
@@ -522,13 +522,13 @@ inline void appendShortcutOptions(SettingInfo& setting, const ShortcutOptionCata
 
   if (catalog == ShortcutOptionCatalog::HomeButton) {
     setting.enumValues.push_back(StrId::STR_BACK_HOME);
-    setting.enumRawValues.push_back(CrossPointSettings::HOME_BUTTON_BACK_HOME);
+    setting.enumRawValues.push_back(FluiDezSettings::HOME_BUTTON_BACK_HOME);
     if (Frontlight.present()) {
       setting.enumValues.push_back(StrId::STR_TOGGLE_FRONTLIGHT);
-      setting.enumRawValues.push_back(CrossPointSettings::HOME_BUTTON_TOGGLE_FRONTLIGHT);
+      setting.enumRawValues.push_back(FluiDezSettings::HOME_BUTTON_TOGGLE_FRONTLIGHT);
     }
     setting.enumValues.push_back(StrId::STR_READER_MENU);
-    setting.enumRawValues.push_back(CrossPointSettings::HOME_BUTTON_READER_MENU);
+    setting.enumRawValues.push_back(FluiDezSettings::HOME_BUTTON_READER_MENU);
   }
 
   for (const auto action : QuickActions::shortcutActionOrder) {
@@ -537,38 +537,38 @@ inline void appendShortcutOptions(SettingInfo& setting, const ShortcutOptionCata
     if (rawValue == SHORTCUT_OPTION_UNAVAILABLE) continue;
     setting.enumValues.push_back(QuickActions::actionLabel(static_cast<uint8_t>(action)));
     setting.enumRawValues.push_back(rawValue);
-    if (catalog == ShortcutOptionCatalog::PowerButton && action == CrossPointSettings::SLEEP) {
+    if (catalog == ShortcutOptionCatalog::PowerButton && action == FluiDezSettings::SLEEP) {
       setting.enumValues.push_back(StrId::STR_SLEEP);
-      setting.enumRawValues.push_back(CrossPointSettings::SLEEP_ONLY);
+      setting.enumRawValues.push_back(FluiDezSettings::SLEEP_ONLY);
       setting.enumValues.push_back(StrId::STR_WAKE);
-      setting.enumRawValues.push_back(CrossPointSettings::WAKE_ONLY);
+      setting.enumRawValues.push_back(FluiDezSettings::WAKE_ONLY);
     }
   }
 }
 
-inline SettingInfo buildShortcutSetting(const StrId nameId, uint8_t CrossPointSettings::* const valuePtr,
+inline SettingInfo buildShortcutSetting(const StrId nameId, uint8_t FluiDezSettings::* const valuePtr,
                                         const char* const key, const ShortcutOptionCatalog catalog) {
   SettingInfo setting = SettingInfo::Enum(nameId, valuePtr, std::vector<StrId>{}, key, StrId::STR_CAT_CONTROLS);
   appendShortcutOptions(setting, catalog);
   return setting;
 }
 
-inline SettingInfo buildHomeButtonActionSetting(const StrId nameId, uint8_t CrossPointSettings::* const valuePtr,
+inline SettingInfo buildHomeButtonActionSetting(const StrId nameId, uint8_t FluiDezSettings::* const valuePtr,
                                                 const char* const key) {
   return buildShortcutSetting(nameId, valuePtr, key, ShortcutOptionCatalog::HomeButton);
 }
 
-inline SettingInfo buildSideButtonActionSetting(const StrId nameId, uint8_t CrossPointSettings::* const valuePtr,
+inline SettingInfo buildSideButtonActionSetting(const StrId nameId, uint8_t FluiDezSettings::* const valuePtr,
                                                 const char* const key) {
   SettingInfo setting = buildShortcutSetting(nameId, valuePtr, key, ShortcutOptionCatalog::SideButton);
-  constexpr std::pair<CrossPointSettings::SIDE_BUTTON_ACTION, StrId> readerActions[] = {
-      {CrossPointSettings::SIDE_PREVIOUS_CHAPTER, StrId::STR_PREVIOUS_CHAPTER},
-      {CrossPointSettings::SIDE_NEXT_CHAPTER, StrId::STR_NEXT_CHAPTER},
-      {CrossPointSettings::SIDE_INCREASE_FONT, StrId::STR_INCREASE_FONT_SIZE},
-      {CrossPointSettings::SIDE_DECREASE_FONT, StrId::STR_DECREASE_FONT_SIZE},
-      {CrossPointSettings::SIDE_ROTATE_COUNTERCLOCKWISE, StrId::STR_LONG_PRESS_BEHAVIOR_ORIENTATION},
-      {CrossPointSettings::SIDE_ROTATE_CLOCKWISE, StrId::STR_LONG_PRESS_BEHAVIOR_ORIENTATION},
-      {CrossPointSettings::SIDE_ROTATE_FLIP, StrId::STR_LONG_PRESS_BEHAVIOR_ORIENTATION},
+  constexpr std::pair<FluiDezSettings::SIDE_BUTTON_ACTION, StrId> readerActions[] = {
+      {FluiDezSettings::SIDE_PREVIOUS_CHAPTER, StrId::STR_PREVIOUS_CHAPTER},
+      {FluiDezSettings::SIDE_NEXT_CHAPTER, StrId::STR_NEXT_CHAPTER},
+      {FluiDezSettings::SIDE_INCREASE_FONT, StrId::STR_INCREASE_FONT_SIZE},
+      {FluiDezSettings::SIDE_DECREASE_FONT, StrId::STR_DECREASE_FONT_SIZE},
+      {FluiDezSettings::SIDE_ROTATE_COUNTERCLOCKWISE, StrId::STR_LONG_PRESS_BEHAVIOR_ORIENTATION},
+      {FluiDezSettings::SIDE_ROTATE_CLOCKWISE, StrId::STR_LONG_PRESS_BEHAVIOR_ORIENTATION},
+      {FluiDezSettings::SIDE_ROTATE_FLIP, StrId::STR_LONG_PRESS_BEHAVIOR_ORIENTATION},
   };
   for (const auto& [action, label] : readerActions) {
     setting.enumValues.push_back(label);
@@ -586,7 +586,7 @@ inline SettingInfo buildSideButtonActionSetting(const StrId nameId, uint8_t Cros
 // can use it directly; mutable device UI lists use getSettingsList(), which
 // returns an owned copy and can add SD-card font and dictionary options.
 // Four edge gesture entries are compiled only for touch devices.
-inline constexpr size_t BASE_SETTINGS_CAPACITY = 104 + (CROSSINK_APP_CAP_TOUCH ? 4 : 0);
+inline constexpr size_t BASE_SETTINGS_CAPACITY = 104 + (FLUIDEZ_APP_CAP_TOUCH ? 4 : 0);
 
 const std::vector<SettingInfo>& getBaseSettingsList();
 
@@ -595,23 +595,23 @@ inline std::vector<SettingInfo> getSettingsList(const SdCardFontRegistry* regist
   std::vector<SettingInfo> v = getBaseSettingsList();
   if (!SETTINGS.shouldTrackReadingStats()) {
     for (auto& setting : v) {
-      if (setting.valuePtr == &CrossPointSettings::sleepScreen) {
-        removeEnumRawValue(setting, static_cast<uint8_t>(CrossPointSettings::READING_STATS_SLEEP));
-        removeEnumRawValue(setting, static_cast<uint8_t>(CrossPointSettings::MINIMAL_STATS_SLEEP));
-      } else if (setting.valuePtr == &CrossPointSettings::shortPwrBtn ||
-                 setting.valuePtr == &CrossPointSettings::longPwrBtn ||
-                 setting.valuePtr == &CrossPointSettings::homeButtonTapAction ||
-                 setting.valuePtr == &CrossPointSettings::homeButtonDoubleTapAction ||
-                 setting.valuePtr == &CrossPointSettings::homeButtonLongPressAction ||
+      if (setting.valuePtr == &FluiDezSettings::sleepScreen) {
+        removeEnumRawValue(setting, static_cast<uint8_t>(FluiDezSettings::READING_STATS_SLEEP));
+        removeEnumRawValue(setting, static_cast<uint8_t>(FluiDezSettings::MINIMAL_STATS_SLEEP));
+      } else if (setting.valuePtr == &FluiDezSettings::shortPwrBtn ||
+                 setting.valuePtr == &FluiDezSettings::longPwrBtn ||
+                 setting.valuePtr == &FluiDezSettings::homeButtonTapAction ||
+                 setting.valuePtr == &FluiDezSettings::homeButtonDoubleTapAction ||
+                 setting.valuePtr == &FluiDezSettings::homeButtonLongPressAction ||
                  isSideButtonActionSetting(setting)) {
-        removeEnumRawValue(setting, CrossPointSettings::READING_STATS);
-      } else if (setting.valuePtr == &CrossPointSettings::powerChordAction ||
-                 setting.valuePtr == &CrossPointSettings::sideButtonChordAction) {
+        removeEnumRawValue(setting, FluiDezSettings::READING_STATS);
+      } else if (setting.valuePtr == &FluiDezSettings::powerChordAction ||
+                 setting.valuePtr == &FluiDezSettings::sideButtonChordAction) {
         removeEnumRawValue(setting,
-                           shortcutRawValue(ShortcutOptionCatalog::ButtonChord, CrossPointSettings::READING_STATS));
-      } else if (setting.valuePtr == &CrossPointSettings::longPressMenuAction ||
-                 setting.valuePtr == &CrossPointSettings::longPressBackAction) {
-        removeEnumRawValue(setting, static_cast<uint8_t>(CrossPointSettings::LONG_MENU_READING_STATS));
+                           shortcutRawValue(ShortcutOptionCatalog::ButtonChord, FluiDezSettings::READING_STATS));
+      } else if (setting.valuePtr == &FluiDezSettings::longPressMenuAction ||
+                 setting.valuePtr == &FluiDezSettings::longPressBackAction) {
+        removeEnumRawValue(setting, static_cast<uint8_t>(FluiDezSettings::LONG_MENU_READING_STATS));
       }
     }
   }
@@ -653,20 +653,20 @@ inline std::vector<SettingInfo> getSettingsList(const SdCardFontRegistry* regist
         setting.nameId == StrId::STR_RIGHT_EDGE_UP || setting.nameId == StrId::STR_RIGHT_EDGE_DOWN;
     if (!isConfigurableSwipe) continue;
     if (!Frontlight.present()) {
-      removeEnumRawValue(setting, CrossPointSettings::TWO_FINGER_SWIPE_INCREASE_BRIGHTNESS);
-      removeEnumRawValue(setting, CrossPointSettings::TWO_FINGER_SWIPE_DECREASE_BRIGHTNESS);
-      removeEnumRawValue(setting, CrossPointSettings::TWO_FINGER_SWIPE_INCREASE_WARMTH);
-      removeEnumRawValue(setting, CrossPointSettings::TWO_FINGER_SWIPE_DECREASE_WARMTH);
+      removeEnumRawValue(setting, FluiDezSettings::TWO_FINGER_SWIPE_INCREASE_BRIGHTNESS);
+      removeEnumRawValue(setting, FluiDezSettings::TWO_FINGER_SWIPE_DECREASE_BRIGHTNESS);
+      removeEnumRawValue(setting, FluiDezSettings::TWO_FINGER_SWIPE_INCREASE_WARMTH);
+      removeEnumRawValue(setting, FluiDezSettings::TWO_FINGER_SWIPE_DECREASE_WARMTH);
     } else if (!Frontlight.hasColorTemperature()) {
-      removeEnumRawValue(setting, CrossPointSettings::TWO_FINGER_SWIPE_INCREASE_WARMTH);
-      removeEnumRawValue(setting, CrossPointSettings::TWO_FINGER_SWIPE_DECREASE_WARMTH);
+      removeEnumRawValue(setting, FluiDezSettings::TWO_FINGER_SWIPE_INCREASE_WARMTH);
+      removeEnumRawValue(setting, FluiDezSettings::TWO_FINGER_SWIPE_DECREASE_WARMTH);
     }
   }
   if (!UITheme::supportsCoverGrid()) {
     const auto themeIt =
         std::find_if(v.begin(), v.end(), [](const SettingInfo& s) { return s.nameId == StrId::STR_UI_THEME; });
     if (themeIt != v.end()) {
-      removeEnumRawValue(*themeIt, static_cast<uint8_t>(CrossPointSettings::UI_THEME::COVER_GRID));
+      removeEnumRawValue(*themeIt, static_cast<uint8_t>(FluiDezSettings::UI_THEME::COVER_GRID));
     }
   }
   if (hasTouch) {
@@ -680,8 +680,8 @@ inline std::vector<SettingInfo> getSettingsList(const SdCardFontRegistry* regist
     const auto themeIt =
         std::find_if(v.begin(), v.end(), [](const SettingInfo& s) { return s.nameId == StrId::STR_UI_THEME; });
     if (themeIt != v.end()) {
-      removeEnumRawValue(*themeIt, static_cast<uint8_t>(CrossPointSettings::UI_THEME::CLASSIC));
-      removeEnumRawValue(*themeIt, static_cast<uint8_t>(CrossPointSettings::UI_THEME::ROUNDEDRAFF));
+      removeEnumRawValue(*themeIt, static_cast<uint8_t>(FluiDezSettings::UI_THEME::CLASSIC));
+      removeEnumRawValue(*themeIt, static_cast<uint8_t>(FluiDezSettings::UI_THEME::ROUNDEDRAFF));
     }
   }
   if (!gpio.hasHomeKey()) {
@@ -694,10 +694,10 @@ inline std::vector<SettingInfo> getSettingsList(const SdCardFontRegistry* regist
             v.end());
     for (auto& setting : v) {
       if (settingKeyIs(setting, "shortPwrBtn") || settingKeyIs(setting, "longPwrBtn")) {
-        removeEnumRawValue(setting, CrossPointSettings::TOGGLE_HOME_BUTTON_IN_READER);
+        removeEnumRawValue(setting, FluiDezSettings::TOGGLE_HOME_BUTTON_IN_READER);
       } else if (settingKeyIs(setting, "powerChordAction") || settingKeyIs(setting, "sideButtonChordAction")) {
         removeEnumRawValue(setting, shortcutRawValue(ShortcutOptionCatalog::ButtonChord,
-                                                     CrossPointSettings::TOGGLE_HOME_BUTTON_IN_READER));
+                                                     FluiDezSettings::TOGGLE_HOME_BUTTON_IN_READER));
       }
     }
   }
@@ -711,17 +711,17 @@ inline std::vector<SettingInfo> getSettingsList(const SdCardFontRegistry* regist
                                ? ShortcutOptionCatalog::ButtonChord
                                : ShortcutOptionCatalog::PowerButton;
       if (!Frontlight.present()) {
-        removeEnumRawValue(setting, shortcutRawValue(catalog, CrossPointSettings::TOGGLE_FRONTLIGHT));
+        removeEnumRawValue(setting, shortcutRawValue(catalog, FluiDezSettings::TOGGLE_FRONTLIGHT));
       }
       if (!gpio.hasTouch()) {
-        removeEnumRawValue(setting, shortcutRawValue(catalog, CrossPointSettings::TOGGLE_TOUCHSCREEN));
+        removeEnumRawValue(setting, shortcutRawValue(catalog, FluiDezSettings::TOGGLE_TOUCHSCREEN));
       }
     }
   }
   if (!Frontlight.present()) {
     for (auto& setting : v) {
       if (setting.nameId == StrId::STR_REFRESH_FREQ) {
-        removeEnumRawValue(setting, CrossPointSettings::REFRESH_NEVER);
+        removeEnumRawValue(setting, FluiDezSettings::REFRESH_NEVER);
       }
     }
   }
@@ -928,10 +928,10 @@ inline std::vector<SettingInfo> buildControlsPowerSettingsList(const std::vector
   settings.reserve(4);
   addSettingByKey(settings, allSettings, "shortPwrBtn");
   addSettingByKey(settings, allSettings, "longPwrBtn");
-  if (SETTINGS.shortPwrBtn == CrossPointSettings::SHORT_PWRBTN::FOOTNOTES ||
-      SETTINGS.longPwrBtn == CrossPointSettings::SHORT_PWRBTN::FOOTNOTES ||
-      SETTINGS.longPressMenuAction == CrossPointSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_FOOTNOTES ||
-      SETTINGS.longPressBackAction == CrossPointSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_FOOTNOTES) {
+  if (SETTINGS.shortPwrBtn == FluiDezSettings::SHORT_PWRBTN::FOOTNOTES ||
+      SETTINGS.longPwrBtn == FluiDezSettings::SHORT_PWRBTN::FOOTNOTES ||
+      SETTINGS.longPressMenuAction == FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_FOOTNOTES ||
+      SETTINGS.longPressBackAction == FluiDezSettings::LONG_PRESS_MENU_ACTION::LONG_MENU_FOOTNOTES) {
     addSettingByName(settings, allSettings, StrId::STR_PWR_BTN_FOOTNOTE_BACK);
   }
   addSettingByName(settings, allSettings, StrId::STR_POWER_BUTTON_CHORD);

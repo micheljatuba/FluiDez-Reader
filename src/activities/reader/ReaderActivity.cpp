@@ -5,10 +5,10 @@
 #include <I18n.h>
 #include <Memory.h>
 
-#include "CrossPointSettings.h"
-#include "CrossPointState.h"
 #include "Epub.h"
 #include "EpubReaderActivity.h"
+#include "FluiDezSettings.h"
+#include "FluiDezState.h"
 #include "Txt.h"
 #include "TxtReaderActivity.h"
 #include "Xtc.h"

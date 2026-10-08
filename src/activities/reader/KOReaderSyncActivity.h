@@ -102,7 +102,7 @@ class KOReaderSyncActivity final : public Activity {
   // The reader can use a book-specific orientation that its teardown restores
   // before this activity gets control. Keep that one value through the
   // lightweight network reboot so every sync screen matches the book.
-  uint8_t readerOrientation = CrossPointSettings::ORIENTATION_COUNT;
+  uint8_t readerOrientation = FluiDezSettings::ORIENTATION_COUNT;
 
   // Selection in result screen (0=Apply, 1=Upload)
   int selectedOption = 0;

@@ -61,7 +61,7 @@ bool NearbyBookPositionSyncActivity::consumeInitialInputRelease() {
 #include <cstdio>
 #include <cstring>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "KOReaderCredentialStore.h"
 #include "MappedInputManager.h"
 #include "components/UITheme.h"
@@ -460,9 +460,9 @@ void NearbyBookPositionSyncActivity::renderComparison() const {
 #include <memory>
 #include <string>
 
-#include "CrossPointSettings.h"
 #include "Epub/Section.h"
 #include "EpubReaderUtils.h"
+#include "FluiDezSettings.h"
 #include "KOReaderCredentialStore.h"
 #include "KOReaderDocumentId.h"
 #include "MappedInputManager.h"
@@ -948,7 +948,7 @@ void NearbyBookPositionSyncActivity::enqueueEspNowPacket(const uint8_t* sourceMa
       event.type = PacketType::INVALID;
     }
   } else if (packetType == PacketType::NAME) {
-    if (payloadLength < CrossPointSettings::MIN_DEVICE_NAME_LENGTH || payloadLength > MAX_DEVICE_NAME_BYTES) return;
+    if (payloadLength < FluiDezSettings::MIN_DEVICE_NAME_LENGTH || payloadLength > MAX_DEVICE_NAME_BYTES) return;
     copyBounded(event.deviceName.data(), event.deviceName.size(), reinterpret_cast<const char*>(payload),
                 payloadLength);
   } else if (packetType == PacketType::ACK) {
@@ -1110,7 +1110,7 @@ bool NearbyBookPositionSyncActivity::sendPacket(const PacketType type, const uin
   } else if (type == PacketType::NAME) {
     const char* name = SETTINGS.getEffectiveDeviceName();
     payloadLength = std::min(std::strlen(name), MAX_DEVICE_NAME_BYTES);
-    if (payloadLength < CrossPointSettings::MIN_DEVICE_NAME_LENGTH) return false;
+    if (payloadLength < FluiDezSettings::MIN_DEVICE_NAME_LENGTH) return false;
     memcpy(payload, name, payloadLength);
   }
 

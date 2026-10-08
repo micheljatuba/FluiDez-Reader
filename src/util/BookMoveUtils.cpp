@@ -14,7 +14,7 @@
 
 #include "BookmarkStore.h"
 #include "ClippingStore.h"
-#include "CrossPointState.h"
+#include "FluiDezState.h"
 #include "RecentBooksStore.h"
 
 namespace {

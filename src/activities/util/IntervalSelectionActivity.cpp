@@ -11,20 +11,20 @@
 #include <cstdio>
 #include <utility>
 
-#include "CrossPointSettings.h"
 #include "DeviceCapabilities.h"
+#include "FluiDezSettings.h"
 #include "SdCardFontSystem.h"
 #include "components/SliderValue.h"
 #include "components/TouchActionButtons.h"
 #include "components/TouchHeaderBackButton.h"
 #include "components/UITheme.h"
 #include "util/InputReleaseGuard.h"
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
 #include "components/UiAppHelpers.h"
 #endif
 #include "fontIds.h"
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
 namespace fui = freeink::ui;
 #endif
 
@@ -32,7 +32,7 @@ namespace {
 constexpr int TOUCH_STEP_BUTTON_SIZE = 56;
 constexpr int TOUCH_STEP_BUTTON_GAP = 32;
 constexpr int TOUCH_STEP_LABEL_HEIGHT = 56;
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
 constexpr int16_t READER_SLIDER_CONTROL_HEIGHT = 30;
 constexpr int16_t READER_SLIDER_SCALE_GAP = 4;
 #endif
@@ -99,7 +99,7 @@ IntervalSelectionActivity::IntervalSelectionActivity(
       showTouchHeaderBackButton(showTouchHeaderBackButton),
       valueFormatter(valueFormatter),
       tapStep(tapStep),
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
       useReaderSlider(useReaderSlider),
       readerPreviewSetting(readerPreviewSetting),
       uiTarget(makeUiTarget(renderer)),
@@ -121,7 +121,7 @@ int IntervalSelectionActivity::tappedValue(const int candidate) const {
 }
 
 bool IntervalSelectionActivity::usesReaderSlider() const {
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   return useReaderSlider && mappedInput.hasTouchHardware();
 #else
   return false;
@@ -144,7 +144,7 @@ void IntervalSelectionActivity::formatValue(char* const buf, const size_t len) c
   }
 }
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
 void IntervalSelectionActivity::formatEndpoint(const int endpoint, char* const buf, const size_t len) const {
   if (maxBoundaryLabelId != StrId::STR_NONE_OPT && endpoint == maxValue) {
     snprintf(buf, len, "%s", I18N.get(maxBoundaryLabelId));
@@ -161,7 +161,7 @@ bool IntervalSelectionActivity::usesTextTouchStepControls() const {
          titleId == StrId::STR_LINE_SPACING || titleId == StrId::STR_TOP_BOTTOM || titleId == StrId::STR_LEFT_RIGHT;
 }
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
 void IntervalSelectionActivity::sliderScreen(UiApp::ScreenType& screen, void* user) {
   static_cast<IntervalSelectionActivity*>(user)->buildSliderScreen(screen);
 }
@@ -321,7 +321,7 @@ void IntervalSelectionActivity::onEnter() {
     mappedInput.setReaderTouchscreenOverride(true);
   }
   value = clampedValue(value);
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   if (usesReaderSlider()) {
     applySharedUiTheme(app, uiTarget);
     app.on(ACTION_SLIDER, &IntervalSelectionActivity::onSliderEvent, this);
@@ -337,7 +337,7 @@ void IntervalSelectionActivity::onExit() {
   if (overrideDisabledReaderTouchscreen) {
     mappedInput.setReaderTouchscreenOverride(false);
   }
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   uiReady = false;
 #endif
   Activity::onExit();
@@ -376,7 +376,7 @@ void IntervalSelectionActivity::renderReaderPreview(const Rect& area) {
 
   const int fontId = SETTINGS.getReaderFontId();
   const uint8_t lineHeight = readerPreviewSetting == ReaderPreviewSetting::LineSpacing
-                                 ? CrossPointSettings::clampedLineHeightPercent(static_cast<uint8_t>(value))
+                                 ? FluiDezSettings::clampedLineHeightPercent(static_cast<uint8_t>(value))
                                  : SETTINGS.lineHeightPercent;
   const uint8_t wordSpacing =
       readerPreviewSetting == ReaderPreviewSetting::WordSpacing ? static_cast<uint8_t>(value) : SETTINGS.wordSpacing;
@@ -414,7 +414,7 @@ void IntervalSelectionActivity::loop() {
     return;
   }
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   if (usesReaderSlider() && uiReady) {
     fui::InputSnapshot snap = touchSnapshotFrom(mappedInput);
     if (snap.touchPressed || snap.touchHeld || snap.touchReleased) {
@@ -437,7 +437,7 @@ void IntervalSelectionActivity::loop() {
   int tx = 0;
   int ty = 0;
   const Rect touchScreen = UITheme::getInstance().getScreenSafeArea(renderer, !mappedInput.hasTouchHardware(), false);
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   const int screenWidth = renderer.getScreenWidth();
   const int barWidth = std::min(360, std::max(0, screenWidth - 40));
   constexpr int barHeight = 16;
@@ -520,7 +520,7 @@ void IntervalSelectionActivity::loop() {
     return;
   }
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   if (useLegacyTouchBar && mappedInput.wasScreenTapped(tx, ty)) {
     if (ty >= barY - 20 && ty < barY + barHeight + 20 && tx >= barX && tx < barX + barWidth) {
       const int range = std::max(1, maxValue - minValue);
@@ -579,7 +579,7 @@ void IntervalSelectionActivity::render(RenderLock&&) {
   const Rect safe = UITheme::getInstance().getScreenSafeArea(renderer, !mappedInput.hasTouchHardware(), false);
   const Rect touchScreen = safe;
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   if (usesReaderSlider()) {
     uiReady = false;
     app.render();

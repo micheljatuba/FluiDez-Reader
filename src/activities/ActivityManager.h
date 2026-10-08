@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include "CrossPointSettings.h"
+#include "FluiDezSettings.h"
 #include "GfxRenderer.h"
 #include "MappedInputManager.h"
 #include "util/QuickLockTrigger.h"
@@ -27,7 +27,7 @@ struct portMUX_TYPE {};
 class Activity;    // forward declaration
 class RenderLock;  // forward declaration
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
 struct LiveLightSwipeState {
   Activity* owner = nullptr;
   bool tracking = false;
@@ -74,7 +74,7 @@ class ActivityManager {
   MappedInputManager& mappedInput;
   std::vector<std::unique_ptr<Activity>> stackActivities;
   std::unique_ptr<Activity> currentActivity;
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   LiveLightSwipeState edgeLightSwipe;
   LiveLightSwipeState twoFingerLightSwipe;
 #endif
@@ -189,7 +189,7 @@ class ActivityManager {
 #endif
   bool canSnapshotForSleepOverlay() const;
   bool requestManualReaderRefresh();
-  bool handleShortcutAction(CrossPointSettings::SHORT_PWRBTN action);
+  bool handleShortcutAction(FluiDezSettings::SHORT_PWRBTN action);
   bool handleQuickLockUnlock(QuickLockTrigger trigger);
   void persistGlobalSettings();
   bool beginGlobalSettingsEdit();

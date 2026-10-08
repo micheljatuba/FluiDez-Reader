@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{{ title }}</title>
   <link rel="stylesheet" href="/style.css?v={{ v }}" />
+  <script src="/i18n.js?v={{ v }}"></script>
 {{ head_extra }}
   <style>
 {{ styles }}
@@ -18,12 +19,12 @@
     <a href="/files"{{ cls_files }}>File Manager</a>
     <a href="/settings"{{ cls_settings }}>Settings</a>
     <a href="/fonts"{{ cls_fonts }}>Fonts</a>
-    <a href="/sleep"{{ cls_sleep }}>Sleep Screen</a>
+    <a href="/sleep"{{ cls_sleep }}>Screens</a>
   </div>
 
 {{ body }}
 
-  <p class="footer">FluiDez Reader &bull; Open Source</p>
+  <p class="footer"><span>FluiDez Reader &bull; Open Source</span> &bull; <a href="#" id="fz-lang"></a></p>
 
 {{ script }}
 </body>

@@ -137,7 +137,7 @@ const fui::KeyboardLayout URL_SNIPPET_LAYOUT{URL_SNIP_ROWS, 4};
 void KeyboardEntryActivity::onEnter() {
   Activity::onEnter();
   inputLineHeight = renderer.getLineHeight(UI_12_FONT_ID);
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   pendingFeedback = 0;
   feedbackSequence = 0;
 #endif
@@ -170,7 +170,7 @@ void KeyboardEntryActivity::onEnter() {
 
 void KeyboardEntryActivity::onExit() { Activity::onExit(); }
 
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
 void KeyboardEntryActivity::showTouchFeedback(const int16_t value) {
   // Keep zero reserved for no feedback, including after sequence wraparound.
   feedbackSequence = static_cast<uint16_t>(feedbackSequence % UINT16_MAX + 1);
@@ -567,7 +567,7 @@ fui::Rect KeyboardEntryActivity::keyboardRect() const {
 }
 
 void KeyboardEntryActivity::loop() {
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   if (TouchHeaderBackButton::wasTapped(mappedInput, renderer)) {
     onCancel();
     return;
@@ -796,7 +796,7 @@ void KeyboardEntryActivity::loop() {
 }
 
 void KeyboardEntryActivity::render(RenderLock&&) {
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   const uint32_t feedback = pendingFeedback.load();
 #endif
   renderer.clearScreen();
@@ -1055,7 +1055,7 @@ void KeyboardEntryActivity::render(RenderLock&&) {
   target.setFont(fui::GfxRendererTarget::FONT_BODY, UI_12_FONT_ID);
   const fui::DeviceContext device = target.deviceContext();
   const fui::InputSnapshot noInput{};
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   auto& frameInteractions = paintInteractions;
   frameInteractions.clearFlash();
   if (feedback && !cursorMode && !buttonSelectionVisible.load()) {
@@ -1141,7 +1141,7 @@ void KeyboardEntryActivity::render(RenderLock&&) {
                                                         : renderer.getScreenHeight() - metrics.buttonHintsHeight;
   props.bottomHitOverflow = static_cast<int16_t>(std::max(0, bottomEdge - keysRect.bottom()));
   fui::keyboard(frame, keysRect, props);
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   interactions.beginPublishCycle();
   interactions.clear();
   for (size_t i = 0; i < frameInteractions.count(); ++i) {
@@ -1158,7 +1158,7 @@ void KeyboardEntryActivity::render(RenderLock&&) {
   GUI.drawSideButtonHints(renderer, ">", "<");
 
   renderer.displayBuffer();
-#if CROSSINK_APP_CAP_TOUCH
+#if FLUIDEZ_APP_CAP_TOUCH
   // Only acknowledge the frame actually displayed. A newer press (including
   // the same key again) must survive an older refresh completing.
   uint32_t expected = feedback;
