@@ -19,10 +19,10 @@ permissions:
   contents: read
 
 env:
-  AZURE_STORAGE_ACCOUNT: strfludez001
+  AZURE_STORAGE_ACCOUNT: strfluidez001
   AZURE_FONTS_CONTAINER: fonts
   # Must match FONT_MANIFEST_URL in src/activities/settings/FontDownloadActivity.h.
-  FONT_BASE_URL: http://strfludez001.blob.core.windows.net/fonts
+  FONT_BASE_URL: http://strfluidez001.blob.core.windows.net/fonts
 
 jobs:
   build-fonts:
