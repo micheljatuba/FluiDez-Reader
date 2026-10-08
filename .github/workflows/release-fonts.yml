@@ -51,13 +51,15 @@ jobs:
           echo "metadata=$(python3 -c 'from cpfont_version import FONTS_MANIFEST_VERSION; print(FONTS_MANIFEST_VERSION)')" >> "$GITHUB_OUTPUT"
 
       - name: Build SD card fonts
-        run: python3 lib/EpdFont/scripts/build-sd-fonts.py --clean --verbose -j 1
+        run: python3 lib/EpdFont/scripts/build-sd-fonts.py --clean --verbose -j 1 --output-dir "$RUNNER_TEMP/cpfonts"
 
       - name: Collect font files
         run: |
           mkdir -p dist
-          find lib/EpdFont/scripts/output -name '*.cpfont' -exec cp {} dist/ \;
-          ls dist | wc -l
+          find "$RUNNER_TEMP/cpfonts" -name '*.cpfont' -exec cp {} dist/ \;
+          COUNT=$(find dist -name '*.cpfont' | wc -l)
+          echo "$COUNT font files"
+          [ "$COUNT" -gt 0 ] || { echo "::error::No .cpfont files were built"; exit 1; }
 
       - name: Generate manifest
         id: manifest
