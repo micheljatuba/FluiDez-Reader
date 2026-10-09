@@ -60,6 +60,7 @@ Stability and performance fixes cherry-picked from CrossInk `development` up to 
 - Button keyboard tips stay steady and hide when they cannot fit; full-width Wi-Fi failure buttons on button devices.
 
 - Measure the top margin in global screen-margin previews from the bottom of the header bar, removing the extra gap.
+- Retry a saved Wi-Fi network found by scanning after the initial automatic connection fails, before asking you to select a network.
 
 ### Changed
 
