@@ -3727,10 +3727,6 @@ bool EpubReaderActivity::handleTouchDictionaryLookup() {
   }
 
   touchDictionaryLookupHandled = true;
-  if (!Dictionary::exists(epub->getCachePath().c_str())) {
-    return false;
-  }
-
   openWordSelect(/*framebufferContainsPage=*/true, touchX, touchY, /*autoLookupInitialWord=*/true);
   return true;
 }
@@ -4995,7 +4991,9 @@ void EpubReaderActivity::startClipSelection(const DictionaryClippingRequest* dic
     bool saved = false;
     if (!result.isCancelled) {
       const auto& clip = std::get<ClippingResult>(result.data);
-      if (!clip.text.empty()) {
+      if (clip.memoryError) {
+        clippingFeedback = tr(STR_MEMORY_ERROR);
+      } else if (!clip.text.empty()) {
         const size_t clippingIndex = CLIPPINGS.clippingCount();
         const auto addResult = CLIPPINGS.addClipping(
             static_cast<uint16_t>(currentSpineIndex), clip.sectionPage, clip.endSectionPage, clip.sectionPageCount,
@@ -7855,9 +7853,10 @@ void EpubReaderActivity::drawClippingHighlights(const Page& page, const int font
               wordText, wordLength, focusBoundary, fullWordX, block.focusRunOffset(wordIndex), textStyle,
               baseDir == BidiUtils::BidiBaseDir::RTL,
               [&](const int runX, const char* runText, const EpdFontFamily::Style runStyle) {
-                renderer.drawText(lineFontId, runX, textY, runText, true, runStyle, baseDir);
+                renderer.drawText(lineFontId, runX, textY, runText, true, runStyle, baseDir,
+                                  block.getCharacterSpacing());
               })) {
-        renderer.drawText(lineFontId, wordX, textY, visibleText, true, textStyle);
+        renderer.drawText(lineFontId, wordX, textY, visibleText, true, textStyle, baseDir, block.getCharacterSpacing());
       }
       if (line.clipWidth > 0 && line.clipHeight > 0) {
         renderer.endTextClip();

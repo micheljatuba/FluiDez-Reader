@@ -132,12 +132,16 @@ In word-select mode, you can select a sequence of words to look up as a phrase.
 Multi-word select works in both the reader word-select and the definition word-select (chained lookup).
 
 On a touchscreen, use a press-and-drag selection instead of the button
-sequence: touch the first word, drag to the last word, and lift your finger to
-look up the selected phrase. The first long hold on the reading page is only
-needed to enter lookup; once word selection is open, touching a word starts
-the range immediately.
+sequence: touch the first word, drag to the last word, and lift your finger.
+In the EPUB reader, adjust the handles if needed and choose **Look Up** from
+the floating toolbar. Inside a definition, lifting your finger starts the
+lookup immediately. The first long hold on the reading page is only needed
+to enter selection; once word selection is open, touching a word starts the
+range immediately.
 
-**Limitation:** Multi-word selection cannot span a page boundary. If a phrase crosses from one page to the next, only the words on the current page are available for selection. As a workaround, reduce the reader font size so more words fit on a single page, perform the lookup, then restore the original font size.
+Touch selection in the EPUB reader can continue onto the next page in the
+same chapter: drag to the final word and hold there for about one second.
+Button selection and selection inside definitions stay on the current page.
 
 ---
 

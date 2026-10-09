@@ -2446,6 +2446,15 @@ class SimulatorSmokeTest {
       }
 
       case SmokeStep::Reader:
+#if FLUIDEZ_APP_CAP_TOUCH
+        if (std::getenv("FLUIDEZ_SIMULATOR_SMOKE_CLIPPING_SELECTION")) {
+          if (ClippingSelectionSmokeTest::tick()) {
+            LOG_INF("SMOKE", "Simulator smoke test passed: touch clipping actions");
+            std::_Exit(0);
+          }
+          break;
+        }
+#endif
         if (!activityManager.isCurrentActivityNamed("EpubReader")) fail("Completion test requires EPUB reader");
         if (!EpubReaderCompletionSmokeTest::run(
                 *static_cast<EpubReaderActivity*>(activityManager.simulatorCurrentActivity()))) {
