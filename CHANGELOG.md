@@ -61,6 +61,7 @@ Stability and performance fixes cherry-picked from CrossInk `development` up to 
 
 - Measure the top margin in global screen-margin previews from the bottom of the header bar, removing the extra gap.
 - Retry a saved Wi-Fi network found by scanning after the initial automatic connection fails, before asking you to select a network.
+- Restore Loading feedback for slow book opens, including cached books, after a 300 ms delay between loading stages; quick opens stay quiet.
 
 ### Changed
 
