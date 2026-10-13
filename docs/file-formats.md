@@ -599,6 +599,12 @@ Binary layout:
 
 ## `section.bin`
 
+### Version 91
+
+Complete caches use `91`; suspended partial caches use `0xCC`. The payload is
+unchanged. Figure containers now apply publisher alignment and spacing, so both
+cache types rebuild to center chapter ornaments and separate them from nearby text.
+
 ### Version 88
 
 Complete caches use `88`; suspended partial caches use `0xC9`. Both rebuild older caches automatically. The section header adds signed `characterSpacing` (-5..5) immediately after `wordSpacing`. Each TextBlock adds the same signed byte immediately before `initialLetterBytes`, so cached drawing retains the exact spacing used for layout. No additional per-word allocation is needed.
