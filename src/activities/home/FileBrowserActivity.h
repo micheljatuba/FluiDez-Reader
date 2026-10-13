@@ -65,6 +65,9 @@ class FileBrowserActivity final : public Activity {
   // Files state
   static constexpr size_t INDEX_ROW_CACHE_SIZE = 32;
   std::string basepath = "/";
+#ifdef SIMULATOR
+  freeink::ui::Rect directorySelectRect;
+#endif
   std::vector<std::string> files;
   std::unique_ptr<char[]> fileNameBuffer;
   std::unique_ptr<FileIndex> fileIndex;
@@ -96,7 +99,9 @@ class FileBrowserActivity final : public Activity {
   static void listScreen(UiApp::ScreenType& screen, void* user);
   static void onRowEvent(const freeink::ui::ActionEvent& event, void* user);
   static void onSettingsEvent(const freeink::ui::ActionEvent& event, void* user);
+  static void onSelectDirectoryEvent(const freeink::ui::ActionEvent& event, void* user);
   void buildListScreen(UiApp::ScreenType& screen);
+  void selectDirectory();
   void activateSelected();
   void navigateBack();
   void openSettings();
@@ -118,6 +123,7 @@ class FileBrowserActivity final : public Activity {
   const std::string& simulatorFolderPath() const { return basepath; }
   size_t simulatorSelectedIndex() const { return selectorIndex; }
   int simulatorTopIndex() const { return topIndex; }
+  freeink::ui::Rect simulatorDirectorySelectRect() const { return directorySelectRect; }
 #endif
   explicit FileBrowserActivity(GfxRenderer& renderer, MappedInputManager& mappedInput, std::string initialPath = "/",
                                Mode mode = Mode::Books);

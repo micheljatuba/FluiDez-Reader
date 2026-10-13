@@ -64,6 +64,7 @@ Stability and performance fixes cherry-picked from CrossInk `development` up to 
 - Restore Loading feedback for slow book opens, including cached books, after a 300 ms delay between loading stages; quick opens stay quiet.
 - Keep words intact across text chunks in long EPUB paragraphs, including non-Latin text and combining marks (#844).
 - Keep touch selection advancing onto the next page when a held finger drifts slightly around the final word.
+- Add a touch Select button when choosing the Nearby File Transfer receive folder, including empty folders (#850).
 
 ### Changed
 
