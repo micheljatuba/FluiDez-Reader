@@ -599,6 +599,12 @@ Binary layout:
 
 ## `section.bin`
 
+### Version 95
+
+Complete caches use `95`; suspended partial caches use `0xD0`. The payload is
+unchanged. Image-only paragraphs retain publisher alignment independently of
+the reader's prose alignment. Both cache types rebuild to refresh image positions.
+
 ### Version 91
 
 Complete caches use `91`; suspended partial caches use `0xCC`. The payload is
