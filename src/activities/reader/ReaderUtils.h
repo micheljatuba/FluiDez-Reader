@@ -33,7 +33,7 @@ inline bool isNavigationLongPressAction(const uint8_t action) {
 inline bool dispatchNavigationLongPressAction(const uint8_t action) {
   if (!isNavigationLongPressAction(action)) return false;
   return dispatchShortcutAction(action == FluiDezSettings::LONG_MENU_HOME_READER ? FluiDezSettings::HOME_READER
-                                                                                    : FluiDezSettings::BACK_HOME);
+                                                                                 : FluiDezSettings::BACK_HOME);
 }
 
 inline bool isRtlBookLanguage(std::string_view tag) {

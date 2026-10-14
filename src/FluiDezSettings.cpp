@@ -228,11 +228,11 @@ bool isSleepScreenSetting(const SettingInfo& info) { return info.key && strcmp(i
 
 bool isValidQuickActionSlot(const uint8_t action) {
   return action < FluiDezSettings::QUICK_ACTION_SLOT_ACTION_COUNT ||
-         action == FluiDezSettings::TOGGLE_HOME_BUTTON_IN_READER ||
-         action == FluiDezSettings::TOGGLE_FRONTLIGHT || action == FluiDezSettings::TOGGLE_TOUCHSCREEN ||
-         action == FluiDezSettings::PREVIOUS_PAGE || action == FluiDezSettings::NEARBY_POSITION_SYNC ||
-         action == FluiDezSettings::LIBRARY || action == FluiDezSettings::HOME_READER ||
-         action == FluiDezSettings::BACK_HOME || action == FluiDezSettings::SELECT_CHAPTER;
+         action == FluiDezSettings::TOGGLE_HOME_BUTTON_IN_READER || action == FluiDezSettings::TOGGLE_FRONTLIGHT ||
+         action == FluiDezSettings::TOGGLE_TOUCHSCREEN || action == FluiDezSettings::PREVIOUS_PAGE ||
+         action == FluiDezSettings::NEARBY_POSITION_SYNC || action == FluiDezSettings::LIBRARY ||
+         action == FluiDezSettings::HOME_READER || action == FluiDezSettings::BACK_HOME ||
+         action == FluiDezSettings::SELECT_CHAPTER;
 }
 
 uint8_t migrateTiltDirectionValue(const uint8_t direction) {

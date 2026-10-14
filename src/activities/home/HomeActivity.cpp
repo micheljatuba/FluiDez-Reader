@@ -840,6 +840,9 @@ void HomeActivity::loadRecentCovers(int coverHeight) {
 
 void HomeActivity::onEnter() {
   Activity::onEnter();
+  // A Confirm still held from the previous screen (a reader long-press that
+  // returned Home) must not reach the book actions; wait for its release.
+  homeBookActionsLongPressHandled = mappedInput.isPressed(MappedInputManager::Button::Confirm);
 
   hasOpdsServers = OPDS_STORE.hasServers();
   if (UITheme::hasCoverGridHome()) {

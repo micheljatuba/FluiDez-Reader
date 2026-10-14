@@ -4,6 +4,14 @@ O que muda para quem usa o FluiDez Reader em cada versão, da mais recente para 
 
 ## [Próxima versão]
 
+## [v1.6-fluidez18] - 2026-10-14
+
+- **Escolher capítulo em qualquer atalho:** os atalhos dos botões, as *Ações rápidas* e os gestos de toque podem abrir direto a lista de capítulos, em livros EPUB e XTC.
+- **Voltar/Início e Início/Leitor em todo lugar:** os dois atalhos aparecem juntos em todos os botões, nas *Ações rápidas*, nos deslizes com dois dedos e nos gestos de borda, também nos leitores com toque, como o X4 Pro.
+- **Navegação nos menus:** em *Configurações > Controles*, escolha *Direcional* (o padrão) ou *Antiga* para voltar ao jeito anterior dos botões nas configurações e no menu do leitor.
+- **Toque longo para voltar ao Início:** segurar o botão no livro para voltar ao *Início* não abre mais, sem querer, o menu de ações do livro na tela inicial.
+- **Portal web:** o tema *Cover Grid* não aparece mais nas configurações web dos leitores sem PSRAM, igual ao menu do aparelho.
+
 ## [v1.6-fluidez17] - 2026-10-14
 
 - **Espaçamento de caracteres:** novo ajuste nas configurações de leitura e no menu de fontes do livro, de -5 a +5, para aproximar ou afastar as letras, com prévia ao vivo. O espaçamento de palavras também passa a ir de -4 a +4, podendo deixar as palavras mais juntas que o normal.

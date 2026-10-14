@@ -6,6 +6,23 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ## [Unreleased]
 
+## [v1.6-fluidez18] - 2026-10-14
+
+### Added
+
+Cherry-picked from CrossInk `development` and adapted to FluiDez:
+
+- Select Chapter for button shortcuts, Quick Actions, two-finger swipes and edge slides (EPUB and XTC). New persisted values are appended: `SELECT_CHAPTER = 38`, `CHORD_SELECT_CHAPTER = 34`, `LONG_MENU_SELECT_CHAPTER = 27`, and a new last two-finger swipe action.
+- Back/Home and Home/Reader for every shortcut surface, including touch devices.
+- `menuNavigation`: Directional (default) or Legacy button navigation in Settings and the reader menu.
+
+### Fixed
+
+- A reader long-press that returns Home no longer opens the FluiDez Home book actions while Confirm is still held.
+- The Cover Grid theme is hidden from web settings on devices without PSRAM (CrossInk #826).
+
+Not ported: reader status bar visibility, status text size and per-bar battery style. They build on CrossInk's stats and clippings sync commit (127 files).
+
 ## [v1.6-fluidez17] - 2026-10-14
 
 ### Added
