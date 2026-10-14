@@ -4,6 +4,8 @@ O que muda para quem usa o FluiDez Reader em cada versão, da mais recente para 
 
 ## [Próxima versão]
 
+## [v1.6-fluidez17] - 2026-10-14
+
 - **Espaçamento de caracteres:** novo ajuste nas configurações de leitura e no menu de fontes do livro, de -5 a +5, para aproximar ou afastar as letras, com prévia ao vivo. O espaçamento de palavras também passa a ir de -4 a +4, podendo deixar as palavras mais juntas que o normal.
 - **Imagens em tons de cinza:** um ajuste em *Configurações* e nas opções de cada livro liga ou desliga os tons de cinza nas imagens dos EPUBs, sem mexer na suavização do texto.
 - **Imagens no modo noturno:** com a tela invertida, as imagens dos livros mantêm os tons em vez de virarem uma silhueta escura.
