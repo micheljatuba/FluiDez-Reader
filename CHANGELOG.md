@@ -67,6 +67,7 @@ Stability and performance fixes cherry-picked from CrossInk `development` up to 
 - Add a touch Select button when choosing the Nearby File Transfer receive folder, including empty folders (#850).
 - Center EPUB chapter ornaments inside publisher-styled figures and preserve their spacing beneath chapter titles.
 - Preserve publisher centering and alignment for image-only EPUB paragraphs when reader text alignment is overridden (#856).
+- Preserve the selected SD reader font when font details temporarily cannot load, and free Download Fonts catalog memory before restoring it (#855).
 
 ### Changed
 
