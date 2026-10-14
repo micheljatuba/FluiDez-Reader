@@ -6,6 +6,24 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ## [Unreleased]
 
+### Fixed
+
+Stability and performance fixes cherry-picked from CrossInk `development` up to 2026-10-08 (67100e66), adapted to FluiDez names. Upstream features from the same period are not included yet.
+
+- Page turns after finishing a book no longer crash (CrossInk #822).
+- Redraws no longer race screen setup, OPDS catalog navigation or settings popups with short notes; KOReader and Nearby progress use each book's render-mode cache.
+- Cancelling an OPDS download on low memory no longer crashes when returning to the catalog; HTTPS downloads need less memory as responses grow (CrossInk #836).
+- Faster Home after waking or closing a book, chapter indexing, dictionary lookups, cover thumbnails, EPUBs with thousands of chapters, SD font loading and large sleep/boot images.
+- The "Sleeping..." toast shows again on the X4 Pro and X4 Classic.
+- Incomplete File Transfer uploads are removed after SD write failures, WebDAV replacements keep the previous file on failure, and WebDAV GET streams complete files.
+- EPUB: hidden section-break borders are respected, long paragraphs keep their initial publisher spacing, low-memory image sizing retries with framebuffer scratch, and EPUB3 series refinements resolve by collection ID.
+- Reading stats: editing dates from the frontlight drawer no longer double-counts the session; turning stats off keeps accumulated time; saved clock and date status-bar slots survive an unavailable RTC.
+- Button keyboard tips stay steady and hide when they cannot fit; full-width Wi-Fi failure buttons on button devices.
+
+### Changed
+
+- `freeink-sdk` moves to 1c54128 and the simulator library to 4586bee9, matching CrossInk.
+
 ## [v1.6-fluidez15] - 2026-10-08
 
 ### Changed

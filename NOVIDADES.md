@@ -4,6 +4,29 @@ O que muda para quem usa o FluiDez Reader em cada versão, da mais recente para 
 
 ## [Próxima versão]
 
+- **Correções do CrossInk até 8 de outubro:** o FluiDez trouxe as correções de estabilidade e desempenho do CrossInk da última semana, sem os recursos novos.
+- **Mais estável:**
+  - virar a página depois de terminar um livro não trava mais o leitor;
+  - telas que às vezes congelavam ao abrir agora abrem normalmente, como os avisos de configuração com observação, o catálogo OPDS e o envio pelo Calibre;
+  - cancelar um download no catálogo OPDS não derruba mais o aparelho;
+  - downloads grandes por HTTPS precisam de menos memória.
+- **Mais rápido:**
+  - a tela *Início* aparece mais depressa ao acordar, ao fechar um livro ou ao sair de um menu;
+  - a indexação de capítulos e o dicionário respondem antes;
+  - livros com milhares de capítulos abrem mais rápido;
+  - imagens grandes de tela de descanso e de inicialização carregam mais depressa.
+- **Aviso ao dormir no X4 Pro:** a mensagem "Entrando em repouso" volta a aparecer quando o leitor entra em repouso.
+- **Arquivos protegidos:** um envio que falha por erro no cartão SD não deixa mais um arquivo pela metade, e substituir um arquivo pelo WebDAV preserva o anterior se algo der errado. Downloads pelo WebDAV também chegam completos.
+- **Leitura:**
+  - os ornamentos de separação de seção somem quando a editora os esconde;
+  - parágrafos longos mantêm o espaçamento original;
+  - imagens de EPUB voltam a aparecer mesmo com pouca memória;
+  - livros de séries EPUB3 mostram a série certa na *Biblioteca*.
+- **Estatísticas e relógio:**
+  - editar as estatísticas pelo painel de luz não conta mais o tempo de leitura em dobro;
+  - desligar as estatísticas de um livro mantém o tempo já lido;
+  - a hora e a data na barra de status não somem quando o relógio do aparelho demora a responder.
+
 ## [v1.6-fluidez15] - 2026-10-08
 
 - **Catálogo de fontes do FluiDez:** *Configurações > Leitor > Opções de fonte > Baixar fontes* agora baixa as fontes do servidor do próprio FluiDez, com 29 famílias. Entre elas estão Gelasio, EB Garamond, Crimson Pro, Jost e Arimo, que antes só dava para gerar no computador.
