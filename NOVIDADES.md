@@ -4,6 +4,8 @@ O que muda para quem usa o FluiDez Reader em cada versão, da mais recente para 
 
 ## [Próxima versão]
 
+## [v1.6-fluidez16] - 2026-10-13
+
 - **Correções do CrossInk até 8 de outubro:** o FluiDez trouxe as correções de estabilidade e desempenho do CrossInk da última semana, sem os recursos novos.
 - **Mais estável:**
   - virar a página depois de terminar um livro não trava mais o leitor;

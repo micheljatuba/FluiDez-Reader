@@ -6,6 +6,8 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ## [Unreleased]
 
+## [v1.6-fluidez16] - 2026-10-13
+
 ### Fixed
 
 Stability and performance fixes cherry-picked from CrossInk `development` up to 2026-10-08 (67100e66), adapted to FluiDez names. Upstream features from the same period are not included yet.
