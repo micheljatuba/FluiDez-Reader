@@ -6,6 +6,24 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ## [Unreleased]
 
+### Added
+
+Features cherry-picked from CrossInk `development` up to 2026-10-08, adapted to FluiDez:
+
+- **Character spacing** in the reader drawer and book settings (-5..+5 half-pixel steps, live preview), and negative word spacing levels (-4..-1). Section caches move to v88 / 0xC9 with the spacing in the header and in each TextBlock, so books reindex once.
+- Global and per-book **image grayscale** setting; Night Mode images keep their polarity and midtones (CrossInk #825).
+- Finished-book icon in the File Browser and Library.
+- Chapter title under the book title in the reader menu, drawer and frontlight panel.
+- Publisher EPUB styling: per-word font sizes, initial letters and strikethrough metrics.
+- Landscape button menus show the font preview beside the list; touch previews get more room; screen margin previews anchor to the header.
+
+### Changed
+
+- `TouchHeaderBackButton` gains `headerRect(renderer, input, area)` and `contentTop()`, matching CrossInk's API without its per-device screen calibration.
+- The frontlight smoke test taps action-bar slots where the panel lays them out instead of at fixed coordinates.
+
+Not ported yet: per-status-bar battery style, which needs CrossInk's status bar visibility and support-info export.
+
 ## [v1.6-fluidez16] - 2026-10-13
 
 ### Fixed

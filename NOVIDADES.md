@@ -4,6 +4,14 @@ O que muda para quem usa o FluiDez Reader em cada versão, da mais recente para 
 
 ## [Próxima versão]
 
+- **Espaçamento de caracteres:** novo ajuste nas configurações de leitura e no menu de fontes do livro, de -5 a +5, para aproximar ou afastar as letras, com prévia ao vivo. O espaçamento de palavras também passa a ir de -4 a +4, podendo deixar as palavras mais juntas que o normal.
+- **Imagens em tons de cinza:** um ajuste em *Configurações* e nas opções de cada livro liga ou desliga os tons de cinza nas imagens dos EPUBs, sem mexer na suavização do texto.
+- **Imagens no modo noturno:** com a tela invertida, as imagens dos livros mantêm os tons em vez de virarem uma silhueta escura.
+- **Livros concluídos à vista:** o explorador de arquivos e a *Biblioteca* mostram um ícone nos livros que você já terminou.
+- **Capítulo no menu do leitor:** o menu e o painel de luz mostram o título do capítulo atual abaixo do título do livro.
+- **Estilo da editora nos EPUBs:** letras capitulares, blocos com borda ou fundo, espaços preservados e tamanhos de letra diferentes na mesma linha aparecem mais perto do livro original.
+- **Ao atualizar:** os livros já abertos são reindexados uma vez, porque o novo espaçamento faz parte do layout salvo.
+
 ## [v1.6-fluidez16] - 2026-10-13
 
 - **Correções do CrossInk até 8 de outubro:** o FluiDez trouxe as correções de estabilidade e desempenho do CrossInk da última semana, sem os recursos novos.

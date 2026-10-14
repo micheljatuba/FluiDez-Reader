@@ -196,6 +196,7 @@ class SimulatorSmokeTest {
     DisableReaderTouch,
     EnableReaderTouch,
     TouchDownFrontlightHandle,
+    TouchFrontlightQuickAction,
     TouchDown,
     TouchMove,
     TouchRelease,
@@ -2452,6 +2453,10 @@ class SimulatorSmokeTest {
   static ScriptAction touchDownFrontlightHandle() {
     return {ScriptActionType::TouchDownFrontlightHandle, MappedInputManager::Button::Back, nullptr, 0, 0, 0};
   }
+  // Taps action-bar slot index (of five) wherever the panel laid the bar out.
+  static ScriptAction touchFrontlightQuickAction(const int index) {
+    return {ScriptActionType::TouchFrontlightQuickAction, MappedInputManager::Button::Back, nullptr, 0, index, 0};
+  }
   static ScriptAction touchMove(const int x, const int y) {
     return {ScriptActionType::TouchMove, MappedInputManager::Button::Back, nullptr, 0, x, y};
   }
@@ -2593,8 +2598,7 @@ class SimulatorSmokeTest {
         inputScript.push_back(assertActivity("FrontlightPanel"));
         // The fourth action-bar slot opens Global Settings through the real
         // FrontlightPanelActivity callback path.
-        inputScript.push_back(touchDown(width * 7 / 10, height * 21 / 40));
-        inputScript.push_back(touchRelease(width * 7 / 10, height * 21 / 40));
+        inputScript.push_back(touchFrontlightQuickAction(3));
         inputScript.push_back(render("Global Settings opened from Frontlight Panel", 4));
         inputScript.push_back(assertActivity("Settings"));
         inputScript.push_back(touchDown(width / 2, height * 3 / 4));
@@ -2612,8 +2616,7 @@ class SimulatorSmokeTest {
         inputScript.push_back(touchRelease(width / 2, height / 4));
         inputScript.push_back(render("Frontlight Panel reopened after Global Settings", 4));
         inputScript.push_back(assertActivity("FrontlightPanel"));
-        inputScript.push_back(touchDown(width * 3 / 10, height * 21 / 40));
-        inputScript.push_back(touchRelease(width * 3 / 10, height * 21 / 40));
+        inputScript.push_back(touchFrontlightQuickAction(1));
         inputScript.push_back(render("Sync dialog opened from Frontlight Panel", 4));
         inputScript.push_back(assertActivity("FrontlightPanel"));
         inputScript.push_back(touchDown(width / 2, height - 60));
@@ -3118,6 +3121,18 @@ class SimulatorSmokeTest {
         if (!panel) fail("Expected frontlight drawer before touching its handle");
         const auto handle = panel->simulatorHandleRect();
         mappedInputManager.simulatorInjectTouchDown(handle.x + handle.width / 2, handle.y + handle.height / 2);
+#endif
+        break;
+      }
+      case ScriptActionType::TouchFrontlightQuickAction: {
+#if FLUIDEZ_APP_CAP_TOUCH
+        auto* panel = dynamic_cast<FrontlightPanelActivity*>(activityManager.simulatorCurrentActivity());
+        if (!panel || panel->simulatorActionBarTop <= 0) fail("Expected the frontlight action bar before tapping it");
+        const int x = renderer.getScreenWidth() * (2 * action.x + 1) / 10;
+        const int y = panel->simulatorActionBarTop + 29;  // Middle of the 58-pixel action bar.
+        mappedInputManager.simulatorInjectTouchDown(x, y);
+        // Queue the matching release before the next existing render step.
+        inputScript.insert(inputScript.begin() + scriptIndex, touchRelease(x, y));
 #endif
         break;
       }
