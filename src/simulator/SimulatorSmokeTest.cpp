@@ -73,8 +73,7 @@ struct EpubReaderCompletionSmokeTest {
     if (spineCount <= 0) return false;
 
     // Both shortcut entry points must tolerate a chapter that has not loaded yet.
-    for (const auto action :
-         {FluiDezSettings::SHORT_PWRBTN::PAGE_TURN, FluiDezSettings::SHORT_PWRBTN::PREVIOUS_PAGE}) {
+    for (const auto action : {FluiDezSettings::SHORT_PWRBTN::PAGE_TURN, FluiDezSettings::SHORT_PWRBTN::PREVIOUS_PAGE}) {
       reader->handleShortcutAction(action);
       reader->handleShortcutAction(static_cast<uint8_t>(action));
       if (reader->section || reader->currentSpineIndex != 0) return false;

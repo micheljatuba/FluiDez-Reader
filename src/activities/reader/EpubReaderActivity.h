@@ -14,7 +14,6 @@
 
 #include "BookReadingStats.h"
 #include "BookmarkStore.h"
-#include "DailyReadingStats.h"
 #include "EndOfBookOptions.h"
 #include "EpubLinkReturnState.h"
 #include "EpubReaderMenuModel.h"
