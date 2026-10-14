@@ -1363,8 +1363,7 @@ BookReaderSettingsData loadBookReaderSettingsFile(const std::string& cachePath) 
     ok = readU8(file, snapshot.imageGrayscale);
   }
   if (ok && version >= READER_SETTINGS_FILE_VERSION) {
-    ok = readU8(file, snapshot.characterSpacing) &&
-         snapshot.characterSpacing <= FluiDezSettings::MAX_CHARACTER_SPACING;
+    ok = readU8(file, snapshot.characterSpacing) && snapshot.characterSpacing <= FluiDezSettings::MAX_CHARACTER_SPACING;
   }
   file.close();
   if (!ok) {

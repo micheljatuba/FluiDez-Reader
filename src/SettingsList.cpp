@@ -88,8 +88,7 @@ const std::vector<SettingInfo>& getBaseSettingsList() {
     add(SettingInfo::Value(StrId::STR_WORD_SPACING, &FluiDezSettings::wordSpacing,
                            {0, FluiDezSettings::MAX_WORD_SPACING, 1}, "wordSpacing", StrId::STR_CAT_READER));
     add(SettingInfo::Value(StrId::STR_CHARACTER_SPACING, &FluiDezSettings::characterSpacing,
-                           {0, FluiDezSettings::MAX_CHARACTER_SPACING, 1}, "characterSpacing",
-                           StrId::STR_CAT_READER));
+                           {0, FluiDezSettings::MAX_CHARACTER_SPACING, 1}, "characterSpacing", StrId::STR_CAT_READER));
     add(SettingInfo::Enum(
             StrId::STR_ORIENTATION, &FluiDezSettings::orientation,
             {StrId::STR_PORTRAIT, StrId::STR_LANDSCAPE_CW, StrId::STR_LANDSCAPE_CCW, StrId::STR_ORIENTATION_INVERTED},

@@ -580,9 +580,8 @@ bool DictionaryWordSelectActivity::extractWords() {
     const auto* block = line.block;
     if (!block) return true;
     const int lineFontId = block->resolvedFontId(renderer, SETTINGS.getReaderFontId());
-    const int16_t naturalSpaceWidth = static_cast<int16_t>(
-        renderer.getTextAdvanceX(lineFontId, " ", EpdFontFamily::REGULAR, 0,
-                                 FluiDezSettings::characterSpacingLevel(SETTINGS.characterSpacing)));
+    const int16_t naturalSpaceWidth = static_cast<int16_t>(renderer.getTextAdvanceX(
+        lineFontId, " ", EpdFontFamily::REGULAR, 0, FluiDezSettings::characterSpacingLevel(SETTINGS.characterSpacing)));
 
     const uint16_t sourceWordCount = block->wordCount();
     const int rubyShift = block->getRubyShift(block->maxAscender(renderer, lineFontId));
@@ -700,9 +699,8 @@ bool DictionaryWordSelectActivity::extractWords() {
 
       bool partSucceeded = true;
       const size_t prefixBytes = block->visibleWordText(wordIndex) - wordText;
-      int fullWordWidth =
-          renderer.getTextAdvanceX(wordFontId, wordText + prefixBytes, wordStyle, 0,
-                                   FluiDezSettings::characterSpacingLevel(SETTINGS.characterSpacing));
+      int fullWordWidth = renderer.getTextAdvanceX(wordFontId, wordText + prefixBytes, wordStyle, 0,
+                                                   FluiDezSettings::characterSpacingLevel(SETTINGS.characterSpacing));
       if (wordIndex + 1 < sourceWordCount && block->wordXpos(wordIndex + 1) > block->wordXpos(wordIndex)) {
         fullWordWidth =
             std::min(fullWordWidth, static_cast<int>(block->wordXpos(wordIndex + 1) - block->wordXpos(wordIndex)));

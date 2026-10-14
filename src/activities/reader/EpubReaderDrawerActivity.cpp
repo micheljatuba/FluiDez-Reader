@@ -1238,8 +1238,7 @@ void EpubReaderDrawerActivity::buildSpacingPane(UiApp::ScreenType& screen) {
   ReaderSliderRowProps word;
   word.label = tr(STR_WORD_SPACING);
   word.value = wordSpacingValue(draft.wordSpacing);
-  word.sliderValue =
-      byteToPermille(WordSpacing::sliderValue(draft.wordSpacing), 0, FluiDezSettings::MAX_WORD_SPACING);
+  word.sliderValue = byteToPermille(WordSpacing::sliderValue(draft.wordSpacing), 0, FluiDezSettings::MAX_WORD_SPACING);
   word.max = 1000;
   word.sliderAction = ACTION_SLIDER + 3;
   word.decrement = ACTION_STEP + 3;
@@ -2456,12 +2455,11 @@ void EpubReaderDrawerActivity::completeAutoPageTurnSelection() {
 
 void EpubReaderDrawerActivity::adjustActiveSlider(const int delta) {
   if (state.pane == ReaderDrawerPane::CharacterSpacing) {
-    draft.characterSpacing =
-        std::clamp<int>(draft.characterSpacing + delta, 0, FluiDezSettings::MAX_CHARACTER_SPACING);
+    draft.characterSpacing = std::clamp<int>(draft.characterSpacing + delta, 0, FluiDezSettings::MAX_CHARACTER_SPACING);
   } else if (state.pane == ReaderDrawerPane::Spacing) {
-    draft.lineHeightPercent = FluiDezSettings::clampedLineHeightPercent(static_cast<uint8_t>(
-        std::clamp<int>(draft.lineHeightPercent + delta, FluiDezSettings::MIN_LINE_HEIGHT_PERCENT,
-                        FluiDezSettings::MAX_LINE_HEIGHT_PERCENT)));
+    draft.lineHeightPercent = FluiDezSettings::clampedLineHeightPercent(
+        static_cast<uint8_t>(std::clamp<int>(draft.lineHeightPercent + delta, FluiDezSettings::MIN_LINE_HEIGHT_PERCENT,
+                                             FluiDezSettings::MAX_LINE_HEIGHT_PERCENT)));
   } else if (state.pane == ReaderDrawerPane::Margins) {
     draft.screenMarginVertical = std::clamp<int>(draft.screenMarginVertical + delta, FluiDezSettings::MIN_SCREEN_MARGIN,
                                                  FluiDezSettings::MAX_SCREEN_MARGIN);
