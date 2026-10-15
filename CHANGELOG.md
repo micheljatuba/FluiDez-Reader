@@ -79,6 +79,7 @@ Stability and performance fixes cherry-picked from CrossInk `development` up to 
 - Allow EPUB lines to wrap after dashes without adding spaces or splitting dash runs (adapted from Phạm Bình An, CrossPoint #3883).
 - Center footer button hints using their actual font height (Uri Tauber, CrossPoint #3865).
 - Avoid extra temporary allocations when navigating Home’s cover grid (adapted from Sung-jin Brian Hong, CrossPoint #3848).
+- Clear the retained sleep image when X3 wakes to Home without a restored Quick Resume frame, including with Sunlight Fading Fix enabled.
 
 ### Changed
 
