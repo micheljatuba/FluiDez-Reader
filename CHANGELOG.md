@@ -68,6 +68,7 @@ Stability and performance fixes cherry-picked from CrossInk `development` up to 
 - Center EPUB chapter ornaments inside publisher-styled figures and preserve their spacing beneath chapter titles.
 - Preserve publisher centering and alignment for image-only EPUB paragraphs when reader text alignment is overridden (#856).
 - Preserve the selected SD reader font when font details temporarily cannot load, and free Download Fonts catalog memory before restoring it (#855).
+- Preserve fine detail when fitting oversized high-color BMP sleep wallpapers and boot images by averaging pixels before dithering.
 
 ### Changed
 
