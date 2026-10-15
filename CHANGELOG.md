@@ -70,6 +70,7 @@ Stability and performance fixes cherry-picked from CrossInk `development` up to 
 - Preserve the selected SD reader font when font details temporarily cannot load, and free Download Fonts catalog memory before restoring it (#855).
 - Preserve fine detail when fitting oversized high-color BMP sleep wallpapers and boot images by averaging pixels before dithering.
 - Make Chapter Progress Percentage available in both reader status-bar slot pickers and web settings (#859).
+- Restore bottom-edge swipe up to Home outside books on touch devices, including X4 Pro; ordinary list swipes still scroll and reader gestures stay unchanged.
 
 ### Changed
 

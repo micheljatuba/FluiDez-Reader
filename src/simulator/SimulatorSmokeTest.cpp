@@ -218,6 +218,7 @@ class SimulatorSmokeTest {
     AssertTouchscreenEnabled,
     AssertTtfProfileNative,
     OpenSmokeBook,
+    OpenHomeSwipeScreen,
     OpenFrontlightSettings,
     ClearFrontlightSyncBook,
     PrepareFrontlightSync,
@@ -2847,6 +2848,49 @@ class SimulatorSmokeTest {
     inputScript.push_back(release(button));
   }
 
+  void buildHomeSwipeScript() {
+#if FLUIDEZ_APP_CAP_TOUCH
+    if (!mappedInputManager.hasTouchHardware()) fail("Home swipe checks require a touch simulator");
+    inputScript.clear();
+    scriptIndex = 0;
+    inputCompletionStep = SmokeStep::Done;
+    const int width = renderer.getScreenWidth();
+    const int height = renderer.getScreenHeight();
+    const auto swipe = [&](int startY, int endY) {
+      inputScript.push_back(touchDown(width / 2, startY));
+      inputScript.push_back(touchMove(width / 2, endY));
+      inputScript.push_back(touchRelease(width / 2, endY));
+      inputScript.push_back(render("Home swipe result", 4));
+    };
+    const char* screens[] = {"Settings",     "FileBrowser",       "About",
+                             "ReleaseNotes", "StatusBarSettings", "FileBrowserSettings"};
+    for (int screen = 0; screen < 6; ++screen) {
+      if (screen >= 4) {
+        inputScript.push_back(
+            {ScriptActionType::OpenHomeSwipeScreen, MappedInputManager::Button::Back, nullptr, 0, screen - 4, 0});
+        inputScript.push_back(render("Nested settings parent", 4));
+      }
+      inputScript.push_back(
+          {ScriptActionType::OpenHomeSwipeScreen, MappedInputManager::Button::Back, nullptr, 0, screen, 0});
+      inputScript.push_back(render("Non-reader Home swipe screen", 4));
+      inputScript.push_back(assertActivity(screens[screen]));
+      swipe(height * 3 / 4, height / 3);
+      inputScript.push_back(assertActivity(screens[screen]));
+      swipe(height / 3, height * 3 / 4);
+      inputScript.push_back(assertActivity(screens[screen]));
+      swipe(height - 8, height * 2 / 3);
+      inputScript.push_back(assertActivity("Home"));
+    }
+    inputScript.push_back(openSmokeBook());
+    inputScript.push_back(render("Reader before Home swipe regression", 12));
+    inputScript.push_back(assertActivity("EpubReader"));
+    swipe(height - 8, height * 2 / 3);
+    inputScript.push_back(assertActivity("EpubReaderDrawer"));
+#else
+    fail("Home swipe checks require a touch simulator");
+#endif
+  }
+
   void buildReaderInputScript() {
     inputScript.clear();
     scriptIndex = 0;
@@ -3624,6 +3668,31 @@ class SimulatorSmokeTest {
         }
 #endif
         break;
+      case ScriptActionType::OpenHomeSwipeScreen:
+        switch (action.x) {
+          case 0:
+            activityManager.replaceActivity(std::make_unique<SettingsActivity>(renderer, mappedInputManager));
+            break;
+          case 1:
+            activityManager.replaceActivity(
+                std::make_unique<FileBrowserActivity>(renderer, mappedInputManager, "/books"));
+            break;
+          case 2:
+            activityManager.replaceActivity(std::make_unique<AboutActivity>(renderer, mappedInputManager));
+            break;
+          case 3:
+            activityManager.replaceActivity(std::make_unique<ReleaseNotesActivity>(
+                renderer, mappedInputManager, ReleaseNotesActivity::Mode::FromSettings));
+            break;
+          case 4:
+            activityManager.pushActivity(std::make_unique<StatusBarSettingsActivity>(renderer, mappedInputManager));
+            break;
+          case 5:
+            activityManager.pushActivity(std::make_unique<SettingsActivity>(renderer, mappedInputManager, false, true,
+                                                                            SettingsActivity::View::FileBrowser));
+            break;
+        }
+        break;
       case ScriptActionType::OpenSmokeBook: {
         const char* bookPath = std::getenv("FLUIDEZ_SIMULATOR_SMOKE_BOOK");
         if (bookPath == nullptr || bookPath[0] == '\0') fail("Smoke test book path is missing");
@@ -3715,6 +3784,10 @@ class SimulatorSmokeTest {
       }
       case ScriptActionType::AssertActivity:
         if (!activityManager.isCurrentActivityNamed(action.label)) fail("Expected current activity: %s", action.label);
+        if (std::getenv("FLUIDEZ_SIMULATOR_SMOKE_HOME_SWIPE")) {
+          RenderLock lock;
+          captureStatusBarScreen(action.label);
+        }
         break;
       case ScriptActionType::Render:
         queueStep(action.label, SmokeStep::ReaderInput, action.settleFrames);
