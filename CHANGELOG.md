@@ -16,6 +16,8 @@ Cherry-picked from CrossInk `development` and adapted to FluiDez:
 - Back/Home and Home/Reader for every shortcut surface, including touch devices.
 - `menuNavigation`: Directional (default) or Legacy button navigation in Settings and the reader menu.
 
+- Swipe left on File Browser, Library list, and bookmark rows to reveal a delete button, with confirmation before removal (adapted from Uri Tauber, CrossPoint #3712).
+
 ### Fixed
 
 - A reader long-press that returns Home no longer opens the FluiDez Home book actions while Confirm is still held.
@@ -71,6 +73,12 @@ Stability and performance fixes cherry-picked from CrossInk `development` up to 
 - Preserve fine detail when fitting oversized high-color BMP sleep wallpapers and boot images by averaging pixels before dithering.
 - Make Chapter Progress Percentage available in both reader status-bar slot pickers and web settings (#859).
 - Restore bottom-edge swipe up to Home outside books on touch devices, including X4 Pro; ordinary list swipes still scroll and reader gestures stay unchanged.
+- Keep serial logs flowing after low-power USB interruptions (Sung-jin Brian Hong, CrossPoint #3737), disable tilt page turning for accelerometer-only sensors (Justin Mitchell, CrossPoint `8fc2b66`), and discard image caches when their final write fails (Uri Tauber, CrossPoint #3918).
+- Include currency and letterlike symbols and the minus sign in newly converted latin-ext SD fonts (Stefan VanBuren, CrossPoint #3801).
+- Select the current subchapter when opening EPUB Contents, including chapters with many headings (adapted from Uri Tauber, CrossPoint #3946).
+- Allow EPUB lines to wrap after dashes without adding spaces or splitting dash runs (adapted from Phạm Bình An, CrossPoint #3883).
+- Center footer button hints using their actual font height (Uri Tauber, CrossPoint #3865).
+- Avoid extra temporary allocations when navigating Home’s cover grid (adapted from Sung-jin Brian Hong, CrossPoint #3848).
 
 ### Changed
 

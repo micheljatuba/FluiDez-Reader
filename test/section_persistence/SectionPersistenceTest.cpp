@@ -23,6 +23,8 @@
 
 #include <GfxRenderer.h>
 
+extern std::vector<BookMetadataCache::TocEntry> testTocEntries;
+
 namespace {
 constexpr uint8_t kFullVersion = 88;
 constexpr uint8_t kPartialVersion = 0xC9;
@@ -94,7 +96,10 @@ struct SectionHarness {
 
 class SectionPersistenceTest : public testing::Test {
  protected:
-  void SetUp() override { Storage.reset(); }
+  void SetUp() override {
+    Storage.reset();
+    testTocEntries.clear();
+  }
 };
 
 TEST_F(SectionPersistenceTest, FullCommitReopensAndResolvesMetadataAcrossAChunkBoundary) {
@@ -258,6 +263,7 @@ TEST_F(SectionPersistenceTest, SyncLookupsUseTheSelectedRenderModesCache) {
 TEST_F(SectionPersistenceTest, CharacterSpacingInvalidatesCompleteAndPartialSections) {
   for (const auto version : {kFullVersion, kPartialVersion}) {
     Storage.reset();
+    testTocEntries.clear();
     SectionHarness harness;
     harness.spec.characterSpacing = -5;
     harness.begin();

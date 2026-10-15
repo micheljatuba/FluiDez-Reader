@@ -3868,10 +3868,17 @@ void EpubReaderActivity::onReaderMenuConfirm(EpubReaderMenuAction action, const 
       return;
     }
     case EpubReaderMenuAction::SELECT_CHAPTER: {
-      const int spineIdx = currentSpineIndex;
+      int tocIndex = epub->getTocIndexForSpineIndex(currentSpineIndex);
+      {
+        RenderLock lock(*this);
+        if (section)
+          tocIndex = section->getTocIndexForPage(section->currentPage);
+        else if (pendingRelayoutReposition && cachedSpineIndex == currentSpineIndex && cachedTocIndex >= 0)
+          tocIndex = cachedTocIndex;
+      }
       const std::string path = epub->getPath();
       auto chapterSelection =
-          makeUniqueNoThrow<EpubReaderChapterSelectionActivity>(renderer, mappedInput, epub, path, spineIdx);
+          makeUniqueNoThrow<EpubReaderChapterSelectionActivity>(renderer, mappedInput, epub, path, tocIndex);
       if (!chapterSelection) {
         LOG_ERR("ERE", "OOM: chapter selection activity");
         requestUpdate();
@@ -7202,6 +7209,7 @@ bool EpubReaderActivity::applyDeferredReposition() {
     }
   }
 
+  cachedTocIndex = -1;
   cachedChapterPageNumber = 0;
   cachedChapterTotalPageCount = 0;
   cachedVisibleTextOffset.reset();
@@ -7328,6 +7336,7 @@ void EpubReaderActivity::cacheCurrentSectionPosition() {
   }
   cachedSpineIndex = currentSpineIndex;
   cachedChapterPageNumber = section->currentPage;
+  cachedTocIndex = section->getTocIndexForPage(section->currentPage);
   cachedChapterTotalPageCount = section->estimatedTotalPages();
   cachedVisibleTextOffset.reset();
   pendingRelayoutReposition = true;

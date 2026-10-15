@@ -1249,3 +1249,7 @@ the card to the host. Manage Fonts performs a full rescan; alternatively remove
 this cache to force reinspection after external same-length font changes.
 
 EPUB layout cache versions and identities are unchanged by this catalog.
+
+### EPUB explicit-dash wrapping
+
+Section cache version 96 (partial version `0xD1`) adds breakable, space-free token boundaries after visible hyphens and dashes. Both complete and suspended caches from earlier versions rebuild automatically.

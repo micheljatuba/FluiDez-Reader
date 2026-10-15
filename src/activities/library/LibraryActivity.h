@@ -13,6 +13,7 @@
 #include "activities/Activity.h"
 #include "activities/home/FinishedBookCache.h"
 #include "components/OptionPopup.h"
+#include "components/SwipeDeleteRow.h"
 #include "util/ButtonNavigator.h"
 
 class LibraryActivity final : public Activity {
@@ -47,6 +48,7 @@ class LibraryActivity final : public Activity {
   using UiApp = freeink::ui::FreeInkApp<32, 4>;
   freeink::ui::GfxRendererTarget uiTarget;
   UiApp app;
+  SwipeDeleteRow swipeDelete;
   ButtonNavigator buttonNavigator;
   freeink::ui::ListNav listNav;
   OptionPopup actionPopup;
@@ -120,6 +122,7 @@ class LibraryActivity final : public Activity {
   bool isFinishedRow(int row);
 
   static void listScreen(UiApp::ScreenType& screen, void* user);
+  static void onDeleteEvent(const freeink::ui::ActionEvent& event, void* user);
   static void onRowEvent(const freeink::ui::ActionEvent& event, void* user);
   static void onControlEvent(const freeink::ui::ActionEvent& event, void* user);
   static void provideRow(void* user, uint16_t row, freeink::ui::ListItem& item);
