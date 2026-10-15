@@ -374,7 +374,8 @@ let allSettings = [];
   function updateStatusBarPreview(position) {
     const bar = readStatusBarForm(position);
     const examples = ['', '10:30', '85%', '2h 15m', '12m', '4/12', '27',
-      (64.12).toFixed(bar.percentageFormat) + '%', 'Book title', 'Chapter title', statusBars.datePreview];
+      (64.12).toFixed(bar.percentageFormat) + '%', 'Book title', 'Chapter title', statusBars.datePreview,
+      (35.25).toFixed(bar.percentageFormat) + '%'];
     const slot = function(index) { return escapeHtml(examples[bar.slots[index]] || ''); };
     const right = [4, 5, 6].map(slot).filter(Boolean).join(' &nbsp; ');
     const progressValue = bar.progressBar === 0 ? 64 : 35;

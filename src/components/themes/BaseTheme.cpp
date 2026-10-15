@@ -806,13 +806,13 @@ void BaseTheme::drawReaderStatusBar(const GfxRenderer& renderer, const ReaderSta
                                     : (textHeight - renderer.getLineHeight(SMALL_FONT_ID)) / 2)
                              : 0);
 
+  const float chapterProgress =
+      content.chapterProgress >= 0
+          ? content.chapterProgress
+          : (content.chapterPageCount > 0 ? 100.0f * content.chapterPage / content.chapterPageCount : 0.0f);
   if (progressHeight > 0 && content.showProgress) {
     const float percent =
-        config.progressBar == FluiDezSettings::BOOK_PROGRESS
-            ? content.bookProgress
-            : (content.chapterProgress >= 0
-                   ? content.chapterProgress
-                   : (content.chapterPageCount > 0 ? 100.0f * content.chapterPage / content.chapterPageCount : 0.0f));
+        config.progressBar == FluiDezSettings::BOOK_PROGRESS ? content.bookProgress : chapterProgress;
     const int bookmarkOffset = !top && !hasText && content.bookmarked
                                    ? metrics.statusBarHorizontalMargin + 1 + ReaderStatusBarConfig::BOOKMARK_WIDTH + 4
                                    : 0;
@@ -863,6 +863,10 @@ void BaseTheme::drawReaderStatusBar(const GfxRenderer& renderer, const ReaderSta
       case ReaderStatusBarItem::BookProgressPercentage:
         if (!content.showProgress) return nullptr;
         snprintf(scratch, len, "%.*f%%", static_cast<int>(config.percentageFormat), content.bookProgress);
+        return scratch;
+      case ReaderStatusBarItem::ChapterProgressPercentage:
+        if (!content.showProgress || (content.chapterProgress < 0 && content.chapterPageCount <= 0)) return nullptr;
+        snprintf(scratch, len, "%.*f%%", static_cast<int>(config.percentageFormat), chapterProgress);
         return scratch;
       case ReaderStatusBarItem::TitleBook:
         return content.bookTitle;
