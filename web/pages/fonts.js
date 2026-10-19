@@ -1,3 +1,9 @@
+// Keep progress/results visible until dismissed or replaced, even during slow uploads.
+function showFontStatus(status, text) {
+  document.getElementById('fontFeedback').hidden = false;
+  status.textContent = text;
+}
+
 let ttfSupported = false;
 function formatSize(bytes) {
       if (bytes >= 1048576) return (bytes / 1048576).toFixed(1) + ' MB';
@@ -62,8 +68,7 @@ function formatSize(bytes) {
       if (!confirm('Delete font family "' + name + '"?')) return;
       const status = document.getElementById('status');
       status.className = '';
-      status.style.display = 'block';
-      status.textContent = 'Deleting ' + name + '...';
+      showFontStatus(status, 'Deleting ' + name + '...');
       try {
         const res = await fetch('/api/fonts/delete', {
           method: 'POST',
@@ -72,14 +77,14 @@ function formatSize(bytes) {
         });
         if (res.ok) {
           status.className = 'status-ok';
-          status.textContent = 'Deleted "' + name + '".';
+          showFontStatus(status, 'Deleted "' + name + '".');
         } else {
           status.className = 'status-err';
-          status.textContent = 'Failed to delete "' + name + '".';
+          showFontStatus(status, 'Failed to delete "' + name + '".');
         }
       } catch (err) {
         status.className = 'status-err';
-        status.textContent = 'Delete error: ' + err.message;
+        showFontStatus(status, 'Delete error: ' + err.message);
       }
       await loadFonts();
     }
@@ -120,8 +125,7 @@ function formatSize(bytes) {
       const files = cpfontFilesOnly(document.getElementById('fontFiles').files);
       if (files.length === 0) {
         status.className = 'status-err';
-        status.style.display = 'block';
-        status.textContent = 'No .cpfont or .ttf files selected.';
+        showFontStatus(status, 'No .cpfont or .ttf files selected.');
         return;
       }
 
@@ -131,18 +135,16 @@ function formatSize(bytes) {
       const families = [...new Set(files.map(f => sanitizeFamily(familyFromFilename(f.name))))];
       if (families.length !== 1) {
         status.className = 'status-err';
-        status.style.display = 'block';
-        status.textContent = 'Please select files from a single font family.';
+        showFontStatus(status, 'Please select files from a single font family.');
         return;
       }
       const family = families[0];
 
       status.className = '';
-      status.style.display = 'block';
 
       let uploaded = 0;
       for (const file of files) {
-        status.textContent = 'Uploading ' + (uploaded + 1) + '/' + files.length + ': ' + file.name;
+        showFontStatus(status, 'Uploading ' + (uploaded + 1) + '/' + files.length + ': ' + file.name);
         const formData = new FormData();
         formData.append('family', family);
         formData.append('file', file, file.name);
@@ -151,13 +153,13 @@ function formatSize(bytes) {
           const data = await res.json();
           if (!data.ok) {
             status.className = 'status-err';
-            status.textContent = 'Failed on ' + file.name + ': ' + (data.error || 'unknown error');
+            showFontStatus(status, 'Failed on ' + file.name + ': ' + (data.error || 'unknown error'));
             await loadFonts();
             return;
           }
         } catch (err) {
           status.className = 'status-err';
-          status.textContent = 'Upload error on ' + file.name + ': ' + err.message;
+          showFontStatus(status, 'Upload error on ' + file.name + ': ' + err.message);
           await loadFonts();
           return;
         }
@@ -165,8 +167,8 @@ function formatSize(bytes) {
       }
 
       status.className = 'status-ok';
-      status.textContent = 'Uploaded ' + uploaded + ' file' + (uploaded === 1 ? '' : 's') +
-        ' to family "' + family + '".';
+      showFontStatus(status, 'Uploaded ' + uploaded + ' file' + (uploaded === 1 ? '' : 's') +
+        ' to family "' + family + '".');
       await loadFonts();
     });
 
