@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <array>
+#include <deque>
 #include <memory>
 #include <string>
 
@@ -1851,4 +1852,25 @@ TEST_F(ChapterHtmlSlimParserTest, StandaloneInitialLetterPreservesWordBoundary) 
   EXPECT_EQ(parser.currentTextBlock->words[0], "I");
   EXPECT_EQ(parser.currentTextBlock->words[1], "am");
   EXPECT_EQ(parser.currentTextBlock->words[2], "here");
+}
+
+TEST_F(ChapterHtmlSlimParserTest, ChunkedAnchorsRetainOrderPagesAndReferencesAcrossGrowth) {
+  for (int i = 0; i < 1100; ++i) {
+    parser.pendingAnchorId = "anchor-" + std::to_string(i);
+    parser.completedPageCount = i;
+    parser.flushPendingAnchor();
+  }
+  const auto& anchors = parser.getAnchors();
+  ASSERT_EQ(anchors.size(), 1100u);
+  const auto* first = &anchors.front();
+  for (int i = 1100; i < 2200; ++i) {
+    parser.pendingAnchorId = "anchor-" + std::to_string(i);
+    parser.completedPageCount = i;
+    parser.flushPendingAnchor();
+  }
+  EXPECT_EQ(first, &anchors.front());
+  for (size_t i = 0; i < anchors.size(); ++i) {
+    EXPECT_EQ(anchors[i].first, "anchor-" + std::to_string(i));
+    EXPECT_EQ(anchors[i].second, i);
+  }
 }

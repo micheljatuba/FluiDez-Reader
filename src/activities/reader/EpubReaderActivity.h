@@ -247,6 +247,7 @@ class EpubReaderActivity final : public Activity {
   bool pendingRenderModeToast = false;
   bool renderModeToastShown = false;
   bool pendingSafeModeToast = false;
+  bool pendingFontDamagedToast = false;
   bool safeModeToastShown = false;
   uint8_t renderModeToastMode = 0;
   unsigned long renderModeToastShowTime = 0UL;

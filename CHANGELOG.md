@@ -82,6 +82,8 @@ Stability and performance fixes cherry-picked from CrossInk `development` up to 
 - Clear the retained sleep image when X3 wakes to Home without a restored Quick Resume frame, including with Sunlight Fading Fix enabled.
 - Restore Touch Reader Controls in Settings → Controls → Taps & Gestures so reader touch gestures can be re-enabled on the device after being turned off in the web portal (#871).
 - Import CrossPoint's normal 100% word spacing as 0 instead of maximum spacing, while preserving saved CrossInk spacing levels.
+- Draw damaged SD-font glyphs as blanks and show a one-time warning to reinstall the font (CrossPoint #4091).
+- Avoid large contiguous allocations for EPUB chapter anchors without changing background pagination (anchor-storage portion of CrossPoint #4040).
 
 ### Changed
 
