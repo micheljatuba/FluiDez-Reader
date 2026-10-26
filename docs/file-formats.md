@@ -599,6 +599,15 @@ Binary layout:
 
 ## `section.bin`
 
+### Version 100
+
+Complete caches use `100`; suspended partial caches use `0xD5`. The payload
+retains the reference-text offset tables introduced in version 99 below.
+Layout beside drop caps stops after the requested lines, leaving the remaining
+words intact for full-width layout. Both cache types rebuild to remove stale
+hyphens and refresh wrapping; book metadata and saved progress are kept.
+Version `99` / `0xD4` and earlier caches are rejected as stale.
+
 ### Version 98
 
 Complete caches use `98`; suspended partial caches use `0xD3`. The payload is
