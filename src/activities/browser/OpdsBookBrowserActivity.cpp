@@ -759,6 +759,7 @@ void OpdsBookBrowserActivity::downloadBook(const OpdsEntry& book, const std::str
   HttpDownloader::DownloadOptions downloadOptions;
   downloadOptions.shouldCancel = pollCancel;
   downloadOptions.bufferSize = OPDS_DOWNLOAD_BUFFER_SIZE;
+  downloadOptions.reserveFullRecord = true;
   downloadOptions.transport = HttpDownloader::Transport::WOLFSSL;
   downloadOptions.authorizationOrigin = authorizationOrigin;
   downloadOptions.stageAsPart = true;

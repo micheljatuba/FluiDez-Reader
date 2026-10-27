@@ -86,6 +86,9 @@ Stability and performance fixes cherry-picked from CrossInk `development` up to 
 - Avoid large contiguous allocations for EPUB chapter anchors without changing background pagination (anchor-storage portion of CrossPoint #4040).
 - Keep the last word before a nested EPUB quotation or heading in its original paragraph; existing book layouts rebuild automatically (adapted from yassine-cc, #886).
 - Keep words below large decorative first letters intact when EPUB text returns to full width; existing book layouts rebuild automatically (adapted from Uri Tauber, CrossPoint #4173).
+- Keep system-folder support files out of Library, including FAT name casing variants, while preserving ordinary TXT and Markdown books and rebuilding existing indexes without deleting source files (adapted from Uri Tauber, CrossPoint #4184).
+- Reserve the retained TLS input buffer after sending bulk HTTPS requests, including OPDS book downloads, to avoid later full-record allocation failures when a server ignores the small-record request (adapted from Eszter Schuffert, FreeInk SDK #154 and #155 via CrossPoint #4167).
+- Use full refreshes on SSD2677 Sticky displays when previous-frame memory is unavailable, preventing stale black pixels.
 
 ### Changed
 
