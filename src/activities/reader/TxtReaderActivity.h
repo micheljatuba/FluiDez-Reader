@@ -79,7 +79,6 @@ class TxtReaderActivity final : public Activity {
   bool changeReaderFontSize(bool larger, FontSizeStepMode mode = FontSizeStepMode::Wrap);
   void cycleReaderFont();
   void rebuildTextLayout();
-  void openReaderMenu();
   bool applyReaderOrientation(uint8_t orientation);
 #if FLUIDEZ_APP_CAP_TOUCH
   bool handlePinchFontResize();
