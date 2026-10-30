@@ -184,7 +184,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--theme", choices=sorted(THEMES), help="UI theme to use during the smoke test")
     parser.add_argument("--file-browser-sync-return", action="store_true", help="Check browser sync return across network reboots")
     parser.add_argument("--frontlight-sync", action="store_true", help="Check frontlight sync outside the reader with stats enabled and disabled (X4 Pro)")
-    parser.add_argument("--frontlight-layout", action="store_true", help="Check frontlight drawer bounds and handle taps across scales, orientations and themes (X4 Pro)")
+    parser.add_argument("--frontlight-layout", action="store_true", help="Check frontlight drawer bounds, handle swipes/taps, reader return and explicit Home across scales, orientations and themes (X4 Pro)")
     parser.add_argument("--frontlight-captures", help="Directory for frontlight layout framebuffer captures (PGM)")
     parser.add_argument("--fluidez-captures", help="Directory for FluiDez theme Home captures (PGM, X4 Pro)")
     parser.add_argument("--fluidez-demo", help="Demo covers (cover-N-WxH.bmp) for the captures; switches the UI to Portuguese")
