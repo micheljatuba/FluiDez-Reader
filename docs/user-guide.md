@@ -29,7 +29,7 @@ Este guia cobre o uso diário do aparelho. Para referências específicas, veja 
       - [3.6.5 Servidores OPDS (várias bibliotecas)](#365-servidores-opds-várias-bibliotecas)
       - [3.6.6 Configurações web (Wi-Fi + OPDS)](#366-configurações-web-wi-fi--opds)
       - [3.6.7 Configuração rápida da Sincronização KOReader](#367-configuração-rápida-da-sincronização-koreader)
-        - [Opção A: servidor de sincronização CrossPoint (`sync.crosspointreader.com`, padrão)](#opção-a-servidor-de-sincronização-crosspoint-synccrosspointreadercom-padrão)
+        - [Opção A: servidor de sincronização CrossPoint (`sync.crosspointreader.com`)](#opção-a-servidor-de-sincronização-crosspoint-synccrosspointreadercom)
         - [Opção B: servidor público legado do KOReader (`sync.koreader.rocks`)](#opção-b-servidor-público-legado-do-koreader-synckoreaderrocks)
         - [Opção C: servidor próprio (Docker Compose)](#opção-c-servidor-próprio-docker-compose)
     - [3.7 Tela de repouso](#37-tela-de-repouso)
@@ -462,16 +462,18 @@ Notas de comportamento:
 O FluiDez Reader pode sincronizar o progresso de leitura com servidores de sincronização compatíveis com KOReader.
 Ele também interoperará com aplicativos/aparelhos KOReader quando eles usarem o mesmo servidor e as mesmas credenciais.
 
-##### Opção A: servidor de sincronização CrossPoint (`sync.crosspointreader.com`, padrão)
+O FluiDez Reader não tem servidor de sincronização padrão: a sincronização só funciona depois que você informa a **URL do servidor de sincronização**. Quem já usava a sincronização sem URL antes da v1.6-fluidez19 continua no mesmo servidor, porque a atualização grava essa URL automaticamente.
 
-Quando **URL do servidor de sincronização** fica vazio, o FluiDez Reader usa o servidor gratuito de sincronização CrossPoint em `https://sync.crosspointreader.com`. Ele fala o protocolo padrão de sincronização KOReader (então aplicativos KOReader também podem usá-lo) e também armazena uma posição exata de spine/página para sincronização sem perdas entre leitores.
+##### Opção A: servidor de sincronização CrossPoint (`sync.crosspointreader.com`)
+
+O servidor gratuito do projeto CrossPoint fica em `https://sync.crosspointreader.com`. Ele fala o protocolo padrão de sincronização KOReader (então aplicativos KOReader também podem usá-lo) e também armazena uma posição exata de spine/página para sincronização sem perdas entre leitores.
 
 1. Em cada aparelho FluiDez Reader:
    - Vá para **Configurações -> Sistema -> Sincronização KOReader**.
 
    - Defina **Nome de usuário** e **Senha** (digite a senha em texto puro; o FluiDez Reader calcula o MD5 internamente, e use os mesmos valores em todos os aparelhos).
 
-   - Deixe **URL do servidor de sincronização** vazia (ou defina como `https://sync.crosspointreader.com`).
+   - Defina **URL do servidor de sincronização** como `https://sync.crosspointreader.com`.
 
    - No primeiro aparelho, execute **Criar conta** uma vez para criar a conta diretamente pelo aparelho. Em todos os outros aparelhos, execute apenas **Autenticar**.
 
@@ -484,7 +486,7 @@ Use esta opção se você já sincroniza aparelhos KOReader com o servidor públ
 1. Em cada aparelho FluiDez Reader:
    - Vá para **Configurações -> Sistema -> Sincronização KOReader**.
 
-   - Defina **URL do servidor de sincronização** como `https://sync.koreader.rocks` (obrigatório; uma URL vazia agora aponta para o servidor CrossPoint).
+   - Defina **URL do servidor de sincronização** como `https://sync.koreader.rocks`.
 
    - Defina **Nome de usuário** e **Senha** com suas credenciais existentes da Sincronização KOReader.
 

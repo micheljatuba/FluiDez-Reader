@@ -17,7 +17,8 @@ struct KOReaderMetadata {
 /**
  * Rich CrossPoint position sent alongside progress uploads. Maps 1:1 onto the
  * crosspoint-sync extended `position` object (see crosspoint-sync docs/API.md).
- * It is only transmitted to sync.crosspointreader.com, where it makes
+ * It is only transmitted to sync.crosspointreader.com (when the user picks that
+ * server), where it makes
  * CrossPoint<->CrossPoint sync lossless instead of xpath-approximated.
  */
 struct KOReaderRichPosition {

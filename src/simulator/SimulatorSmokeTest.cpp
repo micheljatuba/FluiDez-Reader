@@ -1564,6 +1564,7 @@ class SimulatorSmokeTest {
       APP_STATE.openEpubPath = bookPath;
       if (!APP_STATE.saveToFile()) fail("Cannot save browser sync book path");
       KOREADER_STORE.setCredentials("smoke", "smoke");
+      KOREADER_STORE.setServerUrl("http://127.0.0.1:9");  // FluiDez has no default sync server.
       if (!KOREADER_STORE.saveToFile()) fail("Cannot save browser sync credentials");
       activityManager.goToFileBrowser(bookPath);
       setenv("FLUIDEZ_SIMULATOR_SMOKE_FILE_BROWSER_SYNC_PHASE", "launch", 1);

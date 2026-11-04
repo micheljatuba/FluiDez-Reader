@@ -5,17 +5,17 @@
 #include <ObfuscationUtils.h>
 
 namespace {
-// Default sync server URL. crosspoint-sync speaks the full KOSync protocol, so
-// pointing at any other kosync server (e.g. https://sync.koreader.rocks:443)
-// still works via the custom server URL setting.
-constexpr char DEFAULT_SERVER_URL[] = "https://sync.crosspointreader.com";
+// FluiDez has no default sync server: syncing starts once the user enters the
+// URL of a KOReader-compatible server (for example https://sync.koreader.rocks:443).
 
-// Default before config version 2. Configs saved without a version stamp and an
-// empty serverUrl were implicitly syncing here — they get pinned on upgrade.
+// Implicit server of configs saved before config version 2 with an empty serverUrl.
 constexpr char LEGACY_DEFAULT_SERVER_URL[] = "https://sync.koreader.rocks:443";
 
+// Implicit server of version 2 configs (CrossInk, and FluiDez up to v1.6-fluidez18).
+constexpr char PREVIOUS_DEFAULT_SERVER_URL[] = "https://sync.crosspointreader.com";
+
 // Bumped when a change to defaults would alter behavior for existing configs.
-constexpr uint8_t CONFIG_VERSION = 2;
+constexpr uint8_t CONFIG_VERSION = 3;
 }  // namespace
 
 void KOReaderCredentialStore::toJson(JsonDocument& doc) const {
@@ -50,15 +50,16 @@ bool KOReaderCredentialStore::fromJson(JsonVariantConst doc) {
   setCredentials(user, pass);
   setServerUrl(doc["serverUrl"] | "");
 
-  // The default server changed in config v2 (sync.koreader.rocks -> crosspoint-sync).
-  // A pre-v2 config with credentials and no explicit URL was actively syncing
-  // against the old default — pin that URL so the upgrade doesn't switch servers
-  // out from under the user. Fresh setups get the new default.
+  // A config with credentials and no explicit URL was syncing against the
+  // implicit server of its version: pin that URL so upgrading never switches
+  // or stops the user's sync. Fresh setups have no server until one is entered.
   const uint8_t cfgVersion = doc["cfgVersion"] | (uint8_t)1;
   if (cfgVersion < CONFIG_VERSION) {
-    if (getServerUrl().empty() && hasCredentials()) {
-      LOG_DBG("KRS", "Pre-v2 config used the old default server; pinning %s", LEGACY_DEFAULT_SERVER_URL);
-      setServerUrl(LEGACY_DEFAULT_SERVER_URL);
+    const bool hadAccount = !username.empty() && !password.empty();
+    if (serverUrl.empty() && hadAccount) {
+      const char* implicitServer = cfgVersion < 2 ? LEGACY_DEFAULT_SERVER_URL : PREVIOUS_DEFAULT_SERVER_URL;
+      LOG_DBG("KRS", "Config v%u used an implicit server; pinning %s", cfgVersion, implicitServer);
+      setServerUrl(implicitServer);
     }
     needsResave = true;  // stamp cfgVersion so this migration runs once
   }
@@ -115,7 +116,8 @@ std::string KOReaderCredentialStore::getMd5Password() const {
 
 bool KOReaderCredentialStore::hasCredentials() const {
   ensureLoaded();
-  return !username.empty() && !password.empty();
+  // Without a server there is nothing to sync with, so the account is unusable.
+  return !username.empty() && !password.empty() && !serverUrl.empty();
 }
 
 void KOReaderCredentialStore::setServerUrl(const std::string& url) {
@@ -127,7 +129,7 @@ std::string KOReaderCredentialStore::getBaseUrl() const {
   ensureLoaded();
   std::string url;
   if (serverUrl.empty()) {
-    url = DEFAULT_SERVER_URL;
+    return url;  // No server configured.
   } else if (serverUrl.find("://") == std::string::npos) {
     // Normalize URL: add http:// if no protocol specified (local servers typically don't have SSL)
     url = "http://" + serverUrl;

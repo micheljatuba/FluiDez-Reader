@@ -202,15 +202,7 @@ void KOReaderSettingsActivity::buildListScreen(UiApp::ScreenType& screen) {
       values[i] = KOREADER_STORE.getPassword().empty() ? tr(STR_NOT_SET) : "******";
     } else if (i == 2) {
       values[i] = KOREADER_STORE.getServerUrl();
-      if (values[i].empty()) {
-        // Show which server the default actually is, scheme stripped for space
-        std::string defaultUrl = KOREADER_STORE.getBaseUrl();
-        const auto schemeEnd = defaultUrl.find("://");
-        if (schemeEnd != std::string::npos) {
-          defaultUrl.erase(0, schemeEnd + 3);
-        }
-        values[i] = std::string(tr(STR_DEFAULT_VALUE)) + ": " + defaultUrl;
-      }
+      if (values[i].empty()) values[i] = tr(STR_NOT_SET);  // No default server in FluiDez.
     } else if (i == 3) {
       values[i] = KOREADER_STORE.getMatchMethod() == DocumentMatchMethod::FILENAME ? tr(STR_FILENAME) : tr(STR_BINARY);
     } else if (i == 5) {
