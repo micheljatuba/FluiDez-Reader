@@ -194,9 +194,11 @@ O FluiDez Reader existe graças a:
 
 - [CrossInk](https://github.com/uxjulia/crossink), de Julia Nguyen, a base direta deste projeto;
 - [CrossPoint Reader](https://github.com/crosspoint-reader/crosspoint-reader), de Dave Allie e colaboradores, o projeto original;
-- [plugins do CrossPoint Reader para o Calibre](https://github.com/crosspoint-reader/calibre-plugins), a base do plugin FluiDez Reader para Calibre.
+- [plugins do CrossPoint Reader para o Calibre](https://github.com/crosspoint-reader/calibre-plugins), a base do plugin FluiDez Reader para Calibre;
+- [CrossInk Simulator](https://github.com/uxjulia/crossink-simulator), de Julia Nguyen (MIT), a base do simulador de desktop na pasta `simulator/`;
+- as fontes do catálogo, cada uma com sua licença (SIL Open Font License na maioria) ao lado dos arquivos em `lib/EpdFont/builtinFonts/source/`.
 
-O histórico do CrossInk faz parte deste repositório desde a sincronização de outubro de 2026, e as mudanças trazidas de lá estão no [CHANGELOG](CHANGELOG.md).
+O histórico do CrossInk faz parte deste repositório desde a sincronização de outubro de 2026. Desde novembro de 2026 o FluiDez Reader segue de forma independente: o CrossInk e o CrossPoint servem de referência, e cada correção trazida de lá é adaptada e creditada no [CHANGELOG](CHANGELOG.md), com o commit de origem.
 
 ## Licença
 

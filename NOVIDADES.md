@@ -4,6 +4,29 @@ O que muda para quem usa o FluiDez Reader em cada versão, da mais recente para 
 
 ## [Próxima versão]
 
+## [v1.6-fluidez19] - 2026-11-04
+
+- **FluiDez independente:** a partir desta versão, o FluiDez segue o próprio caminho. O CrossInk e o CrossPoint continuam como referência, e as correções que trazemos de lá são adaptadas e creditadas, como prevê a licença MIT.
+- **Correções do CrossInk até 31 de outubro:**
+  - o X4 Pro volta a usar toda a memória (PSRAM) depois de atualizar o firmware pelo cartão SD;
+  - a porcentagem da bateria não oscila mais na barra de status;
+  - os marcadores abrem com segurança mesmo com pouca memória;
+  - o leitor gasta menos energia parado;
+  - o Wi-Fi tenta a rede salva antes de pedir outra;
+  - nomes de redes com acentos aparecem completos.
+- **Leitura:**
+  - palavras não se partem mais em parágrafos longos;
+  - capitulares e ornamentos de capítulo ficam alinhados;
+  - os espaços extras dentro de palavras hifenizadas somem;
+  - a navegação pelos subcapítulos do sumário funciona;
+  - os destaques de recortes ficam alinhados mesmo com pouco espaço entre linhas;
+  - surge um aviso enquanto um livro grande abre;
+  - a barra de status ganha a opção de porcentagem do capítulo.
+- **Portal web:** nomes de arquivos com acentos chegam certos, os nomes de imagens dos EPUBs não podem mais injetar código na página e os avisos das fontes ficam visíveis.
+- **Configurações em arquivo próprio:** o leitor passa a salvar em `fluidez-settings.json`. Na primeira inicialização ele copia as configurações atuais sozinho, e o arquivo antigo fica no cartão.
+- **Sincronização KOReader sem servidor padrão:** quem já sincronizava continua no mesmo servidor. Para começar do zero, informe o endereço do servidor em *Configurações > Sistema > Sincronização KOReader*.
+- **Ao atualizar:** os livros abertos são reindexados uma vez.
+
 ## [v1.6-fluidez18] - 2026-10-14
 
 - **Escolher capítulo em qualquer atalho:** os atalhos dos botões, as *Ações rápidas* e os gestos de toque podem abrir direto a lista de capítulos, em livros EPUB e XTC.

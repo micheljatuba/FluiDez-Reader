@@ -6,6 +6,24 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ## [Unreleased]
 
+## [v1.6-fluidez19] - 2026-11-04
+
+FluiDez Reader now evolves on its own. CrossInk and CrossPoint stay as references: fixes brought from them are adapted, keep their MIT notices, and are listed here with their source commits.
+
+### Changed
+
+- The desktop simulator lives in `simulator/`, imported from the MIT-licensed CrossInk Simulator (Julia Nguyen) at 4586bee9; its switches and environment variables use the `FLUIDEZ_` prefix, and builds no longer fetch it from GitHub.
+- Every SD-card catalog font builds from sources in `lib/EpdFont/builtinFonts/source/` or its own publisher; ChareInk, Lexend Deca, Noto Sans and OpenDyslexic (with their OFL licenses) no longer come from the crossink-fonts repository.
+- Settings are saved to `/.crosspoint/fluidez-settings.json`; `crossink-settings.json` is migrated once and left in place.
+- KOReader Sync has no default server. Credential config version 3 pins the server an older config was implicitly using.
+- Section caches move to 89 / 0xCA; books reindex once.
+
+### Fixed
+
+Ported from CrossInk `development` up to 2026-10-31 (source commits in each commit message): saved Wi-Fi retry (b293e2b2); clipping safety, touch selection and highlights (00015e4d, b980d584, 0e550106, d3b0c96b, uxjulia/crossink#893); KOSync XPath boundaries (71a56038); delayed loading feedback and non-overlapping notices (c781616a, 874c04b4); PSRAM after SD firmware updates on X4 (fadf8462); OPDS feed failure reasons (b5be6ea4); whole words in long paragraphs, nested blocks and below drop caps (8c77f7fa, e3d259fc, 9aed60c8; #844, #886); touch-selectable receive folders (#850); fewer firmware reads and indexing allocations (b44f49b0); centered and aligned chapter ornaments (e86ae91d, 0767a19d; #856); reader fonts after browsing downloads (#855); finer resized sleep images (8cf955fe); NFC upload names and web dialog fixes (95e8dcab, 753e555e, 098d78bb); chapter progress status-bar item (#859); bottom-edge Home swipes, TXT swipe-up Home and frontlight drawer swipe (8a8d0f3f, bfc656ad, 14fe2dd1); reading navigation and touch list actions (59b53529); reader touch controls in settings (#871); hyphenation gaps (67052a77); CrossPoint settings import word spacing (0567d42d); font options above the navigation bar (210c8374); Quick Resume page (#870); protected SD fonts and lower EPUB memory spikes (b4ad07d8); lower idle power (61cc10a4); consistent font preview margins (25c1be13); fewer reading-stat saves (519a9803); escaped EPUB image names in web previews and complete KOReader hash reads (from 72e5c574); stable battery percentages (902e6573, #904); low-memory bookmark loading (53aa4f39, #892); SD-font widths, non-ASCII Wi-Fi names, installed font rows and line-breaking allocations (from 69c98d45). `AtomicFile` comes from CrossInk bb93ef42.
+
+Not ported, because they build on CrossInk features FluiDez does not have or need a newer freeink-sdk: the input capture rework (fe0c9f38), the stats and sync rework, sleep-image shuffle deck (6938f5d4), landscape menu button mapping (e07e3645, 44929540), OPDS TLS reservation and feed memory (46f39973, 1f84b750), USB upload pauses (88f311be), publisher fonts and Adobe deobfuscation, Plugin Hub, SD languages and screen calibration.
+
 ## [v1.6-fluidez18] - 2026-10-14
 
 ### Added
