@@ -32,10 +32,10 @@ def check_resume(program: Path, suffix: str, activity: str, orientation: int) ->
         }))
         env = os.environ.copy()
         for key in list(env):
-            if key.startswith(("CROSSPOINT_SIM_", "FLUIDEZ_SIMULATOR_SMOKE")):
+            if key.startswith(("FLUIDEZ_SIM_", "FLUIDEZ_SIMULATOR_SMOKE")):
                 del env[key]
-        env.update(SDL_VIDEODRIVER="dummy", CROSSPOINT_SIM_WAKE_REASON="power",
-                   CROSSPOINT_SIM_INPUT_SCRIPT="2000:QUIT")
+        env.update(SDL_VIDEODRIVER="dummy", FLUIDEZ_SIM_WAKE_REASON="power",
+                   FLUIDEZ_SIM_INPUT_SCRIPT="2000:QUIT")
         result = subprocess.run([str(program)], cwd=work, env=env, capture_output=True, text=True, timeout=20)
         output = result.stdout + result.stderr
         entered = output.find(f"Entering activity: {activity}")

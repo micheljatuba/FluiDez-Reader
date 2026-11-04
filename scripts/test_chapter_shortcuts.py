@@ -86,8 +86,8 @@ def run(env, kind, case, mode='select', program=None, logs=None):
         script += ['7800:BACK','9000:QUIT']
         e=os.environ.copy()
         for key in list(e):
-            if key.startswith(('CROSSPOINT_SIM_','FLUIDEZ_SIMULATOR_SMOKE')): del e[key]
-        e.update(SDL_VIDEODRIVER='dummy',CROSSPOINT_SIM_WAKE_REASON='power',CROSSPOINT_SIM_INPUT_SCRIPT=';'.join(script))
+            if key.startswith(('FLUIDEZ_SIM_','FLUIDEZ_SIMULATOR_SMOKE')): del e[key]
+        e.update(SDL_VIDEODRIVER='dummy',FLUIDEZ_SIM_WAKE_REASON='power',FLUIDEZ_SIM_INPUT_SCRIPT=';'.join(script))
         p=subprocess.run([str(program or ROOT/'.pio'/'build'/env/'program')],cwd=work,env=e,text=True,capture_output=True,timeout=20)
         out=p.stdout+p.stderr
         if logs:

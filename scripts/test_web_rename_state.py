@@ -152,12 +152,12 @@ def run(program: Path) -> None:
         env = os.environ.copy()
         # SimulatorLifecycle restores this existing firmware boot token. Target
         # 6 is FILE_TRANSFER; payload 2 selects CREATE_HOTSPOT without UI timing.
-        env.update(SDL_VIDEODRIVER="dummy", CROSSPOINT_SIM_SD=str(sd),
-                   CROSSPOINT_SIM_HTTP_PORT=str(port),
-                   CROSSPOINT_SIM_SILENT_REBOOT_MAGIC=str(0xC1EAB007),
-                   CROSSPOINT_SIM_SILENT_REBOOT_TARGET="6", CROSSPOINT_SIM_SILENT_REBOOT_PAYLOAD="2")
+        env.update(SDL_VIDEODRIVER="dummy", FLUIDEZ_SIM_SD=str(sd),
+                   FLUIDEZ_SIM_HTTP_PORT=str(port),
+                   FLUIDEZ_SIM_SILENT_REBOOT_MAGIC=str(0xC1EAB007),
+                   FLUIDEZ_SIM_SILENT_REBOOT_TARGET="6", FLUIDEZ_SIM_SILENT_REBOOT_PAYLOAD="2")
         env.pop("FLUIDEZ_SIMULATOR_SMOKE_TEST", None)
-        env.pop("CROSSPOINT_SIM_INPUT_SCRIPT", None)
+        env.pop("FLUIDEZ_SIM_INPUT_SCRIPT", None)
         log_path = root / "simulator.log"
         with log_path.open("w") as log:
             process = subprocess.Popen([str(program)], cwd=root, env=env, stdout=log, stderr=subprocess.STDOUT)

@@ -1,0 +1,390 @@
+# FluiDez Reader Simulator
+
+A desktop simulator for FluiDez Reader. It compiles the firmware natively and renders the e-ink display in an SDL2 window. No device required.
+
+This folder is FluiDez Reader's own copy of the [CrossInk Simulator](https://github.com/uxjulia/crossink-simulator) by Julia Nguyen, imported from revision `4586bee9` under the MIT License (see `LICENSE`, which keeps the original copyright notice). FluiDez maintains it from here: build switches and environment variables use the `FLUIDEZ_` prefix, and `platformio.ini` uses it through `simulator=symlink://simulator`. The sections below describe the upstream setup; in this repository, build and run it with `pio run -e x4-pro-simulator` (see `docs/development/`).
+
+> [!NOTE]
+> **Platform support:** macOS and Linux/WSL use different native compiler and library flags. Start from `sample-platformio-macos.ini` on macOS, or `sample-platformio-linux-wsl.ini` on Linux/WSL. Native Windows is not supported; use WSL and follow the Linux instructions.
+
+> [!WARNING]
+> This has been tested on x86_64 macOS (Intel), ARM64 macOS (Apple Silicon,
+> M4), and Ubuntu under WSL on Windows. Other platforms may need additional
+> libraries or platform-specific stubs.
+
+## Prerequisites
+
+SDL2 and `curl` must be installed on the host machine. Linux/WSL users also need OpenSSL development headers for MD5 support.
+
+```bash
+# macOS
+brew install sdl2
+
+# Linux — Debian/Ubuntu (including WSL)
+sudo apt install libsdl2-dev libssl-dev
+
+# Linux — Fedora/RHEL
+sudo dnf install SDL2-devel openssl-devel
+
+# Linux — Arch
+sudo pacman -S sdl2 openssl
+```
+
+## Integration
+
+Add the simulator to your firmware's platformio.ini as a `lib_dep` and configure the `[env:simulator]` environment. Use the sample file for your host OS:
+
+- `sample-platformio-macos.ini`
+- `sample-platformio-linux-wsl.ini`
+
+No scripts need to be copied into the firmware repo for the simulator to build. The simulator library automatically patches consumer-side compatibility issues from its own build script when PlatformIO fetches it as a dependency, including the common `GfxRenderer::setOrientation()` hook needed for SDL window resizing.
+
+Keep the sample `build_src_filter` exclusions unless your firmware has already
+moved those files behind simulator guards. In the current CrossPoint layout,
+the firmware-owned `CrossPointWebServer` and `WebDAVHandler` compile against
+the simulator's lower-level `WebServer`, `WebSocketsServer`, and
+`NetworkClient` shims. This exercises the real settings, files, status, and
+WebDAV routes instead of a reduced simulator-only substitute.
+
+The simulator defaults to the X4 panel shape. Device-specific environments can
+extend the base simulator environment with one of these flags:
+
+- `-DSIMULATOR_DEVICE_X3` switches the framebuffer to 792x528 landscape,
+  selects the X3 board profile, and exposes the simulator tilt sensor.
+- `-DSIMULATOR_DEVICE_X4_PRO` keeps the X4 family's 800x480 framebuffer and
+  selects the X4 Pro board profile. It exposes touch and swipe input, the
+  capacitive Home key, the RTC, display inversion, and frontlight state.
+- `-DSIMULATOR_DEVICE_X4_CLASSIC` keeps the 800x480 framebuffer while selecting
+  the buttons-only X4 Classic profile. It has no touch or frontlight, but keeps
+  the Classic's RTC and USB Drive capabilities.
+
+The sample PlatformIO files include ready-to-use `simulator_x3` and
+`simulator_x4_pro` and `simulator_x4_classic` environments.
+
+Device-specific simulator implementations belong in this repository. For example, a consuming firmware environment may select Sticky with `-DSIMULATOR_DEVICE_STICKY`, but Sticky mouse-to-touch handling, `BoardConfig` compatibility, and any required HAL or ESP-IDF shims must be implemented and published from `crossink-simulator`. Do not copy those shims into the firmware repository.
+
+When developing both repositories side by side, a symlink dependency is useful for testing unpublished simulator changes. That local build is not sufficient release validation: publish the simulator revision, point or pin the firmware dependency to it, and rebuild through the Git dependency before considering the firmware environment usable from a fresh checkout.
+
+If a fork has a custom renderer and the auto-patch cannot recognize it, its simulator build should notify the display when orientation changes:
+
+```cpp
+#ifdef SIMULATOR
+display.setSimulatorOrientation(static_cast<int>(o));
+#endif
+```
+
+Put that in the renderer's orientation setter after updating the renderer's own orientation state.
+By default, the simulator keeps its own `JPEGDEC`, `PNGdec`, and QRCode compatibility shims so existing firmware projects can update this library without changing their simulator environment. To test against the native decoder libraries instead, follow the opt-in comments in the sample PlatformIO files: define `FLUIDEZ_SIM_USE_NATIVE_DECODERS`, set `lib_compat_mode = off`, change simulator `lib_ignore` to `hal, WebSockets`, and add the native `PNGdec`/`JPEGDEC` dependencies. `WebSockets` is ignored only in native simulator builds because this repo supplies the host-backed `WebSocketsServer` implementation.
+
+If you only want a self-contained simulator dependency, stop there.
+
+If you also want the `Run Simulator` task to appear in the consuming repo's PlatformIO IDE task list (under the "Custom" folder), let the consuming project own the IDE task registration. Add `custom_run_simulator_target_owner = project` to `[env:simulator]`, then add one project-level hook:
+
+For a normal fetched dependency:
+
+```ini
+custom_run_simulator_target_owner = project
+
+extra_scripts =
+  pre:scripts/gen_i18n.py
+  pre:scripts/git_branch.py
+  pre:scripts/build_web.py
+  post:.pio/libdeps/$PIOENV/simulator/run_simulator_project.py
+```
+
+For a local symlinked dependency:
+
+```ini
+custom_run_simulator_target_owner = project
+
+extra_scripts =
+  pre:scripts/gen_i18n.py
+  pre:scripts/git_branch.py
+  pre:scripts/build_web.py
+  post:../crossink-simulator/run_simulator_project.py
+```
+
+Use the symlink form only when the `CrossInk` repo and this `crossink-simulator` repo are checked out side by side and your `lib_deps` entry is:
+
+```ini
+simulator=symlink://../crossink-simulator
+```
+
+The `custom_run_simulator_target_owner = project` line tells the library-side hook not to register the same launcher a second time. Without that, closing one simulator window can immediately relaunch another because both the library hook and the project hook try to own `run_simulator`.
+
+Do not point `post:` at `run_simulator.py` directly. That file is already auto-loaded via `library.json` and is the backward-compatible library hook.
+
+The `post:` line above only exposes the task in the consuming project UI. The actual launcher logic still lives in this simulator repo.
+
+## Setup
+
+Place EPUB books at `./fs_/books/` in the repo's root. This maps to the `/books/` path on the physical SD card.
+
+## Build and run
+
+Run this command from the project after you have added the `[env:simulator]` config to `platformio.ini`. Alternatively, if you added the project hook above, you can click "Build" from PlatformIO's IDE task list and then "Run Simulator" (nested under the "Custom" folder).
+
+```bash
+pio run -e simulator -t run_simulator
+```
+
+After the simulator has been built once, launch the existing binary without
+checking or rebuilding its dependencies:
+
+```bash
+pio run -e simulator -t run_simulator_no_build
+```
+
+The project hook exposes this as **Run Simulator (No Build)** alongside the
+existing **Run Simulator** task in PlatformIO's Custom folder.
+
+## Controls
+
+| Key    | Action                             |
+| ------ | ---------------------------------- |
+| ↑ / ↓  | Page back / forward (side buttons) |
+| ← / →  | Left / right front buttons         |
+| Return | Confirm / Select                   |
+| Escape | Back                               |
+| P      | Power                              |
+| S      | Simulate sleep                     |
+| H      | X4 Pro capacitive Home key         |
+| Mouse  | X4 Pro touch, tap, and swipe       |
+
+When the simulator is on the sleep screen, pressing any mapped simulator key wakes it. Under the hood the simulator relaunches itself and reports a synthetic power-button wake, because the native build has no real ESP deep-sleep resume path.
+
+## Automated QA and screenshots
+
+Two optional environment variables make repeatable navigation and screenshot
+tests possible without desktop-control permissions:
+
+- `FLUIDEZ_SIM_INPUT_SCRIPT` schedules input as
+  `<milliseconds>:<action>`, separated by semicolons. Button actions use
+  `<key>[:<hold-milliseconds>]`; keys are `BACK`, `ENTER`, `LEFT`, `RIGHT`,
+  `UP`, `DOWN`, `POWER`, `SLEEP`, `HOME`, and `QUIT`. A normal key press is
+  held for 80 ms unless a duration is provided.
+- X4 Pro touch actions use `TAP:<x>,<y>[,<hold-milliseconds>]` or
+  `SWIPE:<x1>,<y1>,<x2>,<y2>[,<duration-milliseconds>]`. Coordinates are in
+  displayed logical pixels, so they match UI layouts and screenshots after the
+  firmware changes orientation. Normalized coordinates from 0.0 to 1.0 are
+  also accepted for existing scripts.
+- `FLUIDEZ_SIM_SCREENSHOTS` saves BMP screenshots as
+  `<milliseconds>:<path>`, separated by semicolons. Create the destination
+  directory before running the simulator.
+- A sleep/wake test starts a fresh simulator process, matching the existing
+  deep-sleep model. Set `FLUIDEZ_SIM_INPUT_SCRIPT_AFTER_WAKE` and
+  `FLUIDEZ_SIM_SCREENSHOTS_AFTER_WAKE` for that second process. The
+  pre-sleep schedules are cleared during relaunch so they cannot repeat
+  forever.
+- Firmware reboots (`ESP.restart()`, including the silent network-boot
+  handoff used by KOReader Sync, OPDS, and similar flows) also relaunch the
+  process. Set `FLUIDEZ_SIM_INPUT_SCRIPT_AFTER_REBOOT` and
+  `FLUIDEZ_SIM_SCREENSHOTS_AFTER_REBOOT` to keep driving the relaunched
+  instance. Like sleep/wake, the original schedules are cleared on reboot so a
+  scripted flow is never replayed from the start.
+
+Times are measured from process startup. For example:
+
+```bash
+mkdir -p ./qa-artifacts
+FLUIDEZ_SIM_INPUT_SCRIPT='900:DOWN;1250:DOWN;1600:DOWN;1900:ENTER;3000:QUIT' \
+FLUIDEZ_SIM_SCREENSHOTS='2400:./qa-artifacts/settings.bmp' \
+  .pio/build/simulator/program
+```
+
+An X4 Pro touch and Home-key smoke test can use:
+
+```bash
+FLUIDEZ_SIM_INPUT_SCRIPT='2000:TAP:240,530;3000:HOME:100;3900:QUIT' \
+FLUIDEZ_SIM_SCREENSHOTS='2500:./qa-artifacts/x4-pro-settings.bmp;3500:./qa-artifacts/x4-pro-home.bmp' \
+  .pio/build/simulator_x4_pro/program
+```
+
+A deterministic sleep/wake smoke test can use:
+
+```bash
+FLUIDEZ_SIM_INPUT_SCRIPT='900:SLEEP;3500:ENTER' \
+FLUIDEZ_SIM_INPUT_SCRIPT_AFTER_WAKE='2200:QUIT' \
+FLUIDEZ_SIM_SCREENSHOTS_AFTER_WAKE='1600:./qa-artifacts/wake.bmp' \
+  .pio/build/simulator/program
+```
+
+The screenshot contains the SDL renderer output at the host's actual drawable
+resolution, including Retina/HiDPI scaling. BMP is used because it is supported
+directly by SDL2 and adds no image-encoding dependency to the simulator.
+
+## Notes
+
+**Host-backed network flows**: OPDS/catalog downloads and KOReader sync use the
+host's `curl` binary through simulator implementations of `HTTPClient` and
+`esp_http_client`. This keeps the firmware code path intact while allowing the
+desktop build to reach real HTTP/HTTPS services.
+
+**Mocked downloads**: Set `FLUIDEZ_SIM_HTTP_MOCK_ROOT` to a folder of local
+fixtures to make host-backed HTTP requests return local files by basename before
+falling back to the real network. This is useful for SD-font testing because the
+firmware can request its normal release URLs while the simulator serves a local
+`fonts.json` and `.cpfont` files:
+
+```bash
+cd /path/to/firmware
+python3 -m pip install -r lib/EpdFont/scripts/requirements.txt
+python3 lib/EpdFont/scripts/build-sd-fonts.py \
+  --only NotoSansExtended \
+  --manifest \
+  --base-url "https://github.com/crosspoint-reader/crosspoint-fonts/releases/download/local/"
+FLUIDEZ_SIM_HTTP_MOCK_ROOT="$PWD/lib/EpdFont/scripts/output" \
+  pio run -e simulator -t run
+```
+
+The mock still uses the firmware's normal manifest parsing, file download,
+write-to-SD, `.cpfont` validation, registry refresh, and font-selection flow.
+
+**Mock KOReader Sync server**: `tools/mock_kosync_server.py` is a small,
+standard-library KOSync server for previewing the sync screens without an
+account or a second device. `--seed-sd` writes `.crosspoint/koreader.json` on
+the simulated SD card so the firmware points at the mock (an existing file is
+moved to `koreader.json.bak`; move it back to restore your real settings):
+
+```bash
+cd /path/to/firmware
+python3 ../crossink-simulator/tools/mock_kosync_server.py --seed-sd ./fs_
+# in another terminal
+pio run -e simulator -t run_simulator
+```
+
+Open a book, open the reader menu, and choose Sync Progress. Each request
+returns the remote position chosen on the command line, so the Apply/Upload
+comparison appears every time:
+
+- `--percentage 0.62` sets remote progress (0-1 or 0-100).
+- `--chapter 5` sets the 1-based spine item the remote position starts at; it
+  must exist in the book.
+- `--device "Kobo Libra 2"` sets the remote device name (`""` hides it).
+- `--no-progress` previews the "no remote progress" upload prompt.
+- `--reject-auth` previews authentication failures.
+- `--echo` returns the last uploaded position for a book once one exists.
+
+Uploads are accepted and logged. To capture the result screen
+unattended, combine the mock with the `*_AFTER_REBOOT` schedules, because
+starting a sync reboots into the network flow. For example, on a fresh copy of
+an SD card whose Home screen opens a book with the Right button:
+
+```bash
+FLUIDEZ_SIM_SD=/tmp/sim-sd \
+FLUIDEZ_SIM_INPUT_SCRIPT='3000:RIGHT;8000:ENTER;10000:RIGHT;11000:DOWN;11500:DOWN;12000:DOWN;13000:ENTER;25000:QUIT' \
+FLUIDEZ_SIM_INPUT_SCRIPT_AFTER_REBOOT='9000:QUIT' \
+FLUIDEZ_SIM_SCREENSHOTS_AFTER_REBOOT='8000:./qa-artifacts/kosync.bmp' \
+  .pio/build/simulator/program
+```
+
+Menu positions vary with the firmware version and book, so take step-by-step
+screenshots when adapting the input script.
+
+**File transfer**: The simulator provides host-backed `WebServer`,
+`WebSocketsServer`, and `NetworkClient` shims so firmware-owned file-transfer
+routes can run on the host. Firmware web servers that bind port 80 are exposed
+on `http://127.0.0.1:8080/`; WebSocket servers that bind port 81 are exposed on
+`ws://127.0.0.1:8081/`. Set `FLUIDEZ_SIM_HTTP_PORT` to another unprivileged
+port if that pair is occupied; the WebSocket endpoint uses the following port.
+For example, `FLUIDEZ_SIM_HTTP_PORT=18080` exposes HTTP on 18080 and
+WebSocket on 18081. This supports the browser file manager, WebSocket upload
+progress, streamed downloads, and common WebDAV-style requests such as
+`OPTIONS`, `PROPFIND`, `PUT`, `DELETE`, `MKCOL`, `MOVE`, and `COPY`. WebDAV
+`LOCK` and `UNLOCK` remain compatibility-only unless the firmware implements
+locking semantics.
+
+The `run_simulator` target also accepts the port through PlatformIO, which is
+convenient when the conflict is permanent on a development machine:
+
+```ini
+[env:simulator]
+custom_simulator_http_port = 18080
+```
+
+Direct binary launches use the environment variable form.
+
+**Firmware updates**: OTA and SD-card firmware flashing are non-destructive in
+the simulator. The simulator stubs those update paths so the UI can be opened
+without flashing firmware or changing boot partitions.
+
+**Image previews**: The default simulator shims decode JPEG and PNG files on the
+host and render a rough grayscale preview through the firmware's normal image
+callbacks. This is meant to make image pages and PNG sleep overlays visible
+while testing desktop flows. Native decoder libraries can be enabled with the
+sample config's opt-in flags when decoder compatibility matters more than the
+self-contained default. Neither mode simulates device-specific e-ink image
+quality, refresh behaviour, or memory pressure.
+
+**Cache**: On first open of an ebook, an "Indexing..." popup will appear while the section cache is built. If you see rendering issues after a code change that affects layout, delete `./fs_/.crosspoint/` to clear stale caches.
+
+> [!WARNING]
+> **Upstream compatibility:** The simulator mirrors interfaces used by Crosspoint. If Crosspoint adds or changes methods in a shared library and the simulator build reaches that code path, the simulator can fail to compile or link until a matching implementation or stub is added here. In many cases this is just a small no-op shim. Open a PR if the change is broadly applicable to CrossPoint-based forks.
+
+## Checking task stack budgets
+
+When a consuming firmware exports `FLUIDEZ_SIMULATOR_STACK_BUDGETS` (as
+CrossInk's device-resource smoke runner does), every simulated task creation
+logs its requested size and flags an entry that exceeds that profile's declared
+budget. This logical check does not require a special build and remains useful
+for catching a task whose configured ESP32 stack is clearly too large for its
+device profile.
+
+The normal simulator uses desktop threads. To inspect the host call depth inside
+those configured task budgets during QA, add these flags to the **consuming
+firmware environment's** `build_flags` (alongside its existing flags), then
+rebuild that environment:
+
+```ini
+  -DFLUIDEZ_SIM_STACK_CHECK
+  -finstrument-functions
+  -fno-omit-frame-pointer
+  -fno-optimize-sibling-calls
+  -ldl
+```
+
+Apply the flags to the whole environment, including source-built libraries such
+as FreeType, not just to the simulator library. This works with all device
+profiles: the budget comes directly from each firmware `xTaskCreate`,
+`xTaskCreatePinnedToCore`, or `xTaskCreateStatic` call. ESP-IDF expresses these
+budgets in **bytes**, including on C3. Static-task buffers remain unused on the
+host; only their requested byte budget is enforced.
+
+An instrumented build defaults to fail mode. For example, from the firmware
+project:
+
+```sh
+pio run -e x4-pro-simulator -j1
+FLUIDEZ_SIM_STACK_CHECK=fail .pio/build/x4-pro-simulator/program
+```
+
+Every instrumented function entry samples host stack depth, including nested
+calls and fixed-size local arrays. Exceeding a task's budget prints its name,
+used/budget bytes, function/caller addresses, and an ASLR-independent image
+offset for symbolication, then exits with code 86.
+`run_simulator` and `run_simulator_no_build` propagate that failure to PlatformIO.
+Use `FLUIDEZ_SIM_STACK_CHECK=warn` to continue after one warning per task, or
+`off` to disable measurement in that run. Requesting checks in a normal build
+fails at startup with rebuild instructions, rather than silently skipping them.
+
+`uxTaskGetStackHighWaterMark` reports the minimum **sampled host** headroom in
+bytes; zero means exhausted or unavailable (uninstrumented/main thread). Reading
+another task's watermark is synchronized. Desktop threads retain their normal
+OS stack, allowing the checker to print a useful diagnostic without relying on
+OS minimum stack sizes or crashing in the diagnostic itself.
+
+Both checks are diagnostic approximations, not ESP32 emulation. Profile checks
+compare a requested size with a declared device envelope. Host measurements vary
+with ABI, pointers, compiler optimizations, and the instrumentation itself. They
+can produce host-only failures or miss device-only failures. The monitor does
+not measure the SDL/main thread, precompiled system-library peaks, or temporary
+dynamic stack allocations between hooks. Instrumented builds are slower and
+should not be used for performance measurements. Keep device compiler
+stack-frame checks and real hardware stack-watermark testing as separate checks;
+do not raise a device task's budget solely to silence a simulator warning.
+
+Regression probes (no SDL needed):
+
+```sh
+python3 tests/run_stack_check.py
+```

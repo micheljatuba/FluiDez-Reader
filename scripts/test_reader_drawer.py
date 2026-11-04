@@ -49,14 +49,14 @@ def check_drawer(program: Path, orientation: int) -> None:
         screenshot = work / "drawer.bmp"
         env = os.environ.copy()
         for key in list(env):
-            if key.startswith(("CROSSPOINT_SIM_", "FLUIDEZ_SIMULATOR_SMOKE")):
+            if key.startswith(("FLUIDEZ_SIM_", "FLUIDEZ_SIMULATOR_SMOKE")):
                 del env[key]
         # Normalized positions remain valid when boot starts in portrait and
         # the reader subsequently restores a landscape orientation.
-        env.update(SDL_VIDEODRIVER="dummy", CROSSPOINT_SIM_WAKE_REASON="power",
-                   CROSSPOINT_SIM_INPUT_SCRIPT=("2000:SWIPE:0.5,0.8,0.5,0.4,250;"
+        env.update(SDL_VIDEODRIVER="dummy", FLUIDEZ_SIM_WAKE_REASON="power",
+                   FLUIDEZ_SIM_INPUT_SCRIPT=("2000:SWIPE:0.5,0.8,0.5,0.4,250;"
                                                 "4000:TAP:0.5,0.4,80;6000:QUIT"),
-                   CROSSPOINT_SIM_SCREENSHOTS=f"5000:{screenshot}")
+                   FLUIDEZ_SIM_SCREENSHOTS=f"5000:{screenshot}")
         result = subprocess.run([str(program)], cwd=work, env=env, capture_output=True, text=True, timeout=20)
         output = result.stdout + result.stderr
         if result.returncode or "Entering activity: EpubReaderDrawer" not in output:

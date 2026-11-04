@@ -5,7 +5,7 @@
 #include <cstdint>
 
 // Repeated from HalPowerManager.h rather than relied upon: simulator builds
-// ignore lib/hal and pick up the crossink-simulator stand-in instead, which
+// ignore lib/hal and pick up the simulator/ stand-in instead, which
 // does not define this. Both guards are #ifndef, so they cannot disagree.
 #ifndef FLUIDEZ_BATTERY_DIAG_LOG
 #define FLUIDEZ_BATTERY_DIAG_LOG 0

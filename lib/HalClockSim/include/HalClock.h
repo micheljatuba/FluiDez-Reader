@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 
-#define CROSSPOINT_SIMULATOR_HAS_DATE_SEPARATOR 1
+#define FLUIDEZ_SIMULATOR_HAS_DATE_SEPARATOR 1
 
 class HalClock;
 extern HalClock halClock;

@@ -21,13 +21,13 @@ LIGHT_ON = 1 << 30
 
 def run(work, target=None, magic=MAGIC):
     env = {key: value for key, value in os.environ.items()
-           if not key.startswith(("CROSSPOINT_SIM_", "FLUIDEZ_SIMULATOR_SMOKE"))}
-    env.update(SDL_VIDEODRIVER="dummy", CROSSPOINT_SIM_INPUT_SCRIPT="500:QUIT",
-               CROSSPOINT_SIM_WAKE_REASON="power")
+           if not key.startswith(("FLUIDEZ_SIM_", "FLUIDEZ_SIMULATOR_SMOKE"))}
+    env.update(SDL_VIDEODRIVER="dummy", FLUIDEZ_SIM_INPUT_SCRIPT="500:QUIT",
+               FLUIDEZ_SIM_WAKE_REASON="power")
     if target is not None:
-        env.update(CROSSPOINT_SIM_SILENT_REBOOT_MAGIC=str(magic),
-                   CROSSPOINT_SIM_SILENT_REBOOT_TARGET=str(target),
-                   CROSSPOINT_SIM_SILENT_REBOOT_PAYLOAD="0")
+        env.update(FLUIDEZ_SIM_SILENT_REBOOT_MAGIC=str(magic),
+                   FLUIDEZ_SIM_SILENT_REBOOT_TARGET=str(target),
+                   FLUIDEZ_SIM_SILENT_REBOOT_PAYLOAD="0")
     result = subprocess.run([str(PROGRAM)], cwd=work, env=env, capture_output=True,
                             text=True, timeout=20)
     output = result.stdout + result.stderr

@@ -1227,7 +1227,7 @@ void setup() {
   if (libraryScanSleepToken.consume(rawResetReason == ESP_RST_DEEPSLEEP)) library::restoreLibraryIndexAfterSleep();
 
 #ifdef ENABLE_SERIAL_LOG
-#ifdef CROSSPOINT_WAIT_FOR_USB_SERIAL
+#ifdef FLUIDEZ_WAIT_FOR_USB_SERIAL
   // Development builds preserve reliable early CDC logs; release builds let
   // enumeration proceed asynchronously so users do not pay this startup cost.
   delay(250);

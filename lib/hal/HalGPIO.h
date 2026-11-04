@@ -20,7 +20,7 @@
 #define UART0_RXD 20  // Used for USB connection detection
 
 class HalGPIO {
-#if CROSSPOINT_EMULATED == 0
+#if FLUIDEZ_EMULATED == 0
   InputManager inputMgr;
 #endif
 

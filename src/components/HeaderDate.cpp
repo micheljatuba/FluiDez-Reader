@@ -31,10 +31,10 @@ char dateSeparatorChar() {
 bool formatHeaderDateImpl(char* buf, const size_t len) {
   if (!halClock.isAvailable()) return false;
   if (!SETTINGS.clockDateHasBeenSynced) return false;
-#if defined(SIMULATOR) && !defined(CROSSPOINT_SIMULATOR_HAS_DATE_FORMAT)
+#if defined(SIMULATOR) && !defined(FLUIDEZ_SIMULATOR_HAS_DATE_FORMAT)
   // Keep compatibility with older downloaded simulator libraries.
   return halClock.formatDate(buf, len, SETTINGS.clockUtcOffsetQ);
-#elif defined(SIMULATOR) && !defined(CROSSPOINT_SIMULATOR_HAS_DATE_SEPARATOR)
+#elif defined(SIMULATOR) && !defined(FLUIDEZ_SIMULATOR_HAS_DATE_SEPARATOR)
   // Older simulator libraries support date formats but always emit slashes.
   if (!halClock.formatDate(buf, len, SETTINGS.clockUtcOffsetQ,
                            static_cast<HalClock::DateFormat>(SETTINGS.dateFormat))) {

@@ -5,7 +5,7 @@ nav_order: 15
 
 # Development Device Simulator
 
-FluiDez Reader can run in the [simulator used by CrossInk](https://github.com/uxjulia/crossink-simulator), which renders the e-ink display in an SDL2 window. Use it for quick sanity checks without flashing firmware every time.
+FluiDez Reader has its own simulator in the `simulator/` folder (a maintained copy of the MIT-licensed [CrossInk Simulator](https://github.com/uxjulia/crossink-simulator)), which renders the e-ink display in an SDL2 window. Use it for quick sanity checks without flashing firmware every time.
 
 ## Platform Support
 
