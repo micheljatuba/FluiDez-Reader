@@ -1057,7 +1057,7 @@ bool SettingsActivity::handleHomeGesture() {
   // through its selection and submenus. Save before leaving the whole stack.
   if (mappedInput.wasBottomEdgeUpSwipe() && !optionPopup.isActive()) {
     SETTINGS.saveToFile();
-    onGoHome();
+    activityManager.goHome();
   } else if (optionPopup.isActive()) {
     optionPopup.dismiss(mappedInput, [this] { requestUpdate(); });
   } else if (!isFileBrowserView() && activeSubmenu != SettingAction::None) {

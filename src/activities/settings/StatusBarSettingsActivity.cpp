@@ -132,7 +132,7 @@ void StatusBarSettingsActivity::onExit() { Activity::onExit(); }
 
 bool StatusBarSettingsActivity::handleHomeGesture() {
   if (mappedInput.wasBottomEdgeUpSwipe()) {
-    onGoHome();
+    activityManager.goHome();
   } else {
     goBack();
   }

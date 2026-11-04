@@ -188,7 +188,7 @@ void TxtReaderActivity::loop() {
 #if FLUIDEZ_APP_CAP_TOUCH
   // TXT has no reader drawer: the bottom edge exits directly on every touch device.
   if (mappedInput.wasBottomEdgeUpSwipe()) {
-    onGoHome();
+    activityManager.goHome();
     return;
   }
   if (handlePinchFontResize()) return;
