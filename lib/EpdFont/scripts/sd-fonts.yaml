@@ -70,13 +70,13 @@ families:
     sizes: [8, 9, 10, 12, 14, 16, 18, 20]
     styles:
       regular:
-        { url: "https://raw.githubusercontent.com/uxjulia/crossink-fonts/main/fonts/ChareInk7/ChareInk7-Regular.ttf" }
-      bold: { url: "https://raw.githubusercontent.com/uxjulia/crossink-fonts/main/fonts/ChareInk7/ChareInk7-Bold.ttf" }
+        { path: "builtinFonts/source/ChareInk7/ChareInk7-Regular.ttf" }
+      bold: { path: "builtinFonts/source/ChareInk7/ChareInk7-Bold.ttf" }
       italic:
-        { url: "https://raw.githubusercontent.com/uxjulia/crossink-fonts/main/fonts/ChareInk7/ChareInk7-Italic.ttf" }
+        { path: "builtinFonts/source/ChareInk7/ChareInk7-Italic.ttf" }
       bolditalic:
         {
-          url: "https://raw.githubusercontent.com/uxjulia/crossink-fonts/main/fonts/ChareInk7/ChareInk7-BoldItalic.ttf",
+          path: "builtinFonts/source/ChareInk7/ChareInk7-BoldItalic.ttf",
         }
 
   - name: GentiumBookPlus
@@ -432,7 +432,7 @@ families:
           variable: { wght: 700 },
         }
       italic:
-        { url: "https://raw.githubusercontent.com/uxjulia/crossink-fonts/main/fonts/LexendDeca/LexendDeca-Italic.ttf" }
+        { path: "builtinFonts/source/LexendDeca/LexendDeca-Italic.ttf" }
       bolditalic:
         {
           url: "https://raw.githubusercontent.com/google/fonts/main/ofl/lexenddeca/LexendDeca%5Bwght%5D.ttf",
@@ -446,12 +446,12 @@ families:
     sizes: [8, 9, 10, 12, 14, 16, 18, 20]
     styles:
       regular:
-        { url: "https://raw.githubusercontent.com/uxjulia/crossink-fonts/main/fonts/NotoSans/NotoSans-Regular.ttf" }
-      bold: { url: "https://raw.githubusercontent.com/uxjulia/crossink-fonts/main/fonts/NotoSans/NotoSans-Bold.ttf" }
+        { path: "builtinFonts/source/NotoSans/NotoSans-Regular.ttf" }
+      bold: { path: "builtinFonts/source/NotoSans/NotoSans-Bold.ttf" }
       italic:
-        { url: "https://raw.githubusercontent.com/uxjulia/crossink-fonts/main/fonts/NotoSans/NotoSans-Italic.ttf" }
+        { path: "builtinFonts/source/NotoSans/NotoSans-Italic.ttf" }
       bolditalic:
-        { url: "https://raw.githubusercontent.com/uxjulia/crossink-fonts/main/fonts/NotoSans/NotoSans-BoldItalic.ttf" }
+        { path: "builtinFonts/source/NotoSans/NotoSans-BoldItalic.ttf" }
 
   - name: SourceSans3
     description: "Adobe humanist sans-serif"
@@ -555,19 +555,19 @@ families:
     styles:
       regular:
         {
-          url: "https://raw.githubusercontent.com/uxjulia/crossink-fonts/main/fonts/OpenDyslexic/OpenDyslexic-Regular.otf",
+          path: "builtinFonts/source/OpenDyslexic/OpenDyslexic-Regular.otf",
         }
       bold:
         {
-          url: "https://raw.githubusercontent.com/uxjulia/crossink-fonts/main/fonts/OpenDyslexic/OpenDyslexic-Bold.otf",
+          path: "builtinFonts/source/OpenDyslexic/OpenDyslexic-Bold.otf",
         }
       italic:
         {
-          url: "https://raw.githubusercontent.com/uxjulia/crossink-fonts/main/fonts/OpenDyslexic/OpenDyslexic-Italic.otf",
+          path: "builtinFonts/source/OpenDyslexic/OpenDyslexic-Italic.otf",
         }
       bolditalic:
         {
-          url: "https://raw.githubusercontent.com/uxjulia/crossink-fonts/main/fonts/OpenDyslexic/OpenDyslexic-BoldItalic.otf",
+          path: "builtinFonts/source/OpenDyslexic/OpenDyslexic-BoldItalic.otf",
         }
 
   # ── Accessibility ──────────────────────────────────────────────────────

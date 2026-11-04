@@ -8,8 +8,8 @@ ranges needed by dictionary definitions. The shared builder supplies
 CrossInk's built-in intervals and fallback stack, with bundled Noto Sans
 remaining the final fallback for every style.
 
-The default output is the sibling crossink-fonts repository:
-``../crossink-fonts/dictionary-fonts``.
+The default output is the sibling fluidez-fonts repository:
+``../fluidez-fonts/dictionary-fonts``.
 
 Usage:
     python3 build-dictionary-fonts.py
@@ -35,7 +35,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 SHARED_BUILDER = SCRIPT_DIR / "build-sd-fonts.py"
 DEFAULT_CONFIG = SCRIPT_DIR / "sd-fonts.yaml"
 PROJECT_ROOT = SCRIPT_DIR.parents[2]
-DEFAULT_OUTPUT = PROJECT_ROOT.parent / "crossink-fonts" / "dictionary-fonts"
+DEFAULT_OUTPUT = PROJECT_ROOT.parent / "fluidez-fonts" / "dictionary-fonts"
 FALLBACK_FONT = PROJECT_ROOT / "lib/EpdFont/builtinFonts/source/NotoSans/NotoSans-Regular.ttf"
 
 # ``build-sd-fonts.py`` appends its ``builtin`` preset to this list. The
@@ -107,7 +107,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output-dir",
         default=str(DEFAULT_OUTPUT),
-        help="Output directory (default: sibling crossink-fonts/dictionary-fonts)",
+        help="Output directory (default: sibling fluidez-fonts/dictionary-fonts)",
     )
     parser.add_argument("--only", help="Comma-separated family names to build")
     parser.add_argument("--jobs", "-j", type=int, default=None, help="Maximum parallel families")

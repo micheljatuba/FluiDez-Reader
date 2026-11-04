@@ -18,10 +18,10 @@ Azure Blob storage (`http://strfluidez001.blob.core.windows.net/fonts/`). The
 manual **Build & Publish SD Card Fonts** workflow
 (`.github/workflows/release-fonts.yml`) rebuilds and publishes it. The catalog is
 served over plain HTTP on purpose: HTTPS stalls inside `esp_http_client` on
-ESP32-C3 readers, and every `.cpfont` is CRC-checked before install. Most of the
-same packs are also in the upstream
-[crossink-fonts](https://github.com/uxjulia/crossink-fonts/tree/main/cpfonts)
-repository and on [Inky](https://inky.crossink.dev/#downloads).
+ESP32-C3 readers, and every `.cpfont` is CRC-checked before install. Every
+source font is committed under `lib/EpdFont/builtinFonts/source/` or downloaded
+from its own publisher (Google Fonts and others listed in `sd-fonts.yaml`), with
+its license file alongside.
 
 ### FluiDez Reader families
 
@@ -45,9 +45,8 @@ There are three ways to install fonts:
 
 ### Option 1: Manual SD card copy (Fastest)
 
-1.  Download pre-built `.cpfont` files from [Inky](https://inky.crossink.dev/#downloads) or the
-    [crossink-fonts](https://github.com/uxjulia/crossink-fonts/tree/main/cpfonts) repository,
-    or use your own static `.ttf` files on an ESP32-S3 device.
+1.  Use `.cpfont` files generated with `build-sd-fonts.py` (see below), or your
+    own static `.ttf` files on an ESP32-S3 device.
     - If you downloaded a `.zip`, extract it first.
 2.  Copy font family folders to one of two locations on your SD card:
     - `/.fonts/` — hidden directory (preferred; keeps the SD root tidy
@@ -130,7 +129,7 @@ IPA and phonetic-extension characters (`U+0250–U+02FF` and `U+1D00–U+1DBF`) 
 combining-mark ranges (`U+1DC0–U+1DFF`, `U+20D0–U+20FF`, and
 `U+FE20–U+FE2F`).
 
-The default output is `../crossink-fonts/dictionary-fonts`. Use a separate
+The default output is `../fluidez-fonts/dictionary-fonts`. Use a separate
 `--output-dir` for personal builds, because `--clean` removes the selected output
 directory before generating the fonts. The output contains family folders and ZIP
 archives; copy a family folder or unzip its archive into `/.fonts/` or `/fonts/`

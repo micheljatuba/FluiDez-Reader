@@ -186,7 +186,7 @@ Only one SD-card font family is loaded at a time: FluiDez Reader temporarily swa
 
 Built-in fonts keep the glyphs they contain and approximate only unsupported pronunciation symbols. If you see a filled diamond, choose an SD-card font that includes that character.
 
-Pre-built dictionary fonts with IPA glyphs are published in the upstream [crossink-fonts](https://github.com/uxjulia/crossink-fonts/tree/main/dictionary-fonts) repository.
+Dictionary fonts with IPA glyphs can be generated with `lib/EpdFont/scripts/build-dictionary-fonts.py` (see the dictionary development guide).
 
 See the [dictionary font builder](dictionary-development.md#generating-dictionary-fonts) if you want to build your own dictionary fonts via the CLI.
 

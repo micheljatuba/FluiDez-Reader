@@ -6,7 +6,7 @@ fontconvert_sdcard.py in parallel for each family, and optionally
 generates the fonts.json manifest.
 
 Usage:
-    # Generate fonts + per-family ZIPs in ../crossink-fonts/cpfonts
+    # Generate fonts + per-family ZIPs in ../fluidez-fonts/cpfonts
     python3 build-sd-fonts.py
 
     # Generate fonts without ZIP packaging
@@ -48,7 +48,7 @@ FONTCONVERT = SCRIPT_DIR / "fontconvert_sdcard.py"
 EPDFONTS_DIR = SCRIPT_DIR.parent  # lib/EpdFont
 PROJECT_ROOT = SCRIPT_DIR.parents[2]
 DEFAULT_CONFIG = SCRIPT_DIR / "sd-fonts.yaml"
-DEFAULT_OUTPUT = PROJECT_ROOT.parent / "crossink-fonts" / "cpfonts"
+DEFAULT_OUTPUT = PROJECT_ROOT.parent / "fluidez-fonts" / "cpfonts"
 DOWNLOAD_DIR = SCRIPT_DIR / "downloaded_fonts"
 INSTANCE_DIR = SCRIPT_DIR / "instanced_fonts"
 DEFAULT_FALLBACK_FONT = EPDFONTS_DIR / "builtinFonts/source/NotoSans/NotoSans-Regular.ttf"
@@ -501,7 +501,7 @@ def main():
     parser.add_argument(
         "--output-dir",
         default=str(DEFAULT_OUTPUT),
-        help="Output directory for family folders and ZIPs (default: sibling crossink-fonts/cpfonts)",
+        help="Output directory for family folders and ZIPs (default: sibling fluidez-fonts/cpfonts)",
     )
     parser.add_argument("--only", help="Comma-separated family names to build (default: all)")
     parser.add_argument("--manifest", action="store_true", help="Also generate fonts.json manifest")

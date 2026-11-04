@@ -97,9 +97,8 @@ do not use it with the default location unless you intend to rebuild that
 catalog.
 
 By default, the generated family folders and ZIPs are written to
-`../crossink-fonts/dictionary-fonts`. Unzip a family archive into `/.fonts/` or
-`/fonts/` on the SD card, or copy the output to the sibling `crossink-fonts`
-repository when publishing the catalog. Use `--output-dir` to choose another
+`../fluidez-fonts/dictionary-fonts`. Unzip a family archive into `/.fonts/` or
+`/fonts/` on the SD card. Use `--output-dir` to choose another
 destination.
 
 Useful options:
