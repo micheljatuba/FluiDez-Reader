@@ -2,6 +2,10 @@
 // In the on-device build these come from ESP-IDF / Arduino-ESP32 / a SIMULATOR-
 // gated block in lib/Logging/Logging.cpp. The native simulator build needs its
 // own definitions to satisfy the linker.
+//
+// FluiDez: every definition here is weak. lib/Logging and lib/uzlib provide the
+// real ones whenever the dependency finder links them; these only fill in when
+// it does not.
 
 #include <cstdint>
 
@@ -15,15 +19,15 @@
 // `Serial.*` call site through it. The matching definitions used to live in
 // lib/Logging/Logging.cpp behind `#ifdef SIMULATOR`, but were dropped during
 // an upstream merge. Restore them here so the simulator links.
-MySerialImpl MySerialImpl::instance;
+__attribute__((weak)) MySerialImpl MySerialImpl::instance;
 
-size_t MySerialImpl::write(uint8_t b) { return logSerial.write(b); }
-size_t MySerialImpl::write(const uint8_t *buffer, size_t size) {
+__attribute__((weak)) size_t MySerialImpl::write(uint8_t b) { return logSerial.write(b); }
+__attribute__((weak)) size_t MySerialImpl::write(const uint8_t *buffer, size_t size) {
   return logSerial.write(buffer, size);
 }
-void MySerialImpl::flush() { logSerial.flush(); }
+__attribute__((weak)) void MySerialImpl::flush() { logSerial.flush(); }
 
-size_t MySerialImpl::printf(const char *format, ...) {
+__attribute__((weak)) size_t MySerialImpl::printf(const char *format, ...) {
   va_list args;
   va_start(args, format);
   char buf[256];
@@ -46,7 +50,7 @@ size_t MySerialImpl::printf(const char *format, ...) {
 // vendored in. Nothing in the firmware actually calls
 // `uzlib_uncompress_chksum`, but the symbols still need to resolve. Provide the
 // canonical reference implementations.
-extern "C" uint32_t uzlib_adler32(const void *data, unsigned int length,
+extern "C" __attribute__((weak)) uint32_t uzlib_adler32(const void *data, unsigned int length,
                                   uint32_t prev_sum) {
   const unsigned char *buf = static_cast<const unsigned char *>(data);
   unsigned int s1 = prev_sum & 0xffff;
@@ -58,7 +62,7 @@ extern "C" uint32_t uzlib_adler32(const void *data, unsigned int length,
   return (s2 << 16) | s1;
 }
 
-extern "C" uint32_t uzlib_crc32(const void *data, unsigned int length,
+extern "C" __attribute__((weak)) uint32_t uzlib_crc32(const void *data, unsigned int length,
                                 uint32_t prev_crc) {
   static const uint32_t crc32_tab[16] = {
       0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac, 0x76dc4190, 0x6b6b51f4,
