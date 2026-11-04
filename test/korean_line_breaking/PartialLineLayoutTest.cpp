@@ -130,7 +130,7 @@ TEST(PartialLineLayout, ContinuationRetainsSourceOffsetsAndWordMetadata) {
   style.textIndent = 12;
   ParsedText text(false, false, true, false, false, 0, style, true);
   text.addWord("one", EpdFontFamily::REGULAR, false, false, false, 0, 10, 100);
-  text.addWord("two", EpdFontFamily::BOLD, true, false, true, 3, 14, 104, 0, false, 20, 7);
+  text.addWord("two", EpdFontFamily::BOLD, true, false, true, 3, 14, 104, 0, false, 20);
   text.addWord("three", EpdFontFamily::ITALIC, false, false, false, 0, 18, 108);
   size_t lines = 0;
   ASSERT_TRUE(text.layoutAndExtractLines(
@@ -165,7 +165,7 @@ TEST(PartialLineLayout, EmittedHyphenRemainderRetainsSourceOffsetsAndStyles) {
   for (const bool hyphenation : {false, true}) {
     GfxRenderer renderer;
     ParsedText text(false, false, hyphenation, false, false, 0, BlockStyle{}, true);
-    text.addWord("abcdefghij", EpdFontFamily::BOLD, true, false, true, 2, 40, 400, 0, false, 20, 7);
+    text.addWord("abcdefghij", EpdFontFamily::BOLD, true, false, true, 2, 40, 400, 0, false, 20);
     ASSERT_TRUE(text.layoutAndExtractLines(
         renderer, 0, 48,
         [&](std::shared_ptr<TextBlock> line, uint32_t visible, uint32_t reference) {
