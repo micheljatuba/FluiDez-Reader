@@ -40,6 +40,7 @@ struct ToastRect {
 
 class EpubReaderActivity final : public Activity {
 #ifdef SIMULATOR
+  friend struct BookmarkListSmokeTest;
   friend struct EpubReaderCompletionSmokeTest;
   friend struct ClippingSelectionSmokeTest;
 #endif
@@ -233,6 +234,7 @@ class EpubReaderActivity final : public Activity {
     Added,
     Removed,
     LimitReached,
+    Unavailable,
   };
   bool pendingBookmarkFeedback = false;
   BookmarkFeedbackType bookmarkFeedbackType = BookmarkFeedbackType::Added;

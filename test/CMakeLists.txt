@@ -132,3 +132,8 @@ add_test(NAME WifiAutoConnectRegression
 add_subdirectory(book_loading_feedback)
 add_subdirectory(swipe_delete)
 add_subdirectory(hal_power_manager)
+
+add_test(NAME BookmarkListMemoryRegression
+  COMMAND ${Python3_EXECUTABLE} ${REPO_ROOT}/test/scripts/test_bookmark_list_memory.py)
+
+add_subdirectory(bookmark_store)

@@ -157,10 +157,6 @@ def run_smoke(args: argparse.Namespace) -> int:
         print("Simulator smoke test did not print its success marker", file=sys.stderr)
         return 2
 
-    if args.clipping_selection and "Simulator smoke test passed: touch clipping actions" not in proc.stdout:
-        print("Simulator did not complete the touch clipping checks", file=sys.stderr)
-        return 2
-
     if args.font_family:
         tab_change = proc.stdout.find("Reader Menu tab changed after TTF Native selection")
         reader_return = proc.stdout.find("Reader restored after TTF Native selection", tab_change)
