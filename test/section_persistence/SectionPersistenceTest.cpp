@@ -26,10 +26,10 @@
 extern std::vector<BookMetadataCache::TocEntry> testTocEntries;
 
 namespace {
-constexpr uint8_t kFullVersion = 88;
-constexpr uint8_t kPartialVersion = 0xC9;
-constexpr uint8_t kPreviousFullVersion = 87;
-constexpr uint8_t kPreviousPartialVersion = 0xC8;
+constexpr uint8_t kFullVersion = 89;
+constexpr uint8_t kPartialVersion = 0xCA;
+constexpr uint8_t kPreviousFullVersion = 88;
+constexpr uint8_t kPreviousPartialVersion = 0xC9;
 constexpr uint8_t kOlderFullVersion = 79;
 constexpr uint8_t kOlderPartialVersion = 0xF4;
 constexpr uint8_t kEarlierFullVersion = 78;

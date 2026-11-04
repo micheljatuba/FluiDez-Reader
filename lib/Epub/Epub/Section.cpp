@@ -39,11 +39,13 @@ constexpr uint32_t SECTION_CACHE_MAGIC = 0x535843FF;  // bytes: 0xFF, "CXS"
 // v85: Incremental paragraph spacing and fragment layout change cached positions.
 // v87: Publisher decorations, whitespace, contextual CSS, and per-word font sizes.
 // v88: Character spacing in the layout identity and cached text blocks.
-constexpr uint8_t SECTION_FILE_VERSION = 88;
+// v89: CrossInk layout fixes up to 2026-10-31 (ornaments, drop caps, nested blocks,
+//      hyphenation gaps, SD-font widths, sub-chapter navigation).
+constexpr uint8_t SECTION_FILE_VERSION = 89;
 // Suspended incremental build: valid pages plus LUTs and a parse-watermark trailer.
 // Change this with layout or payload changes so stale partial pages cannot resume
 // under a different layout contract.
-constexpr uint8_t SECTION_FILE_PARTIAL_VERSION = 0xC9;
+constexpr uint8_t SECTION_FILE_PARTIAL_VERSION = 0xCA;
 constexpr uint32_t HEADER_SIZE =
     sizeof(SECTION_CACHE_MAGIC) + sizeof(uint8_t) + sizeof(int) + sizeof(float) + sizeof(bool) + sizeof(bool) +
     sizeof(uint8_t) + sizeof(uint16_t) + sizeof(uint16_t) + sizeof(bool) + sizeof(bool) + sizeof(uint8_t) +
