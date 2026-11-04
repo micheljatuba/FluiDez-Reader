@@ -343,10 +343,11 @@ void upstreamFontTests(const std::string& path) {
     file.seekp(glyphOffset);
     file.write(reinterpret_cast<const char*>(&glyph), sizeof(glyph));
     file.close();
-    for (bool lean : {false, true}) {
+    // FluiDez has no lean SD-font loading mode; check the regular load only.
+    for (bool lean : {false}) {
       SdCardFont::takeCorruptGlyphNotice();
       SdCardFont font;
-      assert(font.load(path.c_str(), lean ? 100000 : 0));
+      assert(font.load(path.c_str()));
       uint16_t width = 99;
       assert(font.readAdvance('B', 0, &width) && width == 0);
       assert(SdCardFont::takeCorruptGlyphNotice());

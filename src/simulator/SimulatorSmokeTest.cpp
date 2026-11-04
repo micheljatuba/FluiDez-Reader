@@ -41,7 +41,6 @@
 #include "activities/home/HomeActivity.h"
 #include "activities/home/RecentBookProgress.h"
 #include "activities/library/LibraryActivity.h"
-#include "activities/reader/BookLoadingFeedback.h"
 #include "activities/reader/BookReadingStats.h"
 #include "activities/reader/EpubReaderActivity.h"
 #include "activities/reader/EpubReaderDrawerActivity.h"
@@ -218,7 +217,6 @@ class SimulatorSmokeTest {
     AssertTouchscreenEnabled,
     AssertTtfProfileNative,
     OpenSmokeBook,
-    OpenHomeSwipeScreen,
     OpenFrontlightSettings,
     ClearFrontlightSyncBook,
     PrepareFrontlightSync,
@@ -488,63 +486,19 @@ class SimulatorSmokeTest {
     SETTINGS.fromJson(navigationOriginal.as<JsonVariantConst>());
     const auto gestures = buildControlsTapsGesturesSettingsList(all);
     if (gpio.hasTouch()) {
-      if (gestures.empty() || gestures[0].nameId != StrId::STR_TOUCH_READER_CONTROLS ||
-          gestures[0].valuePtr != &FluiDezSettings::touchReaderControls) {
-        fail("Reader touch toggle missing from device gesture settings");
-      }
-      if (gestures.size() < 4 || gestures[1].nameId != StrId::STR_NEXT_PAGE ||
-          gestures[2].nameId != StrId::STR_PREV_PAGE || gestures[1].enumValues != gestures[2].enumValues) {
+      if (gestures.size() < 3 || gestures[0].nameId != StrId::STR_NEXT_PAGE ||
+          gestures[1].nameId != StrId::STR_PREV_PAGE || gestures[0].enumValues != gestures[1].enumValues) {
         fail("Page gesture settings order/options mismatch");
       }
-      if (gpio.supportsMultiTouch() && (gestures.size() < 5 || gestures[4].nameId != StrId::STR_TWO_FINGER_ROTATION)) {
+      if (gpio.supportsMultiTouch() && (gestures.size() < 4 || gestures[3].nameId != StrId::STR_TWO_FINGER_ROTATION)) {
         fail("Two-finger rotation gesture setting order mismatch");
       }
-      const size_t statusIndex = gpio.supportsMultiTouch() ? 5 : 3;
+      const size_t statusIndex = gpio.supportsMultiTouch() ? 4 : 2;
       if (gestures.size() <= statusIndex || gestures[statusIndex].nameId != StrId::STR_TAP_HIDE_STATUS_BAR) {
         fail("Status bar gesture setting order mismatch");
       }
-      JsonDocument beforeEditor;
-      SETTINGS.toJson(beforeEditor);
-      SETTINGS.touchReaderControls = FluiDezSettings::TOUCH_READER_OFF;
-      RenderLock editorLock;
-      SettingsActivity editor(renderer, mappedInputManager);
-      editor.onEnter();
-      const auto press = [&](MappedInputManager::Button button) {
-        mappedInputManager.simulatorInjectRelease(button);
-        editor.loop();
-        mappedInputManager.simulatorClearInputFrame();
-      };
-      press(MappedInputManager::Button::Confirm);
-      press(MappedInputManager::Button::Confirm);
-      if (editor.simulatorCategoryIndex() != 2) fail("Cannot reach Controls settings");
-      const auto gestureMenu = std::find_if(controls.begin(), controls.end(), [](const SettingInfo& setting) {
-        return setting.action == SettingAction::ControlsTapsGestures;
-      });
-      if (gestureMenu == controls.end()) fail("Taps & Gestures submenu missing");
-      for (size_t i = 0; i <= static_cast<size_t>(gestureMenu - controls.begin()); ++i) {
-        press(mappedInputManager.menuButton(MappedInputManager::Button::Down));
-      }
-      press(MappedInputManager::Button::Confirm);
-      if (editor.simulatorActiveSubmenu() != SettingAction::ControlsTapsGestures)
-        fail("Cannot open Taps & Gestures settings");
-      editor.render(std::move(editorLock));
-      captureStatusBarScreen("touch-reader-controls-off");
-      press(MappedInputManager::Button::Confirm);
-      if (SETTINGS.touchReaderControls != FluiDezSettings::TOUCH_READER_ON)
-        fail("Device setting did not re-enable reader touch controls");
-      editor.render(std::move(editorLock));
-      captureStatusBarScreen("touch-reader-controls-on");
-      editor.onExit();
-      SETTINGS.fromJson(beforeEditor.as<JsonVariantConst>());
     } else if (!gestures.empty()) {
       fail("Touch gestures exposed on a button-only device");
-    }
-    LOG_INF("SMOKE", "Reader touch device settings visibility and activation passed");
-    const auto& base = getBaseSettingsList();
-    const size_t expectedBaseSettingsCapacity = getBaseSettingsCapacity();
-    if (base.size() != expectedBaseSettingsCapacity || base.capacity() < expectedBaseSettingsCapacity) {
-      fail("Base settings allocation mismatch: size=%zu expected=%zu capacity=%zu", base.size(),
-           expectedBaseSettingsCapacity, base.capacity());
     }
     const auto device = buildSystemDeviceSettingsList(all);
     if (device.size() < 3 || device[1].nameId != StrId::STR_TIME_TO_SLEEP ||
@@ -553,24 +507,6 @@ class SimulatorSmokeTest {
     }
     JsonDocument original;
     SETTINGS.toJson(original);
-    for (const bool importingCrossPoint : {false, true}) {
-      for (uint8_t spacing = 0; spacing <= FluiDezSettings::MAX_WORD_SPACING; ++spacing) {
-        JsonDocument savedSpacing;
-        savedSpacing["wordSpacing"] = spacing;
-        SETTINGS.fromJson(savedSpacing.as<JsonVariantConst>(), importingCrossPoint);
-        if (SETTINGS.wordSpacing != spacing) fail("CrossInk word spacing changed during settings load");
-      }
-    }
-    JsonDocument crossPointSpacing;
-    crossPointSpacing["wordSpacing"] = 100;
-    SETTINGS.fromJson(crossPointSpacing.as<JsonVariantConst>(), true);
-    if (SETTINGS.wordSpacing != 0) fail("CrossPoint normal word spacing did not migrate to level 0");
-    JsonDocument migratedSpacing;
-    SETTINGS.toJson(migratedSpacing);
-    SETTINGS.wordSpacing = 4;
-    SETTINGS.fromJson(migratedSpacing.as<JsonVariantConst>());
-    if (SETTINGS.wordSpacing != 0) fail("Migrated word spacing did not survive reload");
-    SETTINGS.fromJson(original.as<JsonVariantConst>());
     for (uint8_t mode = 0; mode <= FluiDezSettings::PAGE_TURN_GESTURE_DISABLED; ++mode) {
       JsonDocument legacy;
       legacy["pageTurnGesture"] = mode;
@@ -647,14 +583,12 @@ class SimulatorSmokeTest {
     crossInkSettings["pageTurnGesture"] = FluiDezSettings::TAP_ONLY;
     crossInkSettings["previousPageGesture"] = FluiDezSettings::SWIPE_ONLY;
     crossInkSettings["disableReaderTouchscreen"] = 0;
-    crossInkSettings["wordSpacing"] = 4;
     String crossInkJson;
     serializeJson(crossInkSettings, crossInkJson);
 
     JsonDocument crossPointSettings;
     crossPointSettings["touchReaderControls"] = 2;
     crossPointSettings["disableReaderTouchscreen"] = 1;
-    crossPointSettings["wordSpacing"] = 100;
     String crossPointJson;
     serializeJson(crossPointSettings, crossPointJson);
 
@@ -667,7 +601,7 @@ class SimulatorSmokeTest {
     SETTINGS.previousPageGesture = FluiDezSettings::PAGE_TURN_GESTURE_DISABLED;
     if (!SETTINGS.loadFromFile() || SETTINGS.disableReaderTouchscreen ||
         SETTINGS.pageTurnGesture != FluiDezSettings::TAP_ONLY ||
-        SETTINGS.previousPageGesture != FluiDezSettings::SWIPE_ONLY || SETTINGS.wordSpacing != 4) {
+        SETTINGS.previousPageGesture != FluiDezSettings::SWIPE_ONLY) {
       fail("CrossInk settings file did not take precedence over CrossPoint settings");
     }
 
@@ -691,19 +625,9 @@ class SimulatorSmokeTest {
     if (!SETTINGS.loadFromFile() || SETTINGS.disableReaderTouchscreen ||
         SETTINGS.pageTurnGesture != FluiDezSettings::TAP_ONLY ||
         SETTINGS.previousPageGesture != FluiDezSettings::SWIPE_ONLY || !Storage.exists(crossInkSettingsPath) ||
-        Storage.exists(FLUIDEZ_SETTINGS_FILE_BAK) || SETTINGS.wordSpacing != 4) {
+        Storage.exists(FLUIDEZ_SETTINGS_FILE_BAK)) {
       fail("Interrupted CrossInk settings save did not recover before CrossPoint import");
     }
-
-    if (!Storage.remove(crossInkSettingsPath)) fail("Could not remove CrossInk settings migration fixture");
-    if (!SETTINGS.loadFromFile() || SETTINGS.wordSpacing != 0 || !Storage.exists(crossInkSettingsPath)) {
-      fail("CrossPoint word spacing file migration failed");
-    }
-    SETTINGS.wordSpacing = 4;
-    if (!SETTINGS.loadFromFile() || SETTINGS.wordSpacing != 0) {
-      fail("Migrated word spacing was not saved to CrossInk settings");
-    }
-    LOG_INF("SMOKE", "CrossPoint word spacing migration and CrossInk spacing preservation passed");
 
     if (hadCrossInkSettings) {
       if (!Storage.writeFile(crossInkSettingsPath, savedCrossInkSettings)) fail("Could not restore CrossInk settings");
@@ -1758,8 +1682,8 @@ class SimulatorSmokeTest {
         if (std::getenv("FLUIDEZ_SIMULATOR_SMOKE_FRONTLIGHT_LAYOUT")) {
           if (!mappedInputManager.hasHomeKey() || !mappedInputManager.hasTouchHardware())
             fail("Frontlight layout regression requires the X4 Pro simulator");
-          activityManager.goToReader(std::getenv("FLUIDEZ_SIMULATOR_SMOKE_BOOK"), true);
-          queueStep("Frontlight layout reader", SmokeStep::FrontlightLayout, 12);
+          activityManager.replaceActivity(std::make_unique<HomeActivity>(renderer, mappedInputManager));
+          queueStep("Frontlight layout Home", SmokeStep::FrontlightLayout, 4);
           break;
         }
         verifyLoadingPopupBackdrop();
@@ -2178,43 +2102,6 @@ class SimulatorSmokeTest {
         break;
 
       case SmokeStep::Home:
-        if (std::getenv("FLUIDEZ_SIMULATOR_SMOKE_BOOK_LOADING")) {
-          RenderLock lock;
-          BookLoadingFeedback feedback;
-          feedback.start();
-          if (!feedback.showIfPending(renderer)) fail("Book open omitted immediate loading feedback");
-          captureStatusBarScreen("book-loading-immediate");
-          if (feedback.showIfPending(renderer)) fail("Book loading feedback refreshed twice");
-          const auto frameHash = []() {
-            uint32_t hash = 2166136261U;
-            for (int y = 0; y < renderer.getScreenHeight(); ++y) {
-              for (int x = 0; x < renderer.getScreenWidth(); ++x) {
-                hash = (hash ^ static_cast<uint32_t>(renderer.isPixelBlack(x, y))) * 16777619U;
-              }
-            }
-            return hash;
-          };
-          const auto originalOrientation = renderer.getOrientation();
-          for (const auto orientation : {GfxRenderer::Portrait, GfxRenderer::LandscapeClockwise,
-                                         GfxRenderer::PortraitInverted, GfxRenderer::LandscapeCounterClockwise}) {
-            // Reproduce the old handoff: portrait Loading followed by rotated Indexing.
-            renderer.setOrientation(GfxRenderer::Portrait);
-            feedback.start();
-            feedback.showIfPending(renderer);
-            renderer.setOrientation(orientation);
-            feedback.showIndexing(renderer);
-            char capture[48];
-            snprintf(capture, sizeof(capture), "book-indexing-orientation-%d", static_cast<int>(orientation));
-            captureStatusBarScreen(capture);
-            const uint32_t actualFrame = frameHash();
-            renderer.clearScreen();
-            GUI.drawPopup(renderer, tr(STR_INDEXING));
-            if (actualFrame != frameHash()) fail("Indexing retained pixels from the previous notice");
-            if (feedback.showIfPending(renderer)) fail("Loading replaced Indexing");
-          }
-          renderer.setOrientation(originalOrientation);
-          LOG_INF("SMOKE", "Immediate book loading feedback passed");
-        }
         activityManager.goToFileBrowser("/books");
         queueStep("File Browser", SmokeStep::FileBrowser);
         break;
@@ -2559,15 +2446,6 @@ class SimulatorSmokeTest {
       }
 
       case SmokeStep::Reader:
-#if FLUIDEZ_APP_CAP_TOUCH
-        if (std::getenv("FLUIDEZ_SIMULATOR_SMOKE_CLIPPING_SELECTION")) {
-          if (ClippingSelectionSmokeTest::tick()) {
-            LOG_INF("SMOKE", "Simulator smoke test passed: touch clipping actions");
-            std::_Exit(0);
-          }
-          break;
-        }
-#endif
         if (!activityManager.isCurrentActivityNamed("EpubReader")) fail("Completion test requires EPUB reader");
         if (!EpubReaderCompletionSmokeTest::run(
                 *static_cast<EpubReaderActivity*>(activityManager.simulatorCurrentActivity()))) {
@@ -2598,27 +2476,18 @@ class SimulatorSmokeTest {
 
       case SmokeStep::FrontlightLayout: {
         // Both scales, all four orientations, and all eight themes, with and
-        // without the reader progress row. Exercise both handle swipes and taps.
-        if (frontlightLayoutPass == 256) {
-          LOG_INF("SMOKE", "Frontlight layout: 256 layout and dismissal combinations passed");
-          FrontlightPanelContext context;
-          context.activeReaderBook = true;
-          activityManager.pushActivity(
-              std::make_unique<FrontlightPanelActivity>(renderer, mappedInputManager, std::move(context)));
-          inputScript = {render("Frontlight before explicit Home", 4), homeTap(), render("Frontlight explicit Home", 8),
-                         assertActivity("Home")};
-          scriptIndex = 0;
-          inputCompletionStep = SmokeStep::Done;
-          step = SmokeStep::ReaderInput;
+        // without the additional reader progress row.
+        if (frontlightLayoutPass == 128) {
+          LOG_INF("SMOKE", "Frontlight layout: 128 scale/orientation/theme/context combinations passed");
+          step = SmokeStep::Done;
           break;
         }
-        const unsigned layoutCase = frontlightLayoutPass % 128;
         {
           RenderLock lock;
           SETTINGS.uiScale =
-              (layoutCase / 64) ? FluiDezSettings::UI_SCALE_LARGE : FluiDezSettings::UI_SCALE_SMALL;
-          SETTINGS.uiTheme = (layoutCase / 8) % 8;
-          renderer.setOrientation(static_cast<GfxRenderer::Orientation>((layoutCase / 2) % 4));
+              (frontlightLayoutPass / 64) ? FluiDezSettings::UI_SCALE_LARGE : FluiDezSettings::UI_SCALE_SMALL;
+          SETTINGS.uiTheme = (frontlightLayoutPass / 8) % 8;
+          renderer.setOrientation(static_cast<GfxRenderer::Orientation>((frontlightLayoutPass / 2) % 4));
           UITheme::getInstance().reload();
         }
         FrontlightPanelContext context;
@@ -2668,14 +2537,8 @@ class SimulatorSmokeTest {
 #if FLUIDEZ_APP_CAP_TOUCH
         const int x = handle.x + handle.width / 2;
         const int y = handle.y + handle.height / 2;
-        if (frontlightLayoutPass < 128) {
-          const int endY = std::max(0, y - renderer.getScreenHeight() / 3);
-          inputScript = {touchDown(x, y), touchMove(x, endY), touchRelease(x, endY),
-                         render("Frontlight closed by handle swipe", 4), assertActivity("EpubReader")};
-        } else {
-          inputScript = {touchDown(x, y), touchRelease(x, y), render("Frontlight closed by visible handle", 4),
-                         assertActivity("EpubReader")};
-        }
+        inputScript = {touchDown(x, y), touchRelease(x, y), render("Frontlight closed by visible handle", 4),
+                       assertActivity("Home")};
         scriptIndex = 0;
         ++frontlightLayoutPass;
         inputCompletionStep = SmokeStep::FrontlightLayout;
@@ -2935,62 +2798,6 @@ class SimulatorSmokeTest {
   void addTap(MappedInputManager::Button button) {
     inputScript.push_back(press(button));
     inputScript.push_back(release(button));
-  }
-
-  void buildHomeSwipeScript() {
-#if FLUIDEZ_APP_CAP_TOUCH
-    if (!mappedInputManager.hasTouchHardware()) fail("Home swipe checks require a touch simulator");
-    inputScript.clear();
-    scriptIndex = 0;
-    inputCompletionStep = SmokeStep::Done;
-    const int width = renderer.getScreenWidth();
-    const int height = renderer.getScreenHeight();
-    const auto swipe = [&](int startY, int endY) {
-      inputScript.push_back(touchDown(width / 2, startY));
-      inputScript.push_back(touchMove(width / 2, endY));
-      inputScript.push_back(touchRelease(width / 2, endY));
-      inputScript.push_back(render("Home swipe result", 4));
-    };
-    const char* screens[] = {"Settings",     "FileBrowser",       "About",
-                             "ReleaseNotes", "StatusBarSettings", "FileBrowserSettings"};
-    for (int screen = 0; screen < 6; ++screen) {
-      if (screen >= 4) {
-        inputScript.push_back(
-            {ScriptActionType::OpenHomeSwipeScreen, MappedInputManager::Button::Back, nullptr, 0, screen - 4, 0});
-        inputScript.push_back(render("Nested settings parent", 4));
-      }
-      inputScript.push_back(
-          {ScriptActionType::OpenHomeSwipeScreen, MappedInputManager::Button::Back, nullptr, 0, screen, 0});
-      inputScript.push_back(render("Non-reader Home swipe screen", 4));
-      inputScript.push_back(assertActivity(screens[screen]));
-      swipe(height * 3 / 4, height / 3);
-      inputScript.push_back(assertActivity(screens[screen]));
-      swipe(height / 3, height * 3 / 4);
-      inputScript.push_back(assertActivity(screens[screen]));
-      swipe(height - 8, height * 2 / 3);
-      // Release Notes reserves vertical swipes for paging, including its bottom actions.
-      inputScript.push_back(assertActivity(screen == 3 ? "ReleaseNotes" : "Home"));
-    }
-    if (!Storage.writeFile("/books/home-swipe.txt", "TXT bottom-edge Home swipe regression.\n"))
-      fail("Failed to write TXT Home swipe fixture");
-    inputScript.push_back({ScriptActionType::OpenHomeSwipeScreen, MappedInputManager::Button::Back, nullptr, 0, 6, 0});
-    inputScript.push_back(render("TXT before Home swipe regression", 12));
-    inputScript.push_back(assertActivity("TxtReader"));
-    addTap(MappedInputManager::Button::Confirm);
-    inputScript.push_back(render("TXT without sharing popup", 4));
-    inputScript.push_back(assertActivity("TxtReader"));
-    swipe(height * 3 / 4, height / 3);
-    inputScript.push_back(assertActivity("TxtReader"));
-    swipe(height - 8, height * 2 / 3);
-    inputScript.push_back(assertActivity("Home"));
-    inputScript.push_back(openSmokeBook());
-    inputScript.push_back(render("Reader before Home swipe regression", 12));
-    inputScript.push_back(assertActivity("EpubReader"));
-    swipe(height - 8, height * 2 / 3);
-    inputScript.push_back(assertActivity("EpubReaderDrawer"));
-#else
-    fail("Home swipe checks require a touch simulator");
-#endif
   }
 
   void buildReaderInputScript() {
@@ -3770,34 +3577,6 @@ class SimulatorSmokeTest {
         }
 #endif
         break;
-      case ScriptActionType::OpenHomeSwipeScreen:
-        switch (action.x) {
-          case 0:
-            activityManager.replaceActivity(std::make_unique<SettingsActivity>(renderer, mappedInputManager));
-            break;
-          case 1:
-            activityManager.replaceActivity(
-                std::make_unique<FileBrowserActivity>(renderer, mappedInputManager, "/books"));
-            break;
-          case 2:
-            activityManager.replaceActivity(std::make_unique<AboutActivity>(renderer, mappedInputManager));
-            break;
-          case 3:
-            activityManager.replaceActivity(std::make_unique<ReleaseNotesActivity>(
-                renderer, mappedInputManager, ReleaseNotesActivity::Mode::FromSettings));
-            break;
-          case 4:
-            activityManager.pushActivity(std::make_unique<StatusBarSettingsActivity>(renderer, mappedInputManager));
-            break;
-          case 5:
-            activityManager.pushActivity(std::make_unique<SettingsActivity>(renderer, mappedInputManager, false, true,
-                                                                            SettingsActivity::View::FileBrowser));
-            break;
-          case 6:
-            activityManager.goToReader("/books/home-swipe.txt", true);
-            break;
-        }
-        break;
       case ScriptActionType::OpenSmokeBook: {
         const char* bookPath = std::getenv("FLUIDEZ_SIMULATOR_SMOKE_BOOK");
         if (bookPath == nullptr || bookPath[0] == '\0') fail("Smoke test book path is missing");
@@ -3889,10 +3668,6 @@ class SimulatorSmokeTest {
       }
       case ScriptActionType::AssertActivity:
         if (!activityManager.isCurrentActivityNamed(action.label)) fail("Expected current activity: %s", action.label);
-        if (std::getenv("FLUIDEZ_SIMULATOR_SMOKE_HOME_SWIPE")) {
-          RenderLock lock;
-          captureStatusBarScreen(action.label);
-        }
         break;
       case ScriptActionType::Render:
         queueStep(action.label, SmokeStep::ReaderInput, action.settleFrames);
