@@ -146,8 +146,7 @@ void BaseTheme::fillBatteryIcon(const GfxRenderer& renderer, Rect rect, uint16_t
 }
 
 void BaseTheme::drawBatteryLeft(const GfxRenderer& renderer, Rect rect, const uint16_t percentage,
-                                const bool showPercentage,
-                                const bool foregroundBlack) const {
+                                const bool showPercentage, const bool foregroundBlack) const {
   // Left aligned: icon on left, percentage on right (reader mode)
   // The icon's nub makes its visual center sit slightly below its bounding
   // box. Lift it one pixel to center it with the percentage text.
@@ -165,8 +164,7 @@ void BaseTheme::drawBatteryLeft(const GfxRenderer& renderer, Rect rect, const ui
 }
 
 void BaseTheme::drawBatteryRight(const GfxRenderer& renderer, Rect rect, const uint16_t percentage,
-                                 const bool showPercentage,
-                                 const bool foregroundBlack) const {
+                                 const bool showPercentage, const bool foregroundBlack) const {
   // Right aligned: percentage on left, icon on right (UI headers)
   // rect.x is already positioned for the icon (drawHeader calculated it)
   const int y = rect.y + 5;
@@ -811,8 +809,7 @@ void BaseTheme::drawReaderStatusBar(const GfxRenderer& renderer, const ReaderSta
           ? content.chapterProgress
           : (content.chapterPageCount > 0 ? 100.0f * content.chapterPage / content.chapterPageCount : 0.0f);
   if (progressHeight > 0 && content.showProgress) {
-    const float percent =
-        config.progressBar == FluiDezSettings::BOOK_PROGRESS ? content.bookProgress : chapterProgress;
+    const float percent = config.progressBar == FluiDezSettings::BOOK_PROGRESS ? content.bookProgress : chapterProgress;
     const int bookmarkOffset = !top && !hasText && content.bookmarked
                                    ? metrics.statusBarHorizontalMargin + 1 + ReaderStatusBarConfig::BOOKMARK_WIDTH + 4
                                    : 0;
