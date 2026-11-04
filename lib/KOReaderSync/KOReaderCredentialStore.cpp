@@ -11,8 +11,10 @@ namespace {
 // Implicit server of configs saved before config version 2 with an empty serverUrl.
 constexpr char LEGACY_DEFAULT_SERVER_URL[] = "https://sync.koreader.rocks:443";
 
-// Implicit server of version 2 configs (CrossInk, and FluiDez up to v1.6-fluidez18).
-constexpr char PREVIOUS_DEFAULT_SERVER_URL[] = "https://sync.crosspointreader.com";
+// CrossPoint's public sync server: the implicit server of version 2 configs
+// (CrossInk, and FluiDez up to v1.6-fluidez18), and the only server that accepts
+// the extended position object.
+constexpr char CROSSPOINT_SYNC_SERVER_URL[] = "https://sync.crosspointreader.com";
 
 // Bumped when a change to defaults would alter behavior for existing configs.
 constexpr uint8_t CONFIG_VERSION = 3;
@@ -57,7 +59,7 @@ bool KOReaderCredentialStore::fromJson(JsonVariantConst doc) {
   if (cfgVersion < CONFIG_VERSION) {
     const bool hadAccount = !username.empty() && !password.empty();
     if (serverUrl.empty() && hadAccount) {
-      const char* implicitServer = cfgVersion < 2 ? LEGACY_DEFAULT_SERVER_URL : PREVIOUS_DEFAULT_SERVER_URL;
+      const char* implicitServer = cfgVersion < 2 ? LEGACY_DEFAULT_SERVER_URL : CROSSPOINT_SYNC_SERVER_URL;
       LOG_DBG("KRS", "Config v%u used an implicit server; pinning %s", cfgVersion, implicitServer);
       setServerUrl(implicitServer);
     }
@@ -145,7 +147,7 @@ std::string KOReaderCredentialStore::getBaseUrl() const {
   return url;
 }
 
-bool KOReaderCredentialStore::usesCrossPointSyncServer() const { return getBaseUrl() == DEFAULT_SERVER_URL; }
+bool KOReaderCredentialStore::usesCrossPointSyncServer() const { return getBaseUrl() == CROSSPOINT_SYNC_SERVER_URL; }
 
 void KOReaderCredentialStore::setMatchMethod(DocumentMatchMethod method) {
   ensureLoaded();

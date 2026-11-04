@@ -122,7 +122,7 @@ struct EpubReaderActivity : Activity {
   int mappedInput = 0;
   Popup quickActionsPopup;
   std::atomic<bool> pageBufferStale{false};
-  bool pendingRenderModeToast = false, pendingSafeModeToast = false;
+  bool pendingRenderModeToast = false, pendingSafeModeToast = false, pendingFontDamagedToast = false;
   unsigned updates = 0, syncRenders = 0, handoffs = 0;
   bool syncRenderCompletes = true, syncRenderRejected = false;
   bool restoreSucceeds = false, dictionaryReusesPage = true, automaticPageTurnActive = false;
