@@ -55,9 +55,10 @@ class BookmarkRecords {
     return true;
   }
   void erase(const Bookmark* position) {
-    const size_t index = position - records.get();
+    Bookmark* const base = records.get();
+    const size_t index = position - base;
     if (index >= count) return;
-    std::move(records.get() + index + 1, records.get() + count, records.get() + index);
+    std::move(base + index + 1, base + count, base + index);
     --count;
   }
   void clear() { count = 0; }
