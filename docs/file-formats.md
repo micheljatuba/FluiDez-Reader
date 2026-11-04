@@ -26,7 +26,7 @@ them with a potentially incomplete legacy subset.
 
 ## Settings: menu navigation
 
-`menuNavigation` in `/.crosspoint/crossink-settings.json` selects Directional
+`menuNavigation` in `/.crosspoint/fluidez-settings.json` selects Directional
 (`0`, the default) or Classic (`1`) button navigation in global Settings and
 the EPUB reader menu. This is a global preference, shared with the in-reader
 Controls screen. Missing or invalid values retain the current value, which is

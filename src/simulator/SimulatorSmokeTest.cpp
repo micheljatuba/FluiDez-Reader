@@ -567,7 +567,7 @@ class SimulatorSmokeTest {
         SETTINGS.tapToHideStatusBar) {
       fail("Reader controls settings round-trip mismatch");
     }
-    constexpr char FLUIDEZ_SETTINGS_FILE_BAK[] = "/.crosspoint/crossink-settings.json.bak";
+    constexpr char FLUIDEZ_SETTINGS_FILE_BAK[] = "/.crosspoint/fluidez-settings.json.bak";
     constexpr char LEGACY_SETTINGS_FILE_JSON[] = "/.crosspoint/settings.json";
     const char* const crossInkSettingsPath = FluiDezSettings::getFilePath();
     const bool hadCrossInkSettings = Storage.exists(crossInkSettingsPath);

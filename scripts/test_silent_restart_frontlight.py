@@ -58,7 +58,7 @@ def check_state(live_on):
             "frontlightScheduleStart": (minute + (60 if live_on else -60)) % 1440,
             "frontlightScheduleEnd": (minute + (120 if live_on else 60)) % 1440,
         }
-        settings_path = state_dir / "crossink-settings.json"
+        settings_path = state_dir / "fluidez-settings.json"
         settings_path.write_text(json.dumps(settings))
         (state_dir / "state.json").write_text(json.dumps({"showBootScreen": False}))
         flags = LIGHT_VALID | (LIGHT_ON if live_on else 0)

@@ -787,7 +787,7 @@ class FluiDezSettings : public PersistableStore<FluiDezSettings> {
 
   bool saveToFile() const;
   bool loadFromFile();
-  static const char* getFilePath() { return "/.crosspoint/crossink-settings.json"; }
+  static const char* getFilePath() { return "/.crosspoint/fluidez-settings.json"; }
   void toJson(JsonDocument& doc) const;
   bool fromJson(JsonVariantConst doc, bool importingCrossPoint = false);
 

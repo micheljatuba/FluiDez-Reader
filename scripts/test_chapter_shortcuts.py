@@ -74,7 +74,7 @@ def run(env, kind, case, mode='select', program=None, logs=None):
         else: book.write_text('Text reader has no chapter list.\n'*200)
         settings={'shortPwrBtn':0,'longPwrBtn':0,'longPressMenuAction':0,'longPressBackAction':0,'showBootScreen':False}
         settings.update(values)
-        (state/'crossink-settings.json').write_text(json.dumps(settings))
+        (state/'fluidez-settings.json').write_text(json.dumps(settings))
         (state/'state.json').write_text(json.dumps({'openEpubPath':f'/book.{suffix}','lastSleepFromReader':True,'showBootScreen':False}))
         script=[]
         for base in (2500,4700):

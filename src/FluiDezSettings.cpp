@@ -38,8 +38,12 @@ void readAndValidate(FsFile& file, uint8_t& member, const uint8_t maxValue) {
 namespace {
 constexpr uint8_t SETTINGS_FILE_VERSION = 2;
 constexpr char SETTINGS_FILE_BIN[] = "/.crosspoint/settings.bin";
-constexpr char SETTINGS_FILE_JSON[] = "/.crosspoint/crossink-settings.json";
-constexpr char SETTINGS_FILE_JSON_BAK[] = "/.crosspoint/crossink-settings.json.bak";
+constexpr char SETTINGS_FILE_JSON[] = "/.crosspoint/fluidez-settings.json";
+constexpr char SETTINGS_FILE_JSON_BAK[] = "/.crosspoint/fluidez-settings.json.bak";
+// Written by CrossInk and by FluiDez up to v1.6-fluidez18. Read once to
+// migrate, then left in place so an older firmware still finds its settings.
+constexpr char CROSSINK_SETTINGS_FILE_JSON[] = "/.crosspoint/crossink-settings.json";
+constexpr char CROSSINK_SETTINGS_FILE_JSON_BAK[] = "/.crosspoint/crossink-settings.json.bak";
 constexpr char LEGACY_SETTINGS_FILE_JSON[] = "/.crosspoint/settings.json";
 constexpr char SETTINGS_FILE_BAK[] = "/.crosspoint/settings.bin.bak";
 constexpr char LANG_FILE_BIN[] = "/.crosspoint/language.bin";
@@ -952,10 +956,10 @@ bool FluiDezSettings::loadFromFile() {
       }
       if (result && (resave || migrateToCurrentPath)) {
         if (saveToFile()) {
-          LOG_DBG("CPS", migrateToCurrentPath ? "Migrated legacy settings.json to crossink-settings.json"
+          LOG_DBG("CPS", migrateToCurrentPath ? "Migrated earlier settings to fluidez-settings.json"
                                               : "Resaved settings to update format");
         } else {
-          LOG_ERR("CPS", migrateToCurrentPath ? "Failed to save migrated settings to crossink-settings.json"
+          LOG_ERR("CPS", migrateToCurrentPath ? "Failed to save migrated settings to fluidez-settings.json"
                                               : "Failed to resave settings after format update");
         }
       }
@@ -965,16 +969,24 @@ bool FluiDezSettings::loadFromFile() {
     return JsonLoadStatus::MissingOrEmpty;
   };
 
-  // Prefer CrossInk's namespaced settings file. Use the old generic file only
-  // as a migration fallback so other firmware can keep its own settings.json.
-  const bool hasCrossInkSettings = Storage.exists(SETTINGS_FILE_JSON) || Storage.exists(SETTINGS_FILE_JSON_BAK);
+  // Prefer FluiDez's namespaced settings file. A FluiDez file takes precedence
+  // even when it is damaged: falling through would import an older file and
+  // replace the user's current preferences.
+  const bool hasFluiDezSettings = Storage.exists(SETTINGS_FILE_JSON) || Storage.exists(SETTINGS_FILE_JSON_BAK);
   JsonLoadStatus jsonStatus = loadJsonSettings(SETTINGS_FILE_JSON, false);
-  // A CrossInk-specific settings file takes precedence even when it is
-  // damaged. Falling through would import another firmware's settings.json
-  // and replace the user's CrossInk preferences.
+  if (hasFluiDezSettings || jsonStatus != JsonLoadStatus::MissingOrEmpty) {
+    return jsonStatus == JsonLoadStatus::Loaded;
+  }
+
+  // Settings saved by CrossInk or earlier FluiDez builds migrate as they are.
+  const bool hasCrossInkSettings =
+      Storage.exists(CROSSINK_SETTINGS_FILE_JSON) || Storage.exists(CROSSINK_SETTINGS_FILE_JSON_BAK);
+  jsonStatus = loadJsonSettings(CROSSINK_SETTINGS_FILE_JSON, true);
   if (hasCrossInkSettings || jsonStatus != JsonLoadStatus::MissingOrEmpty) {
     return jsonStatus == JsonLoadStatus::Loaded;
   }
+
+  // The old generic file is only a fallback so other firmware can keep its own settings.json.
 
   jsonStatus = loadJsonSettings(LEGACY_SETTINGS_FILE_JSON, true);
   if (jsonStatus != JsonLoadStatus::MissingOrEmpty) return jsonStatus == JsonLoadStatus::Loaded;
@@ -990,7 +1002,7 @@ bool FluiDezSettings::loadFromFile() {
       migrateLanguageBinaryFile();
       if (saveToFile()) {
         Storage.rename(SETTINGS_FILE_BIN, SETTINGS_FILE_BAK);
-        LOG_DBG("CPS", "Migrated settings.bin to crossink-settings.json");
+        LOG_DBG("CPS", "Migrated settings.bin to fluidez-settings.json");
         return true;
       } else {
         LOG_ERR("CPS", "Failed to save migrated settings to JSON");
@@ -1022,7 +1034,7 @@ bool FluiDezSettings::migrateLanguageBinaryFile() {
   }
   Storage.rename(LANG_FILE_BIN, LANG_FILE_BAK);
   saveToFile();
-  LOG_DBG("CPS", "Migrated language.bin into crossink-settings.json");
+  LOG_DBG("CPS", "Migrated language.bin into fluidez-settings.json");
   return true;
 }
 
