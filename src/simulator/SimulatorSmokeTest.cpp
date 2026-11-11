@@ -217,6 +217,8 @@ class SimulatorSmokeTest {
     AssertTouchscreenEnabled,
     AssertTtfProfileNative,
     OpenSmokeBook,
+    OpenBackSwipeBrowser,
+    AssertBackSwipeBrowser,
     OpenFrontlightSettings,
     ClearFrontlightSyncBook,
     PrepareFrontlightSync,
@@ -3580,6 +3582,19 @@ class SimulatorSmokeTest {
         }
 #endif
         break;
+      case ScriptActionType::OpenBackSwipeBrowser:
+        activityManager.replaceActivity(std::make_unique<FileBrowserActivity>(
+            renderer, mappedInputManager, action.label, static_cast<FileBrowserActivity::Mode>(action.x)));
+        break;
+      case ScriptActionType::AssertBackSwipeBrowser: {
+        const auto* browser = dynamic_cast<FileBrowserActivity*>(activityManager.simulatorCurrentActivity());
+        if (!browser || browser->simulatorFolderPath() != action.label ||
+            browser->simulatorDeleteRevealed() != (action.x != 0) || browser->simulatorTouchActive())
+          fail("Browser Back/reveal/press mismatch: expected %s, revealed=%d", action.label, action.x);
+        RenderLock lock;
+        captureStatusBarScreen(action.x ? "browser-delete-revealed" : "browser-back-restored");
+        break;
+      }
       case ScriptActionType::OpenSmokeBook: {
         const char* bookPath = std::getenv("FLUIDEZ_SIMULATOR_SMOKE_BOOK");
         if (bookPath == nullptr || bookPath[0] == '\0') fail("Smoke test book path is missing");

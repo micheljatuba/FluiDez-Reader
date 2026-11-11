@@ -126,6 +126,8 @@ class FileBrowserActivity final : public Activity {
   const std::string& simulatorFolderPath() const { return basepath; }
   size_t simulatorSelectedIndex() const { return selectorIndex; }
   int simulatorTopIndex() const { return topIndex; }
+  bool simulatorDeleteRevealed() const { return swipeDelete.index >= 0; }
+  bool simulatorTouchActive() const { return app.touchActive(); }
   freeink::ui::Rect simulatorDirectorySelectRect() const { return directorySelectRect; }
 #endif
   explicit FileBrowserActivity(GfxRenderer& renderer, MappedInputManager& mappedInput, std::string initialPath = "/",
