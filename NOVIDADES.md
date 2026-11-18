@@ -4,7 +4,7 @@ O que muda para quem usa o FluiDez Reader em cada versão, da mais recente para 
 
 ## [Próxima versão]
 
-## [v1.6-fluidez19] - 2026-11-04
+## [v1.6-fluidez19] - 2026-11-17
 
 - **FluiDez independente:** a partir desta versão, o FluiDez segue o próprio caminho. O CrossInk e o CrossPoint continuam como referência, e as correções que trazemos de lá são adaptadas e creditadas, como prevê a licença MIT.
 - **Correções do CrossInk até 31 de outubro:**
