@@ -2562,6 +2562,7 @@ void EpubReaderDrawerActivity::renderPreviewContents(const ReaderSettingsDraft& 
     const auto& metrics = UITheme::getInstance().getMetrics();
     const int labelTextHeight = renderer.getTextHeight(UI_10_FONT_ID);
     const bool showAaNote = showsSamplePreviewAaNote(previewSettings);
+    // cppcheck-suppress knownConditionTrueFalse ; constant on builds without the sample preview
     const int noteHeight = showAaNote ? labelTextHeight + 2 : 0;
     const char* name = previewSettings.sdFontFamilyName[0]
                            ? previewSettings.sdFontFamilyName.data()
@@ -2574,6 +2575,7 @@ void EpubReaderDrawerActivity::renderPreviewContents(const ReaderSettingsDraft& 
     renderer.beginTextClip(preview.x, preview.y, preview.width, preview.height);
     renderer.drawText(UI_10_FONT_ID, preview.x + metrics.previewPadding, labelY, label,
                       ReaderUtils::readerForegroundBlack());
+    // cppcheck-suppress knownConditionTrueFalse ; constant on builds without the sample preview
     if (showAaNote) {
       std::snprintf(label, sizeof(label), "%s: %s", tr(STR_TEXT_AA), tr(STR_PREVIEW_UNAVAILABLE));
       renderer.drawText(SMALL_FONT_ID, preview.x + metrics.previewPadding, labelY + labelTextHeight + 6, label,
@@ -2641,6 +2643,7 @@ void EpubReaderDrawerActivity::renderSamplePreviewText(const ReaderSettingsDraft
   const fui::Rect area = previewBounds();
   const int labelTextHeight = renderer.getTextHeight(UI_10_FONT_ID);
   const int labelHeight =
+      // cppcheck-suppress knownConditionTrueFalse ; constant on builds without the sample preview
       labelTextHeight + (showsSamplePreviewAaNote(settings) ? labelTextHeight + 2 : 0) + metrics.previewPadding + 8;
   const int textHeight = std::max(0, area.height - labelHeight - metrics.previewPadding);
   // The sample is a short page: show top AND bottom margins proportionally
