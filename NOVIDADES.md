@@ -4,6 +4,24 @@ O que muda para quem usa o FluiDez Reader em cada versão, da mais recente para 
 
 ## [Próxima versão]
 
+## [v1.6-fluidez20] - 2026-11-18
+
+- **Tela mais nova por baixo:** o FluiDez passa a usar a versão mais recente do SDK dos leitores. Ela traz a suavização de texto em uma única passada, correções nos controladores de tela e de toque, o cartão SD do X4 Pro na velocidade certa e o USB respondendo sem pausas.
+- **Sem travar depois da sincronização:** o X4 Pro não reinicia mais com erro depois de sincronizar o progresso com o KOReader.
+- **Envio por USB:** arquivos grandes enviados pelo cabo USB não pausam mais nem falham na conferência final.
+- **Downloads do catálogo OPDS:** livros baixados de servidores que mandam blocos grandes não falham mais por falta de memória.
+- **Leitura:**
+  - espaços especiais, como o espaço fino em volta de aspas, não aparecem mais como caixinhas;
+  - títulos de capítulo agrupados voltam a ter o espaçamento e o alinhamento da editora;
+  - o espaçamento entre capítulos foi corrigido;
+  - capas de EPUB em JPEG progressivo não saem mais inclinadas.
+- **Toques e atalhos:**
+  - a barra de status fica mais fácil de tocar;
+  - deslizar para voltar funciona no explorador de arquivos;
+  - o botão de energia vira as páginas do dicionário quando está configurado para isso.
+- **Biblioteca:** marcar um livro como lido não apaga mais o título salvo.
+- **Ao atualizar:** os livros abertos são reindexados uma vez.
+
 ## [v1.6-fluidez19] - 2026-11-17
 
 - **FluiDez independente:** a partir desta versão, o FluiDez segue o próprio caminho. O CrossInk e o CrossPoint continuam como referência, e as correções que trazemos de lá são adaptadas e creditadas, como prevê a licença MIT.

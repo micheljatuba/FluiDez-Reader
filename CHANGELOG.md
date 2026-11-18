@@ -6,6 +6,19 @@ FluiDez Reader is a maintained fork of [CrossInk](https://github.com/uxjulia/cro
 
 ## [Unreleased]
 
+## [v1.6-fluidez20] - 2026-11-18
+
+### Changed
+
+- `freeink-sdk` moves to aad0749a (240 commits): single-pass anti-aliased refreshes and display driver fixes, native USB serial replies that keep moving, connection-owned TLS buffers for bulk transfers, SDMMC at its intended 40 MHz, I2C and GT911 touch fixes, opt-in CFF fonts. FluiDez builds against it unchanged.
+- Section caches move to 90 / 0xCB; books reindex once.
+
+### Fixed
+
+Ported from CrossInk `development` up to 2026-11-11 (source commits in each commit message): ESP32-S3 IPC tasks get at least 2 KB of stack, preventing startup crashes after KOReader sync (1990a78f, uxjulia/crossink#938); USB upload pauses and checksum timeouts (88f311be); OPDS book downloads reserve a full TLS record (46f39973); Unicode spaces render as font-relative blanks instead of missing-glyph boxes (20d74368); grouped `<hgroup>` headings (cb58ab50, #940); chapter spacing and transfer scrolling (63a68257, #913); progressive JPEG covers (0a46bcc3, #907); AA preview notice in the font picker (258e1c3b, #917); easier status-bar taps (1d3133ed); Lyra Carousel clear of the menu (83ce9237); runtime font advances rounded once (526bfbfd); Back swipes in Browse Files (77c20ab4, #946); saved titles kept when marking finished (62e86c74, #945); Power-button paging in dictionary definitions (09589918, #911).
+
+Not ported: the 229-file Boox Picco / CrossPoint Sync commit (2c0d7056) and the fixes built on it, custom sleep BMP fitting (e36b25b1, overlaps FluiDez's Screens conversion), the X4 Classic power-shortcut fix tied to CrossInk's button capture (bb63d8f1), clipping, sync, plugin, language and calibration work.
+
 ## [v1.6-fluidez19] - 2026-11-17
 
 FluiDez Reader now evolves on its own. CrossInk and CrossPoint stay as references: fixes brought from them are adapted, keep their MIT notices, and are listed here with their source commits.
