@@ -131,6 +131,7 @@ add_test(NAME WifiAutoConnectRegression
   COMMAND ${Python3_EXECUTABLE} ${REPO_ROOT}/test/scripts/test_wifi_auto_connect.py)
 add_subdirectory(book_loading_feedback)
 add_subdirectory(swipe_delete)
+add_subdirectory(ipc_task_stack)
 add_subdirectory(hal_power_manager)
 
 add_subdirectory(bookmark_store)
