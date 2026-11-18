@@ -107,6 +107,7 @@ struct Sink {
   size_t total = 0;
   bool rangeIgnored = false;
   HttpRequestDiagnostics* diagnostics = nullptr;
+  bool reserveFullRecord = false;  // DownloadOptions::reserveFullRecord, WOLFSSL only.
 };
 
 void setRequestHeaders(esp_http_client_handle_t client, const std::string& username, const std::string& password,
@@ -154,7 +155,7 @@ HttpDownloader::DownloadError runGetWolfSsl(const std::string& url, const std::s
 
     freeink::SecureHttpClient http;
     http.setTimeout(HTTP_TIMEOUT_MS);
-    http.setReserveFullRecord(sink.options->reserveFullRecord);
+    http.setReserveFullRecord(sink.reserveFullRecord);
     // SecureNet does not yet expose ESP-IDF's CA bundle. This matches the
     // existing KOSync transport; cross-origin hops omit Basic credentials.
     http.setInsecure();
@@ -519,6 +520,7 @@ HttpDownloader::DownloadError HttpDownloader::streamUrl(const std::string& url, 
   sink.write = onData;
   sink.progress = std::move(progress);
   sink.shouldCancel = std::move(options.shouldCancel);
+  sink.reserveFullRecord = options.reserveFullRecord;
   const size_t bufferSize = options.bufferSize > 0 ? options.bufferSize : DEFAULT_DOWNLOAD_BUFFER_SIZE;
   return runGet(url, username, password, options.authorizationOrigin, sink, bufferSize, options.transport);
 }
@@ -550,6 +552,7 @@ HttpDownloader::DownloadError HttpDownloader::downloadToFile(const std::string& 
   sink.progress = std::move(progress);
   sink.cancelFlag = cancelFlag;
   sink.shouldCancel = std::move(options.shouldCancel);
+  sink.reserveFullRecord = options.reserveFullRecord;
   sink.resumeOffset = resumeOffset;
 
   FsFile file;
